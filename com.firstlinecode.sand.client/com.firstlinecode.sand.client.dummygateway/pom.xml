@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns="http://maven.apache.org/POM/4.0.0"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+	<modelVersion>4.0.0</modelVersion>
+
+	<parent>
+		<groupId>com.firstlinecode.sand</groupId>
+		<artifactId>com.firstlinecode.sand.client</artifactId>
+		<version>0.1.0.RELEASE</version>
+	</parent>
+
+	<groupId>com.firstlinecode.sand.client</groupId>
+	<artifactId>com.firstlinecode.sand.client.dummygateway</artifactId>
+	<name>com.firstlinecode.sand.client.dummygateway</name>
+	<packaging>jar</packaging>
+	
+	<dependencies>
+		<dependency>
+			<groupId>com.firstlinecode.chalk</groupId>
+			<artifactId>com.firstlinecode.chalk</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.firstlinecode.sand.client</groupId>
+			<artifactId>com.firstlinecode.sand.client.dummyblub</artifactId>
+		</dependency>
+	</dependencies>
+	
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-jar-plugin</artifactId>
+				<version>2.4</version>
+				<configuration>
+					<archive>
+						<manifest>
+							<mainClass>com.firstlinecode.sand.client.dummygateway.Main</mainClass>
+						</manifest>
+					</archive>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+	
+</project>
+

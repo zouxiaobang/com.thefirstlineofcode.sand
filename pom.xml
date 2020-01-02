@@ -1,0 +1,356 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+		http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<groupId>com.firstlinecode.sand</groupId>
+	<artifactId>com.firstlinecode.sand</artifactId>
+	<packaging>pom</packaging>
+	<version>0.1.0.RELEASE</version>
+	<name>Lithosphere IoT Plugins</name>
+
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<basalt.version>1.1.0.RELEASE</basalt.version>
+		<chalk.version>0.2.0.RELEASE</chalk.version>
+		<granite.framework.version>0.2.1.RELEASE</granite.framework.version>
+		<sand.version>0.1.0.RELEASE</sand.version>
+	</properties>
+
+	<modules>
+			<!--	<module>com.firstlinecode.sand.protocols</module> -->
+		<module>com.firstlinecode.sand.client</module>
+			<!-- <module>com.firstlinecode.sand.server</module> -->
+	</modules>
+
+	
+	<profiles>
+		<profile>
+			<id>default-profile</id>
+			<activation>
+				<activeByDefault>true</activeByDefault>
+			</activation>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-compiler-plugin</artifactId>
+						<version>2.4</version>
+						<configuration>
+							<source>1.7</source>
+							<target>1.7</target>
+						</configuration>
+					</plugin>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-source-plugin</artifactId>
+						<version>2.1.2</version>
+						<executions>
+							<execution>
+								<id>attach-sources</id>
+								<phase>verify</phase>
+								<goals>
+									<goal>jar-no-fork</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-surefire-plugin</artifactId>
+						<version>2.15</version>
+					</plugin>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-eclipse-plugin</artifactId>
+						<version>2.9</version>
+						<configuration>
+							<classpathContainers>
+								<classpathContainer>
+									org.eclipse.jdt.launching.JRE_CONTAINER
+								</classpathContainer>
+							</classpathContainers>
+							<additionalConfig>
+								<file>
+									<name>.settings/org.eclipse.core.resources.prefs</name>
+									<content>
+										<![CDATA[encoding/<project>=${project.build.sourceEncoding}
+											eclipse.preferences.version=1
+										]]>
+									</content>
+								</file>
+							</additionalConfig>
+						</configuration>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+		<profile>
+			<id>bundle-profile</id>
+			<activation>
+				<file>
+					<exists>osgi.bnd</exists>
+				</file>
+			</activation>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-compiler-plugin</artifactId>
+						<version>2.4</version>
+						<configuration>
+							<source>1.7</source>
+							<target>1.7</target>
+						</configuration>
+					</plugin>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-source-plugin</artifactId>
+						<version>2.1.2</version>
+						<executions>
+							<execution>
+								<id>attach-sources</id>
+								<phase>verify</phase>
+								<goals>
+									<goal>jar-no-fork</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-surefire-plugin</artifactId>
+						<version>2.15</version>
+					</plugin>
+					<plugin>
+						<groupId>org.apache.felix</groupId>
+						<artifactId>maven-bundle-plugin</artifactId>
+						<version>2.3.7</version>
+						<extensions>true</extensions>
+						<configuration>
+							<instructions>
+								<Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
+
+								<_include>-osgi.bnd</_include>
+							</instructions>
+						</configuration>
+					</plugin>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-eclipse-plugin</artifactId>
+						<version>2.9</version>
+						<configuration>
+							<classpathContainers>
+								<classpathContainer>
+									org.eclipse.jdt.launching.JRE_CONTAINER
+								</classpathContainer>
+							</classpathContainers>
+							<additionalConfig>
+								<file>
+									<name>.settings/org.eclipse.core.resources.prefs</name>
+									<content>
+										<![CDATA[encoding/<project>=${project.build.sourceEncoding}
+											eclipse.preferences.version=1
+										]]>
+									</content>
+								</file>
+							</additionalConfig>
+						</configuration>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+		<profile>
+			<id>bundlor-profile</id>
+			<activation>
+				<file>
+					<exists>template.mf</exists>
+				</file>
+			</activation>
+			<build>
+            	<plugins>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-compiler-plugin</artifactId>
+						<version>2.4</version>
+						<configuration>
+							<source>1.7</source>
+							<target>1.7</target>
+						</configuration>
+					</plugin>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-source-plugin</artifactId>
+						<version>2.1.2</version>
+						<executions>
+							<execution>
+								<id>attach-sources</id>
+								<phase>verify</phase>
+								<goals>
+									<goal>jar-no-fork</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-surefire-plugin</artifactId>
+						<version>2.15</version>
+					</plugin>
+					<plugin>
+						<groupId>org.eclipse.virgo.bundlor</groupId>
+						<artifactId>org.eclipse.virgo.bundlor.maven</artifactId>
+						<version>1.1.2.RELEASE</version>
+						<executions>
+							<execution>
+								<id>bundlor</id>
+								<goals>
+									<goal>bundlor</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-jar-plugin</artifactId>
+						<version>2.4</version>
+						<configuration>
+							<archive>
+								<manifestFile>target/classes/META-INF/MANIFEST.MF</manifestFile>
+							</archive>
+						</configuration>
+					</plugin>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-eclipse-plugin</artifactId>
+						<version>2.9</version>
+						<configuration>
+							<classpathContainers>
+								<classpathContainer>
+									org.eclipse.jdt.launching.JRE_CONTAINER
+								</classpathContainer>
+							</classpathContainers>
+							<additionalConfig>
+								<file>
+									<name>.settings/org.eclipse.core.resources.prefs</name>
+									<content>
+										<![CDATA[encoding/<project>=${project.build.sourceEncoding}
+											eclipse.preferences.version=1
+										]]>
+									</content>
+								</file>
+							</additionalConfig>
+
+						</configuration>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
+
+	<pluginRepositories>
+		<pluginRepository>
+			<id>central</id>
+			<name>Maven Central Repository</name>
+			<url>http://repo1.maven.org/maven2</url>
+		</pluginRepository>
+		<pluginRepository>
+			<id>eclipse.virgo.build.bundles.release</id>
+			<name>Eclipse Virgo Build</name>
+			<url>http://build.eclipse.org/rt/virgo/maven/bundles/release</url>
+		</pluginRepository>
+	</pluginRepositories>
+
+	<repositories> 
+		<repository>
+            <id>central</id>
+            <url>http://repo1.maven.org/maven2</url>
+         </repository>
+<!--		<repository>
+			<id>com.firstlinecode.release</id>
+			<name>FirstLineCode Repository - Releases</name>
+			<url>http://repo.firstlinecode.com/content/repositories/releases</url>
+		</repository>
+		<repository>
+			<id>com.firstlinecode.snapshot</id>
+			<name>FirstLineCode Repository - Snapshots</name>
+			<url>http://repo.firstlinecode.com/content/repositories/snapshots</url>
+		</repository> -->
+<!--	<repository>
+            <id>mvnrepository</id>
+            <url>http://mvnrepository.com</url>
+         </repository>-->
+  </repositories>
+
+	<dependencyManagement>
+		<dependencies>
+			<!-- third party libraries -->
+			<dependency>
+				<groupId>junit</groupId>
+				<artifactId>junit</artifactId>
+				<version>4.8.2</version>
+				<scope>test</scope>
+			</dependency>
+			<dependency>
+        		<groupId>org.slf4j</groupId>
+        		<artifactId>slf4j-api</artifactId>
+        		<version>1.6.4</version>
+      		</dependency>
+			<dependency>
+				<groupId>org.eclipse.platform</groupId>
+				<artifactId>org.eclipse.osgi</artifactId>
+				<version>3.12.0</version>
+			</dependency>
+			
+			<!-- basalt xmpp libraries -->
+			<dependency>
+				<groupId>com.firstlinecode.basalt</groupId>
+				<artifactId>com.firstlinecode.basalt.protocol.oxm</artifactId>
+				<version>${basalt.version}</version>
+			</dependency>
+			
+			<!-- chalk xmpp libraries -->
+			<dependency>
+				<groupId>com.firstlinecode.chalk</groupId>
+				<artifactId>com.firstlinecode.chalk</artifactId>
+				<version>${chalk.version}</version>
+			</dependency>
+
+			<!-- sand xmpp libraries -->
+			<dependency>
+				<groupId>com.firstlinecode.sand.client</groupId>
+				<artifactId>com.firstlinecode.sand.client.dummything</artifactId>
+				<version>${sand.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>com.firstlinecode.sand.client</groupId>
+				<artifactId>com.firstlinecode.sand.client.dummyblub</artifactId>
+				<version>${sand.version}</version>
+			</dependency>
+
+			<!-- granite framework libraries -->
+			<dependency>
+        		<groupId>com.firstlinecode.granite.framework</groupId>
+        		<artifactId>com.firstlinecode.granite.framework.core</artifactId>
+        		<version>${granite.framework.version}</version>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+	
+	<distributionManagement>
+		<repository>
+			<id>com.firstlinecode.release</id>
+			<name>CloudEggTech Repository - Releases</name>
+			<url>http://repo.firstlinecode.com/content/repositories/releases</url>
+		</repository>
+		
+		<snapshotRepository>
+			<id>com.firstlinecode.snapshot</id>
+			<name>CloudEggTech Repository - Snapshots</name>
+			<url>http://repo.firstlinecode.com/content/repositories/snapshots</url>
+		</snapshotRepository>
+	</distributionManagement>
+
+</project>
