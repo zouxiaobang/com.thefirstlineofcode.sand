@@ -11,9 +11,8 @@ public class Main {
 		javax.swing.SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
 				DummyBlub blub = new DummyBlub();
-				blub.setOpaque(true);      
 				
-				JFrame frame = new JFrame(blub.getThingName());
+				JFrame frame = new JFrame(blub.getInstanceName());
 				frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);	
 				frame.setContentPane(blub.getPanel());	
 				frame.pack();
