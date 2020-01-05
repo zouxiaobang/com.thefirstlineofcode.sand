@@ -5,39 +5,33 @@ import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.UUID;
 
 public abstract class AbstractDummyThing implements IDummyThing {
+	protected String thingName;
 	protected String deviceId;
 	protected String lanId;
 	protected String name;
 	protected int battery;
+	protected boolean powered;
 	
-	public AbstractDummyThing() {
-		deviceId = generateDeviceId(12);
+	public AbstractDummyThing(String thingName) {
+		this.thingName = thingName;
+		deviceId = ThingsUtils.generateRandomDeviceId();
 		battery = 100;
+		powered = false;
 		
 		BatteryTimer timer = new BatteryTimer();
 		timer.start();
 	}
 	
-	protected String generateDeviceId(int length) {
-		if (length <= 16) {
-			return String.format("%016X", java.util.UUID.randomUUID().getLeastSignificantBits()).substring(16 - length, 16);
-		}
-		
-		if (length > 32) {
-			length = 32;
-		}
-		
-		UUID uuid = UUID.randomUUID();
-		String uuidHexString = String.format("%016X%016X", uuid.getMostSignificantBits(), uuid.getLeastSignificantBits());
-				
-		return uuidHexString.substring(32 - length, 32); 
-	}
-	
 	protected String getThingStatus() {
 		StringBuilder sb = new StringBuilder();
+		if (powered) {
+			sb.append("Power On, ");
+		} else {
+			sb.append("Power Off, ");
+		}
+		
 		if (lanId == null) {
 			sb.append("Uncontrolled").append(", ");
 		} else {
@@ -46,9 +40,9 @@ public abstract class AbstractDummyThing implements IDummyThing {
 		
 		sb.append("Battery: ").append(battery).append("%, ");
 		
-		sb.append("Device ID: ").append(deviceId).append(", ");
+		sb.append("Device ID: ").append(deviceId);
 		
-		return sb.toString().substring(0, sb.length() - 2);
+		return sb.toString();
 
 	}
 	
@@ -66,16 +60,18 @@ public abstract class AbstractDummyThing implements IDummyThing {
 		@Override
 		public void run() {
 			synchronized (AbstractDummyThing.this) {
-				if (battery == 0)
-					return;
-				
-				if (battery != 10) {
-					battery -= 2;
-				} else {
-					battery = 100;
+				if (powered) {
+					if (battery == 0)
+						return;
+					
+					if (battery != 10) {
+						battery -= 2;
+					} else {
+						battery = 100;
+					}
+					
+					batteryChanged(battery);
 				}
-				
-				batteryChanged(battery);
 				
 				timer.schedule(new BatteryTimerTask(), 1000 * 10);
 			}
@@ -117,21 +113,52 @@ public abstract class AbstractDummyThing implements IDummyThing {
 
 	@Override
 	public void writeExternal(ObjectOutput out) throws IOException {
-		out.writeChars(deviceId);
-		out.writeChars(name);
+		out.writeObject(thingName);
+		out.writeObject(deviceId);
+		out.writeObject(name);
+		out.writeObject(lanId);
+		out.writeInt(battery);
+		out.writeBoolean(powered);
 		
 		doWriteExternal(out);
 	}
 	
 	@Override
 	public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
+		thingName = (String)in.readObject();
 		deviceId = (String)in.readObject();
 		name = (String)in.readObject();
+		lanId = (String)in.readObject();
+		battery = in.readInt();
+		powered = in.readBoolean();
 		
 		doReadExternal(in);
+	}
+	
+	@Override
+	public void powerOn() {
+		this.powered = true;
+		doPowerOn();
+	}
+	
+	@Override
+	public void powerOff() {
+		this.powered = false;
+		doPowerOff();
+	}
+	
+	@Override
+	public void reset() {
+		deviceId = ThingsUtils.generateRandomDeviceId();
+		lanId = null;
+		
+		doReset();
 	}
 	
 	protected abstract void doWriteExternal(ObjectOutput out) throws IOException;
 	protected abstract void doReadExternal(ObjectInput in) throws IOException, ClassNotFoundException;
 	protected abstract void batteryChanged(int battery);
+	protected abstract void doPowerOn();
+	protected abstract void doPowerOff();
+	protected abstract void doReset();
 }

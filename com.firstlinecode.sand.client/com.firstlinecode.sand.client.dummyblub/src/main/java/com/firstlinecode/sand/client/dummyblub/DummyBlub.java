@@ -41,6 +41,8 @@ public class DummyBlub extends AbstractDummyThing implements IDummyThing, IBlub 
 	}
 	
 	public DummyBlub(SwitchState switchState, BlubState blubState) {
+		super(DummyBlubFactory.THING_NAME);
+		
 		if (switchState == null)
 			throw new IllegalArgumentException("Null switch state.");
 		
@@ -187,8 +189,9 @@ public class DummyBlub extends AbstractDummyThing implements IDummyThing, IBlub 
 
 	private void doTurnOn() {
 		switchState = SwitchState.ON;
-		blubState = BlubState.ON;
-		panel.blubImage.setIcon(panel.getBlubImageIcon(blubState));			
+		if (powered) {			
+			lightBlub();
+		}
 	}
 
 	@Override
@@ -201,8 +204,10 @@ public class DummyBlub extends AbstractDummyThing implements IDummyThing, IBlub 
 
 	private void doTurnOff() {
 		switchState = SwitchState.OFF;
-		blubState = BlubState.OFF;
-		panel.blubImage.setIcon(panel.getBlubImageIcon(blubState));
+		
+		if (powered) {			
+			unlightBlub();
+		}		
 	}
 
 	@Override
@@ -228,4 +233,29 @@ public class DummyBlub extends AbstractDummyThing implements IDummyThing, IBlub 
 		return panel;
 	}
 
+	@Override
+	protected void doReset() {
+		doTurnOff();
+	}
+
+	@Override
+	protected void doPowerOn() {
+		if (switchState == SwitchState.ON || blubState == BlubState.ON)
+			lightBlub();
+	}
+
+	private void lightBlub() {
+		blubState = BlubState.ON;
+		panel.blubImage.setIcon(panel.getBlubImageIcon(blubState));
+	}
+
+	private void unlightBlub() {
+		blubState = BlubState.OFF;
+		panel.blubImage.setIcon(panel.getBlubImageIcon(blubState));
+	}
+
+	@Override
+	protected void doPowerOff() {
+		unlightBlub();
+	}
 }
