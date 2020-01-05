@@ -19,13 +19,14 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 
+import com.firstlinecode.sand.client.dummything.AbstractDummyThing;
 import com.firstlinecode.sand.client.dummything.IDummyThing;
+import com.firstlinecode.sand.client.dummything.StatusBar;
 
-public class DummyBlub implements IDummyThing, IBlub {
+public class DummyBlub extends AbstractDummyThing implements IDummyThing, IBlub {
 	private static final SwitchState DEFAULT_SWITCH_STATE = SwitchState.OFF;
 	private static final BlubState DEFAULT_BLUB_STATE = BlubState.OFF;
 	
-	private String instanceName;
 	private SwitchState switchState = DEFAULT_SWITCH_STATE;
 	private BlubState blubState = DEFAULT_BLUB_STATE;
 	
@@ -56,12 +57,12 @@ public class DummyBlub implements IDummyThing, IBlub {
 		
 		panel = new DummyBlubPanel();
 	}
-
-	@Override
-	public JPanel getPanel() {
-		return panel;
-	}
 	
+	@Override
+	protected void batteryChanged(int battery) {
+		panel.updateStatus();
+	}
+
 	private class DummyBlubPanel extends JPanel implements ActionListener {
 		private static final long serialVersionUID = 7660599095831708565L;
 		
@@ -71,6 +72,7 @@ public class DummyBlub implements IDummyThing, IBlub {
 		
 		private JPanel radioPanel = new JPanel(new GridLayout(0, 1));
 		private JLabel blubImage;
+		private StatusBar statusBar;
 		
 		public DummyBlubPanel() {
 			super(new BorderLayout()); 
@@ -114,9 +116,14 @@ public class DummyBlub implements IDummyThing, IBlub {
 			
 			setOpaque(true);
 			setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
-			setPreferredSize(new Dimension(560, 280));
+			setPreferredSize(new Dimension(640, 320));
+			
+			statusBar = new StatusBar();
+			add(statusBar, BorderLayout.SOUTH);
+			
+			updateStatus();
 		}
-		
+
 		protected ImageIcon getBlubImageIcon(BlubState blubState) {
 			if (blubState == null) {
 				throw new IllegalArgumentException("Null blub state.");
@@ -143,28 +150,20 @@ public class DummyBlub implements IDummyThing, IBlub {
 					switchState = SwitchState.CONTROL;
 			}
 		}
+		
+		private void updateStatus() {
+			statusBar.setText(getThingStatus());
+		}
 	}
 
 	@Override
-	public void setInstanceName(String instanceName) {
-		this.instanceName = instanceName;
-	}
-
-	@Override
-	public String getInstanceName() {
-		return instanceName;
-	}
-
-	@Override
-	public void writeExternal(ObjectOutput out) throws IOException {
-		out.writeObject(instanceName);
+	protected void doWriteExternal(ObjectOutput out) throws IOException {
 		out.writeObject(blubState);
 		out.writeObject(switchState);
 	}
 
 	@Override
-	public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
-		instanceName = (String)in.readObject();
+	protected void doReadExternal(ObjectInput in) throws IOException, ClassNotFoundException {
 		blubState = (BlubState)in.readObject();
 		switchState = (SwitchState)in.readObject();
 	}
@@ -222,6 +221,11 @@ public class DummyBlub implements IDummyThing, IBlub {
 			}
 			
 		}, 50);
+	}
+
+	@Override
+	public JPanel getPanel() {
+		return panel;
 	}
 
 }

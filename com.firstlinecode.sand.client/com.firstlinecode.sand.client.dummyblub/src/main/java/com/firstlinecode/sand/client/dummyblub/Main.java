@@ -12,7 +12,7 @@ public class Main {
 			public void run() {
 				DummyBlub blub = new DummyBlub();
 				
-				JFrame frame = new JFrame(blub.getInstanceName());
+				JFrame frame = new JFrame(blub.getName());
 				frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);	
 				frame.setContentPane(blub.getPanel());	
 				frame.pack();

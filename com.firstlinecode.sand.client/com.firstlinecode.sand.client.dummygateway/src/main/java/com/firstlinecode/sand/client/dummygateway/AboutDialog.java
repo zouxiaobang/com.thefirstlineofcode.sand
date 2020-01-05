@@ -19,12 +19,16 @@ public class AboutDialog extends JDialog {
 		super(parent, "About Dialog", true);
 		
 		Box box = Box.createVerticalBox();
-		box.add(Box.createVerticalStrut(20));
-		box.add(new JLabel("Dummy Gateway " + version));
+		JPanel softwarePanel = new JPanel();
+		softwarePanel.setLayout(new BorderLayout());
+		JLabel softwareLabel = new JLabel("Dummy Gateway " + version);
+		softwareLabel.setHorizontalAlignment(JLabel.CENTER);
+		softwarePanel.add(softwareLabel, BorderLayout.CENTER);
+		box.add(softwarePanel);
 		
 		JPanel creatorPanel = new JPanel();
 		creatorPanel.setLayout(new BorderLayout());
-		creatorPanel.add(new JLabel("Created by FirstLineCode."), "East");
+		creatorPanel.add(new JLabel("Created by FirstLineCode."), BorderLayout.EAST);
 		box.add(creatorPanel);
 		
 		getContentPane().add(box, "Center");

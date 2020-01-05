@@ -1,15 +1,19 @@
 package com.firstlinecode.sand.client.dummygateway;
 
+import java.awt.BorderLayout;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.beans.PropertyVetoException;
 import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import javax.swing.JDesktopPane;
 import javax.swing.JFrame;
@@ -20,9 +24,13 @@ import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.KeyStroke;
+import javax.swing.UIManager;
+import javax.swing.plaf.FontUIResource;
 
+import com.firstlinecode.basalt.protocol.core.JabberId;
 import com.firstlinecode.sand.client.dummything.IDummyThing;
 import com.firstlinecode.sand.client.dummything.IDummyThingFactory;
+import com.firstlinecode.sand.client.dummything.StatusBar;
 
 public class DummyGateway extends JFrame implements ActionListener, IDummyGateway {
 	private static final long serialVersionUID = -7894418812878036627L;
@@ -32,27 +40,77 @@ public class DummyGateway extends JFrame implements ActionListener, IDummyGatewa
 	private static final String ACTION_COMMAND_NEW = "new";
 	private static final String ACTION_COMMAND_ABOUT = "about";
 	
+	private String deviceId;
+	private JabberId jid;
+	
 	private List<IDummyThingFactory<? extends IDummyThing>> factories;
 	private Map<String, List<IDummyThing>> allThings;
 	
-	private JDesktopPane desktop;	
+	private JDesktopPane desktop;
+	private StatusBar statusBar;
 	
 	public DummyGateway() {
 		super("Unregistered Gateway");
 		
+		deviceId = UUID.randomUUID().toString();
+		
 		factories = new ArrayList<>();
 		allThings = new HashMap<String, List<IDummyThing>>();
+		
+		setDefaultUiFont(new javax.swing.plaf.FontUIResource("Serif", Font.PLAIN, 24));
 		
 		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 		setBounds((screenSize.width - 1024) / 2, (screenSize.height - 768) / 2, 1024, 768);
 		
 		desktop = new JDesktopPane();
 		
-		setContentPane(desktop);
+		add(desktop, BorderLayout.CENTER);
 		setJMenuBar(createMenuBar());
+		statusBar = createStatusBar();
+		add(statusBar, BorderLayout.SOUTH);
 		desktop.setDragMode(JDesktopPane.OUTLINE_DRAG_MODE);
+		
+		updateStatus();
+	}
+
+	private void updateStatus() {
+		statusBar.setText(getGatewayStatus());
 	}
 	
+	private void setDefaultUiFont(FontUIResource fur) {
+		Enumeration<Object> keys = UIManager.getDefaults().keys();
+		while (keys.hasMoreElements()) {
+			Object key = keys.nextElement();
+			Object value = UIManager.get (key);
+			if (value instanceof javax.swing.plaf.FontUIResource)
+				UIManager.put (key, fur);
+		}	
+	}
+	
+	public void setDeviceId(String deviceId) {
+		if (deviceId == null)
+			throw new IllegalArgumentException("Null device id.");
+		
+		this.deviceId = deviceId;
+	}
+	
+	private String getGatewayStatus() {
+		StringBuilder sb = new StringBuilder();
+		if (jid == null) {
+			sb.append("Unregistered").append(", ");
+		} else {
+			sb.append("Registered: ").append(jid.getName()).append(", ");
+		}
+		
+		sb.append("Device ID: ").append(deviceId).append(", ");
+		
+		return sb.toString().substring(0, sb.length() - 2);
+	}
+
+	private StatusBar createStatusBar() {
+		return new StatusBar();
+	}
+
 	public void createAndShowGUI() {
 		JFrame.setDefaultLookAndFeelDecorated(true);
 		
@@ -105,7 +163,7 @@ public class DummyGateway extends JFrame implements ActionListener, IDummyGatewa
 		List<IDummyThing> things = getThings(factory);
 		
 		int instanceIndex = things.size();
-		thing.setInstanceName(getThingInstanceName(factory, instanceIndex));
+		thing.setName(getThingInstanceName(factory, instanceIndex));
 		
 		things.add(thing);
 		
@@ -125,11 +183,11 @@ public class DummyGateway extends JFrame implements ActionListener, IDummyGatewa
 		private static final long serialVersionUID = 4975138886817512398L;
 
 		public ThingInternalFrame(IDummyThing thing, int instanceIndex) {
-			super(thing.getInstanceName(), false, false, false, false);
+			super(thing.getName(), false, false, false, false);
 			
-			JPanel thingPanel = thing.getPanel();
-			setContentPane(thingPanel);
-			setBounds(30 * instanceIndex, 30 * instanceIndex, thingPanel.getPreferredSize().width, thingPanel.getPreferredSize().height);
+			JPanel panel = thing.getPanel();
+			setContentPane(panel);
+			setBounds(30 * instanceIndex, 30 * instanceIndex, panel.getPreferredSize().width, panel.getPreferredSize().height);
 		}
 	}
 
@@ -229,4 +287,5 @@ public class DummyGateway extends JFrame implements ActionListener, IDummyGatewa
 		
 		factories.add(factory);
 	}
+	
 }
