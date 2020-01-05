@@ -12,7 +12,6 @@ import java.io.ObjectOutput;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
@@ -20,8 +19,8 @@ import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 
 import com.firstlinecode.sand.client.dummything.AbstractDummyThing;
+import com.firstlinecode.sand.client.dummything.AbstractDummyThingPanel;
 import com.firstlinecode.sand.client.dummything.IDummyThing;
-import com.firstlinecode.sand.client.dummything.StatusBar;
 
 public class DummyBlub extends AbstractDummyThing implements IDummyThing, IBlub {
 	private static final SwitchState DEFAULT_SWITCH_STATE = SwitchState.OFF;
@@ -56,8 +55,6 @@ public class DummyBlub extends AbstractDummyThing implements IDummyThing, IBlub 
 		
 		this.switchState = switchState;
 		this.blubState = blubState;
-		
-		panel = new DummyBlubPanel();
 	}
 	
 	@Override
@@ -65,19 +62,19 @@ public class DummyBlub extends AbstractDummyThing implements IDummyThing, IBlub 
 		panel.updateStatus();
 	}
 
-	private class DummyBlubPanel extends JPanel implements ActionListener {
+	private class DummyBlubPanel extends AbstractDummyThingPanel implements ActionListener {
 		private static final long serialVersionUID = 7660599095831708565L;
 		
 		private static final String FILE_NAME_BLUB_OFF = "blub_off.png";
 		private static final String FILE_NAME_BLUB_ON = "blub_on.png";
 
 		
-		private JPanel radioPanel = new JPanel(new GridLayout(0, 1));
+		private JPanel radioPanel;
 		private JLabel blubImage;
-		private StatusBar statusBar;
 		
-		public DummyBlubPanel() {
-			super(new BorderLayout()); 
+		@Override
+		protected JPanel createThingCustomizedUi() {			
+			JPanel customizedUi = new JPanel();
 			
 			JRadioButton off = new JRadioButton("Turn Off");
 			off.setMnemonic(KeyEvent.VK_F);
@@ -109,21 +106,17 @@ public class DummyBlub extends AbstractDummyThing implements IDummyThing, IBlub 
 			
 			blubImage = new JLabel(getBlubImageIcon(blubState));
 			
+			radioPanel = new JPanel(new GridLayout(0, 1));
 			radioPanel.add(off);
 			radioPanel.add(on);
 			radioPanel.add(control);
 			
-			add(radioPanel, BorderLayout.LINE_START);
-			add(blubImage, BorderLayout.CENTER);
+			customizedUi.add(radioPanel, BorderLayout.LINE_START);
+			customizedUi.add(blubImage, BorderLayout.CENTER);
 			
-			setOpaque(true);
-			setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
-			setPreferredSize(new Dimension(640, 320));
+			customizedUi.setPreferredSize(new Dimension(360, 180));
 			
-			statusBar = new StatusBar();
-			add(statusBar, BorderLayout.SOUTH);
-			
-			updateStatus();
+			return customizedUi;
 		}
 
 		protected ImageIcon getBlubImageIcon(BlubState blubState) {
@@ -154,7 +147,7 @@ public class DummyBlub extends AbstractDummyThing implements IDummyThing, IBlub 
 		}
 		
 		private void updateStatus() {
-			statusBar.setText(getThingStatus());
+			panel.updateStatus(getThingStatus());
 		}
 	}
 
@@ -229,7 +222,10 @@ public class DummyBlub extends AbstractDummyThing implements IDummyThing, IBlub 
 	}
 
 	@Override
-	public JPanel getPanel() {
+	public AbstractDummyThingPanel getPanel() {
+		panel = new DummyBlubPanel();
+		panel.updateStatus();
+		
 		return panel;
 	}
 

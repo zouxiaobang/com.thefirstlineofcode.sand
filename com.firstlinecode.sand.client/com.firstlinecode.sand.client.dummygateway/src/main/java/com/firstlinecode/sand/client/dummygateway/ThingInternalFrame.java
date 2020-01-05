@@ -10,7 +10,7 @@ public class ThingInternalFrame extends JInternalFrame {
 	
 	private IDummyThing thing;
 	
-	public ThingInternalFrame(IDummyThing thing, int instanceIndex) {
+	public ThingInternalFrame(IDummyThing thing) {
 		super(thing.getName(), false, false, false, false);
 		
 		this.thing = thing;

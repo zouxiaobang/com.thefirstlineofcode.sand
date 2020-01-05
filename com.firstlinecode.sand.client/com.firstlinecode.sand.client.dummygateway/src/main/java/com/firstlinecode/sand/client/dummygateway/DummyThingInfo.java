@@ -8,15 +8,19 @@ import java.io.ObjectOutput;
 import com.firstlinecode.sand.client.dummything.IDummyThing;
 
 public class DummyThingInfo implements Externalizable {
+	private int layer;
 	private int x;
 	private int y;
+	private boolean selected;
 	private IDummyThing thing;
 	
 	public DummyThingInfo() {}
 	
-	public DummyThingInfo(int x, int y, IDummyThing thing) {
+	public DummyThingInfo(int layer, int x, int y, boolean selected, IDummyThing thing) {
+		this.layer = layer;
 		this.x = x;
 		this.y = y;
+		this.selected = selected;
 		this.thing = thing;
 	}
 	
@@ -34,23 +38,43 @@ public class DummyThingInfo implements Externalizable {
 
 	public int getY() {
 		return y;
+	}	
+	
+	public void setLayer(int layer) {
+		this.layer = layer;
 	}
 	
+	public int getLayer() {
+		return layer;
+	}
+	
+	public void setSelected(boolean selected) {
+		this.selected = selected;
+	}
+
+	public boolean isSelected() {
+		return selected;
+	}
+
 	public IDummyThing getThing() {
 		return thing;
 	}
 
 	@Override
 	public void writeExternal(ObjectOutput out) throws IOException {
+		out.writeInt(layer);
 		out.writeInt(x);
 		out.writeInt(y);
+		out.writeBoolean(selected);
 		out.writeObject(thing);
 	}
 
 	@Override
 	public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
+		layer = in.readInt();
 		x = in.readInt();
 		y = in.readInt();
+		selected = in.readBoolean();
 		thing = (IDummyThing)in.readObject();
 	}
 }

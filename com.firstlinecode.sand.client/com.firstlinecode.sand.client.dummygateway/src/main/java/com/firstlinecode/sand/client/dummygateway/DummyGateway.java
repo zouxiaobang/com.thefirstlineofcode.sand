@@ -34,12 +34,15 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.KeyStroke;
+import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileSystemView;
 import javax.swing.plaf.FontUIResource;
 
 import com.firstlinecode.basalt.protocol.core.JabberId;
+import com.firstlinecode.sand.client.dummything.AbstractDummyThing;
+import com.firstlinecode.sand.client.dummything.AbstractDummyThingPanel;
 import com.firstlinecode.sand.client.dummything.IDummyThing;
 import com.firstlinecode.sand.client.dummything.IDummyThingFactory;
 import com.firstlinecode.sand.client.dummything.StatusBar;
@@ -220,7 +223,7 @@ public class DummyGateway extends JFrame implements ActionListener, ComponentLis
 			output.writeInt(frames.length);
 			for (JInternalFrame frame : frames) {
 				ThingInternalFrame thingFrame = (ThingInternalFrame)frame;
-				output.writeObject(new DummyThingInfo(thingFrame.getX(), thingFrame.getY(), thingFrame.getThing()));
+				output.writeObject(new DummyThingInfo(thingFrame.getLayer(), thingFrame.getX(), thingFrame.getY(), thingFrame.isSelected(), thingFrame.getThing()));
 			}
 		} catch (FileNotFoundException e) {
 			throw new RuntimeException(String.format("Gateway info file %s doesn't exist.", file.getPath()));
@@ -235,6 +238,7 @@ public class DummyGateway extends JFrame implements ActionListener, ComponentLis
 				}
 		}
 		
+		dirty = false;
 		if (!file.equals(configFile)) {
 			configFile = file;
 		}
@@ -261,6 +265,17 @@ public class DummyGateway extends JFrame implements ActionListener, ComponentLis
 	}
 
 	private void openFile() {
+		if (dirty) {
+			int result = JOptionPane.showConfirmDialog(this, "Gateway info has changed. Do you want to save the change?");
+			if (result == JOptionPane.CANCEL_OPTION) {
+				return;
+			} else if (result == JOptionPane.YES_OPTION) {
+				save();				
+			} else {
+				// Noop
+			}
+		}
+		
 		JFileChooser fileChooser = createFileChooser();
 		fileChooser.setDialogTitle("Choose a gateway info file you want to open");
 		File defaultDirectory = FileSystemView.getFileSystemView().getDefaultDirectory();
@@ -268,26 +283,46 @@ public class DummyGateway extends JFrame implements ActionListener, ComponentLis
 		
 		int result = fileChooser.showOpenDialog(this);
 		if (result == JFileChooser.APPROVE_OPTION) {
+			removeThings();
 			loadFromFile(fileChooser.getSelectedFile());
+			setDirtyInUiThread(false);
+			
+			JInternalFrame[] frames = desktop.getAllFrames();
+			for (JInternalFrame frame : frames) {
+				frame.addComponentListener(this);
+			}
 		}
 	}
 
+	private void removeThings() {
+		desktop.removeAll();
+		
+		// Refresh desktop
+		desktop.setVisible(false);
+		desktop.setVisible(true);
+	}
+
 	private void loadFromFile(File file) {
-		// TODO Auto-generated method stub
-		if (!file.exists()) {
-			throw new RuntimeException(String.format("Gateway info file %s doesn't exist.", file.getPath()));
+		List<DummyThingInfo> thingInfos = readThingInfos(file);
+		
+		for (DummyThingInfo thingInfo : thingInfos) {
+			showThing(thingInfo.getThing(), thingInfo.getLayer(), thingInfo.getX(), thingInfo.getY(), thingInfo.isSelected());
 		}
 		
+		configFile = file;
+	}
+
+	private List<DummyThingInfo> readThingInfos(File file) {
+		List<DummyThingInfo> thingInfos = new ArrayList<>();
 		ObjectInputStream input = null;
 		try {
 			input = new ObjectInputStream(new FileInputStream(file));
 			int size = input.readInt();
 			for (int i = 0; i < size; i++) {
 				DummyThingInfo thingInfo = (DummyThingInfo)input.readObject();
-				System.out.println("Dummy Thing: " + thingInfo.getX() + ", " + thingInfo.getY() + ", " + thingInfo.getThing().getDeviceId());
+				thingInfos.add(thingInfo);
 			}
 			
-			configFile = file;
 		} catch (FileNotFoundException e) {
 			throw new RuntimeException(String.format("Gateway info file %s doesn't exist.", file.getPath()));
 		} catch (IOException e) {
@@ -303,6 +338,8 @@ public class DummyGateway extends JFrame implements ActionListener, ComponentLis
 					e.printStackTrace();
 				}
 		}
+		
+		return thingInfos;
 	}
 
 	private void createNewThing() {
@@ -311,7 +348,7 @@ public class DummyGateway extends JFrame implements ActionListener, ComponentLis
 		createThing(thingName);
 		
 	}
-
+	
 	private IDummyThing createThing(String thingName) {
 		IDummyThingFactory<? extends IDummyThing> factory = getFactory(thingName);
 		IDummyThing thing = factory.create();
@@ -324,23 +361,64 @@ public class DummyGateway extends JFrame implements ActionListener, ComponentLis
 		
 		things.add(thing);
 		
-		ThingInternalFrame internalFrame = new ThingInternalFrame(thing, instanceIndex);		
-		internalFrame.addComponentListener(this);
-		internalFrame.setBounds(30 * instanceIndex, 30 * instanceIndex, thing.getPanel().getPreferredSize().width, thing.getPanel().getPreferredSize().height);
-		internalFrame.setVisible(true);
-		
-		desktop.add(internalFrame);
-		try {
-			internalFrame.setSelected(true);
-		} catch (PropertyVetoException e) {
-			e.printStackTrace();
-		}
-		
-		dirty = true;
+		JInternalFrame frame = showThing(thing, -1, 30 * instanceIndex, 30 * instanceIndex);
+		setDirtyInUiThread(true);				
+		frame.addComponentListener(this);
 		
 		return thing;
 	}
 	
+	private JInternalFrame showThing(IDummyThing thing, int layer, int x, int y) {
+		return this.showThing(thing, layer, x, y, true);
+	}
+
+	private JInternalFrame showThing(IDummyThing thing, int layer, int x, int y, boolean selected) {
+		AbstractDummyThingPanel thingPanel = thing.getPanel();
+		ThingInternalFrame internalFrame = new ThingInternalFrame(thing);		
+		internalFrame.addComponentListener(this);
+		internalFrame.setBounds(x, y, thingPanel.getPreferredSize().width, thingPanel.getPreferredSize().height);
+		internalFrame.setVisible(true);
+		
+		desktop.add(internalFrame);
+		
+		try {
+			if (layer != -1 ) {					
+				internalFrame.setLayer(layer);
+			}
+			internalFrame.setSelected(selected);
+		} catch (PropertyVetoException e) {
+			e.printStackTrace();
+		}
+		
+		
+		if (thing instanceof AbstractDummyThing)
+			thingPanel.updateStatus(((AbstractDummyThing)thing).getThingStatus());
+		
+		return internalFrame;
+	}
+	
+	private void setDirtyInUiThread(boolean dirty) {
+		try {
+			SwingUtilities.invokeLater(new DirtySetter(dirty));
+			System.out.println("Set dirty to " + dirty);
+		} catch (Exception e) {
+			throw new RuntimeException("Can't add component listener to thing internal frame.");
+		}
+	}
+	
+	private class DirtySetter implements Runnable {
+		private boolean dirty;
+		
+		public DirtySetter(boolean dirty) {
+			this.dirty = dirty;
+		}
+		
+		@Override
+		public void run() {
+			DummyGateway.this.dirty = dirty;
+		}
+	}
+
 	private String getThingInstanceName(IDummyThingFactory<? extends IDummyThing> factory, int thingsSize) {
 		return factory.getThingName() + " #" + thingsSize;
 	}
@@ -460,6 +538,7 @@ public class DummyGateway extends JFrame implements ActionListener, ComponentLis
 	@Override
 	public void componentMoved(ComponentEvent e) {
 		dirty = true;
+		System.out.println("component moved.");
 	}
 
 	@Override

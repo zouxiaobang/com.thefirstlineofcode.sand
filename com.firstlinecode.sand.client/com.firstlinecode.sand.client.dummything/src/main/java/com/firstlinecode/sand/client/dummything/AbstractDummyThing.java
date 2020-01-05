@@ -24,7 +24,7 @@ public abstract class AbstractDummyThing implements IDummyThing {
 		timer.start();
 	}
 	
-	protected String getThingStatus() {
+	public String getThingStatus() {
 		StringBuilder sb = new StringBuilder();
 		if (powered) {
 			sb.append("Power On, ");
@@ -153,6 +153,14 @@ public abstract class AbstractDummyThing implements IDummyThing {
 		lanId = null;
 		
 		doReset();
+	}
+	
+	@Override
+	public boolean equals(Object obj) {
+		if (!getClass().equals(obj.getClass()))
+			return false;
+		
+		return deviceId.equals(((IDummyThing)obj).getDeviceId());
 	}
 	
 	protected abstract void doWriteExternal(ObjectOutput out) throws IOException;
