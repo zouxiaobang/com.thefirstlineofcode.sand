@@ -36,6 +36,8 @@ import javax.swing.JOptionPane;
 import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
+import javax.swing.event.InternalFrameEvent;
+import javax.swing.event.InternalFrameListener;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileSystemView;
 import javax.swing.plaf.FontUIResource;
@@ -48,7 +50,7 @@ import com.firstlinecode.sand.client.dummything.IDummyThingFactory;
 import com.firstlinecode.sand.client.dummything.StatusBar;
 import com.firstlinecode.sand.client.dummything.ThingsUtils;
 
-public class DummyGateway extends JFrame implements ActionListener, ComponentListener, WindowListener, IDummyGateway {
+public class DummyGateway extends JFrame implements ActionListener, InternalFrameListener, ComponentListener, WindowListener, IDummyGateway {
 	private static final long serialVersionUID = -7894418812878036627L;
 	
 	private static final String ACTION_COMMAND_QUIT = "quit";
@@ -290,6 +292,7 @@ public class DummyGateway extends JFrame implements ActionListener, ComponentLis
 			JInternalFrame[] frames = desktop.getAllFrames();
 			for (JInternalFrame frame : frames) {
 				frame.addComponentListener(this);
+				frame.addInternalFrameListener(this);
 			}
 		}
 	}
@@ -364,6 +367,7 @@ public class DummyGateway extends JFrame implements ActionListener, ComponentLis
 		JInternalFrame frame = showThing(thing, -1, 30 * instanceIndex, 30 * instanceIndex);
 		setDirtyInUiThread(true);				
 		frame.addComponentListener(this);
+		frame.addInternalFrameListener(this);
 		
 		return thing;
 	}
@@ -400,7 +404,6 @@ public class DummyGateway extends JFrame implements ActionListener, ComponentLis
 	private void setDirtyInUiThread(boolean dirty) {
 		try {
 			SwingUtilities.invokeLater(new DirtySetter(dirty));
-			System.out.println("Set dirty to " + dirty);
 		} catch (Exception e) {
 			throw new RuntimeException("Can't add component listener to thing internal frame.");
 		}
@@ -538,7 +541,6 @@ public class DummyGateway extends JFrame implements ActionListener, ComponentLis
 	@Override
 	public void componentMoved(ComponentEvent e) {
 		dirty = true;
-		System.out.println("component moved.");
 	}
 
 	@Override
@@ -569,5 +571,28 @@ public class DummyGateway extends JFrame implements ActionListener, ComponentLis
 
 	@Override
 	public void windowDeactivated(WindowEvent e) {}
+
+	@Override
+	public void internalFrameOpened(InternalFrameEvent e) {}
+
+	@Override
+	public void internalFrameClosing(InternalFrameEvent e) {}
+
+	@Override
+	public void internalFrameClosed(InternalFrameEvent e) {}
+
+	@Override
+	public void internalFrameIconified(InternalFrameEvent e) {}
+
+	@Override
+	public void internalFrameDeiconified(InternalFrameEvent e) {}
+
+	@Override
+	public void internalFrameActivated(InternalFrameEvent e) {
+		dirty = true;
+	}
+
+	@Override
+	public void internalFrameDeactivated(InternalFrameEvent e) {}
 	
 }
