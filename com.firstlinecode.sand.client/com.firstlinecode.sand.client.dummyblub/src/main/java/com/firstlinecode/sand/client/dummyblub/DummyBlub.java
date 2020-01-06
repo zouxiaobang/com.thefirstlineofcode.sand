@@ -14,15 +14,19 @@ import java.util.TimerTask;
 
 import javax.swing.ButtonGroup;
 import javax.swing.ImageIcon;
+import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 
 import com.firstlinecode.sand.client.dummything.AbstractDummyThing;
 import com.firstlinecode.sand.client.dummything.AbstractDummyThingPanel;
+import com.firstlinecode.sand.client.dummything.BatteryEvent;
+import com.firstlinecode.sand.client.dummything.IDeviceListener;
 import com.firstlinecode.sand.client.dummything.IDummyThing;
+import com.firstlinecode.sand.client.dummything.PowerEvent;
 
-public class DummyBlub extends AbstractDummyThing implements IDummyThing, IBlub {
+public class DummyBlub extends AbstractDummyThing implements IDummyThing, IDeviceListener, IBlub {
 	private static final SwitchState DEFAULT_SWITCH_STATE = SwitchState.OFF;
 	private static final BlubState DEFAULT_BLUB_STATE = BlubState.OFF;
 	
@@ -65,14 +69,16 @@ public class DummyBlub extends AbstractDummyThing implements IDummyThing, IBlub 
 
 		private JPanel radioPanel;
 		private JLabel blubImage;
+		private JButton flash;
 		
 		public DummyBlubPanel() {
 			super(DummyBlub.this);
+			addDeviceListener(this);
 		}
 		
 		@Override
 		protected JPanel createThingCustomizedUi() {			
-			JPanel customizedUi = new JPanel();
+			JPanel customizedUi = new JPanel(new BorderLayout());
 			
 			JRadioButton off = new JRadioButton("Turn Off");
 			off.setMnemonic(KeyEvent.VK_F);
@@ -109,12 +115,40 @@ public class DummyBlub extends AbstractDummyThing implements IDummyThing, IBlub 
 			radioPanel.add(on);
 			radioPanel.add(control);
 			
-			customizedUi.add(radioPanel, BorderLayout.LINE_START);
+			customizedUi.add(radioPanel, BorderLayout.NORTH);
 			customizedUi.add(blubImage, BorderLayout.CENTER);
 			
-			customizedUi.setPreferredSize(new Dimension(360, 180));
+			flash = new JButton("Flash");
+			customizedUi.add(flash, BorderLayout.SOUTH);
+			flash.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					flashBlub();
+				}
+			});
+			
+			customizedUi.setPreferredSize(new Dimension(360, 320));
 			
 			return customizedUi;
+		}
+		
+		private void flashBlub() {
+			radioPanel.setEnabled(false);
+			flash.setEnabled(false);
+			
+			blubImage.setIcon(getBlubImageIcon(BlubState.ON));
+			
+			Timer timer = new Timer();
+			timer.schedule(new TimerTask() {
+
+				@Override
+				public void run() {
+					blubImage.setIcon(getBlubImageIcon(BlubState.OFF));
+
+					flash.setEnabled(true);
+					radioPanel.setEnabled(true);
+				}
+
+			}, 50);
 		}
 
 		protected ImageIcon getBlubImageIcon(BlubState blubState) {
@@ -136,16 +170,30 @@ public class DummyBlub extends AbstractDummyThing implements IDummyThing, IBlub 
 			String actionCommand = e.getActionCommand();
 			if (actionCommand.equals("off")) {
 				doTurnOff();
+				refreshFlashButtionStatus();
 			} else if (actionCommand.equals("on")) {
 				doTurnOn();
+				refreshFlashButtionStatus();
 			} else {
-				if (switchState == SwitchState.CONTROL)
+				doTurnOff();
+				
+				if (switchState != SwitchState.CONTROL)
 					switchState = SwitchState.CONTROL;
+				
+				refreshFlashButtionStatus();
 			}
 		}
-		
+
 		private void updateStatus() {
 			panel.updateStatus(getThingStatus());
+		}
+	}
+	
+	private void refreshFlashButtionStatus() {
+		if (powered && switchState == SwitchState.OFF && blubState == BlubState.OFF) {
+			panel.flash.setEnabled(true);
+		} else {
+			panel.flash.setEnabled(false);
 		}
 	}
 
@@ -196,9 +244,9 @@ public class DummyBlub extends AbstractDummyThing implements IDummyThing, IBlub 
 	private void doTurnOff() {
 		switchState = SwitchState.OFF;
 		
-		if (powered) {			
+		if (powered) {
 			unlightBlub();
-		}		
+		}	
 	}
 
 	@Override
@@ -252,4 +300,12 @@ public class DummyBlub extends AbstractDummyThing implements IDummyThing, IBlub 
 	protected void doPowerOff() {
 		unlightBlub();
 	}
+
+	@Override
+	public void powerChanged(PowerEvent event) {
+		refreshFlashButtionStatus();
+	}
+
+	@Override
+	public void batteryChanged(BatteryEvent event) {}
 }

@@ -64,6 +64,7 @@ public class DummyGateway extends JFrame implements ActionListener, InternalFram
 	private static final String MENU_TEXT_EDIT = "Edit";
 	private static final String MENU_ITEM_TEXT_POWER_ON = "Power On";
 	private static final String MENU_ITEM_TEXT_POWER_OFF = "Power Off";
+	private static final String MENU_ITEM_TEXT_RESET = "Reset";
 	private static final String MENU_ITEM_TEXT_DELETE = "Delete";
 
 	private static final String MENU_TEXT_HELP = "Help";
@@ -80,6 +81,7 @@ public class DummyGateway extends JFrame implements ActionListener, InternalFram
 	private static final String MENU_ITEM_NAME_QUIT = "quit";
 	private static final String MENU_ITEM_NAME_POWER_ON = "power_on";
 	private static final String MENU_ITEM_NAME_POWER_OFF = "power_off";
+	private static final String MENU_ITEM_NAME_RESET = "reset";
 	private static final String MENU_ITEM_NAME_DELETE = "delete";
 	private static final String MENU_ITEM_NAME_ABOUT = "about";
 	
@@ -194,20 +196,30 @@ public class DummyGateway extends JFrame implements ActionListener, InternalFram
 			powerOn();
 		} else if (MENU_ITEM_NAME_POWER_OFF.equals(actionCommand)) {
 			powerOff();
+		} else if (MENU_ITEM_NAME_RESET.equals(actionCommand)) {
+			reset();
 		} else {
 			throw new IllegalArgumentException("Illegal action command: " + actionCommand);
 		}
 	}
 	
+	private void reset() {
+		// TODO Auto-generated method stub
+		
+	}
+	
 	private void powerOff() {
-		ThingInternalFrame thingFrame = (ThingInternalFrame)desktop.getSelectedFrame();
-		thingFrame.getThing().powerOff();
+		getSelectedFrame().getThing().powerOff();
 		refreshPowerRelativedMenuItems();
 	}
 
-	private void powerOn() {
+	private ThingInternalFrame getSelectedFrame() {
 		ThingInternalFrame thingFrame = (ThingInternalFrame)desktop.getSelectedFrame();
-		thingFrame.getThing().powerOn();
+		return thingFrame;
+	}
+
+	private void powerOn() {
+		getSelectedFrame().getThing().powerOn();
 		refreshPowerRelativedMenuItems();
 	}
 
@@ -477,6 +489,7 @@ public class DummyGateway extends JFrame implements ActionListener, InternalFram
 		@Override
 		public void run() {
 			setDirty(dirty);
+			refreshThingSelectionRelativedMenuItems();
 			refreshPowerRelativedMenuItems();
 		}
 	}
@@ -535,9 +548,11 @@ public class DummyGateway extends JFrame implements ActionListener, InternalFram
 				KeyStroke.getKeyStroke(KeyEvent.VK_N, ActionEvent.ALT_MASK), false));
 		editMenu.add(createMenuItem(MENU_ITEM_NAME_POWER_OFF, MENU_ITEM_TEXT_POWER_OFF, -1,
 				KeyStroke.getKeyStroke(KeyEvent.VK_F, ActionEvent.ALT_MASK), false));
-		
+		editMenu.add(createMenuItem(MENU_ITEM_NAME_RESET, MENU_ITEM_TEXT_RESET, -1,
+				KeyStroke.getKeyStroke(KeyEvent.VK_R, ActionEvent.ALT_MASK), false));		
+
 		editMenu.addSeparator();
-		
+
 		editMenu.add(createMenuItem(MENU_ITEM_NAME_DELETE, MENU_ITEM_TEXT_DELETE, -1,
 				KeyStroke.getKeyStroke(KeyEvent.VK_D, ActionEvent.ALT_MASK), false));
 		
@@ -671,9 +686,17 @@ public class DummyGateway extends JFrame implements ActionListener, InternalFram
 		setDirty(true);
 		refreshPowerRelativedMenuItems();
 	}
+	
+	private void refreshThingSelectionRelativedMenuItems() {
+		ThingInternalFrame thingFrame = getSelectedFrame();
+		if (thingFrame == null)
+			return;
+		
+		getMenuItem(MENU_NAME_EDIT, MENU_ITEM_NAME_RESET).setEnabled(true);
+	}
 
 	private void refreshPowerRelativedMenuItems() {
-		ThingInternalFrame thingFrame = (ThingInternalFrame)(desktop.getSelectedFrame());
+		ThingInternalFrame thingFrame = getSelectedFrame();
 		if (thingFrame.getThing().isPowered()) {			
 			getMenuItem(MENU_NAME_EDIT, MENU_ITEM_NAME_POWER_ON).setEnabled(false);
 			getMenuItem(MENU_NAME_EDIT, MENU_ITEM_NAME_POWER_OFF).setEnabled(true);			
