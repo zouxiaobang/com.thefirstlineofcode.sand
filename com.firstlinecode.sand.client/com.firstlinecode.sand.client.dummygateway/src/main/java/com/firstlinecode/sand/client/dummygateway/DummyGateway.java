@@ -190,11 +190,27 @@ public class DummyGateway extends JFrame implements ActionListener, InternalFram
 			save();
 		} else if (MENU_ITEM_NAME_SAVE_AS.equals(actionCommand)) {
 			saveAs();
+		} else if (MENU_ITEM_NAME_POWER_ON.equals(actionCommand)) {
+			powerOn();
+		} else if (MENU_ITEM_NAME_POWER_OFF.equals(actionCommand)) {
+			powerOff();
 		} else {
 			throw new IllegalArgumentException("Illegal action command: " + actionCommand);
 		}
 	}
 	
+	private void powerOff() {
+		ThingInternalFrame thingFrame = (ThingInternalFrame)desktop.getSelectedFrame();
+		thingFrame.getThing().powerOff();
+		refreshPowerRelativedMenuItems();
+	}
+
+	private void powerOn() {
+		ThingInternalFrame thingFrame = (ThingInternalFrame)desktop.getSelectedFrame();
+		thingFrame.getThing().powerOn();
+		refreshPowerRelativedMenuItems();
+	}
+
 	private void saveAs() {
 		JFileChooser fileChooser = createFileChooser();
 		fileChooser.setDialogTitle("Choose a file to save your gateway info");
@@ -313,7 +329,7 @@ public class DummyGateway extends JFrame implements ActionListener, InternalFram
 		if (result == JFileChooser.APPROVE_OPTION) {
 			removeThings();
 			loadFromFile(fileChooser.getSelectedFile());
-			setDirtyInUiThread(false);
+			changeGatewayStatusAndRefreshUiThread(false);
 			
 			SwingUtilities.invokeLater(new Runnable() {
 				public void run() {					
@@ -388,7 +404,6 @@ public class DummyGateway extends JFrame implements ActionListener, InternalFram
 		String thingName = (String)JOptionPane.showInputDialog(this, "Choose thing you want to create",
 				"Choose thing", JOptionPane.QUESTION_MESSAGE, null, getThingNames(), null);
 		createThing(thingName);
-		
 	}
 	
 	private IDummyThing createThing(String thingName) {
@@ -404,7 +419,7 @@ public class DummyGateway extends JFrame implements ActionListener, InternalFram
 		things.add(thing);
 		
 		showThing(thing, -1, 30 * instanceIndex, 30 * instanceIndex);
-		setDirtyInUiThread(true);				
+		changeGatewayStatusAndRefreshUiThread(true);				
 		SwingUtilities.invokeLater(new Runnable() {
 			@Override
 			public void run() {
@@ -444,24 +459,25 @@ public class DummyGateway extends JFrame implements ActionListener, InternalFram
 			thingPanel.updateStatus(((AbstractDummyThing)thing).getThingStatus());
 	}
 	
-	private void setDirtyInUiThread(boolean dirty) {
+	private void changeGatewayStatusAndRefreshUiThread(boolean dirty) {
 		try {
-			SwingUtilities.invokeLater(new DirtySetter(dirty));
+			SwingUtilities.invokeLater(new GatewayStatusChanger(dirty));
 		} catch (Exception e) {
 			throw new RuntimeException("Can't add component listener to thing internal frame.");
 		}
 	}
 	
-	private class DirtySetter implements Runnable {
+	private class GatewayStatusChanger implements Runnable {
 		private boolean dirty;
 		
-		public DirtySetter(boolean dirty) {
+		public GatewayStatusChanger(boolean dirty) {
 			this.dirty = dirty;
 		}
 		
 		@Override
 		public void run() {
-			DummyGateway.this.setDirty(dirty);
+			setDirty(dirty);
+			refreshPowerRelativedMenuItems();
 		}
 	}
 
@@ -653,7 +669,18 @@ public class DummyGateway extends JFrame implements ActionListener, InternalFram
 	@Override
 	public void internalFrameActivated(InternalFrameEvent e) {
 		setDirty(true);
-		System.out.println("aaaaaaaaaaaaaaaaaaaaaa");
+		refreshPowerRelativedMenuItems();
+	}
+
+	private void refreshPowerRelativedMenuItems() {
+		ThingInternalFrame thingFrame = (ThingInternalFrame)(desktop.getSelectedFrame());
+		if (thingFrame.getThing().isPowered()) {			
+			getMenuItem(MENU_NAME_EDIT, MENU_ITEM_NAME_POWER_ON).setEnabled(false);
+			getMenuItem(MENU_NAME_EDIT, MENU_ITEM_NAME_POWER_OFF).setEnabled(true);			
+		} else {
+			getMenuItem(MENU_NAME_EDIT, MENU_ITEM_NAME_POWER_OFF).setEnabled(false);			
+			getMenuItem(MENU_NAME_EDIT, MENU_ITEM_NAME_POWER_ON).setEnabled(true);
+		}
 	}
 	
 	@Override
@@ -663,7 +690,10 @@ public class DummyGateway extends JFrame implements ActionListener, InternalFram
 	
 	private void setDirty(boolean dirty) {
 		this.dirty = dirty;
-		
+		refreshDirtyRelativedMenuItems(dirty);
+	}
+
+	private void refreshDirtyRelativedMenuItems(boolean dirty) {
 		JMenuItem saveMenuItem = getMenuItem(MENU_NAME_FILE, MENU_ITEM_NAME_SAVE);
 		if (dirty) {
 			if (!saveMenuItem.isEnabled())

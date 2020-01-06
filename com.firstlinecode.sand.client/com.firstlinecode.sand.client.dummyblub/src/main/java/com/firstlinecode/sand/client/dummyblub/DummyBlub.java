@@ -56,11 +56,6 @@ public class DummyBlub extends AbstractDummyThing implements IDummyThing, IBlub 
 		this.switchState = switchState;
 		this.blubState = blubState;
 	}
-	
-	@Override
-	protected void batteryChanged(int battery) {
-		panel.updateStatus();
-	}
 
 	private class DummyBlubPanel extends AbstractDummyThingPanel implements ActionListener {
 		private static final long serialVersionUID = 7660599095831708565L;
@@ -68,9 +63,12 @@ public class DummyBlub extends AbstractDummyThing implements IDummyThing, IBlub 
 		private static final String FILE_NAME_BLUB_OFF = "blub_off.png";
 		private static final String FILE_NAME_BLUB_ON = "blub_on.png";
 
-		
 		private JPanel radioPanel;
 		private JLabel blubImage;
+		
+		public DummyBlubPanel() {
+			super(DummyBlub.this);
+		}
 		
 		@Override
 		protected JPanel createThingCustomizedUi() {			

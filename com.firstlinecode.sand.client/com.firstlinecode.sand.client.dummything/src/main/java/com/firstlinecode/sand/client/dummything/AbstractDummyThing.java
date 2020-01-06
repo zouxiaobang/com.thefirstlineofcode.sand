@@ -3,6 +3,8 @@ package com.firstlinecode.sand.client.dummything;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -13,12 +15,15 @@ public abstract class AbstractDummyThing implements IDummyThing {
 	protected String name;
 	protected int battery;
 	protected boolean powered;
+	protected List<IDeviceListener> deviceListeners;
 	
 	public AbstractDummyThing(String thingName) {
 		this.thingName = thingName;
 		deviceId = ThingsUtils.generateRandomDeviceId();
 		battery = 100;
 		powered = false;
+		
+		deviceListeners = new ArrayList<>();
 		
 		BatteryTimer timer = new BatteryTimer();
 		timer.start();
@@ -64,13 +69,16 @@ public abstract class AbstractDummyThing implements IDummyThing {
 					if (battery == 0)
 						return;
 					
+					int oldBattery = battery;
 					if (battery != 10) {
 						battery -= 2;
 					} else {
 						battery = 100;
 					}
 					
-					batteryChanged(battery);
+					for (IDeviceListener deviceListener : deviceListeners) {
+						deviceListener.batteryChanged(new BatteryEvent(AbstractDummyThing.this, oldBattery, oldBattery));
+					}
 				}
 				
 				timer.schedule(new BatteryTimerTask(), 1000 * 10);
@@ -139,12 +147,25 @@ public abstract class AbstractDummyThing implements IDummyThing {
 	public void powerOn() {
 		this.powered = true;
 		doPowerOn();
+		
+		for (IDeviceListener deviceListener : deviceListeners) {
+			deviceListener.powerChanged(new PowerEvent(this, PowerEvent.Type.POWER_ON));
+		}
 	}
 	
 	@Override
 	public void powerOff() {
 		this.powered = false;
 		doPowerOff();
+		
+		for (IDeviceListener deviceListener : deviceListeners) {
+			deviceListener.powerChanged(new PowerEvent(this, PowerEvent.Type.POWER_OFF));
+		}
+	}
+	
+	@Override
+	public boolean isPowered() {
+		return powered;
 	}
 	
 	@Override
@@ -163,9 +184,18 @@ public abstract class AbstractDummyThing implements IDummyThing {
 		return deviceId.equals(((IDummyThing)obj).getDeviceId());
 	}
 	
+	@Override
+	public void addDeviceListener(IDeviceListener listener) {
+		deviceListeners.add(listener);
+	}
+	
+	@Override
+	public boolean removeDeviceListener(IDeviceListener listener) {
+		return deviceListeners.remove(listener);
+	}
+	
 	protected abstract void doWriteExternal(ObjectOutput out) throws IOException;
 	protected abstract void doReadExternal(ObjectInput in) throws IOException, ClassNotFoundException;
-	protected abstract void batteryChanged(int battery);
 	protected abstract void doPowerOn();
 	protected abstract void doPowerOff();
 	protected abstract void doReset();
