@@ -34,6 +34,7 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.KeyStroke;
+import javax.swing.MenuElement;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.event.InternalFrameEvent;
@@ -52,13 +53,35 @@ import com.firstlinecode.sand.client.dummything.ThingsUtils;
 
 public class DummyGateway extends JFrame implements ActionListener, InternalFrameListener, ComponentListener, WindowListener, IDummyGateway {
 	private static final long serialVersionUID = -7894418812878036627L;
+
+	private static final String MENU_TEXT_FILE = "File";
+	private static final String MENU_ITEM_TEXT_NEW = "New";
+	private static final String MENU_ITEM_TEXT_OPEN_FILE = "Open file...";
+	private static final String MENU_ITEM_TEXT_SAVE = "Save";
+	private static final String MENU_ITEM_TEXT_SAVE_AS = "Save As...";
+	private static final String MENU_ITEM_TEXT_QUIT = "Quit";
+
+	private static final String MENU_TEXT_EDIT = "Edit";
+	private static final String MENU_ITEM_TEXT_POWER_ON = "Power On";
+	private static final String MENU_ITEM_TEXT_POWER_OFF = "Power Off";
+	private static final String MENU_ITEM_TEXT_DELETE = "Delete";
+
+	private static final String MENU_TEXT_HELP = "Help";
+	private static final String MENU_ITEM_TEXT_ABOUT = "About";
 	
-	private static final String ACTION_COMMAND_QUIT = "quit";
-	private static final String ACTION_COMMAND_OPEN_FILE = "open_file";
-	private static final String ACTION_COMMAND_SAVE = "save";
-	private static final String ACTION_COMMAND_SAVE_AS = "save_as";
-	private static final String ACTION_COMMAND_NEW = "new";
-	private static final String ACTION_COMMAND_ABOUT = "about";
+	private static final String MENU_NAME_FILE = "file";
+	private static final String MENU_NAME_EDIT = "edit";
+	private static final String MENU_NAME_HELP = "help";
+	
+	private static final String MENU_ITEM_NAME_NEW = "new";
+	private static final String MENU_ITEM_NAME_OPEN_FILE = "open_file";
+	private static final String MENU_ITEM_NAME_SAVE = "save";
+	private static final String MENU_ITEM_NAME_SAVE_AS = "save_as";
+	private static final String MENU_ITEM_NAME_QUIT = "quit";
+	private static final String MENU_ITEM_NAME_POWER_ON = "power_on";
+	private static final String MENU_ITEM_NAME_POWER_OFF = "power_off";
+	private static final String MENU_ITEM_NAME_DELETE = "delete";
+	private static final String MENU_ITEM_NAME_ABOUT = "about";
 	
 	private String deviceId;
 	private JabberId jid;
@@ -68,6 +91,7 @@ public class DummyGateway extends JFrame implements ActionListener, InternalFram
 	private boolean dirty;
 	
 	private JDesktopPane desktop;
+	private JMenuBar menuBar;
 	private StatusBar statusBar;
 	
 	private File configFile;
@@ -93,12 +117,14 @@ public class DummyGateway extends JFrame implements ActionListener, InternalFram
 		setBounds((screenSize.width - 1024) / 2, (screenSize.height - 768) / 2, 1024, 768);
 		
 		desktop = new JDesktopPane();
-		
+		desktop.setDragMode(JDesktopPane.OUTLINE_DRAG_MODE);
 		add(desktop, BorderLayout.CENTER);
-		setJMenuBar(createMenuBar());
+		
+		menuBar = createMenuBar();
+		setJMenuBar(menuBar);
+		
 		statusBar = createStatusBar();
 		add(statusBar, BorderLayout.SOUTH);
-		desktop.setDragMode(JDesktopPane.OUTLINE_DRAG_MODE);
 		
 		updateStatus();
 		
@@ -152,17 +178,17 @@ public class DummyGateway extends JFrame implements ActionListener, InternalFram
 	public void actionPerformed(ActionEvent e) {
 		String actionCommand = e.getActionCommand();
 		
-		if (ACTION_COMMAND_NEW.equals(actionCommand)) {
+		if (MENU_ITEM_NAME_NEW.equals(actionCommand)) {
 			createNewThing();
-		} else if (ACTION_COMMAND_OPEN_FILE.equals(actionCommand)) {
+		} else if (MENU_ITEM_NAME_OPEN_FILE.equals(actionCommand)) {
 			openFile();
-		} else if (ACTION_COMMAND_QUIT.equals(actionCommand)) {
+		} else if (MENU_ITEM_NAME_QUIT.equals(actionCommand)) {
 			quit();
-		} else if (ACTION_COMMAND_ABOUT.equals(actionCommand)) {
+		} else if (MENU_ITEM_NAME_ABOUT.equals(actionCommand)) {
 			showAboutDialog();
-		} else if (ACTION_COMMAND_SAVE.equals(actionCommand)) {
+		} else if (MENU_ITEM_NAME_SAVE.equals(actionCommand)) {
 			save();
-		} else if (ACTION_COMMAND_SAVE_AS.equals(actionCommand)) {
+		} else if (MENU_ITEM_NAME_SAVE_AS.equals(actionCommand)) {
 			saveAs();
 		} else {
 			throw new IllegalArgumentException("Illegal action command: " + actionCommand);
@@ -240,9 +266,9 @@ public class DummyGateway extends JFrame implements ActionListener, InternalFram
 				}
 		}
 		
-		dirty = false;
+		setDirty(false);
 		if (!file.equals(configFile)) {
-			configFile = file;
+			setConfigFile(file);
 		}
 	}
 	
@@ -289,11 +315,16 @@ public class DummyGateway extends JFrame implements ActionListener, InternalFram
 			loadFromFile(fileChooser.getSelectedFile());
 			setDirtyInUiThread(false);
 			
-			JInternalFrame[] frames = desktop.getAllFrames();
-			for (JInternalFrame frame : frames) {
-				frame.addComponentListener(this);
-				frame.addInternalFrameListener(this);
-			}
+			SwingUtilities.invokeLater(new Runnable() {
+				public void run() {					
+					JInternalFrame[] frames = DummyGateway.this.desktop.getAllFrames();
+					for (JInternalFrame frame : frames) {
+						frame.addComponentListener(DummyGateway.this);
+						frame.addInternalFrameListener(DummyGateway.this);
+					}
+				}
+				
+			});
 		}
 	}
 
@@ -310,6 +341,14 @@ public class DummyGateway extends JFrame implements ActionListener, InternalFram
 		
 		for (DummyThingInfo thingInfo : thingInfos) {
 			showThing(thingInfo.getThing(), thingInfo.getLayer(), thingInfo.getX(), thingInfo.getY(), thingInfo.isSelected());
+		}
+		
+		setConfigFile(file);
+	}
+
+	private void setConfigFile(File file) {
+		if (configFile == null && file != null) {
+			getMenuItem(MENU_NAME_FILE, MENU_ITEM_NAME_SAVE_AS).setEnabled(true);
 		}
 		
 		configFile = file;
@@ -364,19 +403,25 @@ public class DummyGateway extends JFrame implements ActionListener, InternalFram
 		
 		things.add(thing);
 		
-		JInternalFrame frame = showThing(thing, -1, 30 * instanceIndex, 30 * instanceIndex);
+		showThing(thing, -1, 30 * instanceIndex, 30 * instanceIndex);
 		setDirtyInUiThread(true);				
-		frame.addComponentListener(this);
-		frame.addInternalFrameListener(this);
+		SwingUtilities.invokeLater(new Runnable() {
+			@Override
+			public void run() {
+				JInternalFrame selectedFrame = DummyGateway.this.desktop.getSelectedFrame();				
+				selectedFrame.addComponentListener(DummyGateway.this);
+				selectedFrame.addInternalFrameListener(DummyGateway.this);			
+			}
+		});
 		
 		return thing;
 	}
 	
-	private JInternalFrame showThing(IDummyThing thing, int layer, int x, int y) {
-		return this.showThing(thing, layer, x, y, true);
+	private void showThing(IDummyThing thing, int layer, int x, int y) {
+		this.showThing(thing, layer, x, y, true);
 	}
 
-	private JInternalFrame showThing(IDummyThing thing, int layer, int x, int y, boolean selected) {
+	private void showThing(IDummyThing thing, int layer, int x, int y, boolean selected) {
 		AbstractDummyThingPanel thingPanel = thing.getPanel();
 		ThingInternalFrame internalFrame = new ThingInternalFrame(thing);		
 		internalFrame.addComponentListener(this);
@@ -397,8 +442,6 @@ public class DummyGateway extends JFrame implements ActionListener, InternalFram
 		
 		if (thing instanceof AbstractDummyThing)
 			thingPanel.updateStatus(((AbstractDummyThing)thing).getThingStatus());
-		
-		return internalFrame;
 	}
 	
 	private void setDirtyInUiThread(boolean dirty) {
@@ -418,7 +461,7 @@ public class DummyGateway extends JFrame implements ActionListener, InternalFram
 		
 		@Override
 		public void run() {
-			DummyGateway.this.dirty = dirty;
+			DummyGateway.this.setDirty(dirty);
 		}
 	}
 
@@ -461,67 +504,87 @@ public class DummyGateway extends JFrame implements ActionListener, InternalFram
 		JMenuBar menuBar = new JMenuBar();
 		
 		menuBar.add(createFileMenu());
+		menuBar.add(createEditMenu());
 		menuBar.add(createHelpMenu());
 		
 		return menuBar;
     }
 
+	private JMenu createEditMenu() {
+		JMenu editMenu = new JMenu(MENU_TEXT_EDIT);
+		editMenu.setName(MENU_NAME_EDIT);
+		editMenu.setMnemonic(KeyEvent.VK_E);
+		
+		editMenu.add(createMenuItem(MENU_ITEM_NAME_POWER_ON, MENU_ITEM_TEXT_POWER_ON, -1,
+				KeyStroke.getKeyStroke(KeyEvent.VK_N, ActionEvent.ALT_MASK), false));
+		editMenu.add(createMenuItem(MENU_ITEM_NAME_POWER_OFF, MENU_ITEM_TEXT_POWER_OFF, -1,
+				KeyStroke.getKeyStroke(KeyEvent.VK_F, ActionEvent.ALT_MASK), false));
+		
+		editMenu.addSeparator();
+		
+		editMenu.add(createMenuItem(MENU_ITEM_NAME_DELETE, MENU_ITEM_TEXT_DELETE, -1,
+				KeyStroke.getKeyStroke(KeyEvent.VK_D, ActionEvent.ALT_MASK), false));
+		
+		return editMenu;
+	}
+
 	private JMenu createHelpMenu() {
-		JMenu helpMenu = new JMenu("Help");
+		JMenu helpMenu = new JMenu(MENU_TEXT_HELP);
+		helpMenu.setName(MENU_NAME_HELP);
 		helpMenu.setMnemonic(KeyEvent.VK_H);
 		
-		JMenuItem aboutMenuItem = new JMenuItem("About");
-		aboutMenuItem.setAccelerator(KeyStroke.getKeyStroke(
-				KeyEvent.VK_A, ActionEvent.ALT_MASK));
-		aboutMenuItem.setActionCommand(ACTION_COMMAND_ABOUT);
-		aboutMenuItem.addActionListener(this);
-		helpMenu.add(aboutMenuItem);
+		helpMenu.add(createMenuItem(MENU_ITEM_NAME_ABOUT, MENU_ITEM_TEXT_ABOUT, -1,
+				KeyStroke.getKeyStroke(KeyEvent.VK_A, ActionEvent.ALT_MASK)));
 		
 		return helpMenu;
 	}
 
 	private JMenu createFileMenu() {
-		JMenu fileMenu = new JMenu("File");
+		JMenu fileMenu = new JMenu(MENU_TEXT_FILE);
+		fileMenu.setName(MENU_NAME_FILE);
 		fileMenu.setMnemonic(KeyEvent.VK_F);
 		
-		JMenuItem newMenuItem = new JMenuItem("New");
-		newMenuItem.setAccelerator(KeyStroke.getKeyStroke(
-				KeyEvent.VK_N, ActionEvent.ALT_MASK));
-		newMenuItem.setActionCommand(ACTION_COMMAND_NEW);
-		newMenuItem.addActionListener(this);
-		fileMenu.add(newMenuItem);
+		fileMenu.add(createMenuItem(MENU_ITEM_NAME_NEW, MENU_ITEM_TEXT_NEW, -1,
+				KeyStroke.getKeyStroke(KeyEvent.VK_N, ActionEvent.ALT_MASK)));		
+		fileMenu.add(createMenuItem(MENU_ITEM_NAME_OPEN_FILE, MENU_ITEM_TEXT_OPEN_FILE, -1,
+				KeyStroke.getKeyStroke(KeyEvent.VK_O, ActionEvent.ALT_MASK)));
+				
+		fileMenu.addSeparator();
 		
-		JMenuItem openFileMenuItem = new JMenuItem("Open file...");
-		openFileMenuItem.setAccelerator(KeyStroke.getKeyStroke(
-				KeyEvent.VK_O, ActionEvent.ALT_MASK));
-		openFileMenuItem.setActionCommand(ACTION_COMMAND_OPEN_FILE);
-		openFileMenuItem.addActionListener(this);
-		fileMenu.add(openFileMenuItem);
+		fileMenu.add(createMenuItem(MENU_ITEM_NAME_SAVE, MENU_ITEM_TEXT_SAVE, -1,
+				KeyStroke.getKeyStroke(KeyEvent.VK_S, ActionEvent.CTRL_MASK), false));
+		fileMenu.add(createMenuItem(MENU_ITEM_NAME_SAVE_AS, MENU_ITEM_TEXT_SAVE_AS, -1,
+				KeyStroke.getKeyStroke(KeyEvent.VK_S, ActionEvent.CTRL_MASK), false));
 		
 		fileMenu.addSeparator();
 		
-		JMenuItem saveMenuItem = new JMenuItem("Save");
-		saveMenuItem.setAccelerator(KeyStroke.getKeyStroke(
-				KeyEvent.VK_S, ActionEvent.CTRL_MASK));
-		saveMenuItem.setActionCommand(ACTION_COMMAND_SAVE);
-		saveMenuItem.addActionListener(this);
-		fileMenu.add(saveMenuItem);
+		fileMenu.add(createMenuItem(MENU_ITEM_NAME_QUIT, MENU_ITEM_TEXT_QUIT, KeyEvent.VK_Q,
+				KeyStroke.getKeyStroke(KeyEvent.VK_Q, ActionEvent.ALT_MASK)));
 		
-		JMenuItem saveAsMenuItem = new JMenuItem("Save As...");
-		saveAsMenuItem.setActionCommand(ACTION_COMMAND_SAVE_AS);
-		saveAsMenuItem.addActionListener(this);
-		fileMenu.add(saveAsMenuItem);
-		
-		fileMenu.addSeparator();
-		
-		openFileMenuItem = new JMenuItem("Quit");
-		openFileMenuItem.setMnemonic(KeyEvent.VK_Q);
-		openFileMenuItem.setAccelerator(KeyStroke.getKeyStroke(
-				KeyEvent.VK_Q, ActionEvent.ALT_MASK));
-		openFileMenuItem.setActionCommand(ACTION_COMMAND_QUIT);
-		openFileMenuItem.addActionListener(this);
-		fileMenu.add(openFileMenuItem);
 		return fileMenu;
+	}
+	
+	private JMenuItem createMenuItem(String name, String text, int mnemonic, KeyStroke accelerator) {
+		return this.createMenuItem(name, text, mnemonic, accelerator, true);
+	}
+	
+	private JMenuItem createMenuItem(String name, String text, int mnemonic, KeyStroke accelerator, boolean enabled) {
+		JMenuItem menuItem = new JMenuItem(text);
+		menuItem.setName(name);
+		
+		if (mnemonic != -1)
+			menuItem.setMnemonic(mnemonic);
+		
+		if (accelerator != null) {			
+			menuItem.setAccelerator(accelerator);
+		}
+		
+		menuItem.setActionCommand(name);
+		menuItem.addActionListener(this);
+		
+		menuItem.setEnabled(enabled);
+		
+		return menuItem;
 	}
 
 	@Override
@@ -540,7 +603,7 @@ public class DummyGateway extends JFrame implements ActionListener, InternalFram
 
 	@Override
 	public void componentMoved(ComponentEvent e) {
-		dirty = true;
+		setDirty(true);
 	}
 
 	@Override
@@ -589,10 +652,50 @@ public class DummyGateway extends JFrame implements ActionListener, InternalFram
 
 	@Override
 	public void internalFrameActivated(InternalFrameEvent e) {
-		dirty = true;
+		setDirty(true);
+		System.out.println("aaaaaaaaaaaaaaaaaaaaaa");
+	}
+	
+	@Override
+	public void internalFrameDeactivated(InternalFrameEvent e) {
+		setDirty(true);
+	}
+	
+	private void setDirty(boolean dirty) {
+		this.dirty = dirty;
+		
+		JMenuItem saveMenuItem = getMenuItem(MENU_NAME_FILE, MENU_ITEM_NAME_SAVE);
+		if (dirty) {
+			if (!saveMenuItem.isEnabled())
+				saveMenuItem.setEnabled(true);
+		} else {
+			if (saveMenuItem.isEnabled())
+				saveMenuItem.setEnabled(false);
+		}
 	}
 
-	@Override
-	public void internalFrameDeactivated(InternalFrameEvent e) {}
+	private JMenuItem getMenuItem(String menuName, String menuItemName) {
+		JMenu menu = getMenu(menuName);
+		
+		for (MenuElement child : menu.getSubElements()[0].getSubElements()) {
+			JMenuItem menuItem = (JMenuItem)child;
+			if (menuItem.getName().equals(menuItemName))
+				return menuItem;
+		}
+		
+		throw new IllegalArgumentException(String.format("Menu item '%s->%s' not existed.", menuName, menuItemName));
+	}
+
+	private JMenu getMenu(String menuName) {
+		for (MenuElement child : menuBar.getSubElements()) {
+			JMenu menu = (JMenu)child;
+			if (menuName.equals(menu.getName())) {
+				return menu;
+			}
+		}
+		
+		throw new IllegalArgumentException(String.format("Menu '%s' not existed.", menuName));
+	}
+
 	
 }
