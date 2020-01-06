@@ -544,17 +544,13 @@ public class DummyGateway extends JFrame implements ActionListener, InternalFram
 		editMenu.setName(MENU_NAME_EDIT);
 		editMenu.setMnemonic(KeyEvent.VK_E);
 		
-		editMenu.add(createMenuItem(MENU_ITEM_NAME_POWER_ON, MENU_ITEM_TEXT_POWER_ON, -1,
-				KeyStroke.getKeyStroke(KeyEvent.VK_N, ActionEvent.ALT_MASK), false));
-		editMenu.add(createMenuItem(MENU_ITEM_NAME_POWER_OFF, MENU_ITEM_TEXT_POWER_OFF, -1,
-				KeyStroke.getKeyStroke(KeyEvent.VK_F, ActionEvent.ALT_MASK), false));
-		editMenu.add(createMenuItem(MENU_ITEM_NAME_RESET, MENU_ITEM_TEXT_RESET, -1,
-				KeyStroke.getKeyStroke(KeyEvent.VK_R, ActionEvent.ALT_MASK), false));		
+		editMenu.add(createMenuItem(MENU_ITEM_NAME_POWER_ON, MENU_ITEM_TEXT_POWER_ON, -1, null, false));
+		editMenu.add(createMenuItem(MENU_ITEM_NAME_POWER_OFF, MENU_ITEM_TEXT_POWER_OFF, -1, null, false));
+		editMenu.add(createMenuItem(MENU_ITEM_NAME_RESET, MENU_ITEM_TEXT_RESET, -1, null, false));
 
 		editMenu.addSeparator();
 
-		editMenu.add(createMenuItem(MENU_ITEM_NAME_DELETE, MENU_ITEM_TEXT_DELETE, -1,
-				KeyStroke.getKeyStroke(KeyEvent.VK_D, ActionEvent.ALT_MASK), false));
+		editMenu.add(createMenuItem(MENU_ITEM_NAME_DELETE, MENU_ITEM_TEXT_DELETE, -1, null, false));
 		
 		return editMenu;
 	}
@@ -564,8 +560,7 @@ public class DummyGateway extends JFrame implements ActionListener, InternalFram
 		helpMenu.setName(MENU_NAME_HELP);
 		helpMenu.setMnemonic(KeyEvent.VK_H);
 		
-		helpMenu.add(createMenuItem(MENU_ITEM_NAME_ABOUT, MENU_ITEM_TEXT_ABOUT, -1,
-				KeyStroke.getKeyStroke(KeyEvent.VK_A, ActionEvent.ALT_MASK)));
+		helpMenu.add(createMenuItem(MENU_ITEM_NAME_ABOUT, MENU_ITEM_TEXT_ABOUT, -1, null));
 		
 		return helpMenu;
 	}
@@ -576,21 +571,18 @@ public class DummyGateway extends JFrame implements ActionListener, InternalFram
 		fileMenu.setMnemonic(KeyEvent.VK_F);
 		
 		fileMenu.add(createMenuItem(MENU_ITEM_NAME_NEW, MENU_ITEM_TEXT_NEW, -1,
-				KeyStroke.getKeyStroke(KeyEvent.VK_N, ActionEvent.ALT_MASK)));		
-		fileMenu.add(createMenuItem(MENU_ITEM_NAME_OPEN_FILE, MENU_ITEM_TEXT_OPEN_FILE, -1,
-				KeyStroke.getKeyStroke(KeyEvent.VK_O, ActionEvent.ALT_MASK)));
-				
+				KeyStroke.getKeyStroke(KeyEvent.VK_N, ActionEvent.CTRL_MASK)));
+		fileMenu.add(createMenuItem(MENU_ITEM_NAME_OPEN_FILE, MENU_ITEM_TEXT_OPEN_FILE, -1, null));
+		
 		fileMenu.addSeparator();
 		
 		fileMenu.add(createMenuItem(MENU_ITEM_NAME_SAVE, MENU_ITEM_TEXT_SAVE, -1,
 				KeyStroke.getKeyStroke(KeyEvent.VK_S, ActionEvent.CTRL_MASK), false));
-		fileMenu.add(createMenuItem(MENU_ITEM_NAME_SAVE_AS, MENU_ITEM_TEXT_SAVE_AS, -1,
-				KeyStroke.getKeyStroke(KeyEvent.VK_S, ActionEvent.CTRL_MASK), false));
+		fileMenu.add(createMenuItem(MENU_ITEM_NAME_SAVE_AS, MENU_ITEM_TEXT_SAVE_AS, -1, null, false));
 		
 		fileMenu.addSeparator();
 		
-		fileMenu.add(createMenuItem(MENU_ITEM_NAME_QUIT, MENU_ITEM_TEXT_QUIT, KeyEvent.VK_Q,
-				KeyStroke.getKeyStroke(KeyEvent.VK_Q, ActionEvent.ALT_MASK)));
+		fileMenu.add(createMenuItem(MENU_ITEM_NAME_QUIT, MENU_ITEM_TEXT_QUIT, -1, null));
 		
 		return fileMenu;
 	}
