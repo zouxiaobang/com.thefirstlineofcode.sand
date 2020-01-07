@@ -11,6 +11,7 @@ public class Main {
 		javax.swing.SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
 				Blub blub = new Blub();
+				blub.powerOn();
 				
 				JFrame frame = new JFrame(blub.getName());
 				frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);	

@@ -158,7 +158,18 @@ public class Blub extends AbstractThing implements IThing, IDeviceListener, IBlu
 			return flashPanel;
 		}
 		
+		private void refreshFlashButtionStatus() {
+			if (powered && switchState == SwitchState.OFF && blubState == BlubState.OFF) {
+				panel.flash.setEnabled(true);
+			} else {
+				panel.flash.setEnabled(false);
+			}
+		}
+		
 		private void flashBlub() {
+			if (!powered)
+				return;
+			
 			switchsPanel.setEnabled(false);
 			flash.setEnabled(false);
 			
@@ -213,14 +224,6 @@ public class Blub extends AbstractThing implements IThing, IDeviceListener, IBlu
 
 		private void updateStatus() {
 			panel.updateStatus(getThingStatus());
-		}
-	}
-	
-	private void refreshFlashButtionStatus() {
-		if (powered && switchState == SwitchState.OFF && blubState == BlubState.OFF) {
-			panel.flash.setEnabled(true);
-		} else {
-			panel.flash.setEnabled(false);
 		}
 	}
 
@@ -285,6 +288,7 @@ public class Blub extends AbstractThing implements IThing, IDeviceListener, IBlu
 	public AbstractThingPanel getPanel() {
 		panel = new BlubPanel();
 		panel.updateStatus();
+		panel.refreshFlashButtionStatus();
 		
 		return panel;
 	}
@@ -317,7 +321,7 @@ public class Blub extends AbstractThing implements IThing, IDeviceListener, IBlu
 
 	@Override
 	public void powerChanged(PowerEvent event) {
-		refreshFlashButtionStatus();
+		panel.refreshFlashButtionStatus();
 	}
 
 	@Override
