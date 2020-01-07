@@ -33,6 +33,7 @@ public class DummyBlub extends AbstractDummyThing implements IDummyThing, IDevic
 	private SwitchState switchState = DEFAULT_SWITCH_STATE;
 	private BlubState blubState = DEFAULT_BLUB_STATE;
 	
+	private JPanel switchsPanel;
 	private DummyBlubPanel panel;
 	
 	public DummyBlub() {
@@ -67,7 +68,6 @@ public class DummyBlub extends AbstractDummyThing implements IDummyThing, IDevic
 		private static final String FILE_NAME_BLUB_OFF = "blub_off.png";
 		private static final String FILE_NAME_BLUB_ON = "blub_on.png";
 
-		private JPanel radioPanel;
 		private JLabel blubImage;
 		private JButton flash;
 		
@@ -80,24 +80,22 @@ public class DummyBlub extends AbstractDummyThing implements IDummyThing, IDevic
 		protected JPanel createThingCustomizedUi() {			
 			JPanel customizedUi = new JPanel(new BorderLayout());
 			
-			JRadioButton off = new JRadioButton("Turn Off");
-			off.setMnemonic(KeyEvent.VK_F);
-			off.setActionCommand("off");
-			if (switchState == SwitchState.OFF)
-				off.setSelected(true);
+			blubImage = new JLabel(getBlubImageIcon(blubState));
+			switchsPanel = createSwitchsPanel();
 			
-			JRadioButton on = new JRadioButton("Turn On");
-			on.setMnemonic(KeyEvent.VK_N);
-			on.setActionCommand("on");
-			if (switchState == SwitchState.ON)
-				on.setSelected(true);
+			customizedUi.add(switchsPanel, BorderLayout.NORTH);
+			customizedUi.add(blubImage, BorderLayout.CENTER);			
+			customizedUi.add(createFlashPanel(), BorderLayout.SOUTH);
 			
-			JRadioButton control = new JRadioButton("Remote Control");
-			control.setMnemonic(KeyEvent.VK_R);
-			control.setActionCommand("Remote Control");
-			control.setSelected(true);
-			if (switchState == SwitchState.CONTROL)
-				control.setSelected(true);
+			customizedUi.setPreferredSize(new Dimension(360, 320));
+			
+			return customizedUi;
+		}
+
+		private JPanel createSwitchsPanel() {
+			JRadioButton off = createOffButton();
+			JRadioButton on = createOnButton();
+			JRadioButton control = createControlButton();
 			
 			ButtonGroup group = new ButtonGroup();
 			group.add(off);
@@ -108,31 +106,60 @@ public class DummyBlub extends AbstractDummyThing implements IDummyThing, IDevic
 			on.addActionListener(this);
 			control.addActionListener(this);
 			
-			blubImage = new JLabel(getBlubImageIcon(blubState));
+			JPanel panel = new JPanel(new GridLayout(0, 1));
+			panel.add(off);
+			panel.add(on);
+			panel.add(control);
 			
-			radioPanel = new JPanel(new GridLayout(0, 1));
-			radioPanel.add(off);
-			radioPanel.add(on);
-			radioPanel.add(control);
-			
-			customizedUi.add(radioPanel, BorderLayout.NORTH);
-			customizedUi.add(blubImage, BorderLayout.CENTER);
-			
+			return panel;
+		}
+
+		private JRadioButton createControlButton() {
+			JRadioButton control = new JRadioButton("Remote Control");
+			control.setMnemonic(KeyEvent.VK_R);
+			control.setActionCommand("Remote Control");
+			control.setSelected(true);
+			if (switchState == SwitchState.CONTROL)
+				control.setSelected(true);
+			return control;
+		}
+
+		private JRadioButton createOnButton() {
+			JRadioButton on = new JRadioButton("Turn On");
+			on.setMnemonic(KeyEvent.VK_N);
+			on.setActionCommand("on");
+			if (switchState == SwitchState.ON)
+				on.setSelected(true);
+			return on;
+		}
+
+		private JRadioButton createOffButton() {
+			JRadioButton off = new JRadioButton("Turn Off");
+			off.setMnemonic(KeyEvent.VK_F);
+			off.setActionCommand("off");
+			if (switchState == SwitchState.OFF)
+				off.setSelected(true);
+			return off;
+		}
+
+		private JPanel createFlashPanel() {
 			flash = new JButton("Flash");
-			customizedUi.add(flash, BorderLayout.SOUTH);
+			flash.setPreferredSize(new Dimension(128, 48));
+			
+			JPanel flashPanel = new JPanel();
+			flashPanel.add(flash);
+			
 			flash.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
 					flashBlub();
 				}
 			});
 			
-			customizedUi.setPreferredSize(new Dimension(360, 320));
-			
-			return customizedUi;
+			return flashPanel;
 		}
 		
 		private void flashBlub() {
-			radioPanel.setEnabled(false);
+			switchsPanel.setEnabled(false);
 			flash.setEnabled(false);
 			
 			blubImage.setIcon(getBlubImageIcon(BlubState.ON));
@@ -145,7 +172,7 @@ public class DummyBlub extends AbstractDummyThing implements IDummyThing, IDevic
 					blubImage.setIcon(getBlubImageIcon(BlubState.OFF));
 
 					flash.setEnabled(true);
-					radioPanel.setEnabled(true);
+					switchsPanel.setEnabled(true);
 				}
 
 			}, 50);
@@ -251,7 +278,7 @@ public class DummyBlub extends AbstractDummyThing implements IDummyThing, IDevic
 
 	@Override
 	public void flash() throws NotRemoteControlStateException, NotTurnOffStateException {
-		panel.radioPanel.setEnabled(false);
+		switchsPanel.setEnabled(false);
 		
 		panel.blubImage.setIcon(panel.getBlubImageIcon(BlubState.ON));
 		
@@ -261,7 +288,7 @@ public class DummyBlub extends AbstractDummyThing implements IDummyThing, IDevic
 			@Override
 			public void run() {
 				panel.blubImage.setIcon(panel.getBlubImageIcon(BlubState.OFF));				
-				panel.radioPanel.setEnabled(true);
+				switchsPanel.setEnabled(true);
 			}
 			
 		}, 50);

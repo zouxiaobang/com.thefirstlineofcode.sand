@@ -1,9 +1,13 @@
 package com.firstlinecode.sand.client.dummygateway;
 
 import java.awt.BorderLayout;
+import java.awt.Dialog.ModalityType;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.Rectangle;
 import java.awt.Toolkit;
+import java.awt.datatransfer.Clipboard;
+import java.awt.datatransfer.StringSelection;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ComponentEvent;
@@ -24,17 +28,24 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Timer;
+import java.util.TimerTask;
 
+import javax.swing.JButton;
 import javax.swing.JDesktopPane;
+import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JInternalFrame;
+import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 import javax.swing.KeyStroke;
 import javax.swing.MenuElement;
+import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.event.InternalFrameEvent;
@@ -48,7 +59,6 @@ import com.firstlinecode.sand.client.dummything.AbstractDummyThing;
 import com.firstlinecode.sand.client.dummything.AbstractDummyThingPanel;
 import com.firstlinecode.sand.client.dummything.IDummyThing;
 import com.firstlinecode.sand.client.dummything.IDummyThingFactory;
-import com.firstlinecode.sand.client.dummything.StatusBar;
 import com.firstlinecode.sand.client.dummything.ThingsUtils;
 
 public class DummyGateway extends JFrame implements ActionListener, InternalFrameListener, ComponentListener, WindowListener, IDummyGateway {
@@ -94,7 +104,7 @@ public class DummyGateway extends JFrame implements ActionListener, InternalFram
 	
 	private JDesktopPane desktop;
 	private JMenuBar menuBar;
-	private StatusBar statusBar;
+	private GatewayStatusBar statusBar;
 	
 	private File configFile;
 	
@@ -125,7 +135,7 @@ public class DummyGateway extends JFrame implements ActionListener, InternalFram
 		menuBar = createMenuBar();
 		setJMenuBar(menuBar);
 		
-		statusBar = createStatusBar();
+		statusBar = new GatewayStatusBar();
 		add(statusBar, BorderLayout.SOUTH);
 		
 		updateStatus();
@@ -167,9 +177,65 @@ public class DummyGateway extends JFrame implements ActionListener, InternalFram
 		
 		return sb.toString().substring(0, sb.length() - 2);
 	}
+	
+	private class GatewayStatusBar extends JPanel {		
+		private static final long serialVersionUID = -4540556323673700464L;
+		
+		private JLabel text;
+		private JButton copy;
+		
+		public GatewayStatusBar() {
+			super(new BorderLayout());
+			
+			JPanel statusBarPanel = new JPanel();
+			text = new JLabel();
+			text.setHorizontalAlignment(SwingConstants.RIGHT);
+			statusBarPanel.add(text);
+			
+			copy = new JButton("Copy Device ID");
+			copy.setToolTipText("Copy gateway device ID to clipboard.");
+			copy.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+					clipboard.setContents(new StringSelection(deviceId), null);
+					
+					final JDialog dialog = new JDialog(DummyGateway.this, "Copied", ModalityType.MODELESS);
+					dialog.setBounds(getParentCenterBounds(400, 160));
+					dialog.add(new JLabel("Gateway device ID has copied to clipboard."));
+					dialog.setVisible(true);
+					
+					Timer timer = new Timer();
+					timer.schedule(new TimerTask() {
+						@Override
+						public void run() {
+							dialog.setVisible(false);
+							dialog.dispose();
+						}
+					}, 1000 * 2);
+				}
 
-	private StatusBar createStatusBar() {
-		return new StatusBar();
+				private Rectangle getParentCenterBounds(int width, int height) {
+					int parentX = DummyGateway.this.getX();
+					int parentY = DummyGateway.this.getY();
+					int parentWidth = DummyGateway.this.getWidth();
+					int parentHeight = DummyGateway.this.getHeight();
+					
+					if (width > parentWidth || height > parentHeight)
+						return new Rectangle(parentX, parentY, width, height);
+					
+					return new Rectangle((parentX + (parentWidth - width) / 2), (parentY + (parentHeight - height) / 2), width, height);
+				}
+			});
+			statusBarPanel.add(copy);
+			
+			add(statusBarPanel, BorderLayout.EAST);	
+			setPreferredSize(new Dimension(640, 48));
+		}
+		
+		public void setText(String status) {
+			text.setText(status);
+		}
 	}
 
 	public void createAndShowGUI() {
