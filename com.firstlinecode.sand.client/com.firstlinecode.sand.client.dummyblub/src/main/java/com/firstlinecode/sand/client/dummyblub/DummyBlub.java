@@ -73,7 +73,7 @@ public class DummyBlub extends AbstractDummyThing implements IDummyThing, IDevic
 		
 		public DummyBlubPanel() {
 			super(DummyBlub.this);
-			addDeviceListener(this);
+			addDeviceListener(DummyBlub.this);
 		}
 		
 		@Override
