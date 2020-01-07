@@ -238,10 +238,6 @@ public class Gateway extends JFrame implements ActionListener, InternalFrameList
 		}
 	}
 
-	public void createAndShowGUI() {
-		setVisible(true);
-	}
-
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		String actionCommand = e.getActionCommand();
