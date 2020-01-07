@@ -19,9 +19,8 @@
 	</properties>
 
 	<modules>
-			<!--	<module>com.firstlinecode.sand.protocols</module> -->
-		<module>com.firstlinecode.sand.client</module>
-			<!-- <module>com.firstlinecode.sand.server</module> -->
+		<module>com.firstlinecode.sand.protocols</module>
+		<module>com.firstlinecode.sand.emulators</module>
 	</modules>
 
 	
@@ -319,14 +318,14 @@
 
 			<!-- sand xmpp libraries -->
 			<dependency>
-				<groupId>com.firstlinecode.sand.client</groupId>
-				<artifactId>com.firstlinecode.sand.client.dummything</artifactId>
+				<groupId>com.firstlinecode.sand.emulators</groupId>
+				<artifactId>com.firstlinecode.sand.emulators.thing</artifactId>
 				<version>${sand.version}</version>
 			</dependency>
 
 			<dependency>
-				<groupId>com.firstlinecode.sand.client</groupId>
-				<artifactId>com.firstlinecode.sand.client.dummyblub</artifactId>
+				<groupId>com.firstlinecode.sand.emulators</groupId>
+				<artifactId>com.firstlinecode.sand.emulators.blub</artifactId>
 				<version>${sand.version}</version>
 			</dependency>
 

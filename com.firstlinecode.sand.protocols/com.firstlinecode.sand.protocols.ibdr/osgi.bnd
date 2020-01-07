@@ -1,0 +1,9 @@
+#-----------------------------------------------------------------
+# Use this file to add customized Bnd instructions for the bundle
+#-----------------------------------------------------------------
+
+Basalt-Parsers: protocol-chain=iq|null->query|http://firstlinecode.com/protocol/device-register;\
+ class=com.firstlinecode.sand.protocols.DeviceRegister;\
+ type=name-convention
+Basalt-Translators: class=com.firstlinecode.sand.protocols.DeviceRegister;\
+ type=name-convention
