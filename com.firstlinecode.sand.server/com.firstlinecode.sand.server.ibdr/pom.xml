@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns="http://maven.apache.org/POM/4.0.0"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+	<modelVersion>4.0.0</modelVersion>
+
+	<parent>
+		<groupId>com.firstlinecode.sand</groupId>
+		<artifactId>com.firstlinecode.sand.server</artifactId>
+		<version>0.1.0.RELEASE</version>
+	</parent>
+
+	<groupId>com.firstlinecode.sand.server</groupId>
+	<artifactId>com.firstlinecode.sand.server.ibdr</artifactId>
+	<name>com.firstlinecode.sand.server.ibdr</name>
+	<packaging>jar</packaging>
+	
+	<dependencies>
+		<dependency>
+			<groupId>com.firstlinecode.sand.protocols</groupId>
+			<artifactId>com.firstlinecode.sand.protocols.ibdr</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.firstlinecode.granite.stream</groupId>
+			<artifactId>com.firstlinecode.granite.stream.standard</artifactId>
+		</dependency>
+	</dependencies>
+	
+</project>
+

@@ -9,7 +9,7 @@ import com.firstlinecode.basalt.protocol.oxm.translating.ITranslator;
 import com.firstlinecode.basalt.protocol.oxm.translating.ITranslatorFactory;
 import com.firstlinecode.sand.protocols.ibdr.DeviceRegister;
 
-public class IqRegisterTranslatorFactory implements ITranslatorFactory<DeviceRegister> {
+public class DeviceRegisterTranslatorFactory implements ITranslatorFactory<DeviceRegister> {
 	private ITranslator<DeviceRegister> translator = new DeviceRegisterTranslator();
 
 	@Override
