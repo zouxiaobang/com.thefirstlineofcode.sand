@@ -10,6 +10,6 @@ public class Main {
 	private void run() {
 		Gateway gateway = new Gateway();
 		gateway.registerThingFactory(new BlubFactory());
-		gateway.createAndShowGUI();
+		gateway.setVisible(true);
 	}
 }
