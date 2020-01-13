@@ -3,7 +3,7 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
 		http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-
+	
 	<groupId>com.firstlinecode.sand</groupId>
 	<artifactId>com.firstlinecode.sand</artifactId>
 	<packaging>pom</packaging>
@@ -21,9 +21,9 @@
 	<modules>
 		<module>com.firstlinecode.sand.protocols</module>
 		<module>com.firstlinecode.sand.emulators</module>
+		<module>com.firstlinecode.sand.client</module>
 		<module>com.firstlinecode.sand.server</module>
 	</modules>
-
 	
 	<profiles>
 		<profile>
@@ -333,6 +333,12 @@
 			<dependency>
 				<groupId>com.firstlinecode.sand.protocols</groupId>
 				<artifactId>com.firstlinecode.sand.protocols.ibdr</artifactId>
+				<version>${sand.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>com.firstlinecode.sand.client</groupId>
+				<artifactId>com.firstlinecode.sand.client.ibdr</artifactId>
 				<version>${sand.version}</version>
 			</dependency>
 

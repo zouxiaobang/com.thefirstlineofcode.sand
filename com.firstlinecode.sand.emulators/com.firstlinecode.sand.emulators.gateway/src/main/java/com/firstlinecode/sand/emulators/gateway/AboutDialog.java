@@ -1,7 +1,7 @@
 package com.firstlinecode.sand.emulators.gateway;
 
 import java.awt.BorderLayout;
-import java.awt.Rectangle;
+import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -44,9 +44,6 @@ public class AboutDialog extends JDialog {
 			}
 		});
 		
-		Rectangle bounds = parent.getBounds();
-		int x = (int)(bounds.x + (bounds.getWidth() - 360) / 2);
-		int y = (int)(bounds.y + (bounds.getHeight() - 200) / 2);
-		setBounds(x, y, 480, 200);
+		setPreferredSize(new Dimension(360, 200));
 	}
 }

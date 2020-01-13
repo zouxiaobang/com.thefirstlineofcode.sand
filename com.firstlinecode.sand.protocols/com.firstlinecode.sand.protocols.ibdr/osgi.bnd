@@ -4,9 +4,9 @@
 
 Basalt-Parsers: protocol-chain=iq|null->query|http://firstlinecode.com/protocol/device-register;\
  class=com.firstlinecode.sand.protocols.DeviceRegister;\
- type=custom,\
+ type=custom;\
  parser-factory=com.firstlinecode.sand.protocols.ibdr.oxm.DeviceRegisterParserFactory
  
 Basalt-Translators: class=com.firstlinecode.sand.protocols.ibdr.DeviceRegister;\
  type=custom;\
- translator-factory=com.firstlinecode.sand.protocols.ibr.oxm.DeviceRegisterTranslatorFactory
+ translator-factory=com.firstlinecode.sand.protocols.ibdr.oxm.DeviceRegisterTranslatorFactory

@@ -22,6 +22,10 @@
 			<artifactId>com.firstlinecode.chalk</artifactId>
 		</dependency>
 		<dependency>
+			<groupId>com.firstlinecode.sand.client</groupId>
+			<artifactId>com.firstlinecode.sand.client.ibdr</artifactId>
+		</dependency>
+		<dependency>
 			<groupId>com.firstlinecode.sand.emulators</groupId>
 			<artifactId>com.firstlinecode.sand.emulators.blub</artifactId>
 		</dependency>

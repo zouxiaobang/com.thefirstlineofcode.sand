@@ -55,48 +55,74 @@ import javax.swing.filechooser.FileSystemView;
 import javax.swing.plaf.FontUIResource;
 
 import com.firstlinecode.basalt.protocol.core.JabberId;
+import com.firstlinecode.chalk.IChatClient;
+import com.firstlinecode.chalk.StandardChatClient;
+import com.firstlinecode.chalk.core.stream.StandardStreamConfig;
+import com.firstlinecode.chalk.network.ConnectionException;
+import com.firstlinecode.chalk.network.IConnectionListener;
+import com.firstlinecode.sand.client.ibdr.IRegistration;
+import com.firstlinecode.sand.client.ibdr.IbdrPlugin;
+import com.firstlinecode.sand.client.ibdr.RegistrationException;
 import com.firstlinecode.sand.emulators.thing.AbstractThing;
 import com.firstlinecode.sand.emulators.thing.AbstractThingPanel;
 import com.firstlinecode.sand.emulators.thing.IThing;
 import com.firstlinecode.sand.emulators.thing.IThingFactory;
 import com.firstlinecode.sand.emulators.thing.ThingsUtils;
+import com.firstlinecode.sand.protocols.ibdr.DeviceIdentity;
 
-public class Gateway extends JFrame implements ActionListener, InternalFrameListener, ComponentListener, WindowListener, IGateway {
+public class Gateway extends JFrame implements ActionListener, InternalFrameListener,
+		ComponentListener, WindowListener, IGateway, IConnectionListener {
 	private static final long serialVersionUID = -7894418812878036627L;
-
+	
+	// File menu
 	private static final String MENU_TEXT_FILE = "File";
-	private static final String MENU_ITEM_TEXT_NEW = "New";
-	private static final String MENU_ITEM_TEXT_OPEN_FILE = "Open file...";
-	private static final String MENU_ITEM_TEXT_SAVE = "Save";
-	private static final String MENU_ITEM_TEXT_SAVE_AS = "Save As...";
-	private static final String MENU_ITEM_TEXT_QUIT = "Quit";
-
-	private static final String MENU_TEXT_EDIT = "Edit";
-	private static final String MENU_ITEM_TEXT_POWER_ON = "Power On";
-	private static final String MENU_ITEM_TEXT_POWER_OFF = "Power Off";
-	private static final String MENU_ITEM_TEXT_RESET = "Reset";
-	private static final String MENU_ITEM_TEXT_DELETE = "Delete";
-
-	private static final String MENU_TEXT_HELP = "Help";
-	private static final String MENU_ITEM_TEXT_ABOUT = "About";
-	
 	private static final String MENU_NAME_FILE = "file";
-	private static final String MENU_NAME_EDIT = "edit";
-	private static final String MENU_NAME_HELP = "help";
-	
+	private static final String MENU_ITEM_TEXT_NEW = "New";
 	private static final String MENU_ITEM_NAME_NEW = "new";
+	private static final String MENU_ITEM_TEXT_OPEN_FILE = "Open file...";
 	private static final String MENU_ITEM_NAME_OPEN_FILE = "open_file";
+	private static final String MENU_ITEM_TEXT_SAVE = "Save";
 	private static final String MENU_ITEM_NAME_SAVE = "save";
+	private static final String MENU_ITEM_TEXT_SAVE_AS = "Save As...";
 	private static final String MENU_ITEM_NAME_SAVE_AS = "save_as";
 	private static final String MENU_ITEM_NAME_QUIT = "quit";
+	private static final String MENU_ITEM_TEXT_QUIT = "Quit";
+	
+	// Edit menu
+	private static final String MENU_TEXT_EDIT = "Edit";
+	private static final String MENU_NAME_EDIT = "edit";
+	private static final String MENU_ITEM_TEXT_POWER_ON = "Power On";
 	private static final String MENU_ITEM_NAME_POWER_ON = "power_on";
+	private static final String MENU_ITEM_TEXT_POWER_OFF = "Power Off";
 	private static final String MENU_ITEM_NAME_POWER_OFF = "power_off";
+	private static final String MENU_ITEM_TEXT_RESET = "Reset";
 	private static final String MENU_ITEM_NAME_RESET = "reset";
+	private static final String MENU_ITEM_TEXT_DELETE = "Delete";
 	private static final String MENU_ITEM_NAME_DELETE = "delete";
+	
+	// Tools menu
+	private static final String MENU_TEXT_TOOLS = "Tools";
+	private static final String MENU_NAME_TOOLS = "tools";
+	private static final String MENU_ITEM_TEXT_REGISTER = "Register";
+	private static final String MENU_ITEM_NAME_REGISTER = "register";
+	private static final String MENU_ITEM_TEXT_CONNECT = "Connect";
+	private static final String MENU_ITEM_NAME_CONNECT = "connect";
+	private static final String MENU_ITEM_TEXT_DISCONNECT = "Disconnect";
+	private static final String MENU_ITEM_NAME_DISCONNECT = "disconnect";
+	private static final String MENU_ITEM_TEXT_SHOW_LOG_CONSOLE = "Show Log Console";
+	private static final String MENU_ITEM_NAME_SHOW_LOG_CONSOLE = "show_log_console";
+	
+	// Help menu
+	private static final String MENU_TEXT_HELP = "Help";
+	private static final String MENU_NAME_HELP = "help";
+	private static final String MENU_ITEM_TEXT_ABOUT = "About";
 	private static final String MENU_ITEM_NAME_ABOUT = "about";
+
+	private static final String RESOURCE_NAME_GATEWAY = "gateway";
 	
 	private String deviceId;
-	private JabberId jid;
+	private DeviceIdentity deviceIdentity;
+	private StandardStreamConfig streamConfig;
 	
 	private List<IThingFactory<? extends IThing>> factories;
 	private Map<String, List<IThing>> allThings;
@@ -105,6 +131,7 @@ public class Gateway extends JFrame implements ActionListener, InternalFrameList
 	private JDesktopPane desktop;
 	private JMenuBar menuBar;
 	private GatewayStatusBar statusBar;
+	private LogConsoleDialog logConsoleDalog;
 	
 	private File configFile;
 	
@@ -167,10 +194,10 @@ public class Gateway extends JFrame implements ActionListener, InternalFrameList
 	
 	private String getGatewayStatus() {
 		StringBuilder sb = new StringBuilder();
-		if (jid == null) {
+		if (deviceIdentity == null) {
 			sb.append("Unregistered").append(", ");
 		} else {
-			sb.append("Registered: ").append(jid.getName()).append(", ");
+			sb.append("Registered: ").append(deviceIdentity.getJid()).append(", ");
 		}
 		
 		sb.append("Device ID: ").append(deviceId).append(", ");
@@ -246,25 +273,105 @@ public class Gateway extends JFrame implements ActionListener, InternalFrameList
 			createNewThing();
 		} else if (MENU_ITEM_NAME_OPEN_FILE.equals(actionCommand)) {
 			openFile();
-		} else if (MENU_ITEM_NAME_QUIT.equals(actionCommand)) {
-			quit();
-		} else if (MENU_ITEM_NAME_ABOUT.equals(actionCommand)) {
-			showAboutDialog();
 		} else if (MENU_ITEM_NAME_SAVE.equals(actionCommand)) {
 			save();
 		} else if (MENU_ITEM_NAME_SAVE_AS.equals(actionCommand)) {
 			saveAs();
+		} else if (MENU_ITEM_NAME_QUIT.equals(actionCommand)) {
+			quit();
 		} else if (MENU_ITEM_NAME_POWER_ON.equals(actionCommand)) {
 			powerOn();
 		} else if (MENU_ITEM_NAME_POWER_OFF.equals(actionCommand)) {
 			powerOff();
 		} else if (MENU_ITEM_NAME_RESET.equals(actionCommand)) {
 			reset();
+		} else if (MENU_ITEM_NAME_DELETE.equals(actionCommand)) {
+			delete();
+		} else if (MENU_ITEM_NAME_REGISTER.equals(actionCommand)) {
+			register();
+		} else if (MENU_ITEM_NAME_SHOW_LOG_CONSOLE.equals(actionCommand)) {
+			showLogConsoleDialog();
+		} else if (MENU_ITEM_NAME_ABOUT.equals(actionCommand)) {
+			showAboutDialog();
 		} else {
 			throw new IllegalArgumentException("Illegal action command: " + actionCommand);
 		}
 	}
 	
+	private void showLogConsoleDialog() {
+		logConsoleDalog = new LogConsoleDialog(this);
+		logConsoleDalog.setVisible(true);
+		
+		getMenuItem(MENU_NAME_TOOLS, MENU_ITEM_NAME_SHOW_LOG_CONSOLE).setEnabled(false);
+	}
+
+	private void register() {
+		if (deviceIdentity != null)
+			throw new IllegalStateException("Gateway has already registered.");
+		
+		if (streamConfig == null) {
+			StreamConfigDialog streamConfigDialog = new StreamConfigDialog(this);
+			showDialog(streamConfigDialog);
+			
+			streamConfig = streamConfigDialog.getStreamConfig();
+			streamConfig.setResource(RESOURCE_NAME_GATEWAY);
+		}
+		
+		doRegister();
+	}
+	
+	private void doRegister() {
+		if (streamConfig == null)
+			throw new IllegalArgumentException("Null stream config.");
+		
+		IChatClient chatClient = new StandardChatClient(streamConfig);
+		chatClient.register(IbdrPlugin.class);
+		IRegistration registration = chatClient.createApi(IRegistration.class);
+		registration.addConnectionListener(this);
+		try {
+			deviceIdentity = registration.register(deviceId);
+		} catch (RegistrationException e) {
+			log(e);
+		}
+		chatClient.close();
+		
+		refreshDirtyRelativedMenuItems(true);
+		refreshGatewayInstanceRelativatedMenus();
+		updateTitle();
+		updateStatus();
+	}
+
+	private void log(Exception e) {
+		if (logConsoleDalog != null) {
+			logConsoleDalog.log(e);
+		} else {
+			e.printStackTrace();
+		}
+	}
+	
+	private void log(String message) {
+		if (logConsoleDalog != null) {
+			logConsoleDalog.log(message);
+		} else {
+			System.out.println(message);
+		}
+	}
+
+	private void showDialog(JDialog dialog) {
+		Dimension size = dialog.getPreferredSize();
+		Rectangle bounds = getBounds();
+		int x = (int)(bounds.x + (bounds.getWidth() - size.width) / 2);
+		int y = (int)(bounds.y + (bounds.getHeight() - size.height) / 2);
+		
+		dialog.setBounds(x, y, size.width, size.height);
+		dialog.setVisible(true);
+	}
+
+	private void delete() {
+		// TODO Auto-generated method stub
+		
+	}
+
 	private void reset() {
 		// TODO Auto-generated method stub
 		
@@ -338,7 +445,22 @@ public class Gateway extends JFrame implements ActionListener, InternalFrameList
 		ObjectOutputStream output = null;
 		try {
 			output = new ObjectOutputStream(new FileOutputStream(file));
+			if (streamConfig != null) {
+				output.writeObject(new StreamConfigInfo(streamConfig.getHost(), streamConfig.getPort(), streamConfig.isTlsPreferred()));
+			} else {
+				output.writeObject(null);
+			}
+			
+			if (deviceIdentity != null) {
+				output.writeObject(new DeviceIdentityInfo(deviceIdentity.getJid().toString(), deviceIdentity.getCredentials()));
+			} else {
+				output.writeObject(null);
+			}
+			
 			output.writeInt(frames.length);
+			if (frames.length == 0)
+				return;
+			
 			for (JInternalFrame frame : frames) {
 				ThingInternalFrame thingFrame = (ThingInternalFrame)frame;
 				output.writeObject(new ThingInfo(thingFrame.getLayer(), thingFrame.getX(), thingFrame.getY(), thingFrame.isSelected(), thingFrame.getThing()));
@@ -346,7 +468,7 @@ public class Gateway extends JFrame implements ActionListener, InternalFrameList
 		} catch (FileNotFoundException e) {
 			throw new RuntimeException(String.format("Gateway info file %s doesn't exist.", file.getPath()));
 		} catch (IOException e) {
-			throw new RuntimeException("Can't save gateway info file.");
+			throw new RuntimeException("Can't save gateway info file.", e);
 		} finally {
 			if (output != null)
 				try {
@@ -363,8 +485,7 @@ public class Gateway extends JFrame implements ActionListener, InternalFrameList
 	}
 	
 	private void showAboutDialog() {
-		AboutDialog about = new AboutDialog(this, "0.1.0.RELEASE");
-		about.setVisible(true);
+		showDialog(new AboutDialog(this, "0.1.0.RELEASE"));
 	}
 
 	private void quit() {
@@ -412,9 +533,21 @@ public class Gateway extends JFrame implements ActionListener, InternalFrameList
 						frame.addComponentListener(Gateway.this);
 						frame.addInternalFrameListener(Gateway.this);
 					}
+					
+					refreshGatewayInstanceRelativatedMenus();
+					updateTitle();
+					updateStatus();
 				}
 				
 			});
+		}
+	}
+
+	protected void updateTitle() {
+		if (deviceIdentity == null) {
+			setTitle("Unregistered Gateway");
+		} else {
+			setTitle("Registered Gateway");
 		}
 	}
 
@@ -427,13 +560,23 @@ public class Gateway extends JFrame implements ActionListener, InternalFrameList
 	}
 
 	private void loadFromFile(File file) {
-		List<ThingInfo> thingInfos = readThingInfos(file);
+		GatewayInfo gatewayInfo = readGatewayInfo(file);
 		
-		for (ThingInfo thingInfo : thingInfos) {
-			showThing(thingInfo.getThing(), thingInfo.getLayer(), thingInfo.getX(), thingInfo.getY(), thingInfo.isSelected());
+		streamConfig = gatewayInfo.streamConfig;
+		deviceIdentity = gatewayInfo.deviceIdentity;
+		
+		if (gatewayInfo.thingInfos != null) {
+			for (ThingInfo thingInfo : gatewayInfo.thingInfos) {
+				showThing(thingInfo.getThing(), thingInfo.getLayer(), thingInfo.getX(), thingInfo.getY(), thingInfo.isSelected());
+			}
 		}
+		refreshGatewayInstanceRelativatedMenus();
 		
 		setConfigFile(file);
+	}
+
+	private void refreshGatewayInstanceRelativatedMenus() {
+		getMenuItem(MENU_NAME_TOOLS, MENU_ITEM_NAME_REGISTER).setEnabled(deviceIdentity == null);
 	}
 
 	private void setConfigFile(File file) {
@@ -444,17 +587,25 @@ public class Gateway extends JFrame implements ActionListener, InternalFrameList
 		configFile = file;
 	}
 
-	private List<ThingInfo> readThingInfos(File file) {
-		List<ThingInfo> thingInfos = new ArrayList<>();
+	private GatewayInfo readGatewayInfo(File file) {
+		GatewayInfo gatewayInfo = new GatewayInfo();
 		ObjectInputStream input = null;
 		try {
 			input = new ObjectInputStream(new FileInputStream(file));
-			int size = input.readInt();
-			for (int i = 0; i < size; i++) {
-				ThingInfo thingInfo = (ThingInfo)input.readObject();
-				thingInfos.add(thingInfo);
-			}
+			StreamConfigInfo streamConfigInfo = (StreamConfigInfo)input.readObject();
+			gatewayInfo.streamConfig = streamConfig == null ? null : createStreamConfig(streamConfigInfo);
 			
+			DeviceIdentityInfo deviceIdentityInfo = (DeviceIdentityInfo)input.readObject();
+			gatewayInfo.deviceIdentity = deviceIdentityInfo == null ? null : createDeviceIdentity(deviceIdentityInfo);
+			
+			int size = input.readInt();
+			if (size != 0) {
+				gatewayInfo.thingInfos = new ArrayList<>(size);
+				for (int i = 0; i < size; i++) {
+					ThingInfo thingInfo = (ThingInfo)input.readObject();
+					gatewayInfo.thingInfos.add(thingInfo);
+				}
+			}
 		} catch (FileNotFoundException e) {
 			throw new RuntimeException(String.format("Gateway info file %s doesn't exist.", file.getPath()));
 		} catch (IOException e) {
@@ -471,7 +622,24 @@ public class Gateway extends JFrame implements ActionListener, InternalFrameList
 				}
 		}
 		
-		return thingInfos;
+		return gatewayInfo;
+	}
+	
+	private DeviceIdentity createDeviceIdentity(DeviceIdentityInfo deviceIdentityInfo) {
+		return new DeviceIdentity(JabberId.parse(deviceIdentityInfo.jid), deviceIdentityInfo.credentials);
+	}
+
+	private StandardStreamConfig createStreamConfig(StreamConfigInfo streamConfigInfo) {
+		StandardStreamConfig streamConfig = new StandardStreamConfig(streamConfigInfo.host, streamConfigInfo.port);
+		streamConfig.setTlsPreferred(streamConfigInfo.tlsPreferred);
+		
+		return streamConfig;
+	}
+
+	private class GatewayInfo {
+		private StandardStreamConfig streamConfig;
+		private DeviceIdentity deviceIdentity;
+		private List<ThingInfo> thingInfos;
 	}
 
 	private void createNewThing() {
@@ -596,6 +764,7 @@ public class Gateway extends JFrame implements ActionListener, InternalFrameList
 		
 		menuBar.add(createFileMenu());
 		menuBar.add(createEditMenu());
+		menuBar.add(createToolsMenu());
 		menuBar.add(createHelpMenu());
 		
 		return menuBar;
@@ -615,6 +784,25 @@ public class Gateway extends JFrame implements ActionListener, InternalFrameList
 		editMenu.add(createMenuItem(MENU_ITEM_NAME_DELETE, MENU_ITEM_TEXT_DELETE, -1, null, false));
 		
 		return editMenu;
+	}
+	
+	private JMenu createToolsMenu() {
+		JMenu toolsMenu = new JMenu(MENU_TEXT_TOOLS);
+		toolsMenu.setName(MENU_NAME_TOOLS);
+		toolsMenu.setMnemonic(KeyEvent.VK_T);
+		
+		toolsMenu.add(createMenuItem(MENU_ITEM_NAME_REGISTER, MENU_ITEM_TEXT_REGISTER, -1, null));
+		
+		toolsMenu.addSeparator();
+		
+		toolsMenu.add(createMenuItem(MENU_ITEM_NAME_CONNECT, MENU_ITEM_TEXT_CONNECT, -1, null, false));
+		toolsMenu.add(createMenuItem(MENU_ITEM_NAME_DISCONNECT, MENU_ITEM_TEXT_DISCONNECT, -1, null, false));
+		
+		toolsMenu.addSeparator();
+		
+		toolsMenu.add(createMenuItem(MENU_ITEM_NAME_SHOW_LOG_CONSOLE, MENU_ITEM_TEXT_SHOW_LOG_CONSOLE, -1, null));
+		
+		return toolsMenu;
 	}
 
 	private JMenu createHelpMenu() {
@@ -702,7 +890,17 @@ public class Gateway extends JFrame implements ActionListener, InternalFrameList
 
 	@Override
 	public void windowClosing(WindowEvent e) {
-		quit();
+		if (e.getSource() instanceof JFrame) {
+			quit();
+		} else if (e.getSource() instanceof LogConsoleDialog) {
+			logConsoleDalog.setVisible(false);
+			logConsoleDalog.dispose();
+			logConsoleDalog = null;
+			
+			getMenuItem(MENU_NAME_TOOLS, MENU_ITEM_NAME_SHOW_LOG_CONSOLE).setEnabled(true);
+		} else {
+			// no-op.
+		}
 	}
 
 	@Override
@@ -751,6 +949,9 @@ public class Gateway extends JFrame implements ActionListener, InternalFrameList
 
 	private void refreshPowerRelativedMenuItems() {
 		ThingInternalFrame thingFrame = getSelectedFrame();
+		if (thingFrame == null)
+			return;
+		
 		if (thingFrame.getThing().isPowered()) {			
 			getMenuItem(MENU_NAME_EDIT, MENU_ITEM_NAME_POWER_ON).setEnabled(false);
 			getMenuItem(MENU_NAME_EDIT, MENU_ITEM_NAME_POWER_OFF).setEnabled(true);			
@@ -773,11 +974,9 @@ public class Gateway extends JFrame implements ActionListener, InternalFrameList
 	private void refreshDirtyRelativedMenuItems(boolean dirty) {
 		JMenuItem saveMenuItem = getMenuItem(MENU_NAME_FILE, MENU_ITEM_NAME_SAVE);
 		if (dirty) {
-			if (!saveMenuItem.isEnabled())
-				saveMenuItem.setEnabled(true);
+			saveMenuItem.setEnabled(true);
 		} else {
-			if (saveMenuItem.isEnabled())
-				saveMenuItem.setEnabled(false);
+			saveMenuItem.setEnabled(false);
 		}
 	}
 
@@ -802,6 +1001,21 @@ public class Gateway extends JFrame implements ActionListener, InternalFrameList
 		}
 		
 		throw new IllegalArgumentException(String.format("Menu '%s' not existed.", menuName));
+	}
+
+	@Override
+	public void occurred(ConnectionException exception) {
+		log(exception);
+	}
+
+	@Override
+	public void received(String message) {
+		log("<-- " + message);
+	}
+
+	@Override
+	public void sent(String message) {
+		log("--> " + message);
 	}
 
 	

@@ -18,7 +18,7 @@ import com.firstlinecode.sand.protocols.ibdr.Register;
 import com.firstlinecode.sand.protocols.ibdr.oxm.RegisterTranslatorFactory;
 
 @Component("ibdr.supported.client.message.processor")
-public class IbrSupportedClientMessageProcessor extends StandardClientMessageProcessor {
+public class IbdrSupportedClientMessageProcessor extends StandardClientMessageProcessor {
 	@Dependency("registrar")
 	private IDeviceRegistrar registrar;
 	

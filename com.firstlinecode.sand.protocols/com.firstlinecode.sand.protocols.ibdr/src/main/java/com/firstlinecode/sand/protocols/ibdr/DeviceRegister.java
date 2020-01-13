@@ -1,6 +1,5 @@
 package com.firstlinecode.sand.protocols.ibdr;
 
-import com.firstlinecode.basalt.protocol.core.JabberId;
 import com.firstlinecode.basalt.protocol.core.Protocol;
 import com.firstlinecode.basalt.protocol.oxm.convention.annotations.ProtocolObject;
 
@@ -13,7 +12,7 @@ public class DeviceRegister {
 	public DeviceRegister() {}
 	
 	public DeviceRegister(Object register) {
-		if (!(register instanceof String) && !(register instanceof JabberId))
+		if (!(register instanceof String) && !(register instanceof DeviceIdentity))
 			throw new IllegalArgumentException("Register object must be String or JabberId.");
 		
 		this.register = register;

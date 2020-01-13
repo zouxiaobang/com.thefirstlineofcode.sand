@@ -3,7 +3,6 @@ package com.firstlinecode.sand.server.ibdr;
 import java.util.List;
 
 import com.firstlinecode.basalt.protocol.core.IError;
-import com.firstlinecode.basalt.protocol.core.JabberId;
 import com.firstlinecode.basalt.protocol.core.ProtocolChain;
 import com.firstlinecode.basalt.protocol.core.ProtocolException;
 import com.firstlinecode.basalt.protocol.core.stanza.Iq;
@@ -22,6 +21,7 @@ import com.firstlinecode.basalt.protocol.oxm.translators.error.StreamErrorTransl
 import com.firstlinecode.granite.framework.core.connection.IClientConnectionContext;
 import com.firstlinecode.granite.framework.core.integration.IMessage;
 import com.firstlinecode.granite.framework.stream.negotiants.InitialStreamNegotiant;
+import com.firstlinecode.sand.protocols.ibdr.DeviceIdentity;
 import com.firstlinecode.sand.protocols.ibdr.DeviceRegister;
 import com.firstlinecode.sand.protocols.ibdr.oxm.DeviceRegisterParserFactory;
 import com.firstlinecode.sand.protocols.ibdr.oxm.DeviceRegisterTranslatorFactory;
@@ -110,12 +110,12 @@ public class IbdrNegotiant extends InitialStreamNegotiant {
 		if (register == null || !(register instanceof String))
 			throw new ProtocolException(new BadRequest("Register object isn't a string."));
 		try {
-			JabberId jid = registrar.register((String)register);
+			DeviceIdentity identity = registrar.register((String)register);
 			
 			Iq result = new Iq(Iq.Type.RESULT, iq.getId());
-			result.setObject(new DeviceRegister(jid));
+			result.setObject(new DeviceRegister(identity));
 			
-			context.write(result);
+			context.write(translatingFactory.translate(result));
 		} catch (ProtocolException e) {
 			IError error = e.getError();
 			

@@ -7,14 +7,14 @@
 
 	<parent>
 		<groupId>com.firstlinecode.sand</groupId>
-		<artifactId>com.firstlinecode.sand.server</artifactId>
+		<artifactId>com.firstlinecode.sand.client</artifactId>
 		<version>0.1.0.RELEASE</version>
 	</parent>
 
-	<groupId>com.firstlinecode.sand.server</groupId>
-	<artifactId>com.firstlinecode.sand.server.ibdr</artifactId>
-	<name>com.firstlinecode.sand.server.ibdr</name>
-	<packaging>bundle</packaging>
+	<groupId>com.firstlinecode.sand.client</groupId>
+	<artifactId>com.firstlinecode.sand.client.ibdr</artifactId>
+	<name>com.firstlinecode.sand.client.ibdr</name>
+	<packaging>jar</packaging>
 	
 	<dependencies>
 		<dependency>
@@ -22,8 +22,8 @@
 			<artifactId>com.firstlinecode.sand.protocols.ibdr</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>com.firstlinecode.granite.stream</groupId>
-			<artifactId>com.firstlinecode.granite.stream.standard</artifactId>
+			<groupId>com.firstlinecode.chalk</groupId>
+			<artifactId>com.firstlinecode.chalk</artifactId>
 		</dependency>
 	</dependencies>
 	
