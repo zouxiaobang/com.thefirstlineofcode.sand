@@ -306,6 +306,11 @@
 			<!-- basalt xmpp libraries -->
 			<dependency>
 				<groupId>com.firstlinecode.basalt</groupId>
+				<artifactId>com.firstlinecode.basalt.protocol</artifactId>
+				<version>${basalt.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.firstlinecode.basalt</groupId>
 				<artifactId>com.firstlinecode.basalt.protocol.oxm</artifactId>
 				<version>${basalt.version}</version>
 			</dependency>
@@ -315,6 +320,25 @@
 				<groupId>com.firstlinecode.chalk</groupId>
 				<artifactId>com.firstlinecode.chalk</artifactId>
 				<version>${chalk.version}</version>
+			</dependency>
+
+			<!-- granite framework libraries -->
+			<dependency>
+        			<groupId>com.firstlinecode.granite.framework</groupId>
+        			<artifactId>com.firstlinecode.granite.framework.core</artifactId>
+        			<version>${granite.framework.version}</version>
+			</dependency>
+
+			<dependency>
+        			<groupId>com.firstlinecode.granite.stream</groupId>
+        			<artifactId>com.firstlinecode.granite.stream.standard</artifactId>
+        			<version>${granite.framework.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>com.firstlinecode.granite.framework.supports</groupId>
+        			<artifactId>com.firstlinecode.granite.framework.supports.mybatis</artifactId>
+        			<version>${granite.framework.version}</version>
 			</dependency>
 
 			<!-- sand xmpp libraries -->
@@ -332,6 +356,12 @@
 
 			<dependency>
 				<groupId>com.firstlinecode.sand.protocols</groupId>
+				<artifactId>com.firstlinecode.sand.protocols.core</artifactId>
+				<version>${sand.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>com.firstlinecode.sand.protocols</groupId>
 				<artifactId>com.firstlinecode.sand.protocols.ibdr</artifactId>
 				<version>${sand.version}</version>
 			</dependency>
@@ -342,17 +372,10 @@
 				<version>${sand.version}</version>
 			</dependency>
 
-			<!-- granite framework libraries -->
 			<dependency>
-        			<groupId>com.firstlinecode.granite.framework</groupId>
-        			<artifactId>com.firstlinecode.granite.framework.core</artifactId>
-        			<version>${granite.framework.version}</version>
-			</dependency>
-
-			<dependency>
-        			<groupId>com.firstlinecode.granite.stream</groupId>
-        			<artifactId>com.firstlinecode.granite.stream.standard</artifactId>
-        			<version>${granite.framework.version}</version>
+				<groupId>com.firstlinecode.sand.server.core</groupId>
+				<artifactId>com.firstlinecode.sand.server.core.auth</artifactId>
+				<version>${sand.version}</version>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>

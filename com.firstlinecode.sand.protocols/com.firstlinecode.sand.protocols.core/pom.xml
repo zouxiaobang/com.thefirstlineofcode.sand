@@ -13,18 +13,14 @@
 	</parent>
 
 	<groupId>com.firstlinecode.sand.protocols</groupId>
-	<artifactId>com.firstlinecode.sand.protocols.ibdr</artifactId>
-	<name>com.firstlinecode.sand.protocols.ibdr</name>
+	<artifactId>com.firstlinecode.sand.protocols.core</artifactId>
+	<name>com.firstlinecode.sand.protocols.core</name>
 	<packaging>bundle</packaging>
 	
 	<dependencies>
 		<dependency>
-			<groupId>com.firstlinecode.sand.protocols</groupId>
-			<artifactId>com.firstlinecode.sand.protocols.core</artifactId>
-		</dependency>
-		<dependency>
 			<groupId>com.firstlinecode.basalt</groupId>
-			<artifactId>com.firstlinecode.basalt.protocol.oxm</artifactId>
+			<artifactId>com.firstlinecode.basalt.protocol</artifactId>
 		</dependency>
 	</dependencies>
 	

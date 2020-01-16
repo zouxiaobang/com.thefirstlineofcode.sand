@@ -6,16 +6,16 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<parent>
-		<groupId>com.firstlinecode.sand</groupId>
-		<artifactId>com.firstlinecode.sand.client</artifactId>
+		<groupId>com.firstlinecode.sand.server</groupId>
+		<artifactId>com.firstlinecode.sand.server.core</artifactId>
 		<version>0.1.0.RELEASE</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 
-	<groupId>com.firstlinecode.sand.client</groupId>
-	<artifactId>com.firstlinecode.sand.client.ibdr</artifactId>
-	<name>com.firstlinecode.sand.client.ibdr</name>
-	<packaging>jar</packaging>
+	<groupId>com.firstlinecode.sand.server.core</groupId>
+	<artifactId>com.firstlinecode.sand.server.core.ibdr</artifactId>
+	<name>com.firstlinecode.sand.server.core.ibdr</name>
+	<packaging>bundle</packaging>
 	
 	<dependencies>
 		<dependency>
@@ -23,8 +23,12 @@
 			<artifactId>com.firstlinecode.sand.protocols.ibdr</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>com.firstlinecode.chalk</groupId>
-			<artifactId>com.firstlinecode.chalk</artifactId>
+			<groupId>com.firstlinecode.granite.stream</groupId>
+			<artifactId>com.firstlinecode.granite.stream.standard</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.firstlinecode.sand.server.core</groupId>
+			<artifactId>com.firstlinecode.sand.server.core.auth</artifactId>
 		</dependency>
 	</dependencies>
 	

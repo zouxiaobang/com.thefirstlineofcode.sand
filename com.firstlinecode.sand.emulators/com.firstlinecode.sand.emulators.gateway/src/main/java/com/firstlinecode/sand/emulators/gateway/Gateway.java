@@ -68,7 +68,7 @@ import com.firstlinecode.sand.emulators.thing.AbstractThingPanel;
 import com.firstlinecode.sand.emulators.thing.IThing;
 import com.firstlinecode.sand.emulators.thing.IThingFactory;
 import com.firstlinecode.sand.emulators.thing.ThingsUtils;
-import com.firstlinecode.sand.protocols.ibdr.DeviceIdentity;
+import com.firstlinecode.sand.protocols.core.DeviceIdentity;
 
 public class Gateway extends JFrame implements ActionListener, InternalFrameListener,
 		ComponentListener, WindowListener, IGateway, IConnectionListener {
@@ -334,6 +334,11 @@ public class Gateway extends JFrame implements ActionListener, InternalFrameList
 			log(e);
 		}
 		chatClient.close();
+		
+		if (deviceIdentity == null) {
+			JOptionPane.showMessageDialog(this, "Can't register device.", "Registration Error", JOptionPane.ERROR_MESSAGE);
+			return;
+		}
 		
 		refreshDirtyRelativedMenuItems(true);
 		refreshGatewayInstanceRelativatedMenus();

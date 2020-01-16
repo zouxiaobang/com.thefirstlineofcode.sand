@@ -8,6 +8,7 @@
 		<groupId>com.firstlinecode.sand</groupId>
 		<artifactId>com.firstlinecode.sand</artifactId>
 		<version>0.1.0.RELEASE</version>
+		<relativePath>../pom.xml</relativePath>
 	</parent>
 
 	<groupId>com.firstlinecode.sand</groupId>
@@ -16,7 +17,8 @@
 	<name>Lithosphere IoT server Plugins</name>
 
 	<modules>
-		<module>com.firstlinecode.sand.server.ibdr</module>
+		<module>com.firstlinecode.sand.server.core</module>
+		<module>com.firstlinecode.sand.server.lite</module>
 	</modules>
 
 </project>

@@ -8,6 +8,7 @@
 		<groupId>com.firstlinecode.sand</groupId>
 		<artifactId>com.firstlinecode.sand</artifactId>
 		<version>0.1.0.RELEASE</version>
+		<relativePath>../pom.xml</relativePath>
 	</parent>
 
 	<groupId>com.firstlinecode.sand</groupId>

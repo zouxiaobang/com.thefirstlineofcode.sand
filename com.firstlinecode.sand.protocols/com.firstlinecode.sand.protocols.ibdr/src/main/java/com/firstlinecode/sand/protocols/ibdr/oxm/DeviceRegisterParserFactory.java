@@ -15,7 +15,7 @@ import com.firstlinecode.basalt.protocol.oxm.parsing.IParserFactory;
 import com.firstlinecode.basalt.protocol.oxm.parsing.IParsingContext;
 import com.firstlinecode.basalt.protocol.oxm.parsing.IParsingPath;
 import com.firstlinecode.basalt.protocol.oxm.parsing.ParserAdaptor;
-import com.firstlinecode.sand.protocols.ibdr.DeviceIdentity;
+import com.firstlinecode.sand.protocols.core.DeviceIdentity;
 import com.firstlinecode.sand.protocols.ibdr.DeviceRegister;
 
 public class DeviceRegisterParserFactory implements IParserFactory<DeviceRegister> {

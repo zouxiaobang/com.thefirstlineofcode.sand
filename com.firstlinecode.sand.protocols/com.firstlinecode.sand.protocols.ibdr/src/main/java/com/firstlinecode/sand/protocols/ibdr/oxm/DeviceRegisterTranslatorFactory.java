@@ -6,7 +6,7 @@ import com.firstlinecode.basalt.protocol.oxm.translating.IProtocolWriter;
 import com.firstlinecode.basalt.protocol.oxm.translating.ITranslatingFactory;
 import com.firstlinecode.basalt.protocol.oxm.translating.ITranslator;
 import com.firstlinecode.basalt.protocol.oxm.translating.ITranslatorFactory;
-import com.firstlinecode.sand.protocols.ibdr.DeviceIdentity;
+import com.firstlinecode.sand.protocols.core.DeviceIdentity;
 import com.firstlinecode.sand.protocols.ibdr.DeviceRegister;
 
 public class DeviceRegisterTranslatorFactory implements ITranslatorFactory<DeviceRegister> {

@@ -6,19 +6,18 @@
 	
 	<parent>
 		<groupId>com.firstlinecode.sand</groupId>
-		<artifactId>com.firstlinecode.sand</artifactId>
+		<artifactId>com.firstlinecode.sand.server</artifactId>
 		<version>0.1.0.RELEASE</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 
-	<groupId>com.firstlinecode.sand</groupId>
-	<artifactId>com.firstlinecode.sand.protocols</artifactId>
+	<groupId>com.firstlinecode.sand.server</groupId>
+	<artifactId>com.firstlinecode.sand.server.lite</artifactId>
 	<packaging>pom</packaging>
-	<name>Lithosphere IoT Protocol Plugins</name>
+	<name>Lithosphere IoT server lite Plugins</name>
 
 	<modules>
-		<module>com.firstlinecode.sand.protocols.core</module>
-		<module>com.firstlinecode.sand.protocols.ibdr</module>
+		<module>com.firstlinecode.sand.server.lite.auth</module>
 	</modules>
 
 </project>

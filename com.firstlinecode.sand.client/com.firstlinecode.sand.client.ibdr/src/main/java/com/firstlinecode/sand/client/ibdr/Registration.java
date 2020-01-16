@@ -21,7 +21,7 @@ import com.firstlinecode.chalk.core.stream.NegotiationException;
 import com.firstlinecode.chalk.core.stream.StandardStreamConfig;
 import com.firstlinecode.chalk.network.ConnectionException;
 import com.firstlinecode.chalk.network.IConnectionListener;
-import com.firstlinecode.sand.protocols.ibdr.DeviceIdentity;
+import com.firstlinecode.sand.protocols.core.DeviceIdentity;
 import com.firstlinecode.sand.protocols.ibdr.DeviceRegister;
 
 public class Registration implements IRegistration, IConnectionListener, INegotiationListener {

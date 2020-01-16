@@ -2,7 +2,7 @@ package com.firstlinecode.sand.client.ibdr;
 
 import com.firstlinecode.chalk.core.stream.INegotiationListener;
 import com.firstlinecode.chalk.network.IConnectionListener;
-import com.firstlinecode.sand.protocols.ibdr.DeviceIdentity;
+import com.firstlinecode.sand.protocols.core.DeviceIdentity;
 
 public interface IRegistration {
 	DeviceIdentity register(String deviceId) throws RegistrationException;
