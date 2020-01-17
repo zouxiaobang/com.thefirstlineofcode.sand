@@ -28,8 +28,8 @@
 		<osgi:reference id="sqlSessionFactory" interface="org.apache.ibatis.session.SqlSessionFactory"/>
 		<osgi:reference id="txManager" interface="org.springframework.jdbc.datasource.DataSourceTransactionManager"/>
 		
-		<granite:component component-id="lite.device.authenticator" ref="authenticator"/>
-		<granite:component component-id="device.authenticator" ref="authenticator"/>
+		<granite:component component-id="lite.device.authenticator" ref="deviceAuthenticator"/>
+		<granite:component component-id="device.authenticator" ref="deviceAuthenticator"/>
 		
 		<granite:component component-id="lite.device.identity.manager" ref="deviceIdentityManager"/>
 		<granite:component component-id="device.identity.manager" ref="deviceIdentityManager"/>

@@ -1,9 +1,14 @@
 package com.firstlinecode.sand.server.lite.auth;
 
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.firstlinecode.basalt.protocol.core.JabberId;
 import com.firstlinecode.sand.protocols.core.DeviceIdentity;
 import com.firstlinecode.sand.server.core.auth.IDeviceIdentityManager;
 
+@Transactional
+@Component
 public class DeviceIdentityManager implements IDeviceIdentityManager {
 
 	@Override
