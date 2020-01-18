@@ -31,7 +31,7 @@
 		<granite:component component-id="lite.device.authenticator" ref="deviceAuthenticator"/>
 		<granite:component component-id="device.authenticator" ref="deviceAuthenticator"/>
 		
-		<granite:component component-id="lite.device.identity.manager" ref="deviceIdentityManager"/>
-		<granite:component component-id="device.identity.manager" ref="deviceIdentityManager"/>
+		<granite:component component-id="lite.device.manager" ref="deviceManager"/>
+		<granite:component component-id="device.manager" ref="deviceManager"/>
 		
 </beans>

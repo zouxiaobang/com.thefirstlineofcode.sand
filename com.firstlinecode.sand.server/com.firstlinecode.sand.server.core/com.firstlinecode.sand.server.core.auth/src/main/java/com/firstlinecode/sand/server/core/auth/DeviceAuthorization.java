@@ -5,8 +5,9 @@ import java.util.Date;
 public class DeviceAuthorization {
 	private String deviceId;
 	private String authorizer;
-	private Date authorizeTime;
+	private Date authorizedTime;
 	private Date expiredTime;
+	private boolean canceled;
 	
 	public String getDeviceId() {
 		return deviceId;
@@ -24,12 +25,12 @@ public class DeviceAuthorization {
 		this.authorizer = authorizer;
 	}
 	
-	public Date getAuthorizeTime() {
-		return authorizeTime;
+	public Date getAuthorizedTime() {
+		return authorizedTime;
 	}
 	
-	public void setAuthorizeTime(Date authorizeTime) {
-		this.authorizeTime = authorizeTime;
+	public void setAuthorizedTime(Date authorizeTime) {
+		this.authorizedTime = authorizeTime;
 	}
 	
 	public Date getExpiredTime() {
@@ -39,4 +40,13 @@ public class DeviceAuthorization {
 	public void setExpiredTime(Date expiredTime) {
 		this.expiredTime = expiredTime;
 	}
+
+	public boolean isCanceled() {
+		return canceled;
+	}
+
+	public void setCanceled(boolean canceled) {
+		this.canceled = canceled;
+	}
+	
 }

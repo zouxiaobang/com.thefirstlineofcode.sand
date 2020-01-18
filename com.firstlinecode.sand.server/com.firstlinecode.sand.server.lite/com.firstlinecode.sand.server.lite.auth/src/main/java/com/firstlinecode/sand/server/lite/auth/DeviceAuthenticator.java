@@ -17,9 +17,7 @@ public class DeviceAuthenticator implements IAuthenticator {
 
 	@Override
 	public Object getCredentials(Object principal) {
-		DeviceIdentityMapper mapper = sqlSession.getMapper(DeviceIdentityMapper.class);
-		
-		DeviceIdentity deviceIdentity = mapper.selectByJid((JabberId)principal);
+		DeviceIdentity deviceIdentity = getDeviceIdentityMapper().selectByJid((JabberId)principal);
 		if (deviceIdentity != null)
 			return deviceIdentity.getCredentials();
 		
@@ -28,10 +26,11 @@ public class DeviceAuthenticator implements IAuthenticator {
 
 	@Override
 	public boolean exists(Object principal) {
-		DeviceIdentityMapper mapper = sqlSession.getMapper(DeviceIdentityMapper.class);
-		int count = mapper.selectCountByJid((JabberId)principal);
-		
-		return count != 0;
+		return getDeviceIdentityMapper().selectCountByJid((JabberId)principal) != 0;
+	}
+
+	private DeviceIdentityMapper getDeviceIdentityMapper() {
+		return sqlSession.getMapper(DeviceIdentityMapper.class);
 	}
 
 }

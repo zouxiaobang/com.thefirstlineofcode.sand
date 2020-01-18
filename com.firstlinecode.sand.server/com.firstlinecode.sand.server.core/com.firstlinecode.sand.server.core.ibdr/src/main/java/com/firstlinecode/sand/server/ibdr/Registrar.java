@@ -10,14 +10,14 @@ import com.firstlinecode.granite.framework.core.annotations.Dependency;
 import com.firstlinecode.granite.framework.core.config.IApplicationConfiguration;
 import com.firstlinecode.granite.framework.core.config.IApplicationConfigurationAware;
 import com.firstlinecode.sand.protocols.core.DeviceIdentity;
-import com.firstlinecode.sand.server.core.auth.IDeviceIdentityManager;
+import com.firstlinecode.sand.server.core.auth.IDeviceManager;
 
 @Component("default.device.registrar")
 public class Registrar implements IDeviceRegistrar, IApplicationConfigurationAware {
 	private String domainName;
 	
 	@Dependency("device.identity.manager")
-	private IDeviceIdentityManager deviceIdentityManager;
+	private IDeviceManager deviceIdentityManager;
 	
 	@Override
 	public DeviceIdentity register(String deviceId) {

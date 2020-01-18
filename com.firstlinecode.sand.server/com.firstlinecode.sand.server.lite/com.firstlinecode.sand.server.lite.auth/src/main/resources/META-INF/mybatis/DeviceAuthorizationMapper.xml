@@ -3,6 +3,22 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.firstlinecode.sand.server.lite.auth.DeviceAuthorizationMapper">
     <insert id="insert" parameterType="DeviceAuthorization">
-        INSERT INTO DEVICE_AUTHORIZATION(id, device_id, authorizer, authorize_time, expired_time) VALUES(#{id}, #{deviceId}, #{authorizer}, #{authorize_time}, #{expired_time})
+        INSERT INTO DEVICE_AUTHORIZATION(id, device_id, authorizer, authorized_time, expired_time, canceled) VALUES(#{id}, #{deviceId}, #{authorizer}, #{authorizedTime}, #{expiredTime}, FALSE)
     </insert>
+    
+    <update id="updateCanceled">
+		UPDATE DEVICE_IDENTITY SET canceled=#{1} WHERE device_id=#{0}
+    </update>
+    
+	<select id="selectByDeviceId" resultMap="deviceAuthorizationResultMap">
+		SELECT * FROM DEVICE_AUTHORZATION WHERE device_id=#{0}
+	</select>
+	
+	<resultMap id="deviceAuthorizationResultMap" type="DeviceAuthorization">
+	    <result property="deviceId" column="device_id"/>
+	    <result property="authorizer" column="authorizer"/>
+	    <result property="authorizedTime" column="authorized_time"/>
+	    <result property="expiredTime" column="expired_time"/>
+	    <result property="canceled" column="canceled"/>
+	</resultMap>
 </mapper>

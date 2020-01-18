@@ -1,13 +1,15 @@
 package com.firstlinecode.sand.server.lite.auth;
 
+import java.util.Date;
+
 import com.firstlinecode.granite.framework.core.supports.data.IIdProvider;
 import com.firstlinecode.sand.protocols.core.DeviceIdentity;
-import com.firstlinecode.sand.server.core.auth.DeviceIdentityState;
 
 public class D_DeviceIdentity extends DeviceIdentity implements IIdProvider<String> {
 	private String id;
 	private String deviceId;
-	private DeviceIdentityState state;
+	private Date registerTime;
+	private String authorizationId;
 	
 	@Override
 	public String getId() {
@@ -27,11 +29,20 @@ public class D_DeviceIdentity extends DeviceIdentity implements IIdProvider<Stri
 		this.deviceId = deviceId;
 	}
 
-	public DeviceIdentityState getState() {
-		return state;
+	public Date getRegisterTime() {
+		return registerTime;
 	}
 
-	public void setState(DeviceIdentityState state) {
-		this.state = state;
+	public void setRegisterTime(Date registerTime) {
+		this.registerTime = registerTime;
 	}
+
+	public String getAuthorizationId() {
+		return authorizationId;
+	}
+
+	public void setAuthorizationId(String authorizationId) {
+		this.authorizationId = authorizationId;
+	}
+	
 }
