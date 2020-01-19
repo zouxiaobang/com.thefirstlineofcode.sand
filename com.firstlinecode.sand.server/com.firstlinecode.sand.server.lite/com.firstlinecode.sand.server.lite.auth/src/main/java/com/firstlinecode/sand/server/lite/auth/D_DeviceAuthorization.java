@@ -1,7 +1,7 @@
 package com.firstlinecode.sand.server.lite.auth;
 
 import com.firstlinecode.granite.framework.core.supports.data.IIdProvider;
-import com.firstlinecode.sand.server.core.auth.DeviceAuthorization;
+import com.firstlinecode.sand.server.framework.auth.DeviceAuthorization;
 
 public class D_DeviceAuthorization extends DeviceAuthorization implements IIdProvider<String> {
 	private String id;

@@ -385,8 +385,8 @@
 			</dependency>
 
 			<dependency>
-				<groupId>com.firstlinecode.sand.server.core</groupId>
-				<artifactId>com.firstlinecode.sand.server.core.auth</artifactId>
+				<groupId>com.firstlinecode.sand.server</groupId>
+				<artifactId>com.firstlinecode.sand.server.framework</artifactId>
 				<version>${sand.version}</version>
 			</dependency>
 

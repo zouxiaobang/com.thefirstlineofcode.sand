@@ -12,12 +12,12 @@
 	</parent>
 
 	<groupId>com.firstlinecode.sand.server</groupId>
-	<artifactId>com.firstlinecode.sand.server.lite</artifactId>
+	<artifactId>com.firstlinecode.sand.server.leps</artifactId>
 	<packaging>pom</packaging>
-	<name>Lithosphere IoT server Lite Plugins</name>
+	<name>Lithosphere IoT server LEPs Plugins</name>
 
 	<modules>
-		<module>com.firstlinecode.sand.server.lite.auth</module>
+		<module>com.firstlinecode.sand.server.leps.ibdr</module>
 	</modules>
 
 </project>

@@ -17,7 +17,9 @@
 	<name>Lithosphere IoT server Plugins</name>
 
 	<modules>
-		<module>com.firstlinecode.sand.server.core</module>
+		<module>com.firstlinecode.sand.server.framework</module>
+		<module>com.firstlinecode.sand.server.stream</module>
+		<module>com.firstlinecode.sand.server.leps</module>
 		<module>com.firstlinecode.sand.server.lite</module>
 	</modules>
 

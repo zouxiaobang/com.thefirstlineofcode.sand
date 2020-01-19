@@ -16,8 +16,8 @@ import com.firstlinecode.basalt.protocol.core.stream.error.NotAuthorized;
 import com.firstlinecode.granite.framework.core.config.IApplicationConfiguration;
 import com.firstlinecode.granite.framework.core.config.IApplicationConfigurationAware;
 import com.firstlinecode.sand.protocols.core.DeviceIdentity;
-import com.firstlinecode.sand.server.core.auth.DeviceAuthorization;
-import com.firstlinecode.sand.server.core.auth.IDeviceManager;
+import com.firstlinecode.sand.server.framework.auth.DeviceAuthorization;
+import com.firstlinecode.sand.server.framework.auth.IDeviceManager;
 
 @Transactional
 @Component
