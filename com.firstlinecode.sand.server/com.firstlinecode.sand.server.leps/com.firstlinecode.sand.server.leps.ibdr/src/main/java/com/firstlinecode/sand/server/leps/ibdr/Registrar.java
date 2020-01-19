@@ -16,8 +16,8 @@ import com.firstlinecode.sand.server.framework.auth.IDeviceManager;
 public class Registrar implements IDeviceRegistrar, IApplicationConfigurationAware {
 	private String domainName;
 	
-	@Dependency("device.identity.manager")
-	private IDeviceManager deviceIdentityManager;
+	@Dependency("device.manager")
+	private IDeviceManager deviceManager;
 	
 	@Override
 	public DeviceIdentity register(String deviceId) {

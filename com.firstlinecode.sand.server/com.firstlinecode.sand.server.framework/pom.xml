@@ -11,6 +11,11 @@
 		<version>0.1.0.RELEASE</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
+	
+	<properties>
+		<bundle.symbolicName>com.firstlinecode.sand.server.framework</bundle.symbolicName>
+		<bundle.namespace>com.firstlinecode.sand.server.framework</bundle.namespace>
+	</properties>
 
 	<groupId>com.firstlinecode.sand.server</groupId>
 	<artifactId>com.firstlinecode.sand.server.framework</artifactId>
@@ -18,6 +23,14 @@
 	<packaging>bundle</packaging>
 	
 	<dependencies>
+		<dependency>
+			<groupId>org.eclipse.platform</groupId>
+			<artifactId>org.eclipse.osgi</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.firstlinecode.granite.framework</groupId>
+			<artifactId>com.firstlinecode.granite.framework.core</artifactId>
+		</dependency>
 		<dependency>
 			<groupId>com.firstlinecode.sand.protocols</groupId>
 			<artifactId>com.firstlinecode.sand.protocols.core</artifactId>
