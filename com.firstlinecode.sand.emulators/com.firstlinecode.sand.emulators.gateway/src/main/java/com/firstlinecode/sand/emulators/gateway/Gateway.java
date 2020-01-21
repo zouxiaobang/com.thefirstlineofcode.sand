@@ -330,20 +330,17 @@ public class Gateway extends JFrame implements ActionListener, InternalFrameList
 		registration.addConnectionListener(this);
 		try {
 			deviceIdentity = registration.register(deviceId);
+			
+			refreshDirtyRelativedMenuItems(true);
+			refreshGatewayInstanceRelativatedMenus();
+			updateTitle();
+			updateStatus();
 		} catch (RegistrationException e) {
 			log(e);
+			JOptionPane.showMessageDialog(this, "Can't register device. Error: " + e.getError(), "Registration Error", JOptionPane.ERROR_MESSAGE);
+		} finally {			
+			chatClient.close();
 		}
-		chatClient.close();
-		
-		if (deviceIdentity == null) {
-			JOptionPane.showMessageDialog(this, "Can't register device.", "Registration Error", JOptionPane.ERROR_MESSAGE);
-			return;
-		}
-		
-		refreshDirtyRelativedMenuItems(true);
-		refreshGatewayInstanceRelativatedMenus();
-		updateTitle();
-		updateStatus();
 	}
 
 	private void log(Exception e) {

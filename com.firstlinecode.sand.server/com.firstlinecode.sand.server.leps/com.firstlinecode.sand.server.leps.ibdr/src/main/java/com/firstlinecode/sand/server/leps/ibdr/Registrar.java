@@ -1,41 +1,32 @@
 package com.firstlinecode.sand.server.leps.ibdr;
 
-import com.firstlinecode.basalt.protocol.core.JabberId;
-import com.firstlinecode.basalt.protocol.core.MalformedJidException;
 import com.firstlinecode.basalt.protocol.core.ProtocolException;
-import com.firstlinecode.basalt.protocol.core.stanza.Stanza;
-import com.firstlinecode.basalt.protocol.core.stanza.error.BadRequest;
+import com.firstlinecode.basalt.protocol.core.stanza.error.NotAcceptable;
 import com.firstlinecode.granite.framework.core.annotations.Component;
 import com.firstlinecode.granite.framework.core.annotations.Dependency;
-import com.firstlinecode.granite.framework.core.config.IApplicationConfiguration;
-import com.firstlinecode.granite.framework.core.config.IApplicationConfigurationAware;
 import com.firstlinecode.sand.protocols.core.DeviceIdentity;
 import com.firstlinecode.sand.server.framework.auth.IDeviceManager;
 
 @Component("default.device.registrar")
-public class Registrar implements IDeviceRegistrar, IApplicationConfigurationAware {
-	private String domainName;
-	
+public class Registrar implements IDeviceRegistrar {
 	@Dependency("device.manager")
 	private IDeviceManager deviceManager;
 	
 	@Override
 	public DeviceIdentity register(String deviceId) {
-		try {
-			return new DeviceIdentity(JabberId.parse(deviceId + "@" + domainName), Stanza.generateId());
-		} catch (MalformedJidException e) {
-			throw new ProtocolException(new BadRequest("Invalid device ID: " + deviceId));
-		}
+		if (!isValidDeviceId(deviceId))
+			throw new ProtocolException(new NotAcceptable());
+		
+		return deviceManager.register(deviceId);
 	}
 	
-	@Override
-	public void remove(String deviceId) {
-		// TODO
+	protected boolean isValidDeviceId(String deviceId) {
+		return deviceId.length() == 12;
 	}
 
 	@Override
-	public void setApplicationConfiguration(IApplicationConfiguration appConfiguration) {
-		domainName = appConfiguration.getDomainName();
+	public void remove(String deviceId) {
+		// TODO
 	}
 	
 }

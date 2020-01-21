@@ -23,7 +23,7 @@ public class StreamConfigDialog extends JDialog implements WindowListener, Actio
 	private static final long serialVersionUID = 2334251819432524828L;
 	
 	private static final String DEFAULT_HOST = "localhost";
-	private static final String DEFAULT_PORT = "5222";
+	private static final String DEFAULT_PORT = "6222";
 
 	private static final String ACTION_COMMAND_OK = "ok";
 	private static final String ACTION_COMMAND_CANCEL = "cancel";

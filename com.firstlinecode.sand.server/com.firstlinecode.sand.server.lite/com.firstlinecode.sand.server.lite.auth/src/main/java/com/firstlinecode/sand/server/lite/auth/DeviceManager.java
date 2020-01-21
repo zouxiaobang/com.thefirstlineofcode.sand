@@ -11,8 +11,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.firstlinecode.basalt.protocol.core.JabberId;
 import com.firstlinecode.basalt.protocol.core.ProtocolException;
-import com.firstlinecode.basalt.protocol.core.stream.error.Conflict;
-import com.firstlinecode.basalt.protocol.core.stream.error.NotAuthorized;
+import com.firstlinecode.basalt.protocol.core.stanza.error.Conflict;
+import com.firstlinecode.basalt.protocol.core.stanza.error.NotAuthorized;
 import com.firstlinecode.granite.framework.core.config.IApplicationConfiguration;
 import com.firstlinecode.granite.framework.core.config.IApplicationConfigurationAware;
 import com.firstlinecode.sand.protocols.core.DeviceIdentity;
@@ -30,9 +30,16 @@ public class DeviceManager implements IDeviceManager, IApplicationConfigurationA
 	@Override
 	public void authorize(String deviceId, String authorizer, long validityTime) {
 		Date authorizedTime = Calendar.getInstance().getTime();
-		Date expiredTime = getExpiredTime(validityTime, authorizedTime.getTime());
+		Date expiredTime = getExpiredTime(authorizedTime.getTime(), validityTime);
 		
-		getDeviceAuthorizationMapper().insert(deviceId, authorizer, authorizedTime, expiredTime);
+		D_DeviceAuthorization authrozation = new D_DeviceAuthorization();
+		authrozation.setId(UUID.randomUUID().toString());
+		authrozation.setDeviceId(deviceId);
+		authrozation.setAuthorizer(authorizer);
+		authrozation.setAuthorizedTime(authorizedTime);
+		authrozation.setExpiredTime(expiredTime);
+		
+		getDeviceAuthorizationMapper().insert(authrozation);
 	}
 	
 	@Override
@@ -59,15 +66,16 @@ public class DeviceManager implements IDeviceManager, IApplicationConfigurationA
 		}
 		
 		D_DeviceIdentity deviceIdentity = new D_DeviceIdentity();
+		deviceIdentity.setId(UUID.randomUUID().toString());
 		deviceIdentity.setDeviceId(deviceId);
 		deviceIdentity.setJid(createJid(deviceId));
 		deviceIdentity.setCredentials(createCredentials());
-		deviceIdentity.setRegisterTime(Calendar.getInstance().getTime());
+		deviceIdentity.setRegisteredTime(Calendar.getInstance().getTime());
 		deviceIdentity.setAuthorizationId(authorization.getId());
 		
 		getDeviceIdentityMapper().insert(deviceIdentity);
 		
-		return deviceIdentity;
+		return new DeviceIdentity(deviceIdentity.getJid(), deviceIdentity.getCredentials());
 	}
 
 	protected String createCredentials() {
@@ -104,8 +112,18 @@ public class DeviceManager implements IDeviceManager, IApplicationConfigurationA
 	}
 
 	@Override
+	public boolean exists(String deviceId) {
+		return getDeviceIdentityMapper().selectCountByDeviceId(deviceId) != 0;
+	}
+	
+	@Override
 	public boolean exists(JabberId jid) {
 		return getDeviceIdentityMapper().selectCountByJid(jid) != 0;
+	}
+	
+	@Override
+	public DeviceIdentity get(String deviceId) {
+		return getDeviceIdentityMapper().selectByDeviceId(deviceId);
 	}
 	
 	@Override

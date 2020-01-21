@@ -8,7 +8,7 @@ import com.firstlinecode.sand.protocols.core.DeviceIdentity;
 public class D_DeviceIdentity extends DeviceIdentity implements IIdProvider<String> {
 	private String id;
 	private String deviceId;
-	private Date registerTime;
+	private Date registeredTime;
 	private String authorizationId;
 	
 	@Override
@@ -29,12 +29,12 @@ public class D_DeviceIdentity extends DeviceIdentity implements IIdProvider<Stri
 		this.deviceId = deviceId;
 	}
 
-	public Date getRegisterTime() {
-		return registerTime;
+	public Date getRegisteredTime() {
+		return registeredTime;
 	}
 
-	public void setRegisterTime(Date registerTime) {
-		this.registerTime = registerTime;
+	public void setRegisteredTime(Date registerTime) {
+		this.registeredTime = registerTime;
 	}
 
 	public String getAuthorizationId() {

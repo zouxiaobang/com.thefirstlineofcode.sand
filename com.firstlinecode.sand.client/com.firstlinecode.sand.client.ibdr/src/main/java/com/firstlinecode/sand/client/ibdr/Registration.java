@@ -8,6 +8,7 @@ import com.firstlinecode.basalt.protocol.core.stanza.Iq;
 import com.firstlinecode.basalt.protocol.core.stanza.Stanza;
 import com.firstlinecode.basalt.protocol.core.stanza.error.Conflict;
 import com.firstlinecode.basalt.protocol.core.stanza.error.NotAcceptable;
+import com.firstlinecode.basalt.protocol.core.stanza.error.NotAuthorized;
 import com.firstlinecode.basalt.protocol.core.stanza.error.RemoteServerTimeout;
 import com.firstlinecode.chalk.AuthFailureException;
 import com.firstlinecode.chalk.IChatClient;
@@ -50,17 +51,18 @@ public class Registration implements IRegistration, IConnectionListener, INegoti
 			// it's impossible
 		}
 		
-		
 		try {
-			return chatClient.getChatServices().getTaskService().execute(new RegisterTask(deviceId));
+			return chatClient.getChatServices().getTaskService().execute(new RegisterTask(deviceId), 1000 * 60 * 10);
 		} catch (ErrorException e) {
 			IError error = e.getError();
 			if (error.getDefinedCondition().equals(RemoteServerTimeout.DEFINED_CONDITION)) {
 				throw new RegistrationException(IbdrError.TIMEOUT);
-			} else if (error.getDefinedCondition().equals(Conflict.DEFINED_CONDITION)) {
-				throw new RegistrationException(IbdrError.CONFLICT);
 			} else if (error.getDefinedCondition().equals(NotAcceptable.DEFINED_CONDITION)) {
 				throw new RegistrationException(IbdrError.NOT_ACCEPTABLE);
+			} else if (error.getDefinedCondition().equals(NotAuthorized.DEFINED_CONDITION)) {
+				throw new RegistrationException(IbdrError.NOT_AUTHORIZED);
+			} else if (error.getDefinedCondition().equals(Conflict.DEFINED_CONDITION)) {
+				throw new RegistrationException(IbdrError.CONFLICT);
 			} else {
 				throw new RegistrationException(IbdrError.UNKNOWN, e);
 			}
@@ -73,7 +75,7 @@ public class Registration implements IRegistration, IConnectionListener, INegoti
 		}
 	}
 	
-	private class RegisterTask implements ISyncTask<Iq, DeviceIdentity>  {
+	private class RegisterTask implements ISyncTask<Iq, DeviceIdentity> {
 		private DeviceRegister deviceRegister;
 		
 		public RegisterTask(String deviceId) {
@@ -94,7 +96,6 @@ public class Registration implements IRegistration, IConnectionListener, INegoti
 			DeviceRegister register = iq.getObject();
 			return (DeviceIdentity)register.getRegister();
 		}
-		
 	}
 
 	@Override

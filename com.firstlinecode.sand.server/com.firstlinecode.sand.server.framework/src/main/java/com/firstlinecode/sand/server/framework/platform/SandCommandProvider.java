@@ -7,6 +7,9 @@ import com.firstlinecode.granite.framework.core.annotations.Dependency;
 import com.firstlinecode.sand.server.framework.auth.IDeviceManager;
 
 public class SandCommandProvider implements CommandProvider {
+	private static final String SYSTEM_CONSOLE_AUTHORIZER = "System.Console";
+	private static final int DEFAULT_VALIDITY_TIME = 1000 * 60 * 30;
+
 	private static final String MSG_HELP = "sand - monitoring and managing sand application.\r\n";
 	
 	private static final String MSG_DETAIL_HELP =
@@ -42,11 +45,11 @@ public class SandCommandProvider implements CommandProvider {
 		} else if ("authorize".equals(nextArg)) {
 			String deviceId = interpreter.nextArgument();
 			if (deviceId == null) {
-				interpreter.print(String.format("You must provide a device ID.\n"));	
+				interpreter.print(String.format("Error: You must provide a device ID.\n"));	
 				return;
 			}
 			
-			authorize(deviceId);
+			authorize(interpreter, deviceId);
 		} else if ("devices".equals(nextArg)) {
 			String sStartIndex = interpreter.nextArgument();
 			
@@ -71,9 +74,14 @@ public class SandCommandProvider implements CommandProvider {
 		
 	}
 
-	private void authorize(String deviceId) {
-		// TODO Auto-generated method stub
+	private void authorize(CommandInterpreter interpreter, String deviceId) {
+		if (deviceManager.exists(deviceId)) {
+			interpreter.print(String.format("Error: Device which ID is '%s' has already registered.\n", deviceId));
+			return;
+		}
 		
+		deviceManager.authorize(deviceId, SYSTEM_CONSOLE_AUTHORIZER, DEFAULT_VALIDITY_TIME);
+		interpreter.print(String.format("Device which ID is '%s' has authorized.\n", deviceId));
 	}
 
 	private void printDetailHelp(CommandInterpreter interpreter) {

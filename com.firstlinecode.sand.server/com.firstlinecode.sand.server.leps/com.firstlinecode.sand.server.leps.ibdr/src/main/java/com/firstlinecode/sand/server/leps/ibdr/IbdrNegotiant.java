@@ -2,22 +2,21 @@ package com.firstlinecode.sand.server.leps.ibdr;
 
 import java.util.List;
 
-import com.firstlinecode.basalt.protocol.core.IError;
 import com.firstlinecode.basalt.protocol.core.ProtocolChain;
 import com.firstlinecode.basalt.protocol.core.ProtocolException;
 import com.firstlinecode.basalt.protocol.core.stanza.Iq;
 import com.firstlinecode.basalt.protocol.core.stanza.error.BadRequest;
+import com.firstlinecode.basalt.protocol.core.stanza.error.InternalServerError;
 import com.firstlinecode.basalt.protocol.core.stanza.error.StanzaError;
 import com.firstlinecode.basalt.protocol.core.stream.Feature;
 import com.firstlinecode.basalt.protocol.core.stream.Stream;
-import com.firstlinecode.basalt.protocol.core.stream.error.StreamError;
 import com.firstlinecode.basalt.protocol.oxm.OxmService;
 import com.firstlinecode.basalt.protocol.oxm.parsers.core.stanza.IqParserFactory;
 import com.firstlinecode.basalt.protocol.oxm.parsing.IParsingFactory;
 import com.firstlinecode.basalt.protocol.oxm.translating.ITranslatingFactory;
 import com.firstlinecode.basalt.protocol.oxm.translators.core.stanza.IqTranslatorFactory;
 import com.firstlinecode.basalt.protocol.oxm.translators.core.stream.StreamTranslatorFactory;
-import com.firstlinecode.basalt.protocol.oxm.translators.error.StreamErrorTranslatorFactory;
+import com.firstlinecode.basalt.protocol.oxm.translators.error.StanzaErrorTranslatorFactory;
 import com.firstlinecode.granite.framework.core.connection.IClientConnectionContext;
 import com.firstlinecode.granite.framework.core.integration.IMessage;
 import com.firstlinecode.granite.framework.stream.negotiants.InitialStreamNegotiant;
@@ -51,7 +50,7 @@ public class IbdrNegotiant extends InitialStreamNegotiant {
 				DeviceRegister.class,
 				new DeviceRegisterTranslatorFactory()
 		);
-		translatingFactory.register(StreamError.class, new StreamErrorTranslatorFactory());
+		translatingFactory.register(StanzaError.class, new StanzaErrorTranslatorFactory());
 		translatingFactory.register(Stream.class, new StreamTranslatorFactory());
 	}
 	
@@ -106,25 +105,37 @@ public class IbdrNegotiant extends InitialStreamNegotiant {
 			throw new ProtocolException(new BadRequest("Null register object."));
 		}
 		
-		Object register = deviceRegister.getRegister();
-		if (register == null || !(register instanceof String))
-			throw new ProtocolException(new BadRequest("Register object isn't a string."));
 		try {
-			DeviceIdentity identity = registrar.register((String)register);
+			Object register = deviceRegister.getRegister();
+			if (register == null || !(register instanceof String))
+				throw new ProtocolException(new BadRequest("Register object isn't a string."));
 			
+			DeviceIdentity identity = registrar.register((String)register);
 			Iq result = new Iq(Iq.Type.RESULT, iq.getId());
 			result.setObject(new DeviceRegister(identity));
 			
 			context.write(translatingFactory.translate(result));
-		} catch (ProtocolException e) {
-			IError error = e.getError();
-			
-			if (error instanceof StanzaError) {
-				((StanzaError)error).setId(iq.getId());
+		} catch (RuntimeException e) {
+			// Standard client message processor doesn't support processing stanza error in normal situation.
+			// So we process the exception by self.
+			processException(iq, e);
+		}
+	}
+
+	private void processException(Iq iq, RuntimeException e) {
+		if (e instanceof ProtocolException) {
+			ProtocolException pe = (ProtocolException)e;
+			if (pe.getError() instanceof StanzaError) {
+				StanzaError error = (StanzaError)pe.getError();
+				error.setId(iq.getId());
 			}
 			
 			throw e;
+		} else {
+			StanzaError error = new InternalServerError("Unexpected error. Error message: " + e.getMessage());
+			error.setId(iq.getId());
+			
+			throw new ProtocolException(error);
 		}
-		
 	}
 }

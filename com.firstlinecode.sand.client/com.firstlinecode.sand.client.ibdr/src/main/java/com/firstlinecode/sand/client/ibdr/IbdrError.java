@@ -6,5 +6,6 @@ public enum IbdrError {
 	NOT_SUPPORTED,
 	CONFLICT,
 	NOT_ACCEPTABLE,
+	NOT_AUTHORIZED,
 	UNKNOWN
 }

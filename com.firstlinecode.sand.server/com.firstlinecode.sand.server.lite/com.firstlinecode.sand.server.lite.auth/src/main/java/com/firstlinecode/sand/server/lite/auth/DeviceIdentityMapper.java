@@ -8,5 +8,6 @@ public interface DeviceIdentityMapper {
 	void delete(JabberId jid);
 	DeviceIdentity selectByDeviceId(String deviceId);
 	DeviceIdentity selectByJid(JabberId jid);
+	int selectCountByDeviceId(String deviceId);
 	int selectCountByJid(JabberId jid);
 }
