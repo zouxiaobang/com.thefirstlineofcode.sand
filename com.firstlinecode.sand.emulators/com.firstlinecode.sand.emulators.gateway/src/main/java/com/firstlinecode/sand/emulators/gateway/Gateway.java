@@ -331,7 +331,7 @@ public class Gateway extends JFrame implements ActionListener, InternalFrameList
 		try {
 			deviceIdentity = registration.register(deviceId);
 			
-			refreshDirtyRelativedMenuItems(true);
+			setDirty(true);
 			refreshGatewayInstanceRelativatedMenus();
 			updateTitle();
 			updateStatus();
