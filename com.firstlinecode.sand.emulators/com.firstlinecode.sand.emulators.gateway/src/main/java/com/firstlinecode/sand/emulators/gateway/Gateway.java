@@ -1012,12 +1012,12 @@ public class Gateway extends JFrame implements ActionListener, InternalFrameList
 
 	@Override
 	public void received(String message) {
-		log("<-- " + message);
+		log("D<--S " + message);
 	}
 
 	@Override
 	public void sent(String message) {
-		log("--> " + message);
+		log("D-->S " + message);
 	}
 
 	
