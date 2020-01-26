@@ -9,7 +9,7 @@ public interface ILoraChip {
 	void addListener(ILoraMessageListener listener);
 	boolean removeListener(ILoraMessageListener listener);
 	Type getType();
-	void setAddress(LoraAddress address);
+	void changeAddress(LoraAddress address);
 	LoraAddress getAddress();
 	boolean isSlept();
 	void sleep();

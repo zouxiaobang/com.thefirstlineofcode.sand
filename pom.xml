@@ -356,6 +356,12 @@
 			<!-- sand xmpp libraries -->
 			<dependency>
 				<groupId>com.firstlinecode.sand.emulators</groupId>
+				<artifactId>com.firstlinecode.sand.emulators.lora</artifactId>
+				<version>${sand.version}</version>
+			</dependency>
+			
+			<dependency>
+				<groupId>com.firstlinecode.sand.emulators</groupId>
 				<artifactId>com.firstlinecode.sand.emulators.thing</artifactId>
 				<version>${sand.version}</version>
 			</dependency>

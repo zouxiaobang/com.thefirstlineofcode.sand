@@ -8,15 +8,18 @@ import java.util.Random;
 
 public class LoraNetwork implements ILoraNetwork {
 	private static final int DEFAULT_SIGNAL_CRASHED_INTERVAL = 500;
+	private static final int DEFAULT_SIGNAL_TRANSFER_TIMEOUT = 2000;
 	
 	protected Map<LoraAddress, ILoraChip> chips;
 	protected List<ILoraNetworkListener> listeners;
 	protected Map<LoraChipPair, SignalQuality> signalQualities;
 	protected List<LoraSignal> signals;
-	protected int signalCrashedInterval;
 	
-	protected Random arrivedTimeRandomGenerator;
-	protected Random signalLostRandomGenerator;
+	private Random arrivedTimeRandomGenerator;
+	private Random signalLostRandomGenerator;
+	
+	private volatile int signalCrashedInterval;
+	private volatile int signalTransferTimeout;
 	
 	public LoraNetwork() {
 		chips = new HashMap<>();
@@ -27,7 +30,11 @@ public class LoraNetwork implements ILoraNetwork {
 		long networkInitTime = System.currentTimeMillis();
 		arrivedTimeRandomGenerator = new Random(networkInitTime);
 		signalLostRandomGenerator = new Random(networkInitTime);
+		
 		signalCrashedInterval = DEFAULT_SIGNAL_CRASHED_INTERVAL;
+		signalTransferTimeout = DEFAULT_SIGNAL_TRANSFER_TIMEOUT;
+		
+		new Thread(new LoraSignalTimeoutThread()).start();
 	}
 	
 	@Override
@@ -37,11 +44,11 @@ public class LoraNetwork implements ILoraNetwork {
 
 	@Override
 	public synchronized ILoraChip createChip(ILoraChip.Type type, LoraAddress address) {
-		LoraChip chip = new LoraChip(this, type, address);
 		if (chips.containsKey(address))
-			throw new RuntimeException(String.format("Conflict. Lora chip which's address is %s has ready existed in network.", chip.getAddress()));
+			throw new RuntimeException(String.format("Conflict. Lora chip which's address is %s has ready existed in network.", address));
 		
-		chips.put(address, createChip(type, address));
+		LoraChip chip = new LoraChip(this, type, address);
+		chips.put(address, chip);
 		
 		return chip;
 	}
@@ -54,6 +61,16 @@ public class LoraNetwork implements ILoraNetwork {
 	@Override
 	public int getSignalCrashedInterval() {
 		return signalCrashedInterval;
+	}
+	
+	@Override
+	public void setSignalTransferTimeout(int timeout) {
+		signalTransferTimeout = timeout;
+	}
+	
+	@Override
+	public int getSignalTransferTimeout() {
+		return signalTransferTimeout;
 	}
 	
 	@Override
@@ -73,6 +90,21 @@ public class LoraNetwork implements ILoraNetwork {
 	public synchronized void sendMessage(ILoraChip from, LoraAddress to, byte[] message) {
 		try {
 			ILoraChip toChip = getChip(to);
+			LoraChipPair pair = new LoraChipPair(from, toChip);
+			if (!signalQualities.containsKey(pair)) {
+				SignalQuality quality = null;
+				int randomNumber = new Random().nextInt(10);
+				if (randomNumber < 3) {
+					quality = SignalQuality.BAD;
+				} else if (randomNumber >= 3 && randomNumber < 9) {
+					quality = SignalQuality.MEDUIM;
+				} else {
+					quality = SignalQuality.GOOD;
+				}
+				
+				signalQualities.put(pair, quality);
+			}
+			
 			signals.add(new LoraSignal(from, toChip, message, getArrivedTime(from, toChip, System.currentTimeMillis())));
 		} catch (AddressNotFoundException e) {
 			for (ILoraNetworkListener listener : listeners) {
@@ -139,9 +171,24 @@ public class LoraNetwork implements ILoraNetwork {
 	
 	private boolean isLost(LoraSignal received) {
 		SignalQuality quality = signalQualities.get(new LoraChipPair(received.from, received.to));
-		int randomSignalLostNumber = signalLostRandomGenerator.nextInt(100);
+		if (received.from.getType() == ILoraChip.Type.HIGH_POWER) {
+			quality = adjustHighPowerDeviceSignalQuality(quality);
+		}
 		
+		int randomSignalLostNumber = signalLostRandomGenerator.nextInt(100);
 		return randomSignalLostNumber < quality.getPacketLossRate();
+	}
+
+	private SignalQuality adjustHighPowerDeviceSignalQuality(SignalQuality quality) {
+		if (quality == SignalQuality.MEDUIM || quality == SignalQuality.BAD) {
+			quality = SignalQuality.GOOD;
+		} else if (quality == SignalQuality.BADDEST) {
+			quality = SignalQuality.BAD;
+		} else { // quality == SignalQuality.GOOD
+			// no-op
+		}
+		
+		return quality;
 	}
 
 	private List<LoraSignal> findCrashes(LoraSignal received) {
@@ -236,5 +283,70 @@ public class LoraNetwork implements ILoraNetwork {
 			this.message = message;
 			this.arrivedTime = arrivedTime;
 		}
+	}
+	
+	private class LoraSignalTimeoutThread implements Runnable {
+
+		@Override
+		public void run() {
+			synchronized (LoraNetwork.this) {
+				long currentTime = System.currentTimeMillis();
+				List<LoraSignal> timeouts = new ArrayList<>();
+				for (LoraSignal signal : signals) {
+					if (isTimeout(currentTime, signal)) {
+						timeouts.add(signal);
+					}
+				}
+				
+				if (!timeouts.isEmpty()) {
+					signals.removeAll(timeouts);
+					
+					for (LoraSignal signal : timeouts) {
+						for (ILoraNetworkListener listener : listeners) {
+							listener.lost(signal.from, signal.to.getAddress(), signal.message);
+						}
+					}
+				}
+			}
+			
+			try {
+				Thread.sleep(200);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		}
+
+		private boolean isTimeout(long currentTime, LoraSignal signal) {
+			return currentTime - signal.arrivedTime > signalTransferTimeout;
+		}
+		
+	}
+
+	@Override
+	public synchronized void changeAddress(ILoraChip oldChip, LoraAddress newAddress) {
+		ILoraChip newChip = createChip(oldChip.getType(), newAddress);
+		
+		LoraChipPair oldPair = null;
+		LoraChipPair newPair = null;
+		for (LoraChipPair pair : signalQualities.keySet()) {
+			if (pair.chip1.equals(oldChip)) {
+				oldPair = pair;
+				newPair = new LoraChipPair(newChip, pair.chip2);
+				break;
+			}
+			
+			if (pair.chip2.equals(oldChip)) {
+				oldPair = pair;
+				newPair = new LoraChipPair(pair.chip1, newChip);
+				break;
+			}
+		}
+		
+		if (oldPair != null) {
+			SignalQuality quality = signalQualities.remove(oldPair);
+			signalQualities.put(newPair, quality);
+		}
+		
+		chips.remove(oldChip.getAddress());
 	}
 }

@@ -13,15 +13,15 @@ public class ThingInfo implements Externalizable {
 	private int y;
 	private boolean selected;
 	private IThing thing;
+	private String title;
 	
-	public ThingInfo() {}
-	
-	public ThingInfo(int layer, int x, int y, boolean selected, IThing thing) {
+	public ThingInfo(int layer, int x, int y, boolean selected, IThing thing, String title) {
 		this.layer = layer;
 		this.x = x;
 		this.y = y;
 		this.selected = selected;
 		this.thing = thing;
+		this.title = title;
 	}
 	
 	public void setX(int x) {
@@ -59,6 +59,14 @@ public class ThingInfo implements Externalizable {
 	public IThing getThing() {
 		return thing;
 	}
+	
+	public void setTitle(String title) {
+		this.title = title;
+	}
+	
+	public String getTitle() {
+		return title;
+	}
 
 	@Override
 	public void writeExternal(ObjectOutput out) throws IOException {
@@ -67,6 +75,7 @@ public class ThingInfo implements Externalizable {
 		out.writeInt(y);
 		out.writeBoolean(selected);
 		out.writeObject(thing);
+		out.writeObject(title);
 	}
 
 	@Override
@@ -76,5 +85,6 @@ public class ThingInfo implements Externalizable {
 		y = in.readInt();
 		selected = in.readBoolean();
 		thing = (IThing)in.readObject();
+		title = (String)in.readObject();
 	}
 }

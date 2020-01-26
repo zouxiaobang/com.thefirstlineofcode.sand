@@ -10,8 +10,8 @@ public class ThingInternalFrame extends JInternalFrame {
 	
 	private IThing thing;
 	
-	public ThingInternalFrame(IThing thing) {
-		super(thing.getName(), false, false, false, false);
+	public ThingInternalFrame(IThing thing, String title) {
+		super(title, false, false, false, false);
 		
 		this.thing = thing;
 		JPanel panel = thing.getPanel();

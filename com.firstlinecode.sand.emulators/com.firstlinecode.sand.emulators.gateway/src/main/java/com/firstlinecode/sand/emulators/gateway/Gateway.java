@@ -63,6 +63,10 @@ import com.firstlinecode.chalk.network.IConnectionListener;
 import com.firstlinecode.sand.client.ibdr.IRegistration;
 import com.firstlinecode.sand.client.ibdr.IbdrPlugin;
 import com.firstlinecode.sand.client.ibdr.RegistrationException;
+import com.firstlinecode.sand.emulators.lora.ILoraChip;
+import com.firstlinecode.sand.emulators.lora.ILoraNetwork;
+import com.firstlinecode.sand.emulators.lora.LoraAddress;
+import com.firstlinecode.sand.emulators.lora.LoraNetwork;
 import com.firstlinecode.sand.emulators.thing.AbstractThing;
 import com.firstlinecode.sand.emulators.thing.AbstractThingPanel;
 import com.firstlinecode.sand.emulators.thing.IThing;
@@ -119,6 +123,8 @@ public class Gateway extends JFrame implements ActionListener, InternalFrameList
 	private static final String MENU_ITEM_NAME_ABOUT = "about";
 
 	private static final String RESOURCE_NAME_GATEWAY = "gateway";
+	private static final int DEFAULT_WORKING_LORA_FREQUENCY_BAND = 0;
+	private static final int DEFAULT_DEPLOYING_LORA_FREQUENCY_BAND = 63;
 	
 	private String deviceId;
 	private DeviceIdentity deviceIdentity;
@@ -127,6 +133,11 @@ public class Gateway extends JFrame implements ActionListener, InternalFrameList
 	private List<IThingFactory<? extends IThing>> factories;
 	private Map<String, List<IThing>> allThings;
 	private boolean dirty;
+	
+	private ILoraNetwork network;
+	
+	private ILoraChip master;
+	private ILoraChip slave;
 	
 	private JDesktopPane desktop;
 	private JMenuBar menuBar;
@@ -143,6 +154,12 @@ public class Gateway extends JFrame implements ActionListener, InternalFrameList
 		factories = new ArrayList<>();
 		allThings = new HashMap<String, List<IThing>>();
 		dirty = false;
+		
+		network = new LoraNetwork();
+		LoraAddress masterAddress = LoraAddress.randomLoraAddress(DEFAULT_WORKING_LORA_FREQUENCY_BAND);
+		master = network.createChip(ILoraChip.Type.HIGH_POWER, masterAddress);
+		LoraAddress slaveAddress = new LoraAddress(masterAddress.getAddress(), masterAddress.getFrequencyBand() + 1);
+		slave = network.createChip(ILoraChip.Type.HIGH_POWER, slaveAddress);
 		
 		setupUi();
 	}
@@ -375,8 +392,7 @@ public class Gateway extends JFrame implements ActionListener, InternalFrameList
 	}
 
 	private void reset() {
-		// TODO Auto-generated method stub
-		
+		JOptionPane.showMessageDialog(this, "Not implemented yet.");
 	}
 	
 	private void powerOff() {
@@ -465,7 +481,8 @@ public class Gateway extends JFrame implements ActionListener, InternalFrameList
 			
 			for (JInternalFrame frame : frames) {
 				ThingInternalFrame thingFrame = (ThingInternalFrame)frame;
-				output.writeObject(new ThingInfo(thingFrame.getLayer(), thingFrame.getX(), thingFrame.getY(), thingFrame.isSelected(), thingFrame.getThing()));
+				output.writeObject(new ThingInfo(thingFrame.getLayer(), thingFrame.getX(), thingFrame.getY(),
+						thingFrame.isSelected(), thingFrame.getThing(), thingFrame.getTitle()));
 			}
 		} catch (FileNotFoundException e) {
 			throw new RuntimeException(String.format("Gateway info file %s doesn't exist.", file.getPath()));
@@ -569,7 +586,7 @@ public class Gateway extends JFrame implements ActionListener, InternalFrameList
 		
 		if (gatewayInfo.thingInfos != null) {
 			for (ThingInfo thingInfo : gatewayInfo.thingInfos) {
-				showThing(thingInfo.getThing(), thingInfo.getLayer(), thingInfo.getX(), thingInfo.getY(), thingInfo.isSelected());
+				showThing(thingInfo.getThing(), thingInfo.getTitle(), thingInfo.getLayer(), thingInfo.getX(), thingInfo.getY(), thingInfo.isSelected());
 			}
 		}
 		refreshGatewayInstanceRelativatedMenus();
@@ -652,17 +669,16 @@ public class Gateway extends JFrame implements ActionListener, InternalFrameList
 	
 	private IThing createThing(String thingName) {
 		IThingFactory<? extends IThing> factory = getFactory(thingName);
-		IThing thing = factory.create();
+		IThing thing = factory.create(network.createChip(ILoraChip.Type.NORMAL, LoraAddress.randomLoraAddress(DEFAULT_WORKING_LORA_FREQUENCY_BAND)));
 		
 		List<IThing> things = getThings(factory);
 		
 		int instanceIndex = things.size();
-		thing.setName(getThingInstanceName(factory, instanceIndex));
 		thing.powerOn();
 		
 		things.add(thing);
 		
-		showThing(thing, -1, 30 * instanceIndex, 30 * instanceIndex);
+		showThing(thing, getThingInstanceName(factory, instanceIndex), -1, 30 * instanceIndex, 30 * instanceIndex);
 		changeGatewayStatusAndRefreshUiThread(true);				
 		SwingUtilities.invokeLater(new Runnable() {
 			@Override
@@ -675,14 +691,14 @@ public class Gateway extends JFrame implements ActionListener, InternalFrameList
 		
 		return thing;
 	}
-	
-	private void showThing(IThing thing, int layer, int x, int y) {
-		this.showThing(thing, layer, x, y, true);
+
+	private void showThing(IThing thing, String title, int layer, int x, int y) {
+		this.showThing(thing, title, layer, x, y, true);
 	}
 
-	private void showThing(IThing thing, int layer, int x, int y, boolean selected) {
+	private void showThing(IThing thing, String title, int layer, int x, int y, boolean selected) {
 		AbstractThingPanel thingPanel = thing.getPanel();
-		ThingInternalFrame internalFrame = new ThingInternalFrame(thing);		
+		ThingInternalFrame internalFrame = new ThingInternalFrame(thing, title);		
 		internalFrame.addComponentListener(this);
 		internalFrame.setBounds(x, y, thingPanel.getPreferredSize().width, thingPanel.getPreferredSize().height);
 		internalFrame.setVisible(true);
@@ -726,8 +742,8 @@ public class Gateway extends JFrame implements ActionListener, InternalFrameList
 		}
 	}
 
-	private String getThingInstanceName(IThingFactory<? extends IThing> factory, int thingsSize) {
-		return factory.getThingName() + " #" + thingsSize;
+	private String getThingInstanceName(IThingFactory<? extends IThing> factory, int thingsIndex) {
+		return factory.getThingName() + " #" + thingsIndex;
 	}
 
 	private List<IThing> getThings(IThingFactory<? extends IThing> factory) {
@@ -1012,12 +1028,12 @@ public class Gateway extends JFrame implements ActionListener, InternalFrameList
 
 	@Override
 	public void received(String message) {
-		log("D<--S " + message);
+		log("G<--S " + message);
 	}
 
 	@Override
 	public void sent(String message) {
-		log("D-->S " + message);
+		log("G-->S " + message);
 	}
 
 	

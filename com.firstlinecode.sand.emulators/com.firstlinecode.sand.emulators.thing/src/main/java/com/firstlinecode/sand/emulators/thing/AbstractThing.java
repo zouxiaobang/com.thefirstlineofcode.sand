@@ -8,8 +8,12 @@ import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import com.firstlinecode.sand.emulators.lora.ILoraChip;
+
 public abstract class AbstractThing implements IThing {
 	protected String thingName;
+	protected ILoraChip chip;
+	
 	protected String deviceId;
 	protected String lanId;
 	protected String name;
@@ -17,8 +21,11 @@ public abstract class AbstractThing implements IThing {
 	protected boolean powered;
 	protected List<IDeviceListener> deviceListeners;
 	
-	public AbstractThing(String thingName) {
+	
+	public AbstractThing(String thingName, ILoraChip chip) {
 		this.thingName = thingName;
+		this.chip = chip;
+		
 		deviceId = ThingsUtils.generateRandomDeviceId();
 		battery = 100;
 		powered = false;
@@ -95,12 +102,7 @@ public abstract class AbstractThing implements IThing {
 	public String getDeviceId() {
 		return deviceId;
 	}
-
-	@Override
-	public void setName(String name) {
-		this.name = name;
-	}
-
+	
 	@Override
 	public String getName() {
 		return name;
@@ -192,6 +194,11 @@ public abstract class AbstractThing implements IThing {
 	@Override
 	public boolean removeDeviceListener(IDeviceListener listener) {
 		return deviceListeners.remove(listener);
+	}
+	
+	@Override
+	public ILoraChip getChip() {
+		return chip;
 	}
 	
 	protected abstract void doWriteExternal(ObjectOutput out) throws IOException;

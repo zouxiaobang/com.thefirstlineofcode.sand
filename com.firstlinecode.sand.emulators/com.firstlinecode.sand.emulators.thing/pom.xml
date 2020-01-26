@@ -16,5 +16,11 @@
 	<name>com.firstlinecode.sand.emulators.thing</name>
 	<packaging>jar</packaging>
 	
+	<dependencies>
+		<dependency>
+			<groupId>com.firstlinecode.sand.emulators</groupId>
+			<artifactId>com.firstlinecode.sand.emulators.lora</artifactId>
+		</dependency>
+	</dependencies>
 </project>
 

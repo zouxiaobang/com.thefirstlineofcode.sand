@@ -1,5 +1,6 @@
 package com.firstlinecode.sand.emulators.blub;
 
+import com.firstlinecode.sand.emulators.lora.ILoraChip;
 import com.firstlinecode.sand.emulators.thing.IThingFactory;
 
 public class BlubFactory implements IThingFactory<Blub> {
@@ -11,8 +12,8 @@ public class BlubFactory implements IThingFactory<Blub> {
 	}
 	
 	@Override
-	public Blub create() {
-		return new Blub();
+	public Blub create(ILoraChip chip) {
+		return new Blub(chip);
 	}
 
 }

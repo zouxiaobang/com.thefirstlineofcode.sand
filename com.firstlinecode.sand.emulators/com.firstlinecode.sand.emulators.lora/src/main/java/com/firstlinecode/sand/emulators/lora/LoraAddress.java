@@ -1,5 +1,7 @@
 package com.firstlinecode.sand.emulators.lora;
 
+import java.util.Random;
+
 public class LoraAddress {
 	private byte[] address;
 	private int frequencyBand;
@@ -70,5 +72,12 @@ public class LoraAddress {
 		}
 		
 		return sb.toString();
+	}
+	
+	public static LoraAddress randomLoraAddress(int frequencyBand) {
+		byte[] address = new byte[2];
+		new Random().nextBytes(address);
+		
+		return new LoraAddress(address, frequencyBand);
 	}
 }

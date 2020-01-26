@@ -94,11 +94,11 @@ public class LoraChip implements ILoraChip {
 	protected void doReceived(LoraAddress from, byte[] message) {}
 
 	@Override
-	public void setAddress(LoraAddress address) {
-		// TODO Auto-generated method stub
-		
+	public void changeAddress(LoraAddress address) {
+		this.address = address;
+		network.changeAddress(this, address);
 	}
-
+	
 	@Override
 	public void sleep() {
 		slept = true;

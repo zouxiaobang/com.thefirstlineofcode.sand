@@ -20,9 +20,12 @@ public interface ILoraNetwork {
 	
 	ILoraChip createChip(ILoraChip.Type type, byte[] address, int frequencyBand);
 	ILoraChip createChip(ILoraChip.Type type, LoraAddress address);
+	void changeAddress(ILoraChip chip, LoraAddress newAddress);
 	void setSingalQuality(ILoraChip chip1, ILoraChip chip2, LoraNetwork.SignalQuality signalQuality);
 	void setSignalCrashedInterval(int interval);
 	int getSignalCrashedInterval();
+	void setSignalTransferTimeout(int timeout);
+	int getSignalTransferTimeout();
 	void sendMessage(ILoraChip from, LoraAddress to, byte[] message);
 	LoraMessage receiveMessage(ILoraChip target);
 	void addListener(ILoraNetworkListener listener);

@@ -19,6 +19,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 
+import com.firstlinecode.sand.emulators.lora.ILoraChip;
 import com.firstlinecode.sand.emulators.thing.AbstractThing;
 import com.firstlinecode.sand.emulators.thing.AbstractThingPanel;
 import com.firstlinecode.sand.emulators.thing.BatteryEvent;
@@ -36,16 +37,16 @@ public class Blub extends AbstractThing implements IThing, IDeviceListener, IBlu
 	private JPanel switchsPanel;
 	private BlubPanel panel;
 	
-	public Blub() {
-		this(DEFAULT_SWITCH_STATE, DEFAULT_BLUB_STATE);
+	public Blub(ILoraChip chip) {
+		this(chip, DEFAULT_SWITCH_STATE, DEFAULT_BLUB_STATE);
 	}
 	
-	public Blub(SwitchState switchState) {
-		this(switchState, switchState == SwitchState.ON ? BlubState.ON : BlubState.OFF);
+	public Blub(ILoraChip chip, SwitchState switchState) {
+		this(chip, switchState, switchState == SwitchState.ON ? BlubState.ON : BlubState.OFF);
 	}
 	
-	public Blub(SwitchState switchState, BlubState blubState) {
-		super(BlubFactory.THING_NAME);
+	public Blub(ILoraChip chip, SwitchState switchState, BlubState blubState) {
+		super(BlubFactory.THING_NAME, chip);
 		
 		if (switchState == null)
 			throw new IllegalArgumentException("Null switch state.");
