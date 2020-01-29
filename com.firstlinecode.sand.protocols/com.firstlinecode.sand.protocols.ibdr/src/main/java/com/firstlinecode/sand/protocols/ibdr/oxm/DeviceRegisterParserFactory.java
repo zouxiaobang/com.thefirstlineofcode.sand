@@ -2,7 +2,6 @@ package com.firstlinecode.sand.protocols.ibdr.oxm;
 
 import java.util.List;
 
-import com.firstlinecode.basalt.protocol.core.JabberId;
 import com.firstlinecode.basalt.protocol.core.Protocol;
 import com.firstlinecode.basalt.protocol.core.ProtocolException;
 import com.firstlinecode.basalt.protocol.core.stanza.error.BadRequest;
@@ -42,7 +41,7 @@ public class DeviceRegisterParserFactory implements IParserFactory<DeviceRegiste
 				return new ElementParserAdaptor<DeviceRegister>() {
 					public void processText(IParsingContext<DeviceRegister> context, Value<?> text) {
 						if (context.getObject().getRegister() != null)
-							throw new ProtocolException(new BadRequest("device register document allows only one subelement."));
+							throw new ProtocolException(new BadRequest("Device registration document allows only one subelement."));
 						
 						context.getObject().setRegister(text.getString());
 					};
@@ -52,17 +51,17 @@ public class DeviceRegisterParserFactory implements IParserFactory<DeviceRegiste
 					@Override
 					public void processAttributes(IParsingContext<DeviceRegister> context, List<Attribute> attributes) {
 						if (context.getObject().getRegister() != null)
-							throw new ProtocolException(new BadRequest("device register document allows only one subelement."));
+							throw new ProtocolException(new BadRequest("Device registration document allows only one subelement."));
 						
 						context.getObject().setRegister(new DeviceIdentity());
 					}
 				};
-			}  if (parsingPath.match("/device-identity/jid")) {
+			} else if (parsingPath.match("/device-identity/device-name")) {
 				return new ElementParserAdaptor<DeviceRegister>() {
 					@Override
 					public void processText(IParsingContext<DeviceRegister> context, Value<?> text) {
 						DeviceIdentity identity = (DeviceIdentity)context.getObject().getRegister();
-						identity.setJid(JabberId.parse(text.getString()));
+						identity.setDeviceName(text.getString());
 					}
 				};
 			} else if (parsingPath.match("/device-identity/credentials")) {

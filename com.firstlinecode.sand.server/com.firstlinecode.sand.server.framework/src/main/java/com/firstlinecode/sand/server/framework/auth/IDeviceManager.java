@@ -8,8 +8,8 @@ public interface IDeviceManager {
 	void cancelAuthorization(String deviceId);
 	DeviceIdentity register(String deviceId);
 	void remove(JabberId jid);
-	boolean exists(String deviceId);
-	boolean exists(JabberId jid);
-	DeviceIdentity get(String deviceId);
-	DeviceIdentity get(JabberId jid);
+	boolean deviceIdExists(String deviceId);
+	boolean deviceNameExists(String deviceName);
+	DeviceIdentity getByDeviceId(String deviceId);
+	DeviceIdentity getByDeviceName(String deviceName);
 }

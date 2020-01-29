@@ -55,9 +55,11 @@ import javax.swing.filechooser.FileSystemView;
 import javax.swing.plaf.FontUIResource;
 
 import com.firstlinecode.basalt.protocol.core.JabberId;
+import com.firstlinecode.chalk.AuthFailureException;
 import com.firstlinecode.chalk.IChatClient;
 import com.firstlinecode.chalk.StandardChatClient;
 import com.firstlinecode.chalk.core.stream.StandardStreamConfig;
+import com.firstlinecode.chalk.core.stream.UsernamePasswordToken;
 import com.firstlinecode.chalk.network.ConnectionException;
 import com.firstlinecode.chalk.network.IConnectionListener;
 import com.firstlinecode.sand.client.ibdr.IRegistration;
@@ -78,7 +80,7 @@ public class Gateway extends JFrame implements ActionListener, InternalFrameList
 		ComponentListener, WindowListener, IGateway, IConnectionListener {
 	private static final long serialVersionUID = -7894418812878036627L;
 	
-	// File menu
+	// File Menu
 	private static final String MENU_TEXT_FILE = "File";
 	private static final String MENU_NAME_FILE = "file";
 	private static final String MENU_ITEM_TEXT_NEW = "New";
@@ -92,7 +94,7 @@ public class Gateway extends JFrame implements ActionListener, InternalFrameList
 	private static final String MENU_ITEM_NAME_QUIT = "quit";
 	private static final String MENU_ITEM_TEXT_QUIT = "Quit";
 	
-	// Edit menu
+	// Edit Menu
 	private static final String MENU_TEXT_EDIT = "Edit";
 	private static final String MENU_NAME_EDIT = "edit";
 	private static final String MENU_ITEM_TEXT_POWER_ON = "Power On";
@@ -104,7 +106,7 @@ public class Gateway extends JFrame implements ActionListener, InternalFrameList
 	private static final String MENU_ITEM_TEXT_DELETE = "Delete";
 	private static final String MENU_ITEM_NAME_DELETE = "delete";
 	
-	// Tools menu
+	// Tools Menu
 	private static final String MENU_TEXT_TOOLS = "Tools";
 	private static final String MENU_NAME_TOOLS = "tools";
 	private static final String MENU_ITEM_TEXT_REGISTER = "Register";
@@ -116,15 +118,15 @@ public class Gateway extends JFrame implements ActionListener, InternalFrameList
 	private static final String MENU_ITEM_TEXT_SHOW_LOG_CONSOLE = "Show Log Console";
 	private static final String MENU_ITEM_NAME_SHOW_LOG_CONSOLE = "show_log_console";
 	
-	// Help menu
+	// Help Menu
 	private static final String MENU_TEXT_HELP = "Help";
 	private static final String MENU_NAME_HELP = "help";
 	private static final String MENU_ITEM_TEXT_ABOUT = "About";
 	private static final String MENU_ITEM_NAME_ABOUT = "about";
 
 	private static final String RESOURCE_NAME_GATEWAY = "gateway";
-	private static final int DEFAULT_WORKING_LORA_FREQUENCY_BAND = 0;
-	private static final int DEFAULT_DEPLOYING_LORA_FREQUENCY_BAND = 63;
+	private static final int DEFAULT_LORA_WORKING_FREQUENCY_BAND = 0;
+	private static final int DEFAULT_LORA_DEPLOYING_FREQUENCY_BAND = 63;
 	
 	private String deviceId;
 	private DeviceIdentity deviceIdentity;
@@ -146,6 +148,9 @@ public class Gateway extends JFrame implements ActionListener, InternalFrameList
 	
 	private File configFile;
 	
+	private IChatClient chatClient;
+	private boolean autoReconnect;
+	
 	public Gateway() {
 		super("Unregistered Gateway");
 		
@@ -156,10 +161,12 @@ public class Gateway extends JFrame implements ActionListener, InternalFrameList
 		dirty = false;
 		
 		network = new LoraNetwork();
-		LoraAddress masterAddress = LoraAddress.randomLoraAddress(DEFAULT_WORKING_LORA_FREQUENCY_BAND);
+		LoraAddress masterAddress = LoraAddress.randomLoraAddress(DEFAULT_LORA_WORKING_FREQUENCY_BAND);
 		master = network.createChip(ILoraChip.Type.HIGH_POWER, masterAddress);
 		LoraAddress slaveAddress = new LoraAddress(masterAddress.getAddress(), masterAddress.getFrequencyBand() + 1);
 		slave = network.createChip(ILoraChip.Type.HIGH_POWER, slaveAddress);
+		
+		autoReconnect = false;
 		
 		setupUi();
 	}
@@ -199,7 +206,7 @@ public class Gateway extends JFrame implements ActionListener, InternalFrameList
 			Object value = UIManager.get (key);
 			if (value instanceof javax.swing.plaf.FontUIResource)
 				UIManager.put (key, fur);
-		}	
+		}
 	}
 	
 	public void setDeviceId(String deviceId) {
@@ -214,7 +221,12 @@ public class Gateway extends JFrame implements ActionListener, InternalFrameList
 		if (deviceIdentity == null) {
 			sb.append("Unregistered").append(", ");
 		} else {
-			sb.append("Registered: ").append(deviceIdentity.getJid()).append(", ");
+			sb.append("Registered: ").append(deviceIdentity.getDeviceName()).append(", ");
+			if (chatClient != null && chatClient.isConnected()) {
+				sb.append("Connected, ");
+			} else {
+				sb.append("Disconnected, ");
+			}
 		}
 		
 		sb.append("Device ID: ").append(deviceId).append(", ");
@@ -306,6 +318,10 @@ public class Gateway extends JFrame implements ActionListener, InternalFrameList
 			delete();
 		} else if (MENU_ITEM_NAME_REGISTER.equals(actionCommand)) {
 			register();
+		} else if (MENU_ITEM_NAME_CONNECT.equals(actionCommand)) {
+			connect();
+		} else if (MENU_ITEM_NAME_DISCONNECT.equals(actionCommand)) {
+			disconnect();
 		} else if (MENU_ITEM_NAME_SHOW_LOG_CONSOLE.equals(actionCommand)) {
 			showLogConsoleDialog();
 		} else if (MENU_ITEM_NAME_ABOUT.equals(actionCommand)) {
@@ -315,6 +331,45 @@ public class Gateway extends JFrame implements ActionListener, InternalFrameList
 		}
 	}
 	
+	private void disconnect() {
+		// TODO Auto-generated method stub
+		if (chatClient == null || chatClient.isClosed())
+			throw new IllegalStateException("Gateway has already disconnected.");
+	}
+
+	private void connect() {
+		if (chatClient != null && chatClient.isConnected())
+			throw new IllegalStateException("Gateway has already connected.");
+		
+		if (chatClient == null)
+			chatClient = createChatClient();
+		
+		try {
+			chatClient.connect(new UsernamePasswordToken(deviceIdentity.getDeviceName().toString(), deviceIdentity.getCredentials()));
+			autoReconnect = true;
+		} catch (ConnectionException e) {
+			if (chatClient != null) {
+				chatClient.close();
+				chatClient = null;
+			}
+			
+			JOptionPane.showMessageDialog(this, "Connection error. Error type: " + e.getType(), "Connect Error", JOptionPane.ERROR_MESSAGE);
+		} catch (AuthFailureException e) {
+			JOptionPane.showMessageDialog(this, "Authentication failed.", "Authentication Error", JOptionPane.ERROR_MESSAGE);
+		}
+		
+	}
+
+	private IChatClient createChatClient() {
+		if (deviceIdentity == null)
+			throw new IllegalStateException("Device identity is null. Please register your gateway.");
+		
+		chatClient = new StandardChatClient(streamConfig);
+		chatClient.addConnectionListener(this);
+
+		return chatClient;
+	}
+
 	private void showLogConsoleDialog() {
 		logConsoleDalog = new LogConsoleDialog(this);
 		logConsoleDalog.setVisible(true);
@@ -331,10 +386,12 @@ public class Gateway extends JFrame implements ActionListener, InternalFrameList
 			showDialog(streamConfigDialog);
 			
 			streamConfig = streamConfigDialog.getStreamConfig();
-			streamConfig.setResource(RESOURCE_NAME_GATEWAY);
 		}
 		
-		doRegister();
+		if (streamConfig != null) {
+			streamConfig.setResource(RESOURCE_NAME_GATEWAY);
+			doRegister();
+		}
 	}
 	
 	private void doRegister() {
@@ -463,6 +520,7 @@ public class Gateway extends JFrame implements ActionListener, InternalFrameList
 		ObjectOutputStream output = null;
 		try {
 			output = new ObjectOutputStream(new FileOutputStream(file));
+			output.writeObject(deviceId);
 			if (streamConfig != null) {
 				output.writeObject(new StreamConfigInfo(streamConfig.getHost(), streamConfig.getPort(), streamConfig.isTlsPreferred()));
 			} else {
@@ -470,19 +528,18 @@ public class Gateway extends JFrame implements ActionListener, InternalFrameList
 			}
 			
 			if (deviceIdentity != null) {
-				output.writeObject(new DeviceIdentityInfo(deviceIdentity.getJid().toString(), deviceIdentity.getCredentials()));
+				output.writeObject(new DeviceIdentityInfo(deviceIdentity.getDeviceName(), deviceIdentity.getCredentials()));
 			} else {
 				output.writeObject(null);
 			}
 			
 			output.writeInt(frames.length);
-			if (frames.length == 0)
-				return;
-			
-			for (JInternalFrame frame : frames) {
-				ThingInternalFrame thingFrame = (ThingInternalFrame)frame;
-				output.writeObject(new ThingInfo(thingFrame.getLayer(), thingFrame.getX(), thingFrame.getY(),
-						thingFrame.isSelected(), thingFrame.getThing(), thingFrame.getTitle()));
+			if (frames.length != 0) {				
+				for (JInternalFrame frame : frames) {
+					ThingInternalFrame thingFrame = (ThingInternalFrame)frame;
+					output.writeObject(new ThingInfo(thingFrame.getLayer(), thingFrame.getX(), thingFrame.getY(),
+							thingFrame.isSelected(), thingFrame.getThing(), thingFrame.getTitle()));
+				}
 			}
 		} catch (FileNotFoundException e) {
 			throw new RuntimeException(String.format("Gateway info file %s doesn't exist.", file.getPath()));
@@ -581,6 +638,7 @@ public class Gateway extends JFrame implements ActionListener, InternalFrameList
 	private void loadFromFile(File file) {
 		GatewayInfo gatewayInfo = readGatewayInfo(file);
 		
+		deviceId = gatewayInfo.deviceId;
 		streamConfig = gatewayInfo.streamConfig;
 		deviceIdentity = gatewayInfo.deviceIdentity;
 		
@@ -595,7 +653,21 @@ public class Gateway extends JFrame implements ActionListener, InternalFrameList
 	}
 
 	private void refreshGatewayInstanceRelativatedMenus() {
-		getMenuItem(MENU_NAME_TOOLS, MENU_ITEM_NAME_REGISTER).setEnabled(deviceIdentity == null);
+		if (deviceIdentity != null) {
+			getMenuItem(MENU_NAME_TOOLS, MENU_ITEM_NAME_REGISTER).setEnabled(false);
+			
+			if (!isConnected()) {
+				getMenuItem(MENU_NAME_TOOLS, MENU_ITEM_NAME_CONNECT).setEnabled(true);
+				getMenuItem(MENU_NAME_TOOLS, MENU_ITEM_NAME_DISCONNECT).setEnabled(false);
+			} else {
+				getMenuItem(MENU_NAME_TOOLS, MENU_ITEM_NAME_DISCONNECT).setEnabled(true);
+				getMenuItem(MENU_NAME_TOOLS, MENU_ITEM_NAME_CONNECT).setEnabled(false);
+			}
+		}
+	}
+
+	private boolean isConnected() {
+		return chatClient != null && chatClient.isConnected();
 	}
 
 	private void setConfigFile(File file) {
@@ -611,8 +683,10 @@ public class Gateway extends JFrame implements ActionListener, InternalFrameList
 		ObjectInputStream input = null;
 		try {
 			input = new ObjectInputStream(new FileInputStream(file));
+			
+			gatewayInfo.deviceId = (String)input.readObject();
 			StreamConfigInfo streamConfigInfo = (StreamConfigInfo)input.readObject();
-			gatewayInfo.streamConfig = streamConfig == null ? null : createStreamConfig(streamConfigInfo);
+			gatewayInfo.streamConfig = streamConfigInfo == null ? null : createStreamConfig(streamConfigInfo);
 			
 			DeviceIdentityInfo deviceIdentityInfo = (DeviceIdentityInfo)input.readObject();
 			gatewayInfo.deviceIdentity = deviceIdentityInfo == null ? null : createDeviceIdentity(deviceIdentityInfo);
@@ -645,17 +719,19 @@ public class Gateway extends JFrame implements ActionListener, InternalFrameList
 	}
 	
 	private DeviceIdentity createDeviceIdentity(DeviceIdentityInfo deviceIdentityInfo) {
-		return new DeviceIdentity(JabberId.parse(deviceIdentityInfo.jid), deviceIdentityInfo.credentials);
+		return new DeviceIdentity(deviceIdentityInfo.deviceName, deviceIdentityInfo.credentials);
 	}
 
 	private StandardStreamConfig createStreamConfig(StreamConfigInfo streamConfigInfo) {
 		StandardStreamConfig streamConfig = new StandardStreamConfig(streamConfigInfo.host, streamConfigInfo.port);
 		streamConfig.setTlsPreferred(streamConfigInfo.tlsPreferred);
+		streamConfig.setResource(RESOURCE_NAME_GATEWAY);
 		
 		return streamConfig;
 	}
 
 	private class GatewayInfo {
+		private String deviceId;
 		private StandardStreamConfig streamConfig;
 		private DeviceIdentity deviceIdentity;
 		private List<ThingInfo> thingInfos;
@@ -669,7 +745,7 @@ public class Gateway extends JFrame implements ActionListener, InternalFrameList
 	
 	private IThing createThing(String thingName) {
 		IThingFactory<? extends IThing> factory = getFactory(thingName);
-		IThing thing = factory.create(network.createChip(ILoraChip.Type.NORMAL, LoraAddress.randomLoraAddress(DEFAULT_WORKING_LORA_FREQUENCY_BAND)));
+		IThing thing = factory.create(network.createChip(ILoraChip.Type.NORMAL, LoraAddress.randomLoraAddress(DEFAULT_LORA_WORKING_FREQUENCY_BAND)));
 		
 		List<IThing> things = getThings(factory);
 		

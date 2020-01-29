@@ -5,7 +5,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.firstlinecode.basalt.protocol.core.JabberId;
 import com.firstlinecode.granite.framework.core.auth.IAuthenticator;
 import com.firstlinecode.sand.protocols.core.DeviceIdentity;
 
@@ -17,7 +16,7 @@ public class DeviceAuthenticator implements IAuthenticator {
 
 	@Override
 	public Object getCredentials(Object principal) {
-		DeviceIdentity deviceIdentity = getDeviceIdentityMapper().selectByJid((JabberId)principal);
+		DeviceIdentity deviceIdentity = getDeviceIdentityMapper().selectByDeviceName((String)principal);
 		if (deviceIdentity != null)
 			return deviceIdentity.getCredentials();
 		
@@ -26,9 +25,9 @@ public class DeviceAuthenticator implements IAuthenticator {
 
 	@Override
 	public boolean exists(Object principal) {
-		return getDeviceIdentityMapper().selectCountByJid((JabberId)principal) != 0;
+		return getDeviceIdentityMapper().selectCountByDeviceName((String)principal) != 0;
 	}
-
+	
 	private DeviceIdentityMapper getDeviceIdentityMapper() {
 		return sqlSession.getMapper(DeviceIdentityMapper.class);
 	}

@@ -45,7 +45,7 @@ public class DeviceRegisterTranslatorFactory implements ITranslatorFactory<Devic
 			} else if (register instanceof DeviceIdentity) {
 				DeviceIdentity deviceIdentity = (DeviceIdentity)register;
 				writer.writeElementBegin("device-identity").
-					writeTextOnly("jid", deviceIdentity.getJid().toString()).
+					writeTextOnly("device-name", deviceIdentity.getDeviceName()).
 					writeTextOnly("credentials", deviceIdentity.getCredentials()).
 				writeElementEnd();
 			} else {

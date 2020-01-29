@@ -1,24 +1,22 @@
 package com.firstlinecode.sand.protocols.core;
 
-import com.firstlinecode.basalt.protocol.core.JabberId;
-
 public class DeviceIdentity {
-	private JabberId jid;
+	private String deviceName;
 	private String credentials;
 	
 	public DeviceIdentity() {}
 	
-	public DeviceIdentity(JabberId jid, String credentials) {
-		this.jid = jid;
+	public DeviceIdentity(String deviceName, String credentials) {
+		this.deviceName = deviceName;
 		this.credentials = credentials;
 	}
 
-	public void setJid(JabberId jid) {
-		this.jid = jid;
+	public void setDeviceName(String deviceName) {
+		this.deviceName = deviceName;
 	}
 	
-	public JabberId getJid() {
-		return jid;
+	public String getDeviceName() {
+		return deviceName;
 	}
 	
 	public void setCredentials(String credentials) {

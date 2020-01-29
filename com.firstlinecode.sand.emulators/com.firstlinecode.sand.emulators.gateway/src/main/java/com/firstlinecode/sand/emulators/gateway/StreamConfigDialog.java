@@ -20,6 +20,8 @@ import javax.swing.JTextField;
 import com.firstlinecode.chalk.core.stream.StandardStreamConfig;
 
 public class StreamConfigDialog extends JDialog implements WindowListener, ActionListener {
+	private static final boolean DEFAULT_TLS_PREFERRED = true;
+
 	private static final long serialVersionUID = 2334251819432524828L;
 	
 	private static final String DEFAULT_HOST = "localhost";
@@ -37,7 +39,12 @@ public class StreamConfigDialog extends JDialog implements WindowListener, Actio
 	private StandardStreamConfig streamConfig;
 	
 	public StreamConfigDialog(JFrame parent) {
-		super(parent, "Stream Config", true);
+		this(parent, null);
+	}
+	
+	public StreamConfigDialog(JFrame parent, StandardStreamConfig streamConfig) {
+		super(parent, "Stream Config", true);		
+		this.streamConfig = streamConfig;
 		
 		JPanel panel = new JPanel();
 		panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
@@ -53,7 +60,6 @@ public class StreamConfigDialog extends JDialog implements WindowListener, Actio
 		setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
 		addWindowListener(this);
 		
-		streamConfig = null;
 	}
 
 	private JPanel createButtonsPanel() {
@@ -67,6 +73,8 @@ public class StreamConfigDialog extends JDialog implements WindowListener, Actio
 		
 		cancel = new JButton("Cancel");
 		cancel.setPreferredSize(new Dimension(100, 48));
+		cancel.setActionCommand(ACTION_COMMAND_CANCEL);
+		cancel.addActionListener(this);
 		buttonsPanel.add(cancel);
 		
 		buttonsPanel.setPreferredSize(new Dimension(400, 48));
@@ -81,7 +89,7 @@ public class StreamConfigDialog extends JDialog implements WindowListener, Actio
 		tlsPreferredPanel.add(tlsPreferredLabel);
 		
 		tlsPreferred = new JCheckBox();
-		tlsPreferred.setSelected(true);
+		tlsPreferred.setSelected(streamConfig != null ? streamConfig.isTlsPreferred() : DEFAULT_TLS_PREFERRED);
 		tlsPreferred.setPreferredSize(new Dimension(240, 48));
 		tlsPreferredPanel.add(tlsPreferred);
 		
@@ -96,7 +104,7 @@ public class StreamConfigDialog extends JDialog implements WindowListener, Actio
 		hostLabel.setPreferredSize(new Dimension(120, 48));
 		hostPanel.add(hostLabel);
 		
-		host = new JTextField(DEFAULT_HOST);
+		host = new JTextField(streamConfig != null ? streamConfig.getHost() : DEFAULT_HOST);
 		host.setPreferredSize(new Dimension(240, 48));
 		hostPanel.add(host);
 		
@@ -112,6 +120,7 @@ public class StreamConfigDialog extends JDialog implements WindowListener, Actio
 		portPanel.add(portLabel);
 		
 		port = new JTextField(DEFAULT_PORT);
+		port = new JTextField(streamConfig != null ? Integer.toString(streamConfig.getPort()) : DEFAULT_PORT);
 		port.setPreferredSize(new Dimension(240, 48));
 		portPanel.add(port);
 		
@@ -128,7 +137,6 @@ public class StreamConfigDialog extends JDialog implements WindowListener, Actio
 	}
 	
 	private void ok() {
-		// TODO Auto-generated method stub
 		if (host.getText() == null || host.getText().isEmpty()) {
 			JOptionPane.showMessageDialog(this, "Host mustn't be null.", "Error", JOptionPane.ERROR_MESSAGE);
 			return;
@@ -155,6 +163,9 @@ public class StreamConfigDialog extends JDialog implements WindowListener, Actio
 	}
 	
 	private void cancel() {
+		if (streamConfig != null)
+			streamConfig = null;
+		
 		setVisible(false);
 		dispose();
 	}

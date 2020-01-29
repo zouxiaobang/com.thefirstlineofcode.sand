@@ -13,19 +13,15 @@ import com.firstlinecode.basalt.protocol.core.JabberId;
 import com.firstlinecode.basalt.protocol.core.ProtocolException;
 import com.firstlinecode.basalt.protocol.core.stanza.error.Conflict;
 import com.firstlinecode.basalt.protocol.core.stanza.error.NotAuthorized;
-import com.firstlinecode.granite.framework.core.config.IApplicationConfiguration;
-import com.firstlinecode.granite.framework.core.config.IApplicationConfigurationAware;
 import com.firstlinecode.sand.protocols.core.DeviceIdentity;
 import com.firstlinecode.sand.server.framework.auth.DeviceAuthorization;
 import com.firstlinecode.sand.server.framework.auth.IDeviceManager;
 
 @Transactional
 @Component
-public class DeviceManager implements IDeviceManager, IApplicationConfigurationAware {
+public class DeviceManager implements IDeviceManager {
 	@Autowired
 	private SqlSession sqlSession;
-	
-	private String domainName;
 	
 	@Override
 	public void authorize(String deviceId, String authorizer, long validityTime) {
@@ -68,22 +64,22 @@ public class DeviceManager implements IDeviceManager, IApplicationConfigurationA
 		D_DeviceIdentity deviceIdentity = new D_DeviceIdentity();
 		deviceIdentity.setId(UUID.randomUUID().toString());
 		deviceIdentity.setDeviceId(deviceId);
-		deviceIdentity.setJid(createJid(deviceId));
+		deviceIdentity.setDeviceName(createDeviceName(deviceId));
 		deviceIdentity.setCredentials(createCredentials());
 		deviceIdentity.setRegisteredTime(Calendar.getInstance().getTime());
 		deviceIdentity.setAuthorizationId(authorization.getId());
 		
 		getDeviceIdentityMapper().insert(deviceIdentity);
 		
-		return new DeviceIdentity(deviceIdentity.getJid(), deviceIdentity.getCredentials());
+		return new DeviceIdentity(deviceIdentity.getDeviceName(), deviceIdentity.getCredentials());
 	}
 
 	protected String createCredentials() {
 		return generateRandomCredentials(8);
 	}
 
-	protected JabberId createJid(String deviceId) {
-		return JabberId.parse(String.format("%s@%s", deviceId, domainName));
+	protected String createDeviceName(String deviceId) {
+		return deviceId;
 	}
 
 	private D_DeviceAuthorization getDeviceAuthorization(String deviceId) {
@@ -112,23 +108,23 @@ public class DeviceManager implements IDeviceManager, IApplicationConfigurationA
 	}
 
 	@Override
-	public boolean exists(String deviceId) {
+	public boolean deviceIdExists(String deviceId) {
 		return getDeviceIdentityMapper().selectCountByDeviceId(deviceId) != 0;
 	}
 	
 	@Override
-	public boolean exists(JabberId jid) {
-		return getDeviceIdentityMapper().selectCountByJid(jid) != 0;
+	public boolean deviceNameExists(String deviceName) {
+		return getDeviceIdentityMapper().selectCountByDeviceName(deviceName) != 0;
 	}
 	
 	@Override
-	public DeviceIdentity get(String deviceId) {
+	public DeviceIdentity getByDeviceId(String deviceId) {
 		return getDeviceIdentityMapper().selectByDeviceId(deviceId);
 	}
 	
 	@Override
-	public DeviceIdentity get(JabberId jid) {
-		return getDeviceIdentityMapper().selectByJid(jid);
+	public DeviceIdentity getByDeviceName(String deviceName) {
+		return getDeviceIdentityMapper().selectByDeviceName(deviceName);
 	}
 	
 	private DeviceAuthorizationMapper getDeviceAuthorizationMapper() {
@@ -137,11 +133,6 @@ public class DeviceManager implements IDeviceManager, IApplicationConfigurationA
 	
 	private DeviceIdentityMapper getDeviceIdentityMapper() {
 		return (DeviceIdentityMapper)sqlSession.getMapper(DeviceIdentityMapper.class);
-	}
-
-	@Override
-	public void setApplicationConfiguration(IApplicationConfiguration appConfiguration) {
-		domainName = appConfiguration.getDomainName();
 	}
 	
 	private String generateRandomCredentials(int length) {

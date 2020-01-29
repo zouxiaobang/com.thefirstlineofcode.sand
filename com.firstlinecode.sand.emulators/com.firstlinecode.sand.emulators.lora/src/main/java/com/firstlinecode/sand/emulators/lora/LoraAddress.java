@@ -10,8 +10,8 @@ public class LoraAddress {
 		if (address == null)
 			throw new IllegalArgumentException("Null address.");
 		
-		if (frequencyBand < 1 || frequencyBand > 64)
-			throw new IllegalArgumentException("Lora frequency band must be range of 1~64.");
+		if (frequencyBand < 0 || frequencyBand > 63)
+			throw new IllegalArgumentException("Lora frequency band must be range of 0~63.");
 		
 		this.address = address;
 		this.frequencyBand = frequencyBand;
