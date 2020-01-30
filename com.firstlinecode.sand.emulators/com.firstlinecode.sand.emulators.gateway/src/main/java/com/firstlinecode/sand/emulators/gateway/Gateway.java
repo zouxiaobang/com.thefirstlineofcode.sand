@@ -6,6 +6,7 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Rectangle;
 import java.awt.Toolkit;
+import java.awt.Window;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.StringSelection;
 import java.awt.event.ActionEvent;
@@ -54,7 +55,6 @@ import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileSystemView;
 import javax.swing.plaf.FontUIResource;
 
-import com.firstlinecode.basalt.protocol.core.JabberId;
 import com.firstlinecode.chalk.AuthFailureException;
 import com.firstlinecode.chalk.IChatClient;
 import com.firstlinecode.chalk.StandardChatClient;
@@ -78,6 +78,8 @@ import com.firstlinecode.sand.protocols.core.DeviceIdentity;
 
 public class Gateway extends JFrame implements ActionListener, InternalFrameListener,
 		ComponentListener, WindowListener, IGateway, IConnectionListener {
+	private static final int DEFAULT_NOTIFICATION_DELAY_TIME = 1000 * 2;
+
 	private static final long serialVersionUID = -7894418812878036627L;
 	
 	// File Menu
@@ -167,8 +169,27 @@ public class Gateway extends JFrame implements ActionListener, InternalFrameList
 		slave = network.createChip(ILoraChip.Type.HIGH_POWER, slaveAddress);
 		
 		autoReconnect = false;
+		new Thread(new AutoReconnectThread()).start();
 		
 		setupUi();
+	}
+	
+	private class AutoReconnectThread implements Runnable {
+		@Override
+		public void run() {
+			while (true) {
+				if (autoReconnect && (chatClient == null || !chatClient.isConnected())) {
+					log("Trying to reconnect...");
+					connect();
+				}
+				
+				try {
+					Thread.sleep(200);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+			}
+		}
 	}
 
 	private void setupUi() {
@@ -255,32 +276,7 @@ public class Gateway extends JFrame implements ActionListener, InternalFrameList
 				public void actionPerformed(ActionEvent e) {
 					Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
 					clipboard.setContents(new StringSelection(deviceId), null);
-					
-					final JDialog dialog = new JDialog(Gateway.this, "Copied", ModalityType.MODELESS);
-					dialog.setBounds(getParentCenterBounds(400, 160));
-					dialog.add(new JLabel("Gateway device ID has copied to clipboard."));
-					dialog.setVisible(true);
-					
-					Timer timer = new Timer();
-					timer.schedule(new TimerTask() {
-						@Override
-						public void run() {
-							dialog.setVisible(false);
-							dialog.dispose();
-						}
-					}, 1000 * 2);
-				}
-
-				private Rectangle getParentCenterBounds(int width, int height) {
-					int parentX = Gateway.this.getX();
-					int parentY = Gateway.this.getY();
-					int parentWidth = Gateway.this.getWidth();
-					int parentHeight = Gateway.this.getHeight();
-					
-					if (width > parentWidth || height > parentHeight)
-						return new Rectangle(parentX, parentY, width, height);
-					
-					return new Rectangle((parentX + (parentWidth - width) / 2), (parentY + (parentHeight - height) / 2), width, height);
+					Gateway.this.showNotification(Gateway.this, "Message", "Device ID has copied to clipboard.", DEFAULT_NOTIFICATION_DELAY_TIME);
 				}
 			});
 			statusBarPanel.add(copy);
@@ -292,6 +288,34 @@ public class Gateway extends JFrame implements ActionListener, InternalFrameList
 		public void setText(String status) {
 			text.setText(status);
 		}
+	}
+	
+	private void showNotification(Window parent, String title, String message, int millis) {
+		final JDialog dialog = new JDialog(this, title, ModalityType.MODELESS);
+		dialog.setBounds(getParentCenterBounds(400, 160));
+		dialog.add(new JLabel(message));
+		dialog.setVisible(true);
+		
+		Timer timer = new Timer();
+		timer.schedule(new TimerTask() {
+			@Override
+			public void run() {
+				dialog.setVisible(false);
+				dialog.dispose();
+			}
+		}, millis);
+	}
+	
+	private Rectangle getParentCenterBounds(int width, int height) {
+		int parentX = Gateway.this.getX();
+		int parentY = Gateway.this.getY();
+		int parentWidth = Gateway.this.getWidth();
+		int parentHeight = Gateway.this.getHeight();
+		
+		if (width > parentWidth || height > parentHeight)
+			return new Rectangle(parentX, parentY, width, height);
+		
+		return new Rectangle((parentX + (parentWidth - width) / 2), (parentY + (parentHeight - height) / 2), width, height);
 	}
 
 	@Override
@@ -332,21 +356,29 @@ public class Gateway extends JFrame implements ActionListener, InternalFrameList
 	}
 	
 	private void disconnect() {
-		// TODO Auto-generated method stub
 		if (chatClient == null || chatClient.isClosed())
 			throw new IllegalStateException("Gateway has already disconnected.");
+		
+		doDisconnect();
+		refreshConnectionStateRelativatedMenus();
+		updateStatus();
+		showNotification(this, "Message", "Gateway has disconnected.", DEFAULT_NOTIFICATION_DELAY_TIME);
+	}
+
+	private void doDisconnect() {
+		if (chatClient != null) {
+			autoReconnect = false;
+			chatClient.close();			
+		}
 	}
 
 	private void connect() {
 		if (chatClient != null && chatClient.isConnected())
 			throw new IllegalStateException("Gateway has already connected.");
 		
-		if (chatClient == null)
-			chatClient = createChatClient();
-		
 		try {
-			chatClient.connect(new UsernamePasswordToken(deviceIdentity.getDeviceName().toString(), deviceIdentity.getCredentials()));
-			autoReconnect = true;
+			doConnect();
+			showNotification(this, "Message", "Gateway has connected.", DEFAULT_NOTIFICATION_DELAY_TIME);
 		} catch (ConnectionException e) {
 			if (chatClient != null) {
 				chatClient.close();
@@ -357,7 +389,19 @@ public class Gateway extends JFrame implements ActionListener, InternalFrameList
 		} catch (AuthFailureException e) {
 			JOptionPane.showMessageDialog(this, "Authentication failed.", "Authentication Error", JOptionPane.ERROR_MESSAGE);
 		}
+	}
+	
+	private void doConnect() throws ConnectionException, AuthFailureException {
+		if (chatClient == null)
+			chatClient = createChatClient();
 		
+		log("Gateway is trying to connect to server...");
+		chatClient.connect(new UsernamePasswordToken(deviceIdentity.getDeviceName().toString(), deviceIdentity.getCredentials()));
+		log("Gateway has connected to server.");
+		autoReconnect = true;
+		
+		refreshConnectionStateRelativatedMenus();
+		updateStatus();
 	}
 
 	private IChatClient createChatClient() {
@@ -390,8 +434,10 @@ public class Gateway extends JFrame implements ActionListener, InternalFrameList
 		
 		if (streamConfig != null) {
 			streamConfig.setResource(RESOURCE_NAME_GATEWAY);
-			doRegister();
+			doRegister();	
 		}
+		
+		showNotification(this, "Message", "Gateway has registered.", DEFAULT_NOTIFICATION_DELAY_TIME);
 	}
 	
 	private void doRegister() {
@@ -408,7 +454,7 @@ public class Gateway extends JFrame implements ActionListener, InternalFrameList
 			setDirty(true);
 			refreshGatewayInstanceRelativatedMenus();
 			updateTitle();
-			updateStatus();
+			updateStatus();			
 		} catch (RegistrationException e) {
 			log(e);
 			JOptionPane.showMessageDialog(this, "Can't register device. Error: " + e.getError(), "Registration Error", JOptionPane.ERROR_MESSAGE);
@@ -565,6 +611,8 @@ public class Gateway extends JFrame implements ActionListener, InternalFrameList
 	}
 
 	private void quit() {
+		doDisconnect();
+		
 		if (!dirty)
 			System.exit(0);
 		
@@ -651,6 +699,16 @@ public class Gateway extends JFrame implements ActionListener, InternalFrameList
 		
 		setConfigFile(file);
 	}
+	
+	private void refreshConnectionStateRelativatedMenus() {
+		if (chatClient != null && chatClient.isConnected()) {
+			getMenuItem(MENU_NAME_TOOLS, MENU_ITEM_NAME_CONNECT).setEnabled(false);			
+			getMenuItem(MENU_NAME_TOOLS, MENU_ITEM_NAME_DISCONNECT).setEnabled(true);			
+		} else {
+			getMenuItem(MENU_NAME_TOOLS, MENU_ITEM_NAME_DISCONNECT).setEnabled(false);			
+			getMenuItem(MENU_NAME_TOOLS, MENU_ITEM_NAME_CONNECT).setEnabled(true);			
+		}
+	}
 
 	private void refreshGatewayInstanceRelativatedMenus() {
 		if (deviceIdentity != null) {
@@ -665,11 +723,7 @@ public class Gateway extends JFrame implements ActionListener, InternalFrameList
 			}
 		}
 	}
-
-	private boolean isConnected() {
-		return chatClient != null && chatClient.isConnected();
-	}
-
+	
 	private void setConfigFile(File file) {
 		if (configFile == null && file != null) {
 			getMenuItem(MENU_NAME_FILE, MENU_ITEM_NAME_SAVE_AS).setEnabled(true);
@@ -1110,6 +1164,16 @@ public class Gateway extends JFrame implements ActionListener, InternalFrameList
 	@Override
 	public void sent(String message) {
 		log("G-->S " + message);
+	}
+
+	@Override
+	public boolean isRegistered() {
+		return deviceIdentity != null;
+	}
+
+	@Override
+	public boolean isConnected() {
+		return chatClient != null && chatClient.isConnected();
 	}
 
 	
