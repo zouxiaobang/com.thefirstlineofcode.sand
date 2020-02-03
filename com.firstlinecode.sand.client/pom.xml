@@ -17,6 +17,7 @@
 	<name>Lithosphere IoT client Plugins</name>
 
 	<modules>
+		<module>com.firstlinecode.sand.client.things</module>
 		<module>com.firstlinecode.sand.client.ibdr</module>
 	</modules>
 
