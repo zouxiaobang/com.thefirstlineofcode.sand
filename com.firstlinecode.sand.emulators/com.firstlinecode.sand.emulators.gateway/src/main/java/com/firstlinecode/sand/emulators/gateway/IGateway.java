@@ -1,10 +1,10 @@
 package com.firstlinecode.sand.emulators.gateway;
 
 import com.firstlinecode.sand.client.things.IDevice;
-import com.firstlinecode.sand.emulators.thing.IThingFactory;
+import com.firstlinecode.sand.emulators.thing.IThingEmulatorFactory;
 
 public interface IGateway extends IDevice {
-	void registerThingFactory(IThingFactory<?> factory);
+	void registerThingEmulatorFactory(IThingEmulatorFactory<?> factory);
 	boolean isRegistered();
 	boolean isConnected();
 }

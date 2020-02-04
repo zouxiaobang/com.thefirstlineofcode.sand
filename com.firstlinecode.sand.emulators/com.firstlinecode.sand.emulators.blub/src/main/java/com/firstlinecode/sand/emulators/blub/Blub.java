@@ -42,6 +42,10 @@ public class Blub extends AbstractThingEmulator implements IThingEmulator, IThin
 	private JPanel switchsPanel;
 	private BlubEmulatorPanel panel;
 	
+	public Blub() {
+		this(null);
+	}
+	
 	public Blub(ICommunicationChip<?> chip) {
 		this(chip, DEFAULT_SWITCH_STATE, DEFAULT_BLUB_STATE);
 	}

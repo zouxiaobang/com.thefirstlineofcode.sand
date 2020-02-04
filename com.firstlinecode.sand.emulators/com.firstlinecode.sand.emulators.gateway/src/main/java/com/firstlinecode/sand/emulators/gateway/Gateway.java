@@ -73,7 +73,7 @@ import com.firstlinecode.sand.emulators.lora.LoraNetwork;
 import com.firstlinecode.sand.emulators.thing.AbstractThingEmulator;
 import com.firstlinecode.sand.emulators.thing.AbstractThingEmulatorPanel;
 import com.firstlinecode.sand.emulators.thing.IThingEmulator;
-import com.firstlinecode.sand.emulators.thing.IThingFactory;
+import com.firstlinecode.sand.emulators.thing.IThingEmulatorFactory;
 import com.firstlinecode.sand.emulators.thing.ThingsUtils;
 import com.firstlinecode.sand.protocols.core.DeviceIdentity;
 
@@ -137,7 +137,7 @@ public class Gateway extends JFrame implements ActionListener, InternalFrameList
 	private DeviceIdentity deviceIdentity;
 	private StandardStreamConfig streamConfig;
 	
-	private List<IThingFactory<?>> factories;
+	private List<IThingEmulatorFactory<?>> factories;
 	private Map<String, List<IThingEmulator>> allThings;
 	private boolean dirty;
 	
@@ -159,7 +159,7 @@ public class Gateway extends JFrame implements ActionListener, InternalFrameList
 	public Gateway() {
 		super("Unregistered Gateway");
 		
-		deviceId = ThingsUtils.generateRandomDeviceId();
+		deviceId =   ThingsUtils.generateRandomDeviceId();
 		
 		factories = new ArrayList<>();
 		allThings = new HashMap<String, List<IThingEmulator>>();
@@ -183,7 +183,7 @@ public class Gateway extends JFrame implements ActionListener, InternalFrameList
 			while (true) {
 				if (autoReconnect && (chatClient == null || !chatClient.isConnected())) {
 					log("Trying to reconnect...");
-					connect();
+					connect(false);
 				}
 				
 				try {
@@ -363,6 +363,7 @@ public class Gateway extends JFrame implements ActionListener, InternalFrameList
 			throw new IllegalStateException("Gateway has already disconnected.");
 		
 		doDisconnect();
+		setDirty(true);
 		refreshConnectionStateRelativatedMenus();
 		updateStatus();
 		showNotification(this, "Message", "Gateway has disconnected.", DEFAULT_NOTIFICATION_DELAY_TIME);
@@ -371,16 +372,21 @@ public class Gateway extends JFrame implements ActionListener, InternalFrameList
 	private void doDisconnect() {
 		if (chatClient != null) {
 			autoReconnect = false;
-			chatClient.close();			
+			chatClient.close();
 		}
 	}
-
+	
 	private void connect() {
+		connect(true);
+	}
+	
+	private void connect(boolean dirty) {
 		if (chatClient != null && chatClient.isConnected())
 			throw new IllegalStateException("Gateway has already connected.");
 		
 		try {
 			doConnect();
+			setDirty(dirty);
 			showNotification(this, "Message", "Gateway has connected.", DEFAULT_NOTIFICATION_DELAY_TIME);
 		} catch (ConnectionException e) {
 			if (chatClient != null) {
@@ -440,7 +446,8 @@ public class Gateway extends JFrame implements ActionListener, InternalFrameList
 			doRegister();	
 		}
 		
-		showNotification(this, "Message", "Gateway has registered.", DEFAULT_NOTIFICATION_DELAY_TIME);
+		if (deviceIdentity != null)
+			showNotification(this, "Message", "Gateway has registered.", DEFAULT_NOTIFICATION_DELAY_TIME);
 	}
 	
 	private void doRegister() {
@@ -584,6 +591,8 @@ public class Gateway extends JFrame implements ActionListener, InternalFrameList
 				output.writeObject(null);
 			}
 			
+			output.writeBoolean(autoReconnect);
+			
 			output.writeInt(frames.length);
 			if (frames.length != 0) {				
 				for (JInternalFrame frame : frames) {
@@ -694,6 +703,7 @@ public class Gateway extends JFrame implements ActionListener, InternalFrameList
 		deviceId = gatewayInfo.deviceId;
 		streamConfig = gatewayInfo.streamConfig;
 		deviceIdentity = gatewayInfo.deviceIdentity;
+		autoReconnect = gatewayInfo.autoReconnect;
 		
 		if (gatewayInfo.thingInfos != null) {
 			for (ThingInfo thingInfo : gatewayInfo.thingInfos) {
@@ -750,6 +760,8 @@ public class Gateway extends JFrame implements ActionListener, InternalFrameList
 			DeviceIdentityInfo deviceIdentityInfo = (DeviceIdentityInfo)input.readObject();
 			gatewayInfo.deviceIdentity = deviceIdentityInfo == null ? null : createDeviceIdentity(deviceIdentityInfo);
 			
+			gatewayInfo.autoReconnect = input.readBoolean();
+			
 			int size = input.readInt();
 			if (size != 0) {
 				gatewayInfo.thingInfos = new ArrayList<>(size);
@@ -761,7 +773,7 @@ public class Gateway extends JFrame implements ActionListener, InternalFrameList
 		} catch (FileNotFoundException e) {
 			throw new RuntimeException(String.format("Gateway info file %s doesn't exist.", file.getPath()));
 		} catch (IOException e) {
-			throw new RuntimeException("Can't load gateway info file.");
+			throw new RuntimeException("Can't load gateway info file.", e);
 		} catch (ClassNotFoundException e) {
 			// ???
 			e.printStackTrace();
@@ -793,6 +805,7 @@ public class Gateway extends JFrame implements ActionListener, InternalFrameList
 		private String deviceId;
 		private StandardStreamConfig streamConfig;
 		private DeviceIdentity deviceIdentity;
+		private boolean autoReconnect;
 		private List<ThingInfo> thingInfos;
 	}
 
@@ -803,7 +816,7 @@ public class Gateway extends JFrame implements ActionListener, InternalFrameList
 	}
 	
 	private IThingEmulator createThing(String thingName) {
-		IThingFactory<?> factory = getFactory(thingName);
+		IThingEmulatorFactory<?> factory = getFactory(thingName);
 		ICommunicationChip<LoraAddress> chip = network.createChip(ILoraChip.Type.NORMAL, LoraAddress.randomLoraAddress(DEFAULT_LORA_WORKING_FREQUENCY_BAND));
 		IThingEmulator thing = (IThingEmulator)factory.create(chip);
 		
@@ -878,11 +891,11 @@ public class Gateway extends JFrame implements ActionListener, InternalFrameList
 		}
 	}
 
-	private String getThingInstanceName(IThingFactory<?> factory, int thingsIndex) {
+	private String getThingInstanceName(IThingEmulatorFactory<?> factory, int thingsIndex) {
 		return factory.getThingName() + " #" + thingsIndex;
 	}
 
-	private List<IThingEmulator> getThings(IThingFactory<?> factory) {
+	private List<IThingEmulator> getThings(IThingEmulatorFactory<?> factory) {
 		List<IThingEmulator> things = allThings.get(factory.getThingName());
 		if (things == null) {
 			things = new ArrayList<IThingEmulator>();
@@ -891,8 +904,8 @@ public class Gateway extends JFrame implements ActionListener, InternalFrameList
 		return things;
 	}
 
-	private IThingFactory<?> getFactory(String thingName) {
-		for (IThingFactory<?> factory : factories) {
+	private IThingEmulatorFactory<?> getFactory(String thingName) {
+		for (IThingEmulatorFactory<?> factory : factories) {
 			if (factory.getThingName().equals(thingName))
 				return factory;
 		}
@@ -1015,8 +1028,8 @@ public class Gateway extends JFrame implements ActionListener, InternalFrameList
 	}
 
 	@Override
-	public void registerThingFactory(IThingFactory<?> factory) {
-		for (IThingFactory<?> existedFactory : factories) {
+	public void registerThingEmulatorFactory(IThingEmulatorFactory<?> factory) {
+		for (IThingEmulatorFactory<?> existedFactory : factories) {
 			if (existedFactory.getClass().getName().equals(factory.getClass().getName())) {
 				throw new IllegalArgumentException(String.format("Thing factory %s has registered.", factory.getClass().getName()));				
 			}

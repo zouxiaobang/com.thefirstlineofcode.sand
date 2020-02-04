@@ -2,7 +2,7 @@ package com.firstlinecode.sand.emulators.thing;
 
 import com.firstlinecode.sand.client.things.ICommunicationChip;
 
-public interface IThingFactory<IThing> {
+public interface IThingEmulatorFactory<T extends IThingEmulator> {
 	String getThingName();
-	IThing create(ICommunicationChip<?> chip);
+	T create(ICommunicationChip<?> chip);
 }

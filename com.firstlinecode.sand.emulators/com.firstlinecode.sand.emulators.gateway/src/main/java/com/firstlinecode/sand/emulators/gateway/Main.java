@@ -9,7 +9,7 @@ public class Main {
 
 	private void run() {
 		Gateway gateway = new Gateway();
-		gateway.registerThingFactory(new BlubEmulatorFactory());
+		gateway.registerThingEmulatorFactory(new BlubEmulatorFactory());
 		gateway.setVisible(true);
 	}
 }

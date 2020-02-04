@@ -14,7 +14,7 @@ import com.firstlinecode.sand.client.things.IThingListener;
 
 public abstract class AbstractThingEmulator implements IThingEmulator {
 	protected String thingName;
-	protected ICommunicationChip<?> chip;
+	protected ICommunicationChip<?> communicationChip;
 	
 	protected String deviceId;
 	protected String lanId;
@@ -24,12 +24,11 @@ public abstract class AbstractThingEmulator implements IThingEmulator {
 	protected boolean powered;
 	protected List<IThingListener> thingListeners;
 	
-	
-	public AbstractThingEmulator(String  type, String mode, ICommunicationChip<?> chip) {
+	public AbstractThingEmulator(String  type, String mode, ICommunicationChip<?> communicationChip) {
 		this.deviceType = type;
 		this.deviceMode = mode;
 		this.thingName = type + " - " + mode;
-		this.chip = chip;
+		this.communicationChip = communicationChip;
 		
 		deviceId = ThingsUtils.generateRandomDeviceId();
 		batteryPower = 100;
@@ -132,9 +131,9 @@ public abstract class AbstractThingEmulator implements IThingEmulator {
 
 	@Override
 	public void writeExternal(ObjectOutput out) throws IOException {
-		out.writeObject(thingName);
-		out.writeObject(deviceId);
 		out.writeObject(deviceType);
+		out.writeObject(deviceMode);
+		out.writeObject(deviceId);
 		out.writeObject(lanId);
 		out.writeInt(batteryPower);
 		out.writeBoolean(powered);
@@ -144,9 +143,9 @@ public abstract class AbstractThingEmulator implements IThingEmulator {
 	
 	@Override
 	public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
-		thingName = (String)in.readObject();
-		deviceId = (String)in.readObject();
 		deviceType = (String)in.readObject();
+		deviceMode = (String)in.readObject();
+		deviceId = (String)in.readObject();
 		lanId = (String)in.readObject();
 		batteryPower = in.readInt();
 		powered = in.readBoolean();
@@ -159,7 +158,6 @@ public abstract class AbstractThingEmulator implements IThingEmulator {
 		this.powered = true;
 		doPowerOn();
 		
-		// TODO
 		for (IThingEmulatorListener thingEmulatorListener : getThingEmulatorListeners()) {
 			thingEmulatorListener.powerChanged(new PowerEvent(this, PowerEvent.Type.POWER_ON));
 		}
@@ -218,8 +216,13 @@ public abstract class AbstractThingEmulator implements IThingEmulator {
 	}
 	
 	@Override
-	public ICommunicationChip<?> getChip() {
-		return chip;
+	public ICommunicationChip<?> getCommunicationChip() {
+		return communicationChip;
+	}
+	
+	@Override
+	public void setCommunicationChip(ICommunicationChip<?> communicationChip) {
+		this.communicationChip = communicationChip;
 	}
 	
 	protected abstract void doWriteExternal(ObjectOutput out) throws IOException;

@@ -15,6 +15,8 @@ public class ThingInfo implements Externalizable {
 	private IThingEmulator thing;
 	private String title;
 	
+	public ThingInfo() {}
+	
 	public ThingInfo(int layer, int x, int y, boolean selected, IThingEmulator thing, String title) {
 		this.layer = layer;
 		this.x = x;
