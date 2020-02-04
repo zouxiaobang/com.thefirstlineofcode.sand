@@ -1,7 +1,7 @@
 package com.firstlinecode.sand.client.things;
 
-public interface IConcentrator extends IObservable, IThing {
-	void addChild(IThing child);
-	void removeChild(IThing child);
-	IThing[] getChildren();
+public interface IConcentrator extends IDevice, IObservable {
+	void addNode(IThing child);
+	void removeNode(IThing child);
+	IThing[] getNodes();
 }

@@ -7,7 +7,7 @@ import java.util.Map;
 import java.util.Random;
 
 public class LoraNetwork implements ILoraNetwork {
-	private static final int DEFAULT_SIGNAL_CRASHED_INTERVAL = 500;
+	private static final int DEFAULT_SIGNAL_COLLISION_INTERVAL = 500;
 	private static final int DEFAULT_SIGNAL_TRANSFER_TIMEOUT = 2000;
 	
 	protected Map<LoraAddress, ILoraChip> chips;
@@ -31,7 +31,7 @@ public class LoraNetwork implements ILoraNetwork {
 		arrivedTimeRandomGenerator = new Random(networkInitTime);
 		signalLostRandomGenerator = new Random(networkInitTime);
 		
-		signalCrashedInterval = DEFAULT_SIGNAL_CRASHED_INTERVAL;
+		signalCrashedInterval = DEFAULT_SIGNAL_COLLISION_INTERVAL;
 		signalTransferTimeout = DEFAULT_SIGNAL_TRANSFER_TIMEOUT;
 		
 		new Thread(new LoraSignalTimeoutThread()).start();
@@ -145,14 +145,14 @@ public class LoraNetwork implements ILoraNetwork {
 		if (received == null)
 			return null;
 		
-		List<LoraSignal> crashes = findCrashes(received);
-		if (!crashes.isEmpty()) {
-			crashes.add(received);
-			signals.removeAll(crashes);
+		List<LoraSignal> collisions = findCollisions(received);
+		if (!collisions.isEmpty()) {
+			collisions.add(received);
+			signals.removeAll(collisions);
 			
 			for (ILoraNetworkListener listener : listeners) {
-				for (LoraSignal signal : crashes) {
-					listener.crashed(signal.from, signal.to, signal.message);
+				for (LoraSignal signal : collisions) {
+					listener.collided(signal.from, signal.to, signal.message);
 				}
 			}
 			
@@ -191,22 +191,22 @@ public class LoraNetwork implements ILoraNetwork {
 		return quality;
 	}
 
-	private List<LoraSignal> findCrashes(LoraSignal received) {
-		List<LoraSignal> crashes = new ArrayList<>();
+	private List<LoraSignal> findCollisions(LoraSignal received) {
+		List<LoraSignal> collisions = new ArrayList<>();
 		for (LoraSignal signal : signals) {
 			if (signal == received)
 				continue;
 			
-			if (isCrashed(signal, received)) {
-				crashes.add(signal);
+			if (isCollided(signal, received)) {
+				collisions.add(signal);
 			}
 		}
 		
-		return crashes;
+		return collisions;
 	}
 
-	private boolean isCrashed(LoraSignal signal, LoraSignal received) {
-		return Math.abs(signal.arrivedTime - received.arrivedTime) < DEFAULT_SIGNAL_CRASHED_INTERVAL;
+	private boolean isCollided(LoraSignal signal, LoraSignal received) {
+		return Math.abs(signal.arrivedTime - received.arrivedTime) < DEFAULT_SIGNAL_COLLISION_INTERVAL;
 	}
 
 	private boolean isSendToTarget(LoraSignal signal, ILoraChip target) {

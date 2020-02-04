@@ -66,12 +66,15 @@ import com.firstlinecode.sand.client.ibdr.IRegistration;
 import com.firstlinecode.sand.client.ibdr.IbdrPlugin;
 import com.firstlinecode.sand.client.ibdr.RegistrationException;
 import com.firstlinecode.sand.client.things.ICommunicationChip;
+import com.firstlinecode.sand.client.things.IEventListener;
+import com.firstlinecode.sand.client.things.IThing;
 import com.firstlinecode.sand.emulators.lora.ILoraChip;
 import com.firstlinecode.sand.emulators.lora.ILoraNetwork;
 import com.firstlinecode.sand.emulators.lora.LoraAddress;
 import com.firstlinecode.sand.emulators.lora.LoraNetwork;
 import com.firstlinecode.sand.emulators.thing.AbstractThingEmulator;
 import com.firstlinecode.sand.emulators.thing.AbstractThingEmulatorPanel;
+import com.firstlinecode.sand.emulators.thing.Constants;
 import com.firstlinecode.sand.emulators.thing.IThingEmulator;
 import com.firstlinecode.sand.emulators.thing.IThingEmulatorFactory;
 import com.firstlinecode.sand.emulators.thing.ThingsUtils;
@@ -79,8 +82,10 @@ import com.firstlinecode.sand.protocols.core.DeviceIdentity;
 
 public class Gateway extends JFrame implements ActionListener, InternalFrameListener,
 		ComponentListener, WindowListener, IGateway, IConnectionListener {
-	private static final String DEVICE_NAME = "Gateway";
-
+	private static final int ALWAYS_FULL_POWER = 100;
+	private static final String DEVICE_TYPE = "Gateway";
+	private static final String DEVICE_MODE = "Emulator01";
+	
 	private static final int DEFAULT_NOTIFICATION_DELAY_TIME = 1000 * 2;
 
 	private static final long serialVersionUID = -7894418812878036627L;
@@ -621,7 +626,7 @@ public class Gateway extends JFrame implements ActionListener, InternalFrameList
 	}
 	
 	private void showAboutDialog() {
-		showDialog(new AboutDialog(this, "0.1.0.RELEASE"));
+		showDialog(new AboutDialog(this, Constants.SOFTWARE_VERSION));
 	}
 
 	private void quit() {
@@ -1202,26 +1207,51 @@ public class Gateway extends JFrame implements ActionListener, InternalFrameList
 
 	@Override
 	public String getDeviceType() {
-		return DEVICE_NAME;
+		return DEVICE_TYPE;
 	}
 
 	@Override
 	public String getDeviceMode() {
+		return DEVICE_MODE;
+	}
+
+	@Override
+	public int getBatteryPower() {
+		return ALWAYS_FULL_POWER;
+	}
+
+	@Override
+	public boolean isPowered() {
+		return true;
+	}
+
+	@Override
+	public String getSoftwareVersion() {
+		return Constants.SOFTWARE_VERSION;
+	}
+	
+	@Override
+	public void addNode(IThing node) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void removeNode(IThing node) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public IThing[] getNodes() {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public int getBatteryPower() {
+	public void addEventListener(IEventListener listener) {
 		// TODO Auto-generated method stub
-		return 0;
+		
 	}
-
-	@Override
-	public boolean isPowered() {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
 	
 }

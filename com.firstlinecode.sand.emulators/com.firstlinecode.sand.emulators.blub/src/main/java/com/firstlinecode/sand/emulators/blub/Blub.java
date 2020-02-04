@@ -46,16 +46,16 @@ public class Blub extends AbstractThingEmulator implements IThingEmulator, IThin
 		this(null);
 	}
 	
-	public Blub(ICommunicationChip<?> chip) {
-		this(chip, DEFAULT_SWITCH_STATE, DEFAULT_BLUB_STATE);
+	public Blub(ICommunicationChip<?> communicationChip) {
+		this(communicationChip, DEFAULT_SWITCH_STATE, DEFAULT_BLUB_STATE);
 	}
 	
-	public Blub(ICommunicationChip<?> chip, SwitchState switchState) {
-		this(chip, switchState, switchState == SwitchState.ON ? BlubState.ON : BlubState.OFF);
+	public Blub(ICommunicationChip<?> communicationChip, SwitchState switchState) {
+		this(communicationChip, switchState, switchState == SwitchState.ON ? BlubState.ON : BlubState.OFF);
 	}
 	
-	public Blub(ICommunicationChip<?> chip, SwitchState switchState, BlubState blubState) {
-		super(THING_TYPE, THING_MODE, chip);
+	public Blub(ICommunicationChip<?> communicationChip, SwitchState switchState, BlubState blubState) {
+		super(THING_TYPE, THING_MODE, communicationChip);
 		
 		if (switchState == null)
 			throw new IllegalArgumentException("Null switch state.");
@@ -74,11 +74,6 @@ public class Blub extends AbstractThingEmulator implements IThingEmulator, IThin
 	
 	@Override
 	public String getSoftwareVersion() {
-		return "0.1.0.RELEASE";
-	}
-
-	@Override
-	public String getHardwareVersion() {
 		return "0.1.0.RELEASE";
 	}
 
