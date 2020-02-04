@@ -6,15 +6,15 @@ public class PowerEvent {
 		POWER_OFF
 	}
 	
-	private IThing source;
+	private IThingEmulator source;
 	private Type type;
 	
-	public PowerEvent(IThing source, Type type) {
+	public PowerEvent(IThingEmulator source, Type type) {
 		this.source = source;
 		this.type = type;
 	}
 
-	public IThing getSource() {
+	public IThingEmulator getSource() {
 		return source;
 	}
 	

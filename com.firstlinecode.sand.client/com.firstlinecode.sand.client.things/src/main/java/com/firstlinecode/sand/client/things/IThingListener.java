@@ -1,5 +1,5 @@
 package com.firstlinecode.sand.client.things;
 
-public interface IDeviceListener {
+public interface IThingListener {
 	void batteryPowerChanged(BatteryPowerEvent event);
 }

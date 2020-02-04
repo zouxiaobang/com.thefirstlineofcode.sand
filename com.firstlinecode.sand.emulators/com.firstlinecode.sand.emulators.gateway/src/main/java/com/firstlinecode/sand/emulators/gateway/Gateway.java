@@ -65,19 +65,22 @@ import com.firstlinecode.chalk.network.IConnectionListener;
 import com.firstlinecode.sand.client.ibdr.IRegistration;
 import com.firstlinecode.sand.client.ibdr.IbdrPlugin;
 import com.firstlinecode.sand.client.ibdr.RegistrationException;
+import com.firstlinecode.sand.client.things.ICommunicationChip;
 import com.firstlinecode.sand.emulators.lora.ILoraChip;
 import com.firstlinecode.sand.emulators.lora.ILoraNetwork;
 import com.firstlinecode.sand.emulators.lora.LoraAddress;
 import com.firstlinecode.sand.emulators.lora.LoraNetwork;
-import com.firstlinecode.sand.emulators.thing.AbstractThing;
-import com.firstlinecode.sand.emulators.thing.AbstractThingPanel;
-import com.firstlinecode.sand.emulators.thing.IThing;
+import com.firstlinecode.sand.emulators.thing.AbstractThingEmulator;
+import com.firstlinecode.sand.emulators.thing.AbstractThingEmulatorPanel;
+import com.firstlinecode.sand.emulators.thing.IThingEmulator;
 import com.firstlinecode.sand.emulators.thing.IThingFactory;
 import com.firstlinecode.sand.emulators.thing.ThingsUtils;
 import com.firstlinecode.sand.protocols.core.DeviceIdentity;
 
 public class Gateway extends JFrame implements ActionListener, InternalFrameListener,
 		ComponentListener, WindowListener, IGateway, IConnectionListener {
+	private static final String DEVICE_NAME = "Gateway";
+
 	private static final int DEFAULT_NOTIFICATION_DELAY_TIME = 1000 * 2;
 
 	private static final long serialVersionUID = -7894418812878036627L;
@@ -134,8 +137,8 @@ public class Gateway extends JFrame implements ActionListener, InternalFrameList
 	private DeviceIdentity deviceIdentity;
 	private StandardStreamConfig streamConfig;
 	
-	private List<IThingFactory<? extends IThing>> factories;
-	private Map<String, List<IThing>> allThings;
+	private List<IThingFactory<?>> factories;
+	private Map<String, List<IThingEmulator>> allThings;
 	private boolean dirty;
 	
 	private ILoraNetwork network;
@@ -159,7 +162,7 @@ public class Gateway extends JFrame implements ActionListener, InternalFrameList
 		deviceId = ThingsUtils.generateRandomDeviceId();
 		
 		factories = new ArrayList<>();
-		allThings = new HashMap<String, List<IThing>>();
+		allThings = new HashMap<String, List<IThingEmulator>>();
 		dirty = false;
 		
 		network = new LoraNetwork();
@@ -498,7 +501,8 @@ public class Gateway extends JFrame implements ActionListener, InternalFrameList
 		JOptionPane.showMessageDialog(this, "Not implemented yet.");
 	}
 	
-	private void powerOff() {
+	@Override
+	public void powerOff() {
 		getSelectedFrame().getThing().powerOff();
 		refreshPowerRelativedMenuItems();
 	}
@@ -507,8 +511,9 @@ public class Gateway extends JFrame implements ActionListener, InternalFrameList
 		ThingInternalFrame thingFrame = (ThingInternalFrame)desktop.getSelectedFrame();
 		return thingFrame;
 	}
-
-	private void powerOn() {
+	
+	@Override
+	public void powerOn() {
 		getSelectedFrame().getThing().powerOn();
 		refreshPowerRelativedMenuItems();
 	}
@@ -797,11 +802,12 @@ public class Gateway extends JFrame implements ActionListener, InternalFrameList
 		createThing(thingName);
 	}
 	
-	private IThing createThing(String thingName) {
-		IThingFactory<? extends IThing> factory = getFactory(thingName);
-		IThing thing = factory.create(network.createChip(ILoraChip.Type.NORMAL, LoraAddress.randomLoraAddress(DEFAULT_LORA_WORKING_FREQUENCY_BAND)));
+	private IThingEmulator createThing(String thingName) {
+		IThingFactory<?> factory = getFactory(thingName);
+		ICommunicationChip<LoraAddress> chip = network.createChip(ILoraChip.Type.NORMAL, LoraAddress.randomLoraAddress(DEFAULT_LORA_WORKING_FREQUENCY_BAND));
+		IThingEmulator thing = (IThingEmulator)factory.create(chip);
 		
-		List<IThing> things = getThings(factory);
+		List<IThingEmulator> things = getThings(factory);
 		
 		int instanceIndex = things.size();
 		thing.powerOn();
@@ -822,12 +828,12 @@ public class Gateway extends JFrame implements ActionListener, InternalFrameList
 		return thing;
 	}
 
-	private void showThing(IThing thing, String title, int layer, int x, int y) {
+	private void showThing(IThingEmulator thing, String title, int layer, int x, int y) {
 		this.showThing(thing, title, layer, x, y, true);
 	}
 
-	private void showThing(IThing thing, String title, int layer, int x, int y, boolean selected) {
-		AbstractThingPanel thingPanel = thing.getPanel();
+	private void showThing(IThingEmulator thing, String title, int layer, int x, int y, boolean selected) {
+		AbstractThingEmulatorPanel thingPanel = thing.getPanel();
 		ThingInternalFrame internalFrame = new ThingInternalFrame(thing, title);		
 		internalFrame.addComponentListener(this);
 		internalFrame.setBounds(x, y, thingPanel.getPreferredSize().width, thingPanel.getPreferredSize().height);
@@ -845,8 +851,8 @@ public class Gateway extends JFrame implements ActionListener, InternalFrameList
 		}
 		
 		
-		if (thing instanceof AbstractThing)
-			thingPanel.updateStatus(((AbstractThing)thing).getThingStatus());
+		if (thing instanceof AbstractThingEmulator)
+			thingPanel.updateStatus(((AbstractThingEmulator)thing).getThingStatus());
 	}
 	
 	private void changeGatewayStatusAndRefreshUiThread(boolean dirty) {
@@ -872,21 +878,21 @@ public class Gateway extends JFrame implements ActionListener, InternalFrameList
 		}
 	}
 
-	private String getThingInstanceName(IThingFactory<? extends IThing> factory, int thingsIndex) {
+	private String getThingInstanceName(IThingFactory<?> factory, int thingsIndex) {
 		return factory.getThingName() + " #" + thingsIndex;
 	}
 
-	private List<IThing> getThings(IThingFactory<? extends IThing> factory) {
-		List<IThing> things = allThings.get(factory.getThingName());
+	private List<IThingEmulator> getThings(IThingFactory<?> factory) {
+		List<IThingEmulator> things = allThings.get(factory.getThingName());
 		if (things == null) {
-			things = new ArrayList<IThing>();
+			things = new ArrayList<IThingEmulator>();
 			allThings.put(factory.getThingName(), things);
 		}
 		return things;
 	}
 
-	private IThingFactory<? extends IThing> getFactory(String thingName) {
-		for (IThingFactory<? extends IThing> factory : factories) {
+	private IThingFactory<?> getFactory(String thingName) {
+		for (IThingFactory<?> factory : factories) {
 			if (factory.getThingName().equals(thingName))
 				return factory;
 		}
@@ -1174,6 +1180,34 @@ public class Gateway extends JFrame implements ActionListener, InternalFrameList
 	@Override
 	public boolean isConnected() {
 		return chatClient != null && chatClient.isConnected();
+	}
+
+	@Override
+	public String getDeviceId() {
+		return deviceId;
+	}
+
+	@Override
+	public String getDeviceType() {
+		return DEVICE_NAME;
+	}
+
+	@Override
+	public String getDeviceMode() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public int getBatteryPower() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public boolean isPowered() {
+		// TODO Auto-generated method stub
+		return false;
 	}
 
 	

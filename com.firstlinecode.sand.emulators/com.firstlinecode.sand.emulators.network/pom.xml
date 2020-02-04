@@ -6,21 +6,18 @@
 	
 	<parent>
 		<groupId>com.firstlinecode.sand</groupId>
-		<artifactId>com.firstlinecode.sand</artifactId>
+		<artifactId>com.firstlinecode.sand.emulators</artifactId>
 		<version>0.1.0.RELEASE</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 
-	<groupId>com.firstlinecode.sand</groupId>
-	<artifactId>com.firstlinecode.sand.emulators</artifactId>
+	<groupId>com.firstlinecode.sand.emulators</groupId>
+	<artifactId>com.firstlinecode.sand.emulators.network</artifactId>
 	<packaging>pom</packaging>
-	<name>Lithosphere IoT Emulator Plugins</name>
+	<name>Lithosphere IoT Network Emulator Plugins</name>
 
 	<modules>
-		<module>com.firstlinecode.sand.emulators.network</module>
-		<module>com.firstlinecode.sand.emulators.thing</module>
-		<module>com.firstlinecode.sand.emulators.gateway</module>
-		<module>com.firstlinecode.sand.emulators.blub</module>
+		<module>com.firstlinecode.sand.emulators.network.lora</module>
 	</modules>
 
 </project>

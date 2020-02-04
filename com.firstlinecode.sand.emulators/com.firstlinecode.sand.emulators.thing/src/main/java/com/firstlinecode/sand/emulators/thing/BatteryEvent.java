@@ -1,17 +1,17 @@
 package com.firstlinecode.sand.emulators.thing;
 
 public class BatteryEvent {
-	private IThing source;
+	private IThingEmulator source;
 	private int oldBattery;
 	private int newBattery;
 	
-	public BatteryEvent(IThing source, int oldBattery, int newBattery) {
+	public BatteryEvent(IThingEmulator source, int oldBattery, int newBattery) {
 		this.source = source;
 		this.oldBattery = oldBattery;
 		this.newBattery = newBattery;
 	}
 
-	public IThing getSource() {
+	public IThingEmulator getSource() {
 		return source;
 	}
 	

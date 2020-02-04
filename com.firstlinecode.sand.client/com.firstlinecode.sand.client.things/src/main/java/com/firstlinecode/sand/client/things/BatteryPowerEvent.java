@@ -1,16 +1,16 @@
 package com.firstlinecode.sand.client.things;
 
-public class BatteryPowerEvent implements IEvent<IDevice, Integer> {
-	private IDevice source;
+public class BatteryPowerEvent implements IEvent<IThing, Integer> {
+	private IThing source;
 	private Integer batteryPower;
 	
-	public BatteryPowerEvent(IDevice source, Integer batteryPower) {
+	public BatteryPowerEvent(IThing source, Integer batteryPower) {
 		this.source = source;
 		this.batteryPower = batteryPower;
 	}
 	
 	@Override
-	public IDevice getSource() {
+	public IThing getSource() {
 		return source;
 	}
 	

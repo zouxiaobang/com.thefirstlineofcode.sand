@@ -7,13 +7,15 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 
-public abstract class AbstractThingPanel extends JPanel implements IDeviceListener {	
+import com.firstlinecode.sand.client.things.BatteryPowerEvent;
+
+public abstract class AbstractThingEmulatorPanel extends JPanel implements IThingEmulatorListener {	
 	private static final long serialVersionUID = 388916038961904955L;
 	
-	protected AbstractThing thing;
+	protected AbstractThingEmulator thingEmulator;
 	protected JLabel statusBar;
 	
-	public AbstractThingPanel(AbstractThing thing) {
+	public AbstractThingEmulatorPanel(AbstractThingEmulator thingEmulator) {
 		super(new BorderLayout());
 		
 		add(createThingCustomizedUi(), BorderLayout.CENTER);
@@ -21,8 +23,8 @@ public abstract class AbstractThingPanel extends JPanel implements IDeviceListen
 		statusBar = creatStatusBar();;
 		add(statusBar, BorderLayout.SOUTH);
 		
-		this.thing = thing;
-		this.thing.addDeviceListener(this);
+		this.thingEmulator = thingEmulator;
+		this.thingEmulator.addThingListener(this);
 	}
 	
 	private JLabel creatStatusBar() {
@@ -39,12 +41,12 @@ public abstract class AbstractThingPanel extends JPanel implements IDeviceListen
 	
 	@Override
 	public void powerChanged(PowerEvent event) {
-		updateStatus(thing.getThingStatus());
+		updateStatus(thingEmulator.getThingStatus());
 	}
 	
 	@Override
-	public void batteryChanged(BatteryEvent event) {
-		updateStatus(thing.getThingStatus());
+	public void batteryPowerChanged(BatteryPowerEvent event) {
+		updateStatus(thingEmulator.getThingStatus());
 	}
 
 	protected abstract JPanel createThingCustomizedUi();

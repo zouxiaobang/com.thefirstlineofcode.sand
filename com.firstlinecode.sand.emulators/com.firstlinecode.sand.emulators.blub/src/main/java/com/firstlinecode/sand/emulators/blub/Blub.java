@@ -9,6 +9,8 @@ import java.awt.event.KeyEvent;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
+import java.util.Collections;
+import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -19,15 +21,18 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 
-import com.firstlinecode.sand.emulators.lora.ILoraChip;
-import com.firstlinecode.sand.emulators.thing.AbstractThing;
-import com.firstlinecode.sand.emulators.thing.AbstractThingPanel;
-import com.firstlinecode.sand.emulators.thing.BatteryEvent;
-import com.firstlinecode.sand.emulators.thing.IDeviceListener;
-import com.firstlinecode.sand.emulators.thing.IThing;
+import com.firstlinecode.sand.client.things.BatteryPowerEvent;
+import com.firstlinecode.sand.client.things.ICommunicationChip;
+import com.firstlinecode.sand.emulators.thing.AbstractThingEmulator;
+import com.firstlinecode.sand.emulators.thing.AbstractThingEmulatorPanel;
+import com.firstlinecode.sand.emulators.thing.IThingEmulator;
+import com.firstlinecode.sand.emulators.thing.IThingEmulatorListener;
 import com.firstlinecode.sand.emulators.thing.PowerEvent;
 
-public class Blub extends AbstractThing implements IThing, IDeviceListener, IBlub {
+public class Blub extends AbstractThingEmulator implements IThingEmulator, IThingEmulatorListener, IBlub {
+	public static final String THING_TYPE = "Blub";
+	public static final String THING_MODE = "Emulator-01";
+	
 	private static final SwitchState DEFAULT_SWITCH_STATE = SwitchState.OFF;
 	private static final BlubState DEFAULT_BLUB_STATE = BlubState.OFF;
 	
@@ -35,18 +40,18 @@ public class Blub extends AbstractThing implements IThing, IDeviceListener, IBlu
 	private BlubState blubState = DEFAULT_BLUB_STATE;
 	
 	private JPanel switchsPanel;
-	private BlubPanel panel;
+	private BlubEmulatorPanel panel;
 	
-	public Blub(ILoraChip chip) {
+	public Blub(ICommunicationChip<?> chip) {
 		this(chip, DEFAULT_SWITCH_STATE, DEFAULT_BLUB_STATE);
 	}
 	
-	public Blub(ILoraChip chip, SwitchState switchState) {
+	public Blub(ICommunicationChip<?> chip, SwitchState switchState) {
 		this(chip, switchState, switchState == SwitchState.ON ? BlubState.ON : BlubState.OFF);
 	}
 	
-	public Blub(ILoraChip chip, SwitchState switchState, BlubState blubState) {
-		super(BlubFactory.THING_NAME, chip);
+	public Blub(ICommunicationChip<?> chip, SwitchState switchState, BlubState blubState) {
+		super(THING_TYPE, THING_MODE, chip);
 		
 		if (switchState == null)
 			throw new IllegalArgumentException("Null switch state.");
@@ -62,8 +67,18 @@ public class Blub extends AbstractThing implements IThing, IDeviceListener, IBlu
 		this.switchState = switchState;
 		this.blubState = blubState;
 	}
+	
+	@Override
+	public String getSoftwareVersion() {
+		return "0.1.0.RELEASE";
+	}
 
-	private class BlubPanel extends AbstractThingPanel implements ActionListener {
+	@Override
+	public String getHardwareVersion() {
+		return "0.1.0.RELEASE";
+	}
+
+	private class BlubEmulatorPanel extends AbstractThingEmulatorPanel implements ActionListener {
 		private static final long serialVersionUID = 7660599095831708565L;
 		
 		private static final String FILE_NAME_BLUB_OFF = "blub_off.png";
@@ -72,9 +87,9 @@ public class Blub extends AbstractThing implements IThing, IDeviceListener, IBlu
 		private JLabel blubImage;
 		private JButton flash;
 		
-		public BlubPanel() {
+		public BlubEmulatorPanel() {
 			super(Blub.this);
-			addDeviceListener(Blub.this);
+			addThingListener(Blub.this);
 		}
 		
 		@Override
@@ -286,8 +301,8 @@ public class Blub extends AbstractThing implements IThing, IDeviceListener, IBlu
 	}
 
 	@Override
-	public AbstractThingPanel getPanel() {
-		panel = new BlubPanel();
+	public AbstractThingEmulatorPanel getPanel() {
+		panel = new BlubEmulatorPanel();
 		panel.updateStatus();
 		panel.refreshFlashButtionStatus();
 		
@@ -326,5 +341,13 @@ public class Blub extends AbstractThing implements IThing, IDeviceListener, IBlu
 	}
 
 	@Override
-	public void batteryChanged(BatteryEvent event) {}
+	public void batteryPowerChanged(BatteryPowerEvent event) {}
+
+	@Override
+	public void configure(String key, Object value) {}
+
+	@Override
+	public Map<String, Object> getConfiguration() {
+		return Collections.emptyMap();
+	}
 }

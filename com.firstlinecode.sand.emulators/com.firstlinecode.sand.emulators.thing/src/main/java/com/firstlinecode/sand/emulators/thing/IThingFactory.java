@@ -1,8 +1,8 @@
 package com.firstlinecode.sand.emulators.thing;
 
-import com.firstlinecode.sand.emulators.lora.ILoraChip;
+import com.firstlinecode.sand.client.things.ICommunicationChip;
 
-public interface IThingFactory<T extends IThing> {
+public interface IThingFactory<IThing> {
 	String getThingName();
-	T create(ILoraChip chip);
+	IThing create(ICommunicationChip<?> chip);
 }

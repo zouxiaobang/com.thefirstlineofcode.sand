@@ -1,6 +1,6 @@
 package com.firstlinecode.sand.emulators.gateway;
 
-import com.firstlinecode.sand.emulators.blub.BlubFactory;
+import com.firstlinecode.sand.emulators.blub.BlubEmulatorFactory;
 
 public class Main {
 	public static void main(String[] args) {
@@ -9,7 +9,7 @@ public class Main {
 
 	private void run() {
 		Gateway gateway = new Gateway();
-		gateway.registerThingFactory(new BlubFactory());
+		gateway.registerThingFactory(new BlubEmulatorFactory());
 		gateway.setVisible(true);
 	}
 }

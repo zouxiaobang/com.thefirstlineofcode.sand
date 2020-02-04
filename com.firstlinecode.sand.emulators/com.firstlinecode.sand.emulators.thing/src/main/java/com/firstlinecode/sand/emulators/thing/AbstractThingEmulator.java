@@ -8,29 +8,34 @@ import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import com.firstlinecode.sand.emulators.lora.ILoraChip;
+import com.firstlinecode.sand.client.things.BatteryPowerEvent;
+import com.firstlinecode.sand.client.things.ICommunicationChip;
+import com.firstlinecode.sand.client.things.IThingListener;
 
-public abstract class AbstractThing implements IThing {
+public abstract class AbstractThingEmulator implements IThingEmulator {
 	protected String thingName;
-	protected ILoraChip chip;
+	protected ICommunicationChip<?> chip;
 	
 	protected String deviceId;
 	protected String lanId;
-	protected String name;
-	protected int battery;
+	protected String deviceType;
+	protected String deviceMode;
+	protected int batteryPower;
 	protected boolean powered;
-	protected List<IDeviceListener> deviceListeners;
+	protected List<IThingListener> thingListeners;
 	
 	
-	public AbstractThing(String thingName, ILoraChip chip) {
-		this.thingName = thingName;
+	public AbstractThingEmulator(String  type, String mode, ICommunicationChip<?> chip) {
+		this.deviceType = type;
+		this.deviceMode = mode;
+		this.thingName = type + " - " + mode;
 		this.chip = chip;
 		
 		deviceId = ThingsUtils.generateRandomDeviceId();
-		battery = 100;
+		batteryPower = 100;
 		powered = false;
 		
-		deviceListeners = new ArrayList<>();
+		thingListeners = new ArrayList<>();
 		
 		BatteryTimer timer = new BatteryTimer();
 		timer.start();
@@ -50,7 +55,7 @@ public abstract class AbstractThing implements IThing {
 			sb.append("Controlled: ").append(lanId).append(", ");
 		}
 		
-		sb.append("Battery: ").append(battery).append("%, ");
+		sb.append("Battery: ").append(batteryPower).append("%, ");
 		
 		sb.append("Device ID: ").append(deviceId);
 		
@@ -71,20 +76,19 @@ public abstract class AbstractThing implements IThing {
 		
 		@Override
 		public void run() {
-			synchronized (AbstractThing.this) {
+			synchronized (AbstractThingEmulator.this) {
 				if (powered) {
-					if (battery == 0)
+					if (batteryPower == 0)
 						return;
 					
-					int oldBattery = battery;
-					if (battery != 10) {
-						battery -= 2;
+					if (batteryPower != 10) {
+						batteryPower -= 2;
 					} else {
-						battery = 100;
+						batteryPower = 100;
 					}
 					
-					for (IDeviceListener deviceListener : deviceListeners) {
-						deviceListener.batteryChanged(new BatteryEvent(AbstractThing.this, oldBattery, oldBattery));
+					for (IThingListener deviceListener : thingListeners) {
+						deviceListener.batteryPowerChanged(new BatteryPowerEvent(AbstractThingEmulator.this, batteryPower));
 					}
 				}
 				
@@ -104,30 +108,35 @@ public abstract class AbstractThing implements IThing {
 	}
 	
 	@Override
-	public String getName() {
-		return name;
+	public String getDeviceType() {
+		return deviceType;
 	}
 	
 	@Override
-	public synchronized void setBattery(int battery) {
-		if (battery <= 0 || battery > 100) {
-			throw new IllegalArgumentException("Battery value must be in the range of 0 to 100.");
+	public String getDeviceMode() {
+		return deviceMode;
+	}
+	
+	@Override
+	public synchronized void setBatteryPower(int batteryPower) {
+		if (batteryPower <= 0 || batteryPower > 100) {
+			throw new IllegalArgumentException("Battery power value must be in the range of 0 to 100.");
 		}
-		this.battery = battery;
+		this.batteryPower = batteryPower;
 	}
 	
 	@Override
-	public int getBattery() {
-		return battery;
+	public int getBatteryPower() {
+		return batteryPower;
 	}
 
 	@Override
 	public void writeExternal(ObjectOutput out) throws IOException {
 		out.writeObject(thingName);
 		out.writeObject(deviceId);
-		out.writeObject(name);
+		out.writeObject(deviceType);
 		out.writeObject(lanId);
-		out.writeInt(battery);
+		out.writeInt(batteryPower);
 		out.writeBoolean(powered);
 		
 		doWriteExternal(out);
@@ -137,9 +146,9 @@ public abstract class AbstractThing implements IThing {
 	public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
 		thingName = (String)in.readObject();
 		deviceId = (String)in.readObject();
-		name = (String)in.readObject();
+		deviceType = (String)in.readObject();
 		lanId = (String)in.readObject();
-		battery = in.readInt();
+		batteryPower = in.readInt();
 		powered = in.readBoolean();
 		
 		doReadExternal(in);
@@ -150,18 +159,30 @@ public abstract class AbstractThing implements IThing {
 		this.powered = true;
 		doPowerOn();
 		
-		for (IDeviceListener deviceListener : deviceListeners) {
-			deviceListener.powerChanged(new PowerEvent(this, PowerEvent.Type.POWER_ON));
+		// TODO
+		for (IThingEmulatorListener thingEmulatorListener : getThingEmulatorListeners()) {
+			thingEmulatorListener.powerChanged(new PowerEvent(this, PowerEvent.Type.POWER_ON));
 		}
 	}
 	
+	private List<IThingEmulatorListener> getThingEmulatorListeners() {
+		List<IThingEmulatorListener> thingEmulatorListeners = new ArrayList<>();
+		for (IThingListener listener : thingListeners) {
+			if (listener instanceof IThingEmulatorListener) {
+				thingEmulatorListeners.add((IThingEmulatorListener)listener);
+			}
+		}
+		
+		return thingEmulatorListeners;
+	}
+
 	@Override
 	public void powerOff() {
 		this.powered = false;
 		doPowerOff();
 		
-		for (IDeviceListener deviceListener : deviceListeners) {
-			deviceListener.powerChanged(new PowerEvent(this, PowerEvent.Type.POWER_OFF));
+		for (IThingEmulatorListener thingEmulatorListener : getThingEmulatorListeners()) {
+			thingEmulatorListener.powerChanged(new PowerEvent(this, PowerEvent.Type.POWER_OFF));
 		}
 	}
 	
@@ -183,21 +204,21 @@ public abstract class AbstractThing implements IThing {
 		if (!getClass().equals(obj.getClass()))
 			return false;
 		
-		return deviceId.equals(((IThing)obj).getDeviceId());
+		return deviceId.equals(((IThingEmulator)obj).getDeviceId());
 	}
 	
 	@Override
-	public void addDeviceListener(IDeviceListener listener) {
-		deviceListeners.add(listener);
+	public void addThingListener(IThingListener listener) {
+		thingListeners.add(listener);
 	}
 	
 	@Override
-	public boolean removeDeviceListener(IDeviceListener listener) {
-		return deviceListeners.remove(listener);
+	public boolean removeThingListener(IThingListener listener) {
+		return thingListeners.remove(listener);
 	}
 	
 	@Override
-	public ILoraChip getChip() {
+	public ICommunicationChip<?> getChip() {
 		return chip;
 	}
 	

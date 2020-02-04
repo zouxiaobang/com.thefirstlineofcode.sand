@@ -3,14 +3,14 @@ package com.firstlinecode.sand.emulators.gateway;
 import javax.swing.JInternalFrame;
 import javax.swing.JPanel;
 
-import com.firstlinecode.sand.emulators.thing.IThing;
+import com.firstlinecode.sand.emulators.thing.IThingEmulator;
 
 public class ThingInternalFrame extends JInternalFrame {
 	private static final long serialVersionUID = 4975138886817512398L;
 	
-	private IThing thing;
+	private IThingEmulator thing;
 	
-	public ThingInternalFrame(IThing thing, String title) {
+	public ThingInternalFrame(IThingEmulator thing, String title) {
 		super(title, false, false, false, false);
 		
 		this.thing = thing;
@@ -18,7 +18,7 @@ public class ThingInternalFrame extends JInternalFrame {
 		setContentPane(panel);
 	}
 	
-	public IThing getThing() {
+	public IThingEmulator getThing() {
 		return thing;
 	}
 }

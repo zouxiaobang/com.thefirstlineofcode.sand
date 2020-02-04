@@ -5,17 +5,17 @@ import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
 
-import com.firstlinecode.sand.emulators.thing.IThing;
+import com.firstlinecode.sand.emulators.thing.IThingEmulator;
 
 public class ThingInfo implements Externalizable {
 	private int layer;
 	private int x;
 	private int y;
 	private boolean selected;
-	private IThing thing;
+	private IThingEmulator thing;
 	private String title;
 	
-	public ThingInfo(int layer, int x, int y, boolean selected, IThing thing, String title) {
+	public ThingInfo(int layer, int x, int y, boolean selected, IThingEmulator thing, String title) {
 		this.layer = layer;
 		this.x = x;
 		this.y = y;
@@ -56,7 +56,7 @@ public class ThingInfo implements Externalizable {
 		return selected;
 	}
 
-	public IThing getThing() {
+	public IThingEmulator getThing() {
 		return thing;
 	}
 	
@@ -84,7 +84,7 @@ public class ThingInfo implements Externalizable {
 		x = in.readInt();
 		y = in.readInt();
 		selected = in.readBoolean();
-		thing = (IThing)in.readObject();
+		thing = (IThingEmulator)in.readObject();
 		title = (String)in.readObject();
 	}
 }

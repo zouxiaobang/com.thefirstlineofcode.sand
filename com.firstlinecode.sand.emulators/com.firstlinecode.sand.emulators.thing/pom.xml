@@ -18,8 +18,8 @@
 	
 	<dependencies>
 		<dependency>
-			<groupId>com.firstlinecode.sand.emulators</groupId>
-			<artifactId>com.firstlinecode.sand.emulators.lora</artifactId>
+			<groupId>com.firstlinecode.sand.emulators.network</groupId>
+			<artifactId>com.firstlinecode.sand.emulators.network.lora</artifactId>
 		</dependency>
 	</dependencies>
 </project>
