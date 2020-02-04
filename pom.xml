@@ -265,20 +265,31 @@
 		<pluginRepository>
 			<id>central</id>
 			<name>Maven Central Repository</name>
-			<url>http://repo1.maven.org/maven2</url>
+			<url>https://repo1.maven.org/maven2</url>
 		</pluginRepository>
 		<pluginRepository>
-			<id>eclipse.virgo.build.bundles.release</id>
-			<name>Eclipse Virgo Build</name>
-			<url>http://build.eclipse.org/rt/virgo/maven/bundles/release</url>
+			<id>spring.plugins</id>
+			<name>Spring Plugins Repository</name>
+			<url>https://repo.spring.io/plugins-release/</url>
 		</pluginRepository>
 	</pluginRepositories>
 
 	<repositories> 
 		<repository>
-            <id>central</id>
-            <url>http://repo1.maven.org/maven2</url>
-         </repository>
+			<id>jcenter</id>
+			<name>JCenter Repository</name>
+			<url>https://jcenter.bintray.com/</url>
+    		</repository>
+		<repository>
+			<id>central</id>
+			<name>Central Repository</name>
+			<url>https://repo1.maven.org/maven2</url>
+		</repository>
+		<repository>
+			<id>spring.plugins</id>
+			<name>Spring Plugins Repository</name>
+			<url>https://repo.spring.io/plugins-release</url>
+		</repository>
 <!--		<repository>
 			<id>com.firstlinecode.release</id>
 			<name>FirstLineCode Repository - Releases</name>
@@ -289,10 +300,6 @@
 			<name>FirstLineCode Repository - Snapshots</name>
 			<url>http://repo.firstlinecode.com/content/repositories/snapshots</url>
 		</repository> -->
-<!--	<repository>
-            <id>mvnrepository</id>
-            <url>http://mvnrepository.com</url>
-         </repository>-->
   </repositories>
 
 	<dependencyManagement>
