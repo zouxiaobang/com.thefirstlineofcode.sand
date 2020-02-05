@@ -6,6 +6,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
+import com.firstlinecode.sand.client.things.commuication.ICommunicationChip;
+import com.firstlinecode.sand.client.things.commuication.ICommunicationNetworkListener;
+import com.firstlinecode.sand.client.things.commuication.Message;
+
 public class LoraNetwork implements ILoraNetwork {
 	private static final int DEFAULT_SIGNAL_COLLISION_INTERVAL = 500;
 	private static final int DEFAULT_SIGNAL_TRANSFER_TIMEOUT = 2000;
@@ -37,13 +41,22 @@ public class LoraNetwork implements ILoraNetwork {
 		new Thread(new LoraSignalTimeoutThread()).start();
 	}
 	
+	;
 	@Override
-	public synchronized ILoraChip createChip(ILoraChip.Type type, byte[] address, int frequencyBand) {
-		return createChip(type, new LoraAddress(address, frequencyBand));
+	public ICommunicationChip<LoraAddress> createChip(LoraAddress address, Map<String, Object> params) {
+		ILoraChip.Type type = null;
+		if (params != null) {
+			type = (ILoraChip.Type)params.get("type");
+		}
+		
+		if (type == null) {
+			type = ILoraChip.Type.NORMAL;
+		}
+		
+		return createChip(address, type);
 	}
 
-	@Override
-	public synchronized ILoraChip createChip(ILoraChip.Type type, LoraAddress address) {
+	public synchronized ILoraChip createChip(LoraAddress address, ILoraChip.Type type) {
 		if (chips.containsKey(address))
 			throw new RuntimeException(String.format("Conflict. Lora chip which's address is %s has ready existed in network.", address));
 		
@@ -85,9 +98,12 @@ public class LoraNetwork implements ILoraNetwork {
 		
 		signalQualities.put(new LoraChipPair(chip1, chip2), signalQuality);
 	}
-
 	@Override
-	public synchronized void sendMessage(ILoraChip from, LoraAddress to, byte[] message) {
+	public void sendMessage(ICommunicationChip<LoraAddress> from, LoraAddress to, byte[] data) {
+		sendMessage((ILoraChip)from, to, data);
+	}
+	
+	public synchronized void sendMessage(ILoraChip from, LoraAddress to, byte[] data) {
 		try {
 			ILoraChip toChip = getChip(to);
 			LoraChipPair pair = new LoraChipPair(from, toChip);
@@ -105,10 +121,10 @@ public class LoraNetwork implements ILoraNetwork {
 				signalQualities.put(pair, quality);
 			}
 			
-			signals.add(new LoraSignal(from, toChip, message, getArrivedTime(from, toChip, System.currentTimeMillis())));
+			signals.add(new LoraSignal(from, toChip, data, getArrivedTime(from, toChip, System.currentTimeMillis())));
 		} catch (AddressNotFoundException e) {
 			for (ILoraNetworkListener listener : listeners) {
-				listener.lost(from, to, message);
+				listener.lost(from, to, data);
 			}
 		}
 	}
@@ -133,6 +149,10 @@ public class LoraNetwork implements ILoraNetwork {
 	}
 	
 	@Override
+	public Message<LoraAddress, byte[]> receiveMessage(ICommunicationChip<LoraAddress> target) {
+		return receiveMessage(target);
+	}
+	
 	public synchronized LoraMessage receiveMessage(ILoraChip target) {
 		LoraSignal received = null;
 		for (LoraSignal signal : signals) {
@@ -152,7 +172,7 @@ public class LoraNetwork implements ILoraNetwork {
 			
 			for (ILoraNetworkListener listener : listeners) {
 				for (LoraSignal signal : collisions) {
-					listener.collided(signal.from, signal.to, signal.message);
+					listener.collided(signal.from, signal.to.getAddress(), signal.message);
 				}
 			}
 			
@@ -218,12 +238,19 @@ public class LoraNetwork implements ILoraNetwork {
 	}
 	
 	@Override
+	public void addListener(ICommunicationNetworkListener<LoraAddress> listener) {
+		addListener((ILoraNetworkListener)listener);
+	}
+	
 	public void addListener(ILoraNetworkListener listener) {
 		if (!listeners.contains(listener))
 			listeners.add(listener);
 	}
-
-	@Override
+	
+	public boolean removeListener(ICommunicationNetworkListener<LoraAddress> listener) {
+		return removeListener((ILoraNetworkListener)listener);
+	}
+	
 	public boolean removeListener(ILoraNetworkListener listener) {
 		return listeners.remove(listener);
 	}
@@ -321,10 +348,14 @@ public class LoraNetwork implements ILoraNetwork {
 		}
 		
 	}
-
+	
 	@Override
+	public void changeAddress(ICommunicationChip<LoraAddress> chip, LoraAddress newAddress) {
+		changeAddress((ICommunicationChip<LoraAddress>)chip, newAddress);
+	}
+	
 	public synchronized void changeAddress(ILoraChip oldChip, LoraAddress newAddress) {
-		ILoraChip newChip = createChip(oldChip.getType(), newAddress);
+		ILoraChip newChip = createChip(newAddress, oldChip.getType());
 		
 		LoraChipPair oldPair = null;
 		LoraChipPair newPair = null;

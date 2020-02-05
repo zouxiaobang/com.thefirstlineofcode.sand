@@ -1,15 +1,15 @@
 package com.firstlinecode.sand.client.things.commuication;
 
-public interface ICommunicator<K, V> {
+public interface ICommunicator<A, D> {
 	public enum CommunicationMode {
 		ADDRESS_CONFIGURATION,
 		WORKING
 	}
 	
-	K getAddress();
+	A getAddress();
 	void setCommunicationMode(CommunicationMode communicationMode);
 	CommunicationMode getCommunicationMode();
-	void send(K to, V message);
-	void received(K from, V message);
-	void addCommunicationListener(ICommunicationListener<K, V> listener);
+	void send(A to, D data);
+	void received(A from, D data);
+	void addCommunicationListener(ICommunicationListener<A> listener);
 }

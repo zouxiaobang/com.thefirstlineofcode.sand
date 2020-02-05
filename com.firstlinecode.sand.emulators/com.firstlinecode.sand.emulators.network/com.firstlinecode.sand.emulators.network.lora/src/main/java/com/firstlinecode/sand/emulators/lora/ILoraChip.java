@@ -8,8 +8,6 @@ public interface ILoraChip extends ICommunicationChip<LoraAddress> {
 		NORMAL
 	}
 	
-	void addListener(ILoraMessageListener listener);
-	boolean removeListener(ILoraMessageListener listener);
 	Type getType();
 	boolean isSlept();
 	void sleep();

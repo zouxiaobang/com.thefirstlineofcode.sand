@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
@@ -67,11 +68,16 @@ import com.firstlinecode.sand.client.ibdr.IbdrPlugin;
 import com.firstlinecode.sand.client.ibdr.RegistrationException;
 import com.firstlinecode.sand.client.things.IEventListener;
 import com.firstlinecode.sand.client.things.IThing;
+import com.firstlinecode.sand.client.things.actuator.IAction;
+import com.firstlinecode.sand.client.things.actuator.IActionListener;
 import com.firstlinecode.sand.client.things.commuication.ICommunicationChip;
+import com.firstlinecode.sand.client.things.commuication.ICommunicationNetwork;
+import com.firstlinecode.sand.client.things.concentrator.IAddressConfigurator;
+import com.firstlinecode.sand.client.things.concentrator.Node;
+import com.firstlinecode.sand.client.things.concentrator.NodeCreationException;
+import com.firstlinecode.sand.client.things.concentrator.NodeNotFoundException;
 import com.firstlinecode.sand.emulators.lora.ILoraChip;
-import com.firstlinecode.sand.emulators.lora.ILoraNetwork;
 import com.firstlinecode.sand.emulators.lora.LoraAddress;
-import com.firstlinecode.sand.emulators.lora.LoraNetwork;
 import com.firstlinecode.sand.emulators.thing.AbstractThingEmulator;
 import com.firstlinecode.sand.emulators.thing.AbstractThingEmulatorPanel;
 import com.firstlinecode.sand.emulators.thing.Constants;
@@ -80,8 +86,8 @@ import com.firstlinecode.sand.emulators.thing.IThingEmulatorFactory;
 import com.firstlinecode.sand.emulators.thing.ThingsUtils;
 import com.firstlinecode.sand.protocols.core.DeviceIdentity;
 
-public class Gateway extends JFrame implements ActionListener, InternalFrameListener,
-		ComponentListener, WindowListener, IGateway, IConnectionListener {
+public class Gateway<A, D> extends JFrame implements ActionListener, InternalFrameListener,
+		ComponentListener, WindowListener, IGateway<A>, IConnectionListener {
 	private static final int ALWAYS_FULL_POWER = 100;
 	private static final String DEVICE_TYPE = "Gateway";
 	private static final String DEVICE_MODE = "Emulator01";
@@ -141,15 +147,14 @@ public class Gateway extends JFrame implements ActionListener, InternalFrameList
 	private String deviceId;
 	private DeviceIdentity deviceIdentity;
 	private StandardStreamConfig streamConfig;
+	private String lanId;
 	
-	private List<IThingEmulatorFactory<?>> factories;
+	private List<IThingEmulatorFactory> factories;
 	private Map<String, List<IThingEmulator>> allThings;
+	private Map<String, Node<A>> nodes;
 	private boolean dirty;
 	
-	private ILoraNetwork network;
-	
-	private ILoraChip master;
-	private ILoraChip slave;
+	private ICommunicationNetwork<A, D> network;
 	
 	private JDesktopPane desktop;
 	private JMenuBar menuBar;
@@ -161,20 +166,19 @@ public class Gateway extends JFrame implements ActionListener, InternalFrameList
 	private IChatClient chatClient;
 	private boolean autoReconnect;
 	
-	public Gateway() {
+	private IAddressConfigurator addressConfigurator;
+	
+	public Gateway(ICommunicationNetwork<A, D> network) {
 		super("Unregistered Gateway");
 		
-		deviceId =   ThingsUtils.generateRandomDeviceId();
+		deviceId = ThingsUtils.generateRandomDeviceId();
 		
 		factories = new ArrayList<>();
-		allThings = new HashMap<String, List<IThingEmulator>>();
+		allThings = new HashMap<>();
+		nodes = new HashMap<>();
 		dirty = false;
 		
-		network = new LoraNetwork();
-		LoraAddress masterAddress = LoraAddress.randomLoraAddress(DEFAULT_LORA_WORKING_FREQUENCY_BAND);
-		master = network.createChip(ILoraChip.Type.HIGH_POWER, masterAddress);
-		LoraAddress slaveAddress = new LoraAddress(masterAddress.getAddress(), masterAddress.getFrequencyBand() + 1);
-		slave = network.createChip(ILoraChip.Type.HIGH_POWER, slaveAddress);
+		this.network = network;
 		
 		autoReconnect = false;
 		new Thread(new AutoReconnectThread()).start();
@@ -821,8 +825,9 @@ public class Gateway extends JFrame implements ActionListener, InternalFrameList
 	}
 	
 	private IThingEmulator createThing(String thingName) {
-		IThingEmulatorFactory<?> factory = getFactory(thingName);
-		ICommunicationChip<LoraAddress> chip = network.createChip(ILoraChip.Type.NORMAL, LoraAddress.randomLoraAddress(DEFAULT_LORA_WORKING_FREQUENCY_BAND));
+		IThingEmulatorFactory factory = getFactory(thingName);
+		ICommunicationChip<?> chip = network.createChip((A)LoraAddress.randomLoraAddress(DEFAULT_LORA_WORKING_FREQUENCY_BAND),
+				Collections.singletonMap("type", (Object)ILoraChip.Type.NORMAL));
 		IThingEmulator thing = (IThingEmulator)factory.create(chip);
 		
 		List<IThingEmulator> things = getThings(factory);
@@ -896,21 +901,21 @@ public class Gateway extends JFrame implements ActionListener, InternalFrameList
 		}
 	}
 
-	private String getThingInstanceName(IThingEmulatorFactory<?> factory, int thingsIndex) {
+	private String getThingInstanceName(IThingEmulatorFactory factory, int thingsIndex) {
 		return factory.getThingName() + " #" + thingsIndex;
 	}
 
-	private List<IThingEmulator> getThings(IThingEmulatorFactory<?> factory) {
+	private List<IThingEmulator> getThings(IThingEmulatorFactory factory) {
 		List<IThingEmulator> things = allThings.get(factory.getThingName());
 		if (things == null) {
-			things = new ArrayList<IThingEmulator>();
+			things = new ArrayList<>();
 			allThings.put(factory.getThingName(), things);
 		}
 		return things;
 	}
 
-	private IThingEmulatorFactory<?> getFactory(String thingName) {
-		for (IThingEmulatorFactory<?> factory : factories) {
+	private IThingEmulatorFactory getFactory(String thingName) {
+		for (IThingEmulatorFactory factory : factories) {
 			if (factory.getThingName().equals(thingName))
 				return factory;
 		}
@@ -1033,8 +1038,8 @@ public class Gateway extends JFrame implements ActionListener, InternalFrameList
 	}
 
 	@Override
-	public void registerThingEmulatorFactory(IThingEmulatorFactory<?> factory) {
-		for (IThingEmulatorFactory<?> existedFactory : factories) {
+	public void registerThingEmulatorFactory(IThingEmulatorFactory factory) {
+		for (IThingEmulatorFactory existedFactory : factories) {
 			if (existedFactory.getClass().getName().equals(factory.getClass().getName())) {
 				throw new IllegalArgumentException(String.format("Thing factory %s has registered.", factory.getClass().getName()));				
 			}
@@ -1231,21 +1236,79 @@ public class Gateway extends JFrame implements ActionListener, InternalFrameList
 	}
 	
 	@Override
-	public void addNode(IThing node) {
-		// TODO Auto-generated method stub
+	public String createNode(Node<A> node) throws NodeCreationException {
+		return createNode(node.getThing(), node.getAddress());
+	}
+	
+	@Override
+	public String createNode(IThing thing, A address) throws NodeCreationException {
+		if (thing == null || address == null) {
+			throw new IllegalArgumentException("Null thing or null address.");
+		}
 		
+		if (nodes.size() > 99) {
+			throw new NodeCreationException(NodeCreationException.Reason.OVERFLOW_SIZE,
+					"Can't create node. Overflow size of nodes.");
+		}
+		
+		if (thingHasAdded(thing)) {
+			throw new NodeCreationException(NodeCreationException.Reason.REDUPLICATED_THING,
+					String.format("Can't create node. The node which's thing is %s has already added.", thing));
+		}
+		
+		if (addressHasUsed(address)) {
+			throw new NodeCreationException(NodeCreationException.Reason.REDUPLICATED_THING,
+					String.format("Can't create node. The address %s has already used.", address));
+		}
+		
+		Node<A> node = new Node<>(thing, address);
+		String lanId = String.format("%02d", nodes.size());
+		nodes.put(lanId, node);
+		
+		return lanId;
+	}
+
+	private boolean addressHasUsed(A address) {
+		for (Node<A> node : nodes.values()) {
+			if (node.getAddress().equals(address))
+				return true;
+		}
+		
+		return false;
+	}
+
+	private boolean thingHasAdded(IThing thing) {
+		for (Node<A> node : nodes.values()) {
+			if (node.getThing().equals(thing))
+				return true;
+		}
+		
+		return false;
 	}
 
 	@Override
-	public void removeNode(IThing node) {
-		// TODO Auto-generated method stub
-		
+	public Node<A> removeNode(String nodeLanId) {
+		return nodes.remove(nodeLanId);
 	}
 
 	@Override
-	public IThing[] getNodes() {
-		// TODO Auto-generated method stub
-		return null;
+	public String[] getChildren() {
+		return this.nodes.keySet().toArray(new String[nodes.size()]);
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public Node<A>[] getNodes() {
+		return this.nodes.values().toArray(new Node[nodes.size()]);
+	}
+
+	@Override
+	public Node<A> getNode(String nodeLanId) throws NodeNotFoundException {
+		Node<A> node = nodes.get(nodeLanId);
+		if (node != null)
+			return node;
+		
+		throw new NodeNotFoundException(String.format("Node which's lan id is % not be found.", nodeLanId));
 	}
 
 	@Override
@@ -1253,5 +1316,21 @@ public class Gateway extends JFrame implements ActionListener, InternalFrameList
 		// TODO Auto-generated method stub
 		
 	}
-	
+
+	@Override
+	public void execute(IAction operation) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void addActionListener(IActionListener<?> listener) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public IAddressConfigurator getAddressConfigurator() {
+		return addressConfigurator;
+	}
 }

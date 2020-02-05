@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import com.firstlinecode.sand.client.things.commuication.ICommunicationListener;
+
 public class LoraChip implements ILoraChip {
 	protected ILoraNetwork network;
 	protected Type type;
@@ -46,14 +48,18 @@ public class LoraChip implements ILoraChip {
 	}
 	
 	@Override
-	public void addListener(ILoraMessageListener listener) {
+	public void addListener(ICommunicationListener<LoraAddress> listener) {
+		if (!(listener instanceof ILoraMessageListener)) {
+			throw new IllegalArgumentException("Not a lora message listener.");
+		}
+		
 		if (!listeners.contains(listener)) {
-			listeners.add(listener);
+			listeners.add((ILoraMessageListener)listener);
 		}
 	}
-	
+
 	@Override
-	public boolean removeListener(ILoraMessageListener listener) {
+	public boolean removeListener(ICommunicationListener<LoraAddress> listener) {
 		return listeners.remove(listener);
 	}
 	

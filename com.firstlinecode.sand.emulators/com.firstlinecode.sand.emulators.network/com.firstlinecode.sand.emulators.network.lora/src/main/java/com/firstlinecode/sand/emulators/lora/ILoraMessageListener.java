@@ -1,5 +1,6 @@
 package com.firstlinecode.sand.emulators.lora;
 
-public interface ILoraMessageListener {
-	void received(LoraAddress from, byte[] message);
+import com.firstlinecode.sand.client.things.commuication.ICommunicationListener;
+
+public interface ILoraMessageListener extends ICommunicationListener<LoraAddress> {
 }

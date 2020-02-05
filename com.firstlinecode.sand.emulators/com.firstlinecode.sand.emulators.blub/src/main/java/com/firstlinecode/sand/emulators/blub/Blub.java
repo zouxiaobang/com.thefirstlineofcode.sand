@@ -349,4 +349,10 @@ public class Blub extends AbstractThingEmulator implements IThingEmulator, IThin
 	public Map<String, Object> getConfiguration() {
 		return Collections.emptyMap();
 	}
+
+	@Override
+	public String getLanId() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }

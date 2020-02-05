@@ -1,6 +1,8 @@
 package com.firstlinecode.sand.emulators.lora;
 
-public interface ILoraNetwork {
+import com.firstlinecode.sand.client.things.commuication.ICommunicationNetwork;
+
+public interface ILoraNetwork extends ICommunicationNetwork<LoraAddress, byte[]> {
 	public enum SignalQuality {
 		GOOD(5),
 		MEDUIM(15),
@@ -18,16 +20,9 @@ public interface ILoraNetwork {
 		}
 	}
 	
-	ILoraChip createChip(ILoraChip.Type type, byte[] address, int frequencyBand);
-	ILoraChip createChip(ILoraChip.Type type, LoraAddress address);
-	void changeAddress(ILoraChip chip, LoraAddress newAddress);
 	void setSingalQuality(ILoraChip chip1, ILoraChip chip2, LoraNetwork.SignalQuality signalQuality);
 	void setSignalCrashedInterval(int interval);
 	int getSignalCrashedInterval();
 	void setSignalTransferTimeout(int timeout);
 	int getSignalTransferTimeout();
-	void sendMessage(ILoraChip from, LoraAddress to, byte[] message);
-	LoraMessage receiveMessage(ILoraChip target);
-	void addListener(ILoraNetworkListener listener);
-	boolean removeListener(ILoraNetworkListener listener);
 }
