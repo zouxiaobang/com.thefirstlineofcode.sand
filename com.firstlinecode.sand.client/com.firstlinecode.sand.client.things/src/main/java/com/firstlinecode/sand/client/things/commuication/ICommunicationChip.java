@@ -1,4 +1,4 @@
-package com.firstlinecode.sand.client.things;
+package com.firstlinecode.sand.client.things.commuication;
 
 public interface ICommunicationChip<T> {
 	void changeAddress(T address);

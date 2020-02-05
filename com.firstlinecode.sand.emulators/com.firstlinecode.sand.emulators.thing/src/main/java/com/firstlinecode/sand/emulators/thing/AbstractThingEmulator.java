@@ -9,8 +9,8 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import com.firstlinecode.sand.client.things.BatteryPowerEvent;
-import com.firstlinecode.sand.client.things.ICommunicationChip;
 import com.firstlinecode.sand.client.things.IThingListener;
+import com.firstlinecode.sand.client.things.commuication.ICommunicationChip;
 
 public abstract class AbstractThingEmulator implements IThingEmulator {
 	protected String thingName;

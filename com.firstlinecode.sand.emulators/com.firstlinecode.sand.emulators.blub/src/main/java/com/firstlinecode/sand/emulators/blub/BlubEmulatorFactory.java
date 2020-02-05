@@ -1,6 +1,6 @@
 package com.firstlinecode.sand.emulators.blub;
 
-import com.firstlinecode.sand.client.things.ICommunicationChip;
+import com.firstlinecode.sand.client.things.commuication.ICommunicationChip;
 import com.firstlinecode.sand.emulators.thing.AbstractThingEmulatorFactory;
 
 public class BlubEmulatorFactory extends AbstractThingEmulatorFactory<Blub> {

@@ -1,6 +1,9 @@
-package com.firstlinecode.sand.client.things;
+package com.firstlinecode.sand.client.things.sensor;
 
 import java.util.Date;
+
+import com.firstlinecode.sand.client.things.IDevice;
+import com.firstlinecode.sand.client.things.IObservable;
 
 public interface ISensor<T> extends IDevice, IObservable {
 	T getMomentaryData();

@@ -1,4 +1,4 @@
-package com.firstlinecode.sand.client.things;
+package com.firstlinecode.sand.client.things.commuication;
 
 public class CommunicationException extends Exception {
 	private static final long serialVersionUID = -8976641687279305899L;

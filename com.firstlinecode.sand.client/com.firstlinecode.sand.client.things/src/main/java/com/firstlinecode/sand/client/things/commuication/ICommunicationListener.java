@@ -1,4 +1,4 @@
-package com.firstlinecode.sand.client.things;
+package com.firstlinecode.sand.client.things.commuication;
 
 public interface ICommunicationListener<K, V> {
 	void sent(K address, V message);

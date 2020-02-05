@@ -1,4 +1,4 @@
-package com.firstlinecode.sand.client.things;
+package com.firstlinecode.sand.client.things.actuator;
 
 public interface IActionListener<T> {
 	void done(T result);
