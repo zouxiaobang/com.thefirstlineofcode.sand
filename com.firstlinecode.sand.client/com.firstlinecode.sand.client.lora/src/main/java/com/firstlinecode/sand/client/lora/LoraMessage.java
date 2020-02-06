@@ -1,4 +1,4 @@
-package com.firstlinecode.sand.emulators.lora;
+package com.firstlinecode.sand.client.lora;
 
 import com.firstlinecode.sand.client.things.commuication.Message;
 

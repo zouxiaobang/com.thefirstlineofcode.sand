@@ -5,9 +5,17 @@ import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import com.firstlinecode.sand.client.lora.ILoraChip;
+import com.firstlinecode.sand.client.lora.ILoraMessageListener;
+import com.firstlinecode.sand.client.lora.LoraAddress;
 import com.firstlinecode.sand.client.things.commuication.ICommunicationListener;
 
 public class LoraChip implements ILoraChip {
+	public enum Type {
+		HIGH_POWER,
+		NORMAL
+	}
+	
 	protected ILoraNetwork network;
 	protected Type type;
 	protected LoraAddress address;
@@ -32,7 +40,6 @@ public class LoraChip implements ILoraChip {
 		listeners = new ArrayList<>();
 	}
 	
-	@Override
 	public Type getType() {
 		return type;
 	}

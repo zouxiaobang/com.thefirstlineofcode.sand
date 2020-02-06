@@ -9,16 +9,16 @@ public class LoraChipCreationParams extends ParamsMap {
 		addParams(PARAM_NAME_TYPE, null);
 	}
 	
-	public LoraChipCreationParams(ILoraChip.Type type) {
+	public LoraChipCreationParams(LoraChip.Type type) {
 		if (type != null)
 			addParams(PARAM_NAME_TYPE, type);
 	}
 
-	public void setType(ILoraChip.Type type) {
+	public void setType(LoraChip.Type type) {
 		addParams(PARAM_NAME_TYPE, type);
 	}
 	
-	public ILoraChip.Type getType() {
+	public LoraChip.Type getType() {
 		return getParams(PARAM_NAME_TYPE);
 	}
 

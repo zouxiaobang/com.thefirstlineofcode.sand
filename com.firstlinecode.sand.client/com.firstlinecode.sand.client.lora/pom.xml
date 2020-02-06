@@ -6,22 +6,23 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<parent>
-		<groupId>com.firstlinecode.sand.emulators</groupId>
-		<artifactId>com.firstlinecode.sand.emulators.network</artifactId>
+		<groupId>com.firstlinecode.sand</groupId>
+		<artifactId>com.firstlinecode.sand.client</artifactId>
 		<version>0.1.0.RELEASE</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 
-	<groupId>com.firstlinecode.sand.emulators.network</groupId>
-	<artifactId>com.firstlinecode.sand.emulators.network.lora</artifactId>
-	<name>com.firstlinecode.sand.emulators.network.lora</name>
+	<groupId>com.firstlinecode.sand.client</groupId>
+	<artifactId>com.firstlinecode.sand.client.lora</artifactId>
+	<name>com.firstlinecode.sand.client.lora</name>
 	<packaging>jar</packaging>
-
+	
 	<dependencies>
 		<dependency>
 			<groupId>com.firstlinecode.sand.client</groupId>
-			<artifactId>com.firstlinecode.sand.client.lora</artifactId>
+			<artifactId>com.firstlinecode.sand.client.things</artifactId>
 		</dependency>
-	</dependencies>	
+	</dependencies>
+	
 </project>
 

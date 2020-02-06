@@ -404,6 +404,12 @@
 			</dependency>
 
 			<dependency>
+				<groupId>com.firstlinecode.sand.client</groupId>
+				<artifactId>com.firstlinecode.sand.client.lora</artifactId>
+				<version>${sand.version}</version>
+			</dependency>
+
+			<dependency>
 				<groupId>com.firstlinecode.sand.server</groupId>
 				<artifactId>com.firstlinecode.sand.server.framework</artifactId>
 				<version>${sand.version}</version>

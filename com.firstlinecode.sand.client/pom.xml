@@ -19,6 +19,7 @@
 	<modules>
 		<module>com.firstlinecode.sand.client.things</module>
 		<module>com.firstlinecode.sand.client.ibdr</module>
+		<module>com.firstlinecode.sand.client.lora</module>
 	</modules>
 
 </project>

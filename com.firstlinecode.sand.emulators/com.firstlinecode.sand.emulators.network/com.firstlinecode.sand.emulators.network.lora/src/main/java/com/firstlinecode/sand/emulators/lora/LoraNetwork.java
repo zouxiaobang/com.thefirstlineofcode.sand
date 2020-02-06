@@ -6,6 +6,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
+import com.firstlinecode.sand.client.lora.ILoraChip;
+import com.firstlinecode.sand.client.lora.LoraAddress;
+import com.firstlinecode.sand.client.lora.LoraMessage;
 import com.firstlinecode.sand.client.things.commuication.ICommunicationChip;
 import com.firstlinecode.sand.client.things.commuication.ICommunicationNetworkListener;
 import com.firstlinecode.sand.client.things.commuication.Message;
@@ -14,7 +17,7 @@ public class LoraNetwork implements ILoraNetwork {
 	private static final int DEFAULT_SIGNAL_COLLISION_INTERVAL = 500;
 	private static final int DEFAULT_SIGNAL_TRANSFER_TIMEOUT = 2000;
 	
-	protected Map<LoraAddress, ILoraChip> chips;
+	protected Map<LoraAddress, LoraChip> chips;
 	protected List<ILoraNetworkListener> listeners;
 	protected Map<LoraChipPair, SignalQuality> signalQualities;
 	protected List<LoraSignal> signals;
@@ -44,19 +47,19 @@ public class LoraNetwork implements ILoraNetwork {
 	;
 	@Override
 	public ICommunicationChip<LoraAddress> createChip(LoraAddress address, LoraChipCreationParams params) {
-		ILoraChip.Type type = null;
+		LoraChip.Type type = null;
 		if (params != null) {
 			type = params.getType();
 		}
 		
 		if (type == null) {
-			type = ILoraChip.Type.NORMAL;
+			type = LoraChip.Type.NORMAL;
 		}
 		
 		return createChip(address, type);
 	}
 
-	public synchronized ILoraChip createChip(LoraAddress address, ILoraChip.Type type) {
+	public synchronized LoraChip createChip(LoraAddress address, LoraChip.Type type) {
 		if (address == null)
 			throw new IllegalArgumentException("Null lora address.");
 		
@@ -90,7 +93,7 @@ public class LoraNetwork implements ILoraNetwork {
 	}
 	
 	@Override
-	public synchronized void setSingalQuality(ILoraChip chip1, ILoraChip chip2, SignalQuality signalQuality) {
+	public synchronized void setSingalQuality(LoraChip chip1, LoraChip chip2, SignalQuality signalQuality) {
 		if (!chips.containsValue(chip1)) {
 			throw new IllegalArgumentException(String.format("Can't find lora chip which's address is %s in network.", chip1));
 		}
@@ -106,9 +109,9 @@ public class LoraNetwork implements ILoraNetwork {
 		sendMessage((ILoraChip)from, to, data);
 	}
 	
-	public synchronized void sendMessage(ILoraChip from, LoraAddress to, byte[] data) {
+	public synchronized void sendMessage(LoraChip from, LoraAddress to, byte[] data) {
 		try {
-			ILoraChip toChip = getChip(to);
+			LoraChip toChip = getChip(to);
 			LoraChipPair pair = new LoraChipPair(from, toChip);
 			if (!signalQualities.containsKey(pair)) {
 				SignalQuality quality = null;
@@ -142,8 +145,8 @@ public class LoraNetwork implements ILoraNetwork {
 		private static final long serialVersionUID = 8173716761032756998L;		
 	}
 
-	protected synchronized ILoraChip getChip(LoraAddress address) throws AddressNotFoundException {
-		ILoraChip chip = chips.get(address);
+	protected synchronized LoraChip getChip(LoraAddress address) throws AddressNotFoundException {
+		LoraChip chip = chips.get(address);
 		
 		if (chip == null)
 			throw new AddressNotFoundException();
@@ -194,7 +197,7 @@ public class LoraNetwork implements ILoraNetwork {
 	
 	private boolean isLost(LoraSignal received) {
 		SignalQuality quality = signalQualities.get(new LoraChipPair(received.from, received.to));
-		if (received.from.getType() == ILoraChip.Type.HIGH_POWER) {
+		if (received.from.getType() == LoraChip.Type.HIGH_POWER) {
 			quality = adjustHighPowerDeviceSignalQuality(quality);
 		}
 		
@@ -259,10 +262,10 @@ public class LoraNetwork implements ILoraNetwork {
 	}
 	
 	private class LoraChipPair {
-		public ILoraChip chip1;
-		public ILoraChip chip2;
+		public LoraChip chip1;
+		public LoraChip chip2;
 		
-		public LoraChipPair(ILoraChip chip1, ILoraChip chip2) {
+		public LoraChipPair(LoraChip chip1, LoraChip chip2) {
 			if (chip1 == null || chip2 == null)
 				throw new IllegalArgumentException("Null lora chip.");
 			
@@ -280,7 +283,7 @@ public class LoraNetwork implements ILoraNetwork {
 			}
 		}
 
-		private int compare(ILoraChip chip1, ILoraChip chip2) {
+		private int compare(LoraChip chip1, LoraChip chip2) {
 			return chip1.getAddress().hashCode() - chip2.getAddress().hashCode();
 		}
 		
@@ -302,12 +305,12 @@ public class LoraNetwork implements ILoraNetwork {
 	}
 	
 	private class LoraSignal {
-		public ILoraChip from;
-		public ILoraChip to;
+		public LoraChip from;
+		public LoraChip to;
 		public byte[] message;
 		public long arrivedTime;
 		
-		public LoraSignal(ILoraChip from, ILoraChip to, byte[] message, long arrivedTime) {
+		public LoraSignal(LoraChip from, LoraChip to, byte[] message, long arrivedTime) {
 			this.from = from;
 			this.to = to;
 			this.message = message;
@@ -357,8 +360,8 @@ public class LoraNetwork implements ILoraNetwork {
 		changeAddress((ICommunicationChip<LoraAddress>)chip, newAddress);
 	}
 	
-	public synchronized void changeAddress(ILoraChip oldChip, LoraAddress newAddress) {
-		ILoraChip newChip = createChip(newAddress, oldChip.getType());
+	public synchronized void changeAddress(LoraChip oldChip, LoraAddress newAddress) {
+		LoraChip newChip = createChip(newAddress, oldChip.getType());
 		
 		LoraChipPair oldPair = null;
 		LoraChipPair newPair = null;

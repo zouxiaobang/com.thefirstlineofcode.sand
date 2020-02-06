@@ -1,5 +1,8 @@
 package com.firstlinecode.sand.emulators.lora;
 
+import com.firstlinecode.sand.client.lora.DualLoraAddress;
+import com.firstlinecode.sand.client.lora.ILoraChip;
+import com.firstlinecode.sand.client.lora.LoraAddress;
 import com.firstlinecode.sand.client.things.commuication.ICommunicationListener;
 import com.firstlinecode.sand.client.things.commuication.ICommunicator;
 
@@ -32,7 +35,7 @@ public class DualLoraChipCommunicator implements ICommunicator<LoraAddress, byte
 	}
 	
 	protected ILoraChip createLoraChip(LoraAddress address) {
-		return (ILoraChip)network.createChip(address, new LoraChipCreationParams(ILoraChip.Type.HIGH_POWER));
+		return (ILoraChip)network.createChip(address, new LoraChipCreationParams(LoraChip.Type.HIGH_POWER));
 	}
 	
 	@Override

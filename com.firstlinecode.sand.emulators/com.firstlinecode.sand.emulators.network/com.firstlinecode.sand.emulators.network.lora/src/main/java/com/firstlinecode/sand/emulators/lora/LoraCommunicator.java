@@ -1,5 +1,6 @@
 package com.firstlinecode.sand.emulators.lora;
 
+import com.firstlinecode.sand.client.lora.LoraAddress;
 import com.firstlinecode.sand.client.things.commuication.ICommunicationListener;
 import com.firstlinecode.sand.client.things.commuication.ICommunicator;
 

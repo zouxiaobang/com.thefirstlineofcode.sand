@@ -1,4 +1,4 @@
-package com.firstlinecode.sand.emulators.lora;
+package com.firstlinecode.sand.client.lora;
 
 import java.util.Random;
 
