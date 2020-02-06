@@ -14,13 +14,21 @@ public class DualLoraChipCommunicator implements ICommunicator<LoraAddress, byte
 	protected ILoraChip slaveChip;
 	protected CommunicationMode mode;
 	
-	public DualLoraChipCommunicator(ILoraNetwork network, LoraAddress masterAddress, LoraAddress slaveAddress) {
+	public DualLoraChipCommunicator(ILoraNetwork network, DualLoraAddress address) {
 		this.network = network;
 		
-		masterChip = createLoraChip(masterAddress);
-		slaveChip = createLoraChip(slaveAddress);
+		masterChip = createLoraChip(getMasterChipAddress(address));
+		slaveChip = createLoraChip(getSlaveChipAddress(address));
 		
 		mode = CommunicationMode.WORKING;
+	}
+	
+	private LoraAddress getMasterChipAddress(DualLoraAddress address) {
+		return new LoraAddress(address.getAddress(), address.getMasterChipFrequencyBand());
+	}
+	
+	private LoraAddress getSlaveChipAddress(DualLoraAddress address) {
+		return new LoraAddress(address.getAddress(), address.getMasterChipFrequencyBand());
 	}
 	
 	protected ILoraChip createLoraChip(LoraAddress address) {

@@ -2,19 +2,19 @@ package com.firstlinecode.sand.emulators.lora;
 
 import java.util.Random;
 
-public class LoraAddress {
+public class DualLoraAddress {
 	private byte[] address;
-	private int frequencyBand;
+	private int channel;
 	
-	public LoraAddress(byte[] address, int frequencyBand) {
+	public DualLoraAddress(byte[] address, int channel) {
 		if (address == null)
 			throw new IllegalArgumentException("Null address.");
 		
-		if (frequencyBand < 0 || frequencyBand > 63)
-			throw new IllegalArgumentException("Lora frequency band must be range of 0~63.");
+		if (channel < 0 || channel > 31)
+			throw new IllegalArgumentException("Lora channel must be range of 0~63.");
 		
 		this.address = address;
-		this.frequencyBand = frequencyBand;
+		this.channel = channel;
 	}
 	
 	public byte[] getAddress() {
@@ -25,18 +25,18 @@ public class LoraAddress {
 		this.address = address;
 	}
 	
-	public int getFrequencyBand() {
-		return frequencyBand;
+	public int getChannel() {
+		return channel;
 	}
 	
-	public void setFrequencyBand(int frequencyBand) {
-		this.frequencyBand = frequencyBand;
+	public void setChannel(int channel) {
+		this.channel = channel;
 	}
 	
 	@Override
 	public boolean equals(Object obj) {
 		if (obj instanceof LoraAddress) {
-			LoraAddress other = (LoraAddress)obj;
+			DualLoraAddress other = (DualLoraAddress)obj;
 			if (address.length != other.address.length)
 				return false;
 			
@@ -45,7 +45,7 @@ public class LoraAddress {
 					return false;
 			}
 			
-			return frequencyBand == other.frequencyBand;
+			return channel == other.channel;
 		}
 		
 		return false;
@@ -55,14 +55,23 @@ public class LoraAddress {
 	public int hashCode() {
 		int hash = 7;
 		hash += 31 * hash + address.hashCode();
-		hash += 31 * hash + frequencyBand;
+		hash += 31 * hash + channel;
 		
 		return hash;
 	}
 	
 	@Override
 	public String toString() {
-		return String.format("LoraAddress[%s, %d]", getHexString(address), frequencyBand);
+		return String.format("DualLoraChipAddress[%s, %d, %d]", getHexString(address),
+				getMasterChipFrequencyBand(), getSlaveChipFrequencyBand());
+	}
+	
+	public int getMasterChipFrequencyBand() {
+		return channel * 2;
+	}
+	
+	public int getSlaveChipFrequencyBand() {
+		return channel * 2 + 1;
 	}
 	
 	private String getHexString(byte[] bytes) {
@@ -74,10 +83,10 @@ public class LoraAddress {
 		return sb.toString();
 	}
 	
-	public static LoraAddress randomLoraAddress(int frequencyBand) {
+	public static DualLoraAddress randomDualLoraAddress(int channel) {
 		byte[] address = new byte[2];
 		new Random().nextBytes(address);
 		
-		return new LoraAddress(address, frequencyBand);
+		return new DualLoraAddress(address, channel);
 	}
 }
