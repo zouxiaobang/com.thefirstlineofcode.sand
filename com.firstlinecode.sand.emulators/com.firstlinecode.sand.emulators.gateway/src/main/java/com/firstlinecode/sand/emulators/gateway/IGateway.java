@@ -9,4 +9,5 @@ public interface IGateway<T> extends IConcentrator<T> {
 	IAddressConfigurator getAddressConfigurator();
 	boolean isRegistered();
 	boolean isConnected();
+	String getLanId();
 }

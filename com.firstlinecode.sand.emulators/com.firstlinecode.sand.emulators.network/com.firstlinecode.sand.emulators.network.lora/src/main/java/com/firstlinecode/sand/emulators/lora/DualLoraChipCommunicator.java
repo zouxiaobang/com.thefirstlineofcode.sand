@@ -10,36 +10,29 @@ public class DualLoraChipCommunicator implements ICommunicator<LoraAddress, byte
 	}
 	
 	private ILoraNetwork network;
-	protected LoraAddress address;
 	protected ILoraChip masterChip;
-	protected ILoraChip salveChip;
+	protected ILoraChip slaveChip;
+	protected CommunicationMode mode;
 	
-	public DualLoraChipCommunicator(ILoraNetwork network, LoraAddress address,
-			int masterChipFrequencyBand, int slaveChipFrequencyBand) {
+	public DualLoraChipCommunicator(ILoraNetwork network, LoraAddress masterAddress, LoraAddress slaveAddress) {
 		this.network = network;
-		this.address = address;
 		
-		masterChip = createLoraChip(masterChipFrequencyBand);
-		salveChip = createLoraChip(slaveChipFrequencyBand);
+		masterChip = createLoraChip(masterAddress);
+		slaveChip = createLoraChip(slaveAddress);
+		
+		mode = CommunicationMode.WORKING;
 	}
 	
-	protected ILoraChip createLoraChip(int masterChipFrequencyBand) {
-		network.createChip(address, null);
-		// TODO Auto-generated method stub
-		return null;
+	protected ILoraChip createLoraChip(LoraAddress address) {
+		return (ILoraChip)network.createChip(address, new LoraChipCreationParams(ILoraChip.Type.HIGH_POWER));
 	}
 	
-	@Override
-	public LoraAddress getAddress() {
-		return address;
-	}
-
 	@Override
 	public void send(LoraAddress to, byte[] data) {
 		// TODO Auto-generated method stub
 		
 	}
-
+	
 	@Override
 	public void received(LoraAddress from, byte[] data) {
 		// TODO Auto-generated method stub
@@ -50,5 +43,34 @@ public class DualLoraChipCommunicator implements ICommunicator<LoraAddress, byte
 	public void addCommunicationListener(ICommunicationListener<LoraAddress> listener) {
 		// TODO Auto-generated method stub
 		
+	}
+
+	@Override
+	public LoraAddress getAddress() {
+		return getMasterAddress();
+	}
+	
+	public LoraAddress getMasterAddress() {
+		return masterChip.getAddress();
+	}
+	
+	public LoraAddress getSlaveAddress() {
+		return slaveChip.getAddress();
+	}
+	
+	public ILoraChip getMasterChip() {
+		return masterChip;
+	}
+	
+	public ILoraChip getSlaveChip() {
+		return slaveChip;
+	}
+	
+	public void setCommunicationMode(CommunicationMode mode) {
+		this.mode = mode;
+	}
+	
+	public CommunicationMode getCommunicationMode() {
+		return mode;
 	}
 }

@@ -4,6 +4,15 @@ import com.firstlinecode.sand.client.things.commuication.ParamsMap;
 
 public class LoraChipCreationParams extends ParamsMap {
 	private static final String PARAM_NAME_TYPE = "type";
+	
+	public LoraChipCreationParams() {
+		addParams(PARAM_NAME_TYPE, null);
+	}
+	
+	public LoraChipCreationParams(ILoraChip.Type type) {
+		if (type != null)
+			addParams(PARAM_NAME_TYPE, type);
+	}
 
 	public void setType(ILoraChip.Type type) {
 		addParams(PARAM_NAME_TYPE, type);

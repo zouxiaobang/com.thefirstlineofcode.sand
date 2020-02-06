@@ -71,6 +71,7 @@ import com.firstlinecode.sand.client.things.actuator.IAction;
 import com.firstlinecode.sand.client.things.actuator.IActionListener;
 import com.firstlinecode.sand.client.things.commuication.ICommunicationChip;
 import com.firstlinecode.sand.client.things.commuication.ICommunicationNetworkListener;
+import com.firstlinecode.sand.client.things.commuication.ICommunicator;
 import com.firstlinecode.sand.client.things.commuication.ICommunicatorFactory;
 import com.firstlinecode.sand.client.things.commuication.ParamsMap;
 import com.firstlinecode.sand.client.things.concentrator.IAddressConfigurator;
@@ -87,6 +88,7 @@ import com.firstlinecode.sand.protocols.core.DeviceIdentity;
 
 public class Gateway<A, D, P extends ParamsMap> extends JFrame implements ActionListener, InternalFrameListener,
 		ComponentListener, WindowListener, IGateway<A>, IConnectionListener, ICommunicationNetworkListener<A> {
+	private static final String DEFAULT_GATEWAY_LAN_ID = "00";
 	private static final int ALWAYS_FULL_POWER = 100;
 	private static final String DEVICE_TYPE = "Gateway";
 	private static final String DEVICE_MODE = "Emulator01";
@@ -140,19 +142,17 @@ public class Gateway<A, D, P extends ParamsMap> extends JFrame implements Action
 	private static final String MENU_ITEM_NAME_ABOUT = "about";
 
 	private static final String RESOURCE_NAME_GATEWAY = "gateway";
-	private static final int DEFAULT_LORA_WORKING_FREQUENCY_BAND = 0;
-	private static final int DEFAULT_LORA_DEPLOYING_FREQUENCY_BAND = 63;
 	
 	private String deviceId;
 	private DeviceIdentity deviceIdentity;
 	private StandardStreamConfig streamConfig;
-	private String lanId;
 	
 	private List<IThingEmulatorFactory<?>> thingFactories;
 	private Map<String, List<IThingEmulator>> allThings;
 	private Map<String, Node<A>> nodes;
 	private boolean dirty;
 	
+	private ICommunicator<?, ?> communicator;
 	private ICommunicatorFactory<?, ?> communicatorFactory;
 	
 	private JDesktopPane desktop;
@@ -167,7 +167,7 @@ public class Gateway<A, D, P extends ParamsMap> extends JFrame implements Action
 	
 	private IAddressConfigurator addressConfigurator;
 	
-	public Gateway(ICommunicatorFactory<?, ?> communicatorFactory) {
+	public Gateway(ICommunicator<?, ?> communicator, ICommunicatorFactory<?, ?> communicatorFactory) {
 		super("Unregistered Gateway");
 		
 		deviceId = ThingsUtils.generateRandomDeviceId();
@@ -177,6 +177,7 @@ public class Gateway<A, D, P extends ParamsMap> extends JFrame implements Action
 		nodes = new HashMap<>();
 		dirty = false;
 		
+		this.communicator = communicator;
 		this.communicatorFactory = communicatorFactory;
 		
 		autoReconnect = false;
@@ -1200,6 +1201,11 @@ public class Gateway<A, D, P extends ParamsMap> extends JFrame implements Action
 	@Override
 	public boolean isConnected() {
 		return chatClient != null && chatClient.isConnected();
+	}
+	
+	@Override
+	public final String getLanId() {
+		return DEFAULT_GATEWAY_LAN_ID;
 	}
 
 	@Override

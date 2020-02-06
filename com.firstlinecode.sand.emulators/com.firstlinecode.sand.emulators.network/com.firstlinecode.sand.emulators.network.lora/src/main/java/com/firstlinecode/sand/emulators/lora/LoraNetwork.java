@@ -57,6 +57,9 @@ public class LoraNetwork implements ILoraNetwork {
 	}
 
 	public synchronized ILoraChip createChip(LoraAddress address, ILoraChip.Type type) {
+		if (address == null)
+			throw new IllegalArgumentException("Null lora address.");
+		
 		if (chips.containsKey(address))
 			throw new RuntimeException(String.format("Conflict. Lora chip which's address is %s has ready existed in network.", address));
 		
