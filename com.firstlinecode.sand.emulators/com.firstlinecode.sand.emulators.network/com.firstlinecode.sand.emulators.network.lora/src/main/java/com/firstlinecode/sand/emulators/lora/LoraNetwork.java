@@ -43,10 +43,10 @@ public class LoraNetwork implements ILoraNetwork {
 	
 	;
 	@Override
-	public ICommunicationChip<LoraAddress> createChip(LoraAddress address, Map<String, Object> params) {
+	public ICommunicationChip<LoraAddress> createChip(LoraAddress address, LoraChipCreationParams params) {
 		ILoraChip.Type type = null;
 		if (params != null) {
-			type = (ILoraChip.Type)params.get("type");
+			type = params.getType();
 		}
 		
 		if (type == null) {

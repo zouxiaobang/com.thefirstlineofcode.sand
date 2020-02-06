@@ -10,11 +10,11 @@ import java.util.TimerTask;
 
 import com.firstlinecode.sand.client.things.BatteryPowerEvent;
 import com.firstlinecode.sand.client.things.IThingListener;
-import com.firstlinecode.sand.client.things.commuication.ICommunicationChip;
+import com.firstlinecode.sand.client.things.commuication.ICommunicator;
 
 public abstract class AbstractThingEmulator implements IThingEmulator {
 	protected String thingName;
-	protected ICommunicationChip<?> communicationChip;
+	protected ICommunicator<?, ?> communicator;
 	
 	protected String deviceId;
 	protected String lanId;
@@ -24,24 +24,24 @@ public abstract class AbstractThingEmulator implements IThingEmulator {
 	protected boolean powered;
 	protected List<IThingListener> thingListeners;
 	
-	public AbstractThingEmulator(String  type, String mode, ICommunicationChip<?> communicationChip) {
-		this(type, mode, null, communicationChip);
+	public AbstractThingEmulator(String  type, String mode, ICommunicator<?, ?> communicator) {
+		this(type, mode, null, communicator);
 	}
 	
-	public AbstractThingEmulator(String  type, String mode, String deviceId, ICommunicationChip<?> communicationChip) {
+	public AbstractThingEmulator(String  type, String mode, String deviceId, ICommunicator<?, ?> communicator) {
 		if (type == null)
 			throw new IllegalArgumentException("Null device type.");
 		
 		if (mode == null)
 			throw new IllegalArgumentException("Null device mode.");
 		
-		if (communicationChip == null)
-			throw new IllegalArgumentException("Null communication chip.");
+		if (communicator == null)
+			throw new IllegalArgumentException("Null communicator.");
 		
 		this.deviceType = type;
 		this.deviceMode = mode;
 		this.thingName = type + " - " + mode;
-		this.communicationChip = communicationChip;
+		this.communicator = communicator;
 		
 		if (deviceId != null) {	
 			this.deviceId = deviceId;
@@ -84,11 +84,11 @@ public abstract class AbstractThingEmulator implements IThingEmulator {
 		private Timer timer = new Timer();
 		
 		public void start() {
-			timer.schedule(new BatteryTimerTask(), 1000 * 10);
+			timer.schedule(new BatteryPowerTimerTask(), 1000 * 10);
 		}
 	}
 	
-	private class BatteryTimerTask extends TimerTask {
+	private class BatteryPowerTimerTask extends TimerTask {
 		private Timer timer = new Timer();
 		
 		@Override
@@ -109,7 +109,7 @@ public abstract class AbstractThingEmulator implements IThingEmulator {
 					}
 				}
 				
-				timer.schedule(new BatteryTimerTask(), 1000 * 10);
+				timer.schedule(new BatteryPowerTimerTask(), 1000 * 10);
 			}
 		}
 	}
@@ -234,13 +234,13 @@ public abstract class AbstractThingEmulator implements IThingEmulator {
 	}
 	
 	@Override
-	public ICommunicationChip<?> getCommunicationChip() {
-		return communicationChip;
+	public ICommunicator<?, ?> getCommunicator() {
+		return communicator;
 	}
 	
 	@Override
-	public void setCommunicationChip(ICommunicationChip<?> communicationChip) {
-		this.communicationChip = communicationChip;
+	public void setCommunicator(ICommunicator<?, ?> communicator) {
+		this.communicator = communicator;
 	}
 	
 	protected abstract void doWriteExternal(ObjectOutput out) throws IOException;

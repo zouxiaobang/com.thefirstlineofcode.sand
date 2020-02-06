@@ -22,14 +22,17 @@ import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 
 import com.firstlinecode.sand.client.things.BatteryPowerEvent;
-import com.firstlinecode.sand.client.things.commuication.ICommunicationChip;
+import com.firstlinecode.sand.client.things.commuication.CommunicationException;
+import com.firstlinecode.sand.client.things.commuication.ICommunicationListener;
+import com.firstlinecode.sand.client.things.commuication.ICommunicator;
 import com.firstlinecode.sand.emulators.thing.AbstractThingEmulator;
 import com.firstlinecode.sand.emulators.thing.AbstractThingEmulatorPanel;
 import com.firstlinecode.sand.emulators.thing.IThingEmulator;
 import com.firstlinecode.sand.emulators.thing.IThingEmulatorListener;
 import com.firstlinecode.sand.emulators.thing.PowerEvent;
 
-public class Blub extends AbstractThingEmulator implements IThingEmulator, IThingEmulatorListener, IBlub {
+public class Blub<T> extends AbstractThingEmulator implements IThingEmulator, IThingEmulatorListener,
+			IBlub, ICommunicationListener<T> {
 	public static final String THING_TYPE = "Blub";
 	public static final String THING_MODE = "Emulator-01";
 	
@@ -42,20 +45,22 @@ public class Blub extends AbstractThingEmulator implements IThingEmulator, IThin
 	private JPanel switchsPanel;
 	private BlubEmulatorPanel panel;
 	
+	private ICommunicator<?, ?> communicator;
+	
 	public Blub() {
 		this(null);
 	}
 	
-	public Blub(ICommunicationChip<?> communicationChip) {
-		this(communicationChip, DEFAULT_SWITCH_STATE, DEFAULT_BLUB_STATE);
+	public Blub(ICommunicator<?, ?> communicator) {
+		this(communicator, DEFAULT_SWITCH_STATE, DEFAULT_BLUB_STATE);
 	}
 	
-	public Blub(ICommunicationChip<?> communicationChip, SwitchState switchState) {
-		this(communicationChip, switchState, switchState == SwitchState.ON ? BlubState.ON : BlubState.OFF);
+	public Blub(ICommunicator<?, ?> communicator, SwitchState switchState) {
+		this(communicator, switchState, switchState == SwitchState.ON ? BlubState.ON : BlubState.OFF);
 	}
 	
-	public Blub(ICommunicationChip<?> communicationChip, SwitchState switchState, BlubState blubState) {
-		super(THING_TYPE, THING_MODE, communicationChip);
+	public Blub(ICommunicator<?, ?> communicator, SwitchState switchState, BlubState blubState) {
+		super(THING_TYPE, THING_MODE, communicator);
 		
 		if (switchState == null)
 			throw new IllegalArgumentException("Null switch state.");
@@ -352,7 +357,25 @@ public class Blub extends AbstractThingEmulator implements IThingEmulator, IThin
 
 	@Override
 	public String getLanId() {
-		// TODO Auto-generated method stub
-		return null;
+		return lanId;
 	}
+
+	@Override
+	public void sent(T to, byte[] message) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void received(T from, byte[] message) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void occurred(CommunicationException e) {
+		// TODO Auto-generated method stub
+		
+	}
+
 }

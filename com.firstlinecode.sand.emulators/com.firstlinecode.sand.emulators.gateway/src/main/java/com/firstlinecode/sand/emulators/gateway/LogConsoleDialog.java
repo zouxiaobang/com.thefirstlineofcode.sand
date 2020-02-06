@@ -21,7 +21,7 @@ public class LogConsoleDialog extends JDialog {
 	private JTextArea logConsole;
 	private JButton clear;
 	
-	public LogConsoleDialog(Gateway<?, ?> parent) {
+	public LogConsoleDialog(Gateway<?, ?, ?> parent) {
 		super(parent, "Log Console");
 		
 		getContentPane().add(createLogConsolePanel());

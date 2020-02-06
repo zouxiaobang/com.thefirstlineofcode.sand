@@ -2,7 +2,7 @@ package com.firstlinecode.sand.emulators.lora;
 
 import com.firstlinecode.sand.client.things.commuication.ICommunicationNetwork;
 
-public interface ILoraNetwork extends ICommunicationNetwork<LoraAddress, byte[]> {
+public interface ILoraNetwork extends ICommunicationNetwork<LoraAddress, byte[], LoraChipCreationParams> {
 	public enum SignalQuality {
 		GOOD(5),
 		MEDUIM(15),

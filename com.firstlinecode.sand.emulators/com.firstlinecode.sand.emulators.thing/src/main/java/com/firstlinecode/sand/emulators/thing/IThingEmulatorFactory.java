@@ -1,8 +1,9 @@
 package com.firstlinecode.sand.emulators.thing;
 
-import com.firstlinecode.sand.client.things.commuication.ICommunicationChip;
+import com.firstlinecode.sand.client.things.commuication.ICommunicator;
+import com.firstlinecode.sand.client.things.commuication.ParamsMap;
 
-public interface IThingEmulatorFactory {
+public interface IThingEmulatorFactory<T extends IThingEmulator> {
 	String getThingName();
-	IThingEmulator create(ICommunicationChip<?> chip);
+	<P extends ParamsMap> T create(ICommunicator<?, ?> communicator, P params);
 }
