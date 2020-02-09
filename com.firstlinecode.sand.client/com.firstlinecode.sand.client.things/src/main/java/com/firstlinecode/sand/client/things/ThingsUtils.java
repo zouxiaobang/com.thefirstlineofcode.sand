@@ -1,8 +1,17 @@
-package com.firstlinecode.sand.emulators.thing;
+package com.firstlinecode.sand.client.things;
 
 import java.util.UUID;
 
 public class ThingsUtils {
+	public static String getHexString(byte[] bytes) {
+		StringBuilder sb = new StringBuilder();
+		for (byte b : bytes) {
+			sb.append(String.format("0x%02x", b));
+		}
+		
+		return sb.toString();
+	}
+	
 	public static String generateRandomDeviceId() {
 		return generateRandomDeviceId(12);
 	}
@@ -22,3 +31,4 @@ public class ThingsUtils {
 		return uuidHexString.substring(32 - length, 32); 
 	}
 }
+

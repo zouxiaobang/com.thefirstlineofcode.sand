@@ -1,4 +1,4 @@
-package com.firstlinecode.sand.emulators.gateway;
+package com.firstlinecode.sand.emulators.gateway.xmpp;
 
 import java.io.Serializable;
 

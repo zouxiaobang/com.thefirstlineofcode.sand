@@ -22,8 +22,6 @@ import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 
 import com.firstlinecode.sand.client.things.BatteryPowerEvent;
-import com.firstlinecode.sand.client.things.commuication.CommunicationException;
-import com.firstlinecode.sand.client.things.commuication.ICommunicationListener;
 import com.firstlinecode.sand.client.things.commuication.ICommunicator;
 import com.firstlinecode.sand.emulators.thing.AbstractThingEmulator;
 import com.firstlinecode.sand.emulators.thing.AbstractThingEmulatorPanel;
@@ -31,8 +29,7 @@ import com.firstlinecode.sand.emulators.thing.IThingEmulator;
 import com.firstlinecode.sand.emulators.thing.IThingEmulatorListener;
 import com.firstlinecode.sand.emulators.thing.PowerEvent;
 
-public class Blub<T> extends AbstractThingEmulator implements IThingEmulator, IThingEmulatorListener,
-			IBlub, ICommunicationListener<T> {
+public class Blub extends AbstractThingEmulator implements IThingEmulator, IThingEmulatorListener, IBlub {
 	public static final String THING_TYPE = "Blub";
 	public static final String THING_MODE = "Emulator-01";
 	
@@ -359,23 +356,5 @@ public class Blub<T> extends AbstractThingEmulator implements IThingEmulator, IT
 	public String getLanId() {
 		return lanId;
 	}
-
-	@Override
-	public void sent(T to, byte[] message) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void received(T from, byte[] message) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void occurred(CommunicationException e) {
-		// TODO Auto-generated method stub
-		
-	}
-
+	
 }

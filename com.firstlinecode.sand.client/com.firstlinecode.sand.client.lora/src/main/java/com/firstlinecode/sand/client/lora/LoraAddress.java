@@ -2,6 +2,8 @@ package com.firstlinecode.sand.client.lora;
 
 import java.util.Random;
 
+import com.firstlinecode.sand.client.things.ThingsUtils;
+
 public class LoraAddress {
 	private byte[] address;
 	private int frequencyBand;
@@ -62,16 +64,7 @@ public class LoraAddress {
 	
 	@Override
 	public String toString() {
-		return String.format("LoraAddress[%s, %d]", getHexString(address), frequencyBand);
-	}
-	
-	private String getHexString(byte[] bytes) {
-		StringBuilder sb = new StringBuilder();
-		for (byte b : bytes) {
-			sb.append(String.format("0x%02x", b));
-		}
-		
-		return sb.toString();
+		return String.format("LoraAddress[%s, %d]", ThingsUtils.getHexString(address), frequencyBand);
 	}
 	
 	public static LoraAddress randomLoraAddress(int frequencyBand) {

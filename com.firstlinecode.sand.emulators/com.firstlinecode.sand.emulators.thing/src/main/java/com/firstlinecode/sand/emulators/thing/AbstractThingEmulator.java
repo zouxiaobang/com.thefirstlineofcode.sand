@@ -10,6 +10,7 @@ import java.util.TimerTask;
 
 import com.firstlinecode.sand.client.things.BatteryPowerEvent;
 import com.firstlinecode.sand.client.things.IThingListener;
+import com.firstlinecode.sand.client.things.ThingsUtils;
 import com.firstlinecode.sand.client.things.commuication.ICommunicator;
 
 public abstract class AbstractThingEmulator implements IThingEmulator {

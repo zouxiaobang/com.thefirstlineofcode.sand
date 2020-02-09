@@ -1,7 +1,7 @@
 package com.firstlinecode.sand.client.things.commuication;
 
-public interface ICommunicationListener<T> {
-	void sent(T to, byte[] message);
-	void received(T from, byte[] message);
+public interface ICommunicationListener<A, D> {
+	void sent(A to, D data);
+	void received(A from, D data);
 	void occurred(CommunicationException e);
 }

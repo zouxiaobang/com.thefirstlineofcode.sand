@@ -1,49 +1,35 @@
-package com.firstlinecode.sand.emulators.gateway;
+package com.firstlinecode.sand.emulators.gateway.log;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
-import javax.swing.JDialog;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 
-public class LogConsoleDialog extends JDialog {
-	private static final long serialVersionUID = 5197344780011371803L;
+public abstract class AbstractLogConsolePanel extends JPanel implements ILogger, WindowListener {
+	private static final long serialVersionUID = 2661118467157999059L;
 	
 	private static final String LINE_SEPARATOR = System.getProperty("line.separator");
 	
 	private JTextArea logConsole;
 	private JButton clear;
 	
-	public LogConsoleDialog(Gateway<?, ?, ?> parent) {
-		super(parent, "Log Console");
-		
-		getContentPane().add(createLogConsolePanel());
-		
-		setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
-		addWindowListener(parent);
-		
-		setBounds(50, 50, 800, 480);
-	}
-
-	/**
-	 * @return
-	 */
-	private JPanel createLogConsolePanel() {
-		JPanel panel = new JPanel();
-		panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
-		panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+	public AbstractLogConsolePanel() {
+		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+		setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 		
 		logConsole = new JTextArea();
 		logConsole.setAutoscrolls(true);
 		JScrollPane logConsoleScrollPane = new JScrollPane(logConsole);
-		panel.add(logConsoleScrollPane);
+		add(logConsoleScrollPane);
 		
 		clear = new JButton("Clear Console");
 		clear.addActionListener(new ActionListener() {
@@ -53,9 +39,7 @@ public class LogConsoleDialog extends JDialog {
 				logConsole.setText(null);
 			}
 		});
-		panel.add(clear);
-		
-		return panel;
+		add(clear);
 	}
 	
 	public void log(Exception e) {
@@ -73,4 +57,29 @@ public class LogConsoleDialog extends JDialog {
 		
 		logConsole.setCaretPosition(logConsole.getDocument().getLength() - 1);
 	}
+
+	@Override
+	public void windowOpened(WindowEvent e) {}
+
+	@Override
+	public void windowClosing(WindowEvent e) {
+		doWindowClosing(e);
+	}
+	
+	protected abstract void doWindowClosing(WindowEvent e);
+
+	@Override
+	public void windowClosed(WindowEvent e) {}
+
+	@Override
+	public void windowIconified(WindowEvent e) {}
+
+	@Override
+	public void windowDeiconified(WindowEvent e) {}
+
+	@Override
+	public void windowActivated(WindowEvent e) {}
+
+	@Override
+	public void windowDeactivated(WindowEvent e) {}
 }

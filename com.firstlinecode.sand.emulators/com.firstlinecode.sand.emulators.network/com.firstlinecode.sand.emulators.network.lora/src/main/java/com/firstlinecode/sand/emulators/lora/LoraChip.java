@@ -6,7 +6,6 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import com.firstlinecode.sand.client.lora.ILoraChip;
-import com.firstlinecode.sand.client.lora.ILoraMessageListener;
 import com.firstlinecode.sand.client.lora.LoraAddress;
 import com.firstlinecode.sand.client.things.commuication.ICommunicationListener;
 
@@ -21,7 +20,7 @@ public class LoraChip implements ILoraChip {
 	protected LoraAddress address;
 	protected volatile boolean slept;
 	
-	protected List<ILoraMessageListener> listeners;
+	protected List<ICommunicationListener<LoraAddress, byte[]>> listeners;
 	
 	public LoraChip(ILoraNetwork network, Type type, LoraAddress address) {
 		if (network == null)
@@ -55,18 +54,14 @@ public class LoraChip implements ILoraChip {
 	}
 	
 	@Override
-	public void addListener(ICommunicationListener<LoraAddress> listener) {
-		if (!(listener instanceof ILoraMessageListener)) {
-			throw new IllegalArgumentException("Not a lora message listener.");
-		}
-		
+	public void addListener(ICommunicationListener<LoraAddress, byte[]> listener) {
 		if (!listeners.contains(listener)) {
-			listeners.add((ILoraMessageListener)listener);
+			listeners.add(listener);
 		}
 	}
 
 	@Override
-	public boolean removeListener(ICommunicationListener<LoraAddress> listener) {
+	public boolean removeListener(ICommunicationListener<LoraAddress, byte[]> listener) {
 		return listeners.remove(listener);
 	}
 	
@@ -97,7 +92,7 @@ public class LoraChip implements ILoraChip {
 
 	@Override
 	public void received(LoraAddress from, byte[] message) {
-		for (ILoraMessageListener listener : listeners) {
+		for (ICommunicationListener<LoraAddress, byte[]> listener : listeners) {
 			listener.received(from, message);
 		}
 		

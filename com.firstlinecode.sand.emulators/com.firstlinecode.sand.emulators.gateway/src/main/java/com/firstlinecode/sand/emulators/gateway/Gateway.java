@@ -65,29 +65,34 @@ import com.firstlinecode.chalk.network.IConnectionListener;
 import com.firstlinecode.sand.client.ibdr.IRegistration;
 import com.firstlinecode.sand.client.ibdr.IbdrPlugin;
 import com.firstlinecode.sand.client.ibdr.RegistrationException;
+import com.firstlinecode.sand.client.lora.IDualLoraChipCommunicator;
 import com.firstlinecode.sand.client.things.IEventListener;
 import com.firstlinecode.sand.client.things.IThing;
+import com.firstlinecode.sand.client.things.ThingsUtils;
 import com.firstlinecode.sand.client.things.actuator.IAction;
 import com.firstlinecode.sand.client.things.actuator.IActionListener;
-import com.firstlinecode.sand.client.things.commuication.ICommunicationChip;
-import com.firstlinecode.sand.client.things.commuication.ICommunicationNetworkListener;
-import com.firstlinecode.sand.client.things.commuication.ICommunicator;
 import com.firstlinecode.sand.client.things.commuication.ICommunicatorFactory;
 import com.firstlinecode.sand.client.things.commuication.ParamsMap;
 import com.firstlinecode.sand.client.things.concentrator.IAddressConfigurator;
 import com.firstlinecode.sand.client.things.concentrator.Node;
 import com.firstlinecode.sand.client.things.concentrator.NodeCreationException;
 import com.firstlinecode.sand.client.things.concentrator.NodeNotFoundException;
+import com.firstlinecode.sand.emulators.gateway.log.LogConsolesDialog;
+import com.firstlinecode.sand.emulators.gateway.things.DeviceIdentityInfo;
+import com.firstlinecode.sand.emulators.gateway.things.ThingInfo;
+import com.firstlinecode.sand.emulators.gateway.things.ThingInternalFrame;
+import com.firstlinecode.sand.emulators.gateway.xmpp.StreamConfigDialog;
+import com.firstlinecode.sand.emulators.gateway.xmpp.StreamConfigInfo;
+import com.firstlinecode.sand.emulators.lora.ILoraNetwork;
 import com.firstlinecode.sand.emulators.thing.AbstractThingEmulator;
 import com.firstlinecode.sand.emulators.thing.AbstractThingEmulatorPanel;
 import com.firstlinecode.sand.emulators.thing.Constants;
 import com.firstlinecode.sand.emulators.thing.IThingEmulator;
 import com.firstlinecode.sand.emulators.thing.IThingEmulatorFactory;
-import com.firstlinecode.sand.emulators.thing.ThingsUtils;
 import com.firstlinecode.sand.protocols.core.DeviceIdentity;
 
-public class Gateway<A, D, P extends ParamsMap> extends JFrame implements ActionListener, InternalFrameListener,
-		ComponentListener, WindowListener, IGateway<A>, IConnectionListener, ICommunicationNetworkListener<A> {
+public class Gateway<A, D, C, P extends ParamsMap> extends JFrame implements ActionListener, InternalFrameListener,
+		ComponentListener, WindowListener, IGateway<A> {
 	private static final String DEFAULT_GATEWAY_LAN_ID = "00";
 	private static final int ALWAYS_FULL_POWER = 100;
 	private static final String DEVICE_TYPE = "Gateway";
@@ -152,23 +157,28 @@ public class Gateway<A, D, P extends ParamsMap> extends JFrame implements Action
 	private Map<String, Node<A>> nodes;
 	private boolean dirty;
 	
-	private ICommunicator<?, ?> communicator;
-	private ICommunicatorFactory<?, ?> communicatorFactory;
+	private ILoraNetwork network;
+	private IDualLoraChipCommunicator gatewayCommunicator;
+	private ICommunicatorFactory<A, ?> thingsCommunicatorFactory;
 	
 	private JDesktopPane desktop;
 	private JMenuBar menuBar;
 	private GatewayStatusBar statusBar;
-	private LogConsoleDialog logConsoleDalog;
+	private LogConsolesDialog logConsoleDialog;
 	
 	private File configFile;
 	
 	private IChatClient chatClient;
 	private boolean autoReconnect;
 	
-	private IAddressConfigurator addressConfigurator;
+	private IAddressConfigurator<IDualLoraChipCommunicator> addressConfigurator;
 	
-	public Gateway(ICommunicator<?, ?> communicator, ICommunicatorFactory<?, ?> communicatorFactory) {
+	public Gateway(ILoraNetwork network, IDualLoraChipCommunicator gatewayCommunicator,
+			ICommunicatorFactory<A, ?> thingsCommunicatorFactory,
+			IAddressConfigurator<IDualLoraChipCommunicator> addressConfigurator) {
 		super("Unregistered Gateway");
+		
+		this.network = network;
 		
 		deviceId = ThingsUtils.generateRandomDeviceId();
 		
@@ -177,11 +187,16 @@ public class Gateway<A, D, P extends ParamsMap> extends JFrame implements Action
 		nodes = new HashMap<>();
 		dirty = false;
 		
-		this.communicator = communicator;
-		this.communicatorFactory = communicatorFactory;
+		this.gatewayCommunicator = gatewayCommunicator;
+		this.thingsCommunicatorFactory = thingsCommunicatorFactory;
+		
+		this.addressConfigurator = addressConfigurator;
+		addressConfigurator.introduce();
 		
 		autoReconnect = false;
 		new Thread(new AutoReconnectThread()).start();
+		
+		addressConfigurator.introduce();
 		
 		setupUi();
 	}
@@ -191,7 +206,6 @@ public class Gateway<A, D, P extends ParamsMap> extends JFrame implements Action
 		public void run() {
 			while (true) {
 				if (autoReconnect && (chatClient == null || !chatClient.isConnected())) {
-					log("Trying to reconnect...");
 					connect(false);
 				}
 				
@@ -203,7 +217,20 @@ public class Gateway<A, D, P extends ParamsMap> extends JFrame implements Action
 			}
 		}
 	}
-
+	
+	private IConnectionListener getConnectionListener() {
+		IConnectionListener listener = null;
+		
+		if (logConsoleDialog == null)
+			return null;
+		
+		listener = logConsoleDialog.getConnectionListener();
+		if (listener != null)
+			return (IConnectionListener)listener;
+		
+		return null;
+	}
+	
 	private void setupUi() {
 		JFrame.setDefaultLookAndFeelDecorated(true);
 		
@@ -413,9 +440,10 @@ public class Gateway<A, D, P extends ParamsMap> extends JFrame implements Action
 		if (chatClient == null)
 			chatClient = createChatClient();
 		
-		log("Gateway is trying to connect to server...");
+		if (!chatClient.getConnectionListeners().contains(getConnectionListener()))
+			chatClient.addConnectionListener(getConnectionListener());
+		
 		chatClient.connect(new UsernamePasswordToken(deviceIdentity.getDeviceName().toString(), deviceIdentity.getCredentials()));
-		log("Gateway has connected to server.");
 		autoReconnect = true;
 		
 		refreshConnectionStateRelativatedMenus();
@@ -426,15 +454,14 @@ public class Gateway<A, D, P extends ParamsMap> extends JFrame implements Action
 		if (deviceIdentity == null)
 			throw new IllegalStateException("Device identity is null. Please register your gateway.");
 		
-		chatClient = new StandardChatClient(streamConfig);
-		chatClient.addConnectionListener(this);
-
-		return chatClient;
+		return new StandardChatClient(streamConfig);
 	}
 
 	private void showLogConsoleDialog() {
-		logConsoleDalog = new LogConsoleDialog(this);
-		logConsoleDalog.setVisible(true);
+		logConsoleDialog = new LogConsolesDialog(this, chatClient, network, gatewayCommunicator, allThings);
+		logConsoleDialog.addWindowListener(this);
+		
+		logConsoleDialog.setVisible(true);
 		
 		getMenuItem(MENU_NAME_TOOLS, MENU_ITEM_NAME_SHOW_LOG_CONSOLE).setEnabled(false);
 	}
@@ -466,35 +493,27 @@ public class Gateway<A, D, P extends ParamsMap> extends JFrame implements Action
 		IChatClient chatClient = new StandardChatClient(streamConfig);
 		chatClient.register(IbdrPlugin.class);
 		IRegistration registration = chatClient.createApi(IRegistration.class);
-		registration.addConnectionListener(this);
+		adddInternetLogListener(registration);
 		try {
 			deviceIdentity = registration.register(deviceId);
+			
+			registration.removeConnectionListener(getConnectionListener());
 			
 			setDirty(true);
 			refreshGatewayInstanceRelativatedMenus();
 			updateTitle();
 			updateStatus();			
 		} catch (RegistrationException e) {
-			log(e);
 			JOptionPane.showMessageDialog(this, "Can't register device. Error: " + e.getError(), "Registration Error", JOptionPane.ERROR_MESSAGE);
 		} finally {			
 			chatClient.close();
 		}
 	}
 
-	private void log(Exception e) {
-		if (logConsoleDalog != null) {
-			logConsoleDalog.log(e);
-		} else {
-			e.printStackTrace();
-		}
-	}
-	
-	private void log(String message) {
-		if (logConsoleDalog != null) {
-			logConsoleDalog.log(message);
-		} else {
-			System.out.println(message);
+	private void adddInternetLogListener(IRegistration registration) {
+		IConnectionListener logListener = getConnectionListener();
+		if (logListener != null) {
+			registration.addConnectionListener(logListener);
 		}
 	}
 
@@ -826,7 +845,7 @@ public class Gateway<A, D, P extends ParamsMap> extends JFrame implements Action
 	
 	private IThingEmulator createThing(String thingName, P params) {
 		IThingEmulatorFactory<?> thingFactory = getThingFactory(thingName);
-		IThingEmulator thing = (IThingEmulator)thingFactory.create(communicatorFactory.createCommunicator(), params);
+		IThingEmulator thing = (IThingEmulator)thingFactory.create(thingsCommunicatorFactory.createCommunicator(), params);
 		
 		List<IThingEmulator> things = getThings(thingFactory);
 		
@@ -1067,10 +1086,10 @@ public class Gateway<A, D, P extends ParamsMap> extends JFrame implements Action
 	public void windowClosing(WindowEvent e) {
 		if (e.getSource() instanceof JFrame) {
 			quit();
-		} else if (e.getSource() instanceof LogConsoleDialog) {
-			logConsoleDalog.setVisible(false);
-			logConsoleDalog.dispose();
-			logConsoleDalog = null;
+		} else if (e.getSource() instanceof LogConsolesDialog) {
+			logConsoleDialog.setVisible(false);
+			logConsoleDialog.dispose();
+			logConsoleDialog = null;
 			
 			getMenuItem(MENU_NAME_TOOLS, MENU_ITEM_NAME_SHOW_LOG_CONSOLE).setEnabled(true);
 		} else {
@@ -1176,21 +1195,6 @@ public class Gateway<A, D, P extends ParamsMap> extends JFrame implements Action
 		}
 		
 		throw new IllegalArgumentException(String.format("Menu '%s' not existed.", menuName));
-	}
-
-	@Override
-	public void occurred(ConnectionException exception) {
-		log(exception);
-	}
-
-	@Override
-	public void received(String message) {
-		log("G<--S " + message);
-	}
-
-	@Override
-	public void sent(String message) {
-		log("G-->S " + message);
 	}
 
 	@Override
@@ -1328,41 +1332,6 @@ public class Gateway<A, D, P extends ParamsMap> extends JFrame implements Action
 
 	@Override
 	public void addActionListener(IActionListener<?> listener) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public IAddressConfigurator getAddressConfigurator() {
-		return addressConfigurator;
-	}
-
-	@Override
-	public void sent(ICommunicationChip<A> from, A to, byte[] message) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void received(ICommunicationChip<A> from, A to, byte[] message) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void collided(ICommunicationChip<A> from, A to, byte[] message) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void lost(ICommunicationChip<A> from, A to, byte[] message) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void addressChanged(ICommunicationChip<A> chip, A oldAddress) {
 		// TODO Auto-generated method stub
 		
 	}

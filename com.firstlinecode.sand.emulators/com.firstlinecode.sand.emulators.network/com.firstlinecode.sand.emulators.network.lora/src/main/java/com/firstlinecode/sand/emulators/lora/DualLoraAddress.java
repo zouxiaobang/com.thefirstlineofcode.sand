@@ -1,4 +1,4 @@
-package com.firstlinecode.sand.client.lora;
+package com.firstlinecode.sand.emulators.lora;
 
 import java.util.Random;
 
@@ -35,7 +35,7 @@ public class DualLoraAddress {
 	
 	@Override
 	public boolean equals(Object obj) {
-		if (obj instanceof LoraAddress) {
+		if (obj instanceof DualLoraAddress) {
 			DualLoraAddress other = (DualLoraAddress)obj;
 			if (address.length != other.address.length)
 				return false;
@@ -72,14 +72,6 @@ public class DualLoraAddress {
 	
 	public int getSlaveChipFrequencyBand() {
 		return channel * 2 + 1;
-	}
-	
-	public LoraAddress getMasterAddress() {
-		return new LoraAddress(address, getMasterChipFrequencyBand());
-	}
-	
-	public LoraAddress getSlaveAddress() {
-		return new LoraAddress(address, getSlaveChipFrequencyBand());
 	}
 	
 	private String getHexString(byte[] bytes) {

@@ -7,6 +7,7 @@ import com.firstlinecode.sand.client.things.commuication.ICommunicator;
 
 public interface IThingEmulator extends IThing, Externalizable {
 	void setCommunicator(ICommunicator<?, ?> communicator);
+	ICommunicator<?, ?> getCommunicator();
 	void setDeviceId(String deviceId);
 	void setBatteryPower(int batteryPower) ;
 	void powerChanged(PowerEvent event);

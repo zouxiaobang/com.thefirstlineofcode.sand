@@ -1,4 +1,4 @@
-package com.firstlinecode.sand.emulators.gateway;
+package com.firstlinecode.sand.emulators.gateway.things;
 
 import java.io.Serializable;
 

@@ -1,37 +1,36 @@
 package com.firstlinecode.sand.emulators.lora;
 
+import com.firstlinecode.sand.client.lora.AbstractCommunicator;
+import com.firstlinecode.sand.client.lora.ILoraChip;
 import com.firstlinecode.sand.client.lora.LoraAddress;
-import com.firstlinecode.sand.client.things.commuication.ICommunicationListener;
-import com.firstlinecode.sand.client.things.commuication.ICommunicator;
+import com.firstlinecode.sand.client.things.commuication.CommunicationException;
 
-public class LoraCommunicator implements ICommunicator<LoraAddress, byte[]> {
-	protected ILoraNetwork network;
-	protected LoraAddress address;
+public class LoraCommunicator extends AbstractCommunicator<LoraAddress, byte[]> {
+	protected ILoraChip chip;
 	
-	public LoraCommunicator(ILoraNetwork network, LoraAddress address) {
-		this.network = network;
-		this.address = address;
+	public LoraCommunicator(ILoraChip chip) {
+		this.chip = chip;
 	}
-
+	
 	@Override
 	public LoraAddress getAddress() {
-		return address;
+		return chip.getAddress();
 	}
-
+	
 	@Override
-	public void send(LoraAddress to, byte[] data) {
+	protected void doChangeAddress(LoraAddress address) throws CommunicationException {
+		// TODO Auto-generated method stub
+		
+	}
+	
+	@Override
+	protected void doSend(LoraAddress to, byte[] data) throws CommunicationException {
 		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
 	public void received(LoraAddress from, byte[] data) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void addCommunicationListener(ICommunicationListener<LoraAddress> listener) {
 		// TODO Auto-generated method stub
 		
 	}
