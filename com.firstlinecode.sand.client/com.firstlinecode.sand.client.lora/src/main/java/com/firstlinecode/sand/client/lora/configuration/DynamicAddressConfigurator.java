@@ -6,7 +6,7 @@ import com.firstlinecode.sand.client.things.commuication.CommunicationException;
 import com.firstlinecode.sand.client.things.commuication.ICommunicationListener;
 import com.firstlinecode.sand.client.things.concentrator.IAddressConfigurator;
 
-public class DynamicAddressConfigurator implements IAddressConfigurator<IDualLoraChipCommunicator>,
+public class DynamicAddressConfigurator implements IAddressConfigurator<IDualLoraChipCommunicator, LoraAddress, byte[]>,
 			ICommunicationListener<LoraAddress, byte[]> {
 	public enum DynamicConfigurationState {
 		WAITING,
@@ -28,12 +28,12 @@ public class DynamicAddressConfigurator implements IAddressConfigurator<IDualLor
 	}
 
 	@Override
-	public void negotiate() {
+	public void negotiate(LoraAddress peerAddress, byte[] data) {
 		// TODO Auto-generated method stub
 	}
 
 	@Override
-	public void comfirm() {
+	public void comfirm(LoraAddress peerAddress) {
 		// TODO Auto-generated method stub
 		
 	}

@@ -6,9 +6,10 @@ public class ThingsUtils {
 	public static String getHexString(byte[] bytes) {
 		StringBuilder sb = new StringBuilder();
 		for (byte b : bytes) {
-			sb.append(String.format("0x%02x", b));
+			sb.append(String.format("0x%02x ", b));
 		}
 		
+		sb.deleteCharAt(sb.length() - 1);
 		return sb.toString();
 	}
 	

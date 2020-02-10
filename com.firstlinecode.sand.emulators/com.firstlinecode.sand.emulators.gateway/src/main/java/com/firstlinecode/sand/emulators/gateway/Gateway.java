@@ -85,7 +85,6 @@ import com.firstlinecode.sand.emulators.gateway.things.ThingInternalFrame;
 import com.firstlinecode.sand.emulators.gateway.xmpp.StreamConfigDialog;
 import com.firstlinecode.sand.emulators.gateway.xmpp.StreamConfigInfo;
 import com.firstlinecode.sand.emulators.lora.ILoraNetwork;
-import com.firstlinecode.sand.emulators.lora.LoraChipCreationParams;
 import com.firstlinecode.sand.emulators.lora.LoraCommunicator;
 import com.firstlinecode.sand.emulators.thing.AbstractThingEmulator;
 import com.firstlinecode.sand.emulators.thing.AbstractThingEmulatorPanel;
@@ -174,11 +173,11 @@ public class Gateway<A, D, C, P extends ParamsMap> extends JFrame implements Act
 	private IChatClient chatClient;
 	private boolean autoReconnect;
 	
-	private IAddressConfigurator<IDualLoraChipCommunicator> addressConfigurator;
+	private IAddressConfigurator<IDualLoraChipCommunicator, LoraAddress, byte[]> addressConfigurator;
 	
 	public Gateway(ILoraNetwork network, IDualLoraChipCommunicator gatewayCommunicator,
 			ICommunicatorFactory thingsCommunicatorFactory,
-			IAddressConfigurator<IDualLoraChipCommunicator> addressConfigurator) {
+			IAddressConfigurator<IDualLoraChipCommunicator, LoraAddress, byte[]> addressConfigurator) {
 		super("Unregistered Gateway");
 		
 		this.network = network;
@@ -848,9 +847,8 @@ public class Gateway<A, D, C, P extends ParamsMap> extends JFrame implements Act
 	
 	private IThingEmulator createThing(String thingName) {
 		IThingEmulatorFactory<?> thingFactory = getThingFactory(thingName);
-		IThingEmulator thing = (IThingEmulator)thingFactory.create();
-		thing.setCommunicator(new LoraCommunicator(network.createChip(LoraAddress.randomLoraAddress(
-				LoraChipCreationParams.DEFAULT_FREQUENCY_BAND))));
+		IThingEmulator thing = (IThingEmulator)thingFactory.create(new LoraCommunicator(network.createChip(LoraAddress.randomLoraAddress(
+				LoraAddress.DEFAULT_THING_COMMUNICATION_FREQUENCE_BAND))));
 		
 		List<IThingEmulator> things = getThings(thingFactory);
 		
@@ -873,6 +871,8 @@ public class Gateway<A, D, C, P extends ParamsMap> extends JFrame implements Act
 		if (logConsolesDialog != null) {
 			logConsolesDialog.createThingLogConsole(thing);
 		}
+		
+		thing.configureAddress();
 		
 		return thing;
 	}

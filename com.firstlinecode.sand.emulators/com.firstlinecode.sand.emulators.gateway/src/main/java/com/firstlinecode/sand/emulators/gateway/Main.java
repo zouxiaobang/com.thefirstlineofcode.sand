@@ -33,7 +33,7 @@ public class Main {
 				network, DualLoraAddress.randomDualLoraAddress(0), new LoraChipCreationParams(
 						LoraChip.Type.HIGH_POWER));
 		ICommunicatorFactory thingCommunicatorFactory =  new LoraCommunicatorFactory(network);
-		IAddressConfigurator<IDualLoraChipCommunicator> addressConfigurator = new DynamicAddressConfigurator(gatewayCommunicator);
+		IAddressConfigurator<IDualLoraChipCommunicator, LoraAddress, byte[]> addressConfigurator = new DynamicAddressConfigurator(gatewayCommunicator);
 		
 		return new Gateway<LoraAddress, byte[], ICommunicator<LoraAddress, byte[]>, LoraChipCreationParams>(network,
 				gatewayCommunicator, thingCommunicatorFactory, addressConfigurator);

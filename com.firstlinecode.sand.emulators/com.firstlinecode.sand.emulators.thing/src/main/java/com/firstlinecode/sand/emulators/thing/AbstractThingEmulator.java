@@ -8,14 +8,17 @@ import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import com.firstlinecode.sand.client.lora.LoraAddress;
 import com.firstlinecode.sand.client.things.BatteryPowerEvent;
 import com.firstlinecode.sand.client.things.IThingListener;
 import com.firstlinecode.sand.client.things.ThingsUtils;
 import com.firstlinecode.sand.client.things.commuication.ICommunicator;
+import com.firstlinecode.sand.emulators.lora.LoraCommunicator;
 
 public abstract class AbstractThingEmulator implements IThingEmulator {
 	protected String thingName;
 	protected ICommunicator<?, ?> communicator;
+	protected DynamicAddressConfigurator addressConfigurator;
 	
 	protected String deviceId;
 	protected String lanId;
@@ -25,11 +28,10 @@ public abstract class AbstractThingEmulator implements IThingEmulator {
 	protected boolean powered;
 	protected List<IThingListener> thingListeners;
 	
-	public AbstractThingEmulator(String  type, String mode) {
-		this(type, mode, null);
-	}
+	private LoraAddress gatewayUplinkAddress;
+	private LoraAddress gatewayDownlinkAddress;
 	
-	public AbstractThingEmulator(String  type, String mode, ICommunicator<?, ?> communicator) {
+	public AbstractThingEmulator(String  type, String mode, LoraCommunicator communicator) {
 		if (type == null)
 			throw new IllegalArgumentException("Null device type.");
 		
@@ -40,6 +42,7 @@ public abstract class AbstractThingEmulator implements IThingEmulator {
 		this.deviceMode = mode;
 		this.thingName = type + " - " + mode;
 		this.communicator = communicator;
+		addressConfigurator = new DynamicAddressConfigurator((LoraCommunicator)communicator);
 		
 		deviceId = ThingsUtils.generateRandomDeviceId();			
 		
@@ -233,8 +236,14 @@ public abstract class AbstractThingEmulator implements IThingEmulator {
 	}
 	
 	@Override
-	public void setCommunicator(ICommunicator<?, ?> communicator) {
-		this.communicator = communicator;
+	public void configureAddress() {
+		addressConfigurator.introduce();
+	}
+	
+	@Override
+	public void addressConfigured(LoraAddress gatewayUplinkAddress, LoraAddress gatewayDownlinkAddress) {
+		this.gatewayUplinkAddress = gatewayUplinkAddress;
+		this.gatewayDownlinkAddress = gatewayDownlinkAddress;
 	}
 	
 	protected abstract void doWriteExternal(ObjectOutput out) throws IOException;

@@ -25,8 +25,7 @@ public class LoraCommunicator extends AbstractCommunicator<LoraAddress, byte[]> 
 	
 	@Override
 	protected void doSend(LoraAddress to, byte[] data) throws CommunicationException {
-		// TODO Auto-generated method stub
-		
+		chip.send(to, data);
 	}
 
 	@Override

@@ -1,6 +1,6 @@
 package com.firstlinecode.sand.emulators.blub;
 
-import com.firstlinecode.sand.client.things.commuication.ParamsMap;
+import com.firstlinecode.sand.emulators.lora.LoraCommunicator;
 import com.firstlinecode.sand.emulators.thing.AbstractThingEmulatorFactory;
 
 public class BlubEmulatorFactory extends AbstractThingEmulatorFactory<Blub> {
@@ -9,7 +9,7 @@ public class BlubEmulatorFactory extends AbstractThingEmulatorFactory<Blub> {
 	}
 
 	@Override
-	public <P extends ParamsMap> Blub create() {
-		return new Blub();
+	public Blub create(LoraCommunicator communicator) {
+		return new Blub(communicator);
 	}
 }

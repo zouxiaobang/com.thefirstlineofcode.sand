@@ -110,7 +110,7 @@ public class LoraNetwork implements ILoraNetwork {
 	}
 	@Override
 	public void sendMessage(ICommunicationChip<LoraAddress, byte[]> from, LoraAddress to, byte[] data) {
-		sendMessage((ILoraChip)from, to, data);
+		sendMessage((LoraChip)from, to, data);
 	}
 	
 	public synchronized void sendMessage(LoraChip from, LoraAddress to, byte[] data) {
@@ -160,10 +160,10 @@ public class LoraNetwork implements ILoraNetwork {
 	
 	@Override
 	public Message<LoraAddress, byte[]> receiveMessage(ICommunicationChip<LoraAddress, byte[]> target) {
-		return receiveMessage(target);
+		return receiveMessage((LoraChip)target);
 	}
 	
-	public synchronized LoraMessage receiveMessage(ILoraChip target) {
+	public synchronized LoraMessage receiveMessage(LoraChip target) {
 		LoraSignal received = null;
 		for (LoraSignal signal : signals) {
 			if (isSendToTarget(signal, target) && isArrived(signal.arrivedTime)) {

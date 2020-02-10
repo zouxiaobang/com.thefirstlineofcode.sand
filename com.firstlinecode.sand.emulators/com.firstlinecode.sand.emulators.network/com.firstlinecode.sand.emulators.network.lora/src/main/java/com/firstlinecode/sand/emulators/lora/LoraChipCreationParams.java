@@ -6,11 +6,10 @@ import com.firstlinecode.sand.client.things.commuication.ParamsMap;
 public class LoraChipCreationParams extends ParamsMap {
 	public static final String PARAM_NAME_TYPE = "type";
 	public static final String PARAM_NAME_ADDRESS = "address";	
-	public static final int DEFAULT_FREQUENCY_BAND = 0;
 	
 	public LoraChipCreationParams() {
 		addParams(PARAM_NAME_TYPE, LoraChip.Type.NORMAL);
-		addParams(PARAM_NAME_ADDRESS, LoraAddress.randomLoraAddress(DEFAULT_FREQUENCY_BAND));
+		addParams(PARAM_NAME_ADDRESS, LoraAddress.randomLoraAddress());
 	}
 	
 	public LoraChipCreationParams(LoraChip.Type type) {

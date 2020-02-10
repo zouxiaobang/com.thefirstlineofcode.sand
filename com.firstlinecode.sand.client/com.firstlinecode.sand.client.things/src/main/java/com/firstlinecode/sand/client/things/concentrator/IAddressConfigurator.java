@@ -1,8 +1,8 @@
 package com.firstlinecode.sand.client.things.concentrator;
 
-public interface IAddressConfigurator<T> {
-	void setCommunicator(T communicator);
+public interface IAddressConfigurator<C, A, D> {
+	void setCommunicator(C communicator);
 	void introduce();
-	void negotiate();
-	void comfirm();
+	void negotiate(A peerAddress, D data);
+	void comfirm(A peerAddress);
 }

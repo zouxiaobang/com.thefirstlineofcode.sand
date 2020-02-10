@@ -21,6 +21,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 
+import com.firstlinecode.sand.emulators.lora.LoraCommunicator;
 import com.firstlinecode.sand.emulators.thing.AbstractThingEmulator;
 import com.firstlinecode.sand.emulators.thing.AbstractThingEmulatorPanel;
 import com.firstlinecode.sand.emulators.thing.PowerEvent;
@@ -38,16 +39,16 @@ public class Blub extends AbstractThingEmulator implements IBlub {
 	private JPanel switchsPanel;
 	private BlubEmulatorPanel panel;
 	
-	public Blub() {
-		this(DEFAULT_SWITCH_STATE, DEFAULT_BLUB_STATE);
+	public Blub(LoraCommunicator communicator) {
+		this(communicator, DEFAULT_SWITCH_STATE, DEFAULT_BLUB_STATE);
 	}
 	
-	public Blub(SwitchState switchState) {
-		this(switchState, switchState == SwitchState.ON ? BlubState.ON : BlubState.OFF);
+	public Blub(LoraCommunicator communicator, SwitchState switchState) {
+		this(communicator, switchState, switchState == SwitchState.ON ? BlubState.ON : BlubState.OFF);
 	}
 	
-	public Blub(SwitchState switchState, BlubState blubState) {
-		super(THING_TYPE, THING_MODE);
+	public Blub(LoraCommunicator communicator, SwitchState switchState, BlubState blubState) {
+		super(THING_TYPE, THING_MODE, communicator);
 		
 		if (switchState == null)
 			throw new IllegalArgumentException("Null switch state.");

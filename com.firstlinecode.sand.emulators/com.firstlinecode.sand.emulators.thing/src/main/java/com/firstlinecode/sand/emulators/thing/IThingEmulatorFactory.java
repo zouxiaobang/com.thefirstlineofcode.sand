@@ -1,8 +1,8 @@
 package com.firstlinecode.sand.emulators.thing;
 
-import com.firstlinecode.sand.client.things.commuication.ParamsMap;
+import com.firstlinecode.sand.emulators.lora.LoraCommunicator;
 
 public interface IThingEmulatorFactory<T extends IThingEmulator> {
 	String getThingName();
-	<P extends ParamsMap> T create();
+	T create(LoraCommunicator communicator);
 }

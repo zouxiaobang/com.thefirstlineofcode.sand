@@ -5,6 +5,14 @@ import java.util.Random;
 import com.firstlinecode.sand.client.things.ThingsUtils;
 
 public class LoraAddress {
+	public static final byte[] DEFAULT_DYANAMIC_ADDRESS_CONFIGURATOR_ADDRESS = new byte[] {0xF, 0xF, 0xF};
+	public static final int DEFAULT_DYANAMIC_ADDRESS_CONFIGURATOR_FREQUENCE_BAND = 63;
+	public static final LoraAddress DEFAULLT_ADDRESS_CONFIGURATOR_LORA_ADDRESS = new LoraAddress(
+			DEFAULT_DYANAMIC_ADDRESS_CONFIGURATOR_ADDRESS,
+			DEFAULT_DYANAMIC_ADDRESS_CONFIGURATOR_FREQUENCE_BAND);
+	
+	public static final int DEFAULT_THING_COMMUNICATION_FREQUENCE_BAND = 0;
+	
 	private byte[] address;
 	private int frequencyBand;
 	
@@ -65,6 +73,13 @@ public class LoraAddress {
 	@Override
 	public String toString() {
 		return String.format("LoraAddress[%s, %d]", ThingsUtils.getHexString(address), frequencyBand);
+	}
+	
+	public static LoraAddress randomLoraAddress() {
+		byte[] address = new byte[2];
+		new Random().nextBytes(address);
+		
+		return new LoraAddress(address, DEFAULT_THING_COMMUNICATION_FREQUENCE_BAND);
 	}
 	
 	public static LoraAddress randomLoraAddress(int frequencyBand) {
