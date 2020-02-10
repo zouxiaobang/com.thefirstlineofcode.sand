@@ -25,30 +25,23 @@ public abstract class AbstractThingEmulator implements IThingEmulator {
 	protected boolean powered;
 	protected List<IThingListener> thingListeners;
 	
-	public AbstractThingEmulator(String  type, String mode, ICommunicator<?, ?> communicator) {
-		this(type, mode, null, communicator);
+	public AbstractThingEmulator(String  type, String mode) {
+		this(type, mode, null);
 	}
 	
-	public AbstractThingEmulator(String  type, String mode, String deviceId, ICommunicator<?, ?> communicator) {
+	public AbstractThingEmulator(String  type, String mode, ICommunicator<?, ?> communicator) {
 		if (type == null)
 			throw new IllegalArgumentException("Null device type.");
 		
 		if (mode == null)
 			throw new IllegalArgumentException("Null device mode.");
 		
-		if (communicator == null)
-			throw new IllegalArgumentException("Null communicator.");
-		
 		this.deviceType = type;
 		this.deviceMode = mode;
 		this.thingName = type + " - " + mode;
 		this.communicator = communicator;
 		
-		if (deviceId != null) {	
-			this.deviceId = deviceId;
-		} else {
-			deviceId = ThingsUtils.generateRandomDeviceId();			
-		}
+		deviceId = ThingsUtils.generateRandomDeviceId();			
 		
 		batteryPower = 100;
 		powered = false;

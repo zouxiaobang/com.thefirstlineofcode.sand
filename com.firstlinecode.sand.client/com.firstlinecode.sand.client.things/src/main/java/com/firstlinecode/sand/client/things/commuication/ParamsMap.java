@@ -6,7 +6,7 @@ import java.util.Map;
 public class ParamsMap {
 	private Map<String, Object> params = new HashMap<>();
 	
-	protected ParamsMap addParams(String name, Object value) {
+	public ParamsMap addParams(String name, Object value) {
 		if (params.containsKey(name))
 			throw new IllegalArgumentException(String.format("Reduplicated param. Parameter name %s has ready existed."));
 		
@@ -19,7 +19,7 @@ public class ParamsMap {
 	}
 	
 	@SuppressWarnings("unchecked")
-	protected <T> T getParams(String name) {
+	public <T> T getParam(String name) {
 		return (T)params.get(name);
 	}
 	

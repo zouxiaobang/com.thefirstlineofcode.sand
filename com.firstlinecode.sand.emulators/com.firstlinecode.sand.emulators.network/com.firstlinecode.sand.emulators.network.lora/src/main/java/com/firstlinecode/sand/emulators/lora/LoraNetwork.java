@@ -44,7 +44,11 @@ public class LoraNetwork implements ILoraNetwork {
 		new Thread(new LoraSignalTimeoutThread()).start();
 	}
 	
-	;
+	@Override
+	public ILoraChip createChip(LoraAddress address) {
+		return createChip(address, LoraChip.Type.NORMAL);
+	}
+	
 	@Override
 	public ILoraChip createChip(LoraAddress address, LoraChipCreationParams params) {
 		LoraChip.Type type = null;

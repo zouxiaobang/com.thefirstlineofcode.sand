@@ -21,15 +21,11 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 
-import com.firstlinecode.sand.client.things.BatteryPowerEvent;
-import com.firstlinecode.sand.client.things.commuication.ICommunicator;
 import com.firstlinecode.sand.emulators.thing.AbstractThingEmulator;
 import com.firstlinecode.sand.emulators.thing.AbstractThingEmulatorPanel;
-import com.firstlinecode.sand.emulators.thing.IThingEmulator;
-import com.firstlinecode.sand.emulators.thing.IThingEmulatorListener;
 import com.firstlinecode.sand.emulators.thing.PowerEvent;
 
-public class Blub extends AbstractThingEmulator implements IThingEmulator, IThingEmulatorListener, IBlub {
+public class Blub extends AbstractThingEmulator implements IBlub {
 	public static final String THING_TYPE = "Blub";
 	public static final String THING_MODE = "Emulator-01";
 	
@@ -42,22 +38,16 @@ public class Blub extends AbstractThingEmulator implements IThingEmulator, IThin
 	private JPanel switchsPanel;
 	private BlubEmulatorPanel panel;
 	
-	private ICommunicator<?, ?> communicator;
-	
 	public Blub() {
-		this(null);
+		this(DEFAULT_SWITCH_STATE, DEFAULT_BLUB_STATE);
 	}
 	
-	public Blub(ICommunicator<?, ?> communicator) {
-		this(communicator, DEFAULT_SWITCH_STATE, DEFAULT_BLUB_STATE);
+	public Blub(SwitchState switchState) {
+		this(switchState, switchState == SwitchState.ON ? BlubState.ON : BlubState.OFF);
 	}
 	
-	public Blub(ICommunicator<?, ?> communicator, SwitchState switchState) {
-		this(communicator, switchState, switchState == SwitchState.ON ? BlubState.ON : BlubState.OFF);
-	}
-	
-	public Blub(ICommunicator<?, ?> communicator, SwitchState switchState, BlubState blubState) {
-		super(THING_TYPE, THING_MODE, communicator);
+	public Blub(SwitchState switchState, BlubState blubState) {
+		super(THING_TYPE, THING_MODE);
 		
 		if (switchState == null)
 			throw new IllegalArgumentException("Null switch state.");
@@ -90,7 +80,7 @@ public class Blub extends AbstractThingEmulator implements IThingEmulator, IThin
 		
 		public BlubEmulatorPanel() {
 			super(Blub.this);
-			addThingListener(Blub.this);
+			addThingListener(this);
 		}
 		
 		@Override
@@ -340,9 +330,6 @@ public class Blub extends AbstractThingEmulator implements IThingEmulator, IThin
 	public void powerChanged(PowerEvent event) {
 		panel.refreshFlashButtionStatus();
 	}
-
-	@Override
-	public void batteryPowerChanged(BatteryPowerEvent event) {}
 
 	@Override
 	public void configure(String key, Object value) {}

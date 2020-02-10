@@ -14,7 +14,6 @@ import com.firstlinecode.sand.client.lora.IDualLoraChipCommunicator;
 import com.firstlinecode.sand.client.lora.LoraAddress;
 import com.firstlinecode.sand.client.things.commuication.ICommunicationNetwork;
 import com.firstlinecode.sand.client.things.commuication.ICommunicationNetworkListener;
-import com.firstlinecode.sand.emulators.lora.DualLoraChipCommunicator;
 import com.firstlinecode.sand.emulators.thing.IThingEmulator;
 
 public class LogConsolesDialog extends JDialog {
@@ -48,20 +47,26 @@ public class LogConsolesDialog extends JDialog {
 
 	private void createLogConsoles(IChatClient chatClient, ICommunicationNetwork<LoraAddress, byte[], ?> network,
 			IDualLoraChipCommunicator gatewayCommunicator, Map<String, List<IThingEmulator>> allThings) {
-		// TODO Auto-generated method stub
 		createInternetLogConsole(chatClient);
 		createCommunicationNetworkLogConsole(network);
 		createGatewayConsole(gatewayCommunicator);
+		createThingLogConsoles(allThings);
+	}
+
+	private void createThingLogConsoles(Map<String, List<IThingEmulator>> allThings) {
+		for (List<IThingEmulator> things : allThings.values()) {
+			for (IThingEmulator thing : things) {
+				createThingLogConsole(thing);
+			}
+		}
+	}
+
+	public void createThingLogConsole(IThingEmulator thing) {
+		createLogConsole(thing.getDeviceId(), new ThingLogConsolePanel(thing));
 	}
 
 	private void createGatewayConsole(IDualLoraChipCommunicator gatewayCommunicator) {
-		// TODO Auto-generated method stub
 		createLogConsole(NAME_GATEWAY, new GatewayLogConsolePanel(gatewayCommunicator));
-	}
-
-	private AbstractLogConsolePanel GatewayLogConsolePanel(DualLoraChipCommunicator gatewayCommunicator) {
-		// TODO Auto-generated method stub
-		return null;
 	}
 
 	@SuppressWarnings("unchecked")
@@ -93,5 +98,15 @@ public class LogConsolesDialog extends JDialog {
 	
 	public IConnectionListener getConnectionListener() {
 		return (IConnectionListener)logConsoles.get(NAME_INTERNET);
+	}
+	
+	public void removeThingLogConsole(IThingEmulator thing) {
+		ThingLogConsolePanel logConsole = (ThingLogConsolePanel)logConsoles.remove(thing.getDeviceId());
+		tabbedPane.remove(logConsole);
+	}
+	
+	public void thingRemoved(IThingEmulator thing) {
+		ThingLogConsolePanel logConsole = (ThingLogConsolePanel)logConsoles.remove(thing.getDeviceId());
+		logConsole.thingRemoved(thing);
 	}
 }

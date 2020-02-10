@@ -8,8 +8,9 @@ import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 
 import com.firstlinecode.sand.client.things.BatteryPowerEvent;
+import com.firstlinecode.sand.client.things.IThingListener;
 
-public abstract class AbstractThingEmulatorPanel extends JPanel implements IThingEmulatorListener {	
+public abstract class AbstractThingEmulatorPanel extends JPanel implements IThingListener {	
 	private static final long serialVersionUID = 388916038961904955L;
 	
 	protected AbstractThingEmulator thingEmulator;
@@ -24,7 +25,6 @@ public abstract class AbstractThingEmulatorPanel extends JPanel implements IThin
 		add(statusBar, BorderLayout.SOUTH);
 		
 		this.thingEmulator = thingEmulator;
-		this.thingEmulator.addThingListener(this);
 	}
 	
 	private JLabel creatStatusBar() {
@@ -37,11 +37,6 @@ public abstract class AbstractThingEmulatorPanel extends JPanel implements IThin
 
 	public void updateStatus(String status) {
 		statusBar.setText(status);
-	}
-	
-	@Override
-	public void powerChanged(PowerEvent event) {
-		updateStatus(thingEmulator.getThingStatus());
 	}
 	
 	@Override

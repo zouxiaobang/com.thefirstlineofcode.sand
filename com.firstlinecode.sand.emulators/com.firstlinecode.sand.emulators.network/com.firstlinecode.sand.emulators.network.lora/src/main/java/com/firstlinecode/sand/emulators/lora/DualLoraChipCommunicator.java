@@ -39,7 +39,7 @@ public class DualLoraChipCommunicator extends AbstractDualLoraChipCommunicator {
 	}
 	
 	protected static ILoraChip createLoraChip(ILoraNetwork network, LoraAddress address) {
-		return (ILoraChip)network.createChip(address, new LoraChipCreationParams(LoraChip.Type.HIGH_POWER));
+		return (ILoraChip)network.createChip(address, new LoraChipCreationParams(LoraChip.Type.HIGH_POWER, null));
 	}
 	
 	@Override

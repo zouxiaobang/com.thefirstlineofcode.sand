@@ -66,6 +66,7 @@ import com.firstlinecode.sand.client.ibdr.IRegistration;
 import com.firstlinecode.sand.client.ibdr.IbdrPlugin;
 import com.firstlinecode.sand.client.ibdr.RegistrationException;
 import com.firstlinecode.sand.client.lora.IDualLoraChipCommunicator;
+import com.firstlinecode.sand.client.lora.LoraAddress;
 import com.firstlinecode.sand.client.things.IEventListener;
 import com.firstlinecode.sand.client.things.IThing;
 import com.firstlinecode.sand.client.things.ThingsUtils;
@@ -84,6 +85,8 @@ import com.firstlinecode.sand.emulators.gateway.things.ThingInternalFrame;
 import com.firstlinecode.sand.emulators.gateway.xmpp.StreamConfigDialog;
 import com.firstlinecode.sand.emulators.gateway.xmpp.StreamConfigInfo;
 import com.firstlinecode.sand.emulators.lora.ILoraNetwork;
+import com.firstlinecode.sand.emulators.lora.LoraChipCreationParams;
+import com.firstlinecode.sand.emulators.lora.LoraCommunicator;
 import com.firstlinecode.sand.emulators.thing.AbstractThingEmulator;
 import com.firstlinecode.sand.emulators.thing.AbstractThingEmulatorPanel;
 import com.firstlinecode.sand.emulators.thing.Constants;
@@ -159,12 +162,12 @@ public class Gateway<A, D, C, P extends ParamsMap> extends JFrame implements Act
 	
 	private ILoraNetwork network;
 	private IDualLoraChipCommunicator gatewayCommunicator;
-	private ICommunicatorFactory<A, ?> thingsCommunicatorFactory;
+	private ICommunicatorFactory thingsCommunicatorFactory;
 	
 	private JDesktopPane desktop;
 	private JMenuBar menuBar;
 	private GatewayStatusBar statusBar;
-	private LogConsolesDialog logConsoleDialog;
+	private LogConsolesDialog logConsolesDialog;
 	
 	private File configFile;
 	
@@ -174,7 +177,7 @@ public class Gateway<A, D, C, P extends ParamsMap> extends JFrame implements Act
 	private IAddressConfigurator<IDualLoraChipCommunicator> addressConfigurator;
 	
 	public Gateway(ILoraNetwork network, IDualLoraChipCommunicator gatewayCommunicator,
-			ICommunicatorFactory<A, ?> thingsCommunicatorFactory,
+			ICommunicatorFactory thingsCommunicatorFactory,
 			IAddressConfigurator<IDualLoraChipCommunicator> addressConfigurator) {
 		super("Unregistered Gateway");
 		
@@ -221,10 +224,10 @@ public class Gateway<A, D, C, P extends ParamsMap> extends JFrame implements Act
 	private IConnectionListener getConnectionListener() {
 		IConnectionListener listener = null;
 		
-		if (logConsoleDialog == null)
+		if (logConsolesDialog == null)
 			return null;
 		
-		listener = logConsoleDialog.getConnectionListener();
+		listener = logConsolesDialog.getConnectionListener();
 		if (listener != null)
 			return (IConnectionListener)listener;
 		
@@ -458,10 +461,10 @@ public class Gateway<A, D, C, P extends ParamsMap> extends JFrame implements Act
 	}
 
 	private void showLogConsoleDialog() {
-		logConsoleDialog = new LogConsolesDialog(this, chatClient, network, gatewayCommunicator, allThings);
-		logConsoleDialog.addWindowListener(this);
+		logConsolesDialog = new LogConsolesDialog(this, chatClient, network, gatewayCommunicator, allThings);
+		logConsolesDialog.addWindowListener(this);
 		
-		logConsoleDialog.setVisible(true);
+		logConsolesDialog.setVisible(true);
 		
 		getMenuItem(MENU_NAME_TOOLS, MENU_ITEM_NAME_SHOW_LOG_CONSOLE).setEnabled(false);
 	}
@@ -677,7 +680,7 @@ public class Gateway<A, D, C, P extends ParamsMap> extends JFrame implements Act
 			} else if (result == JOptionPane.YES_OPTION) {
 				save();				
 			} else {
-				// Noop
+				// NO-OP
 			}
 		}
 		
@@ -840,12 +843,14 @@ public class Gateway<A, D, C, P extends ParamsMap> extends JFrame implements Act
 	private void createNewThing() {
 		String thingName = (String)JOptionPane.showInputDialog(this, "Choose thing you want to create",
 				"Choose thing", JOptionPane.QUESTION_MESSAGE, null, getThingNames(), null);
-		createThing(thingName, null);
+		createThing(thingName);
 	}
 	
-	private IThingEmulator createThing(String thingName, P params) {
+	private IThingEmulator createThing(String thingName) {
 		IThingEmulatorFactory<?> thingFactory = getThingFactory(thingName);
-		IThingEmulator thing = (IThingEmulator)thingFactory.create(thingsCommunicatorFactory.createCommunicator(), params);
+		IThingEmulator thing = (IThingEmulator)thingFactory.create();
+		thing.setCommunicator(new LoraCommunicator(network.createChip(LoraAddress.randomLoraAddress(
+				LoraChipCreationParams.DEFAULT_FREQUENCY_BAND))));
 		
 		List<IThingEmulator> things = getThings(thingFactory);
 		
@@ -864,6 +869,10 @@ public class Gateway<A, D, C, P extends ParamsMap> extends JFrame implements Act
 				selectedFrame.addInternalFrameListener(Gateway.this);			
 			}
 		});
+		
+		if (logConsolesDialog != null) {
+			logConsolesDialog.createThingLogConsole(thing);
+		}
 		
 		return thing;
 	}
@@ -1087,13 +1096,13 @@ public class Gateway<A, D, C, P extends ParamsMap> extends JFrame implements Act
 		if (e.getSource() instanceof JFrame) {
 			quit();
 		} else if (e.getSource() instanceof LogConsolesDialog) {
-			logConsoleDialog.setVisible(false);
-			logConsoleDialog.dispose();
-			logConsoleDialog = null;
+			logConsolesDialog.setVisible(false);
+			logConsolesDialog.dispose();
+			logConsolesDialog = null;
 			
 			getMenuItem(MENU_NAME_TOOLS, MENU_ITEM_NAME_SHOW_LOG_CONSOLE).setEnabled(true);
 		} else {
-			// no-op.
+			// NO-OP
 		}
 	}
 
