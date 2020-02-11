@@ -50,7 +50,7 @@ public class LoraChip implements ILoraChip {
 
 	@Override
 	public void send(LoraAddress to, byte[] message) {
-		network.sendMessage(this, to, message);
+		network.sendData(this, to, message);
 	}
 	
 	@Override

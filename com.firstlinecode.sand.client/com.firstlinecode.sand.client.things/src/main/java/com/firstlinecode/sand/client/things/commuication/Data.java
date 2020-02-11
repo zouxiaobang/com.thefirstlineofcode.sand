@@ -1,10 +1,10 @@
 package com.firstlinecode.sand.client.things.commuication;
 
-public class Message<A, D> {
+public class Data<A, D> {
 	private A address;
 	private D data;
 	
-	public Message(A address, D data) {
+	public Data(A address, D data) {
 		this.address = address;
 		this.data = data;
 	}

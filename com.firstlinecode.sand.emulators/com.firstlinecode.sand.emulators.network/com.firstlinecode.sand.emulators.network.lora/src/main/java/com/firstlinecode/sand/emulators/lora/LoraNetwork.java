@@ -8,10 +8,9 @@ import java.util.Random;
 
 import com.firstlinecode.sand.client.lora.ILoraChip;
 import com.firstlinecode.sand.client.lora.LoraAddress;
-import com.firstlinecode.sand.client.lora.LoraMessage;
+import com.firstlinecode.sand.client.lora.LoraData;
 import com.firstlinecode.sand.client.things.commuication.ICommunicationChip;
 import com.firstlinecode.sand.client.things.commuication.ICommunicationNetworkListener;
-import com.firstlinecode.sand.client.things.commuication.Message;
 
 public class LoraNetwork implements ILoraNetwork {
 	private static final int DEFAULT_SIGNAL_COLLISION_INTERVAL = 500;
@@ -109,11 +108,11 @@ public class LoraNetwork implements ILoraNetwork {
 		signalQualities.put(new LoraChipPair(chip1, chip2), signalQuality);
 	}
 	@Override
-	public void sendMessage(ICommunicationChip<LoraAddress, byte[]> from, LoraAddress to, byte[] data) {
-		sendMessage((LoraChip)from, to, data);
+	public void sendData(ICommunicationChip<LoraAddress, byte[]> from, LoraAddress to, byte[] data) {
+		sendData((LoraChip)from, to, data);
 	}
 	
-	public synchronized void sendMessage(LoraChip from, LoraAddress to, byte[] data) {
+	public synchronized void sendData(LoraChip from, LoraAddress to, byte[] data) {
 		try {
 			LoraChip toChip = getChip(to);
 			LoraChipPair pair = new LoraChipPair(from, toChip);
@@ -159,11 +158,11 @@ public class LoraNetwork implements ILoraNetwork {
 	}
 	
 	@Override
-	public Message<LoraAddress, byte[]> receiveMessage(ICommunicationChip<LoraAddress, byte[]> target) {
+	public LoraData receiveData(ICommunicationChip<LoraAddress, byte[]> target) {
 		return receiveMessage((LoraChip)target);
 	}
 	
-	public synchronized LoraMessage receiveMessage(LoraChip target) {
+	public synchronized LoraData receiveMessage(LoraChip target) {
 		LoraSignal received = null;
 		for (LoraSignal signal : signals) {
 			if (isSendToTarget(signal, target) && isArrived(signal.arrivedTime)) {
@@ -196,7 +195,7 @@ public class LoraNetwork implements ILoraNetwork {
 			}
 		}
 		
-		return new LoraMessage(received.from.getAddress(), received.data);
+		return new LoraData(received.from.getAddress(), received.data);
 	}
 	
 	private boolean isLost(LoraSignal received) {

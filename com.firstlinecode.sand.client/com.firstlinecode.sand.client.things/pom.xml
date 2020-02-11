@@ -17,5 +17,24 @@
 	<name>com.firstlinecode.sand.client.things</name>
 	<packaging>jar</packaging>
 	
+	<dependencies>
+		<dependency>
+			<groupId>com.firstlinecode.gem.client</groupId>
+			<artifactId>com.firstlinecode.gem.client.bxmpp</artifactId>
+			<version>0.2.0.RELEASE</version>
+		</dependency>
+		<dependency>
+			<groupId>com.firstlinecode.basalt.xeps</groupId>
+			<artifactId>com.firstlinecode.basalt.xeps.oob</artifactId>
+			<version>1.1.0.RELEASE</version>
+		</dependency>
+		<dependency>
+			<groupId>com.firstlinecode.basalt.xeps</groupId>
+			<artifactId>com.firstlinecode.basalt.xeps.ibr</artifactId>
+			<version>1.1.0.RELEASE</version>
+		</dependency>
+		
+		
+	</dependencies>
 </project>
 
