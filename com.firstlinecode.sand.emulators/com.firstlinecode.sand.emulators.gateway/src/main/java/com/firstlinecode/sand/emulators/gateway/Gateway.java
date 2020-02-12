@@ -215,7 +215,7 @@ public class Gateway<A, D, C, P extends ParamsMap> extends JFrame implements Act
 		}
 	}
 	
-	private IConnectionListener getConnectionListener() {
+	private IConnectionListener getLogConsoleConnectionListener() {
 		IConnectionListener listener = null;
 		
 		if (logConsolesDialog == null)
@@ -460,8 +460,9 @@ public class Gateway<A, D, C, P extends ParamsMap> extends JFrame implements Act
 		if (chatClient == null)
 			chatClient = createChatClient();
 		
-		if (!chatClient.getConnectionListeners().contains(getConnectionListener()))
-			chatClient.addConnectionListener(getConnectionListener());
+		IConnectionListener logConsoleListener = getLogConsoleConnectionListener();
+		if (logConsoleListener != null && !chatClient.getConnectionListeners().contains(logConsoleListener))
+			chatClient.addConnectionListener(getLogConsoleConnectionListener());
 		
 		chatClient.connect(new UsernamePasswordToken(deviceIdentity.getDeviceName().toString(), deviceIdentity.getCredentials()));
 		
@@ -520,7 +521,7 @@ public class Gateway<A, D, C, P extends ParamsMap> extends JFrame implements Act
 		try {
 			deviceIdentity = registration.register(deviceId);
 			
-			registration.removeConnectionListener(getConnectionListener());
+			registration.removeConnectionListener(getLogConsoleConnectionListener());
 			
 			setDirty(true);
 			refreshGatewayInstanceRelativatedMenus();
@@ -534,7 +535,7 @@ public class Gateway<A, D, C, P extends ParamsMap> extends JFrame implements Act
 	}
 
 	private void adddInternetLogListener(IRegistration registration) {
-		IConnectionListener logListener = getConnectionListener();
+		IConnectionListener logListener = getLogConsoleConnectionListener();
 		if (logListener != null) {
 			registration.addConnectionListener(logListener);
 		}
