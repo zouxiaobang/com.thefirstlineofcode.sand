@@ -3,7 +3,6 @@ package com.firstlinecode.sand.emulators.gateway;
 import com.firstlinecode.sand.client.lora.DualLoraAddress;
 import com.firstlinecode.sand.client.lora.IDualLoraChipCommunicator;
 import com.firstlinecode.sand.client.lora.LoraAddress;
-import com.firstlinecode.sand.client.lora.configuration.DynamicAddressConfigurator;
 import com.firstlinecode.sand.client.things.commuication.ICommunicator;
 import com.firstlinecode.sand.emulators.blub.BlubEmulatorFactory;
 import com.firstlinecode.sand.emulators.lora.DualLoraChipCommunicator;
@@ -29,10 +28,8 @@ public class Main {
 		IDualLoraChipCommunicator gatewayCommunicator = DualLoraChipCommunicator.createInstance(
 				network, DualLoraAddress.randomDualLoraAddress(0), new LoraChipCreationParams(
 						LoraChip.Type.HIGH_POWER));
-		DynamicAddressConfigurator addressConfigurator = new DynamicAddressConfigurator(gatewayCommunicator);
-		
-		return new Gateway<LoraAddress, byte[], ICommunicator<LoraAddress, byte[]>, LoraChipCreationParams>(network,
-				gatewayCommunicator, addressConfigurator);
+		return new Gateway<LoraAddress, byte[], ICommunicator<LoraAddress, byte[]>,
+				LoraChipCreationParams>(network, gatewayCommunicator);
 	}
 	
 }

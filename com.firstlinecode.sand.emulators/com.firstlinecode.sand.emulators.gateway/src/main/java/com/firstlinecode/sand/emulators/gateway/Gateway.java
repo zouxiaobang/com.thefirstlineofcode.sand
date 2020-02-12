@@ -65,9 +65,9 @@ import com.firstlinecode.chalk.network.IConnectionListener;
 import com.firstlinecode.sand.client.ibdr.IRegistration;
 import com.firstlinecode.sand.client.ibdr.IbdrPlugin;
 import com.firstlinecode.sand.client.ibdr.RegistrationException;
+import com.firstlinecode.sand.client.lora.DynamicAddressConfigurator;
 import com.firstlinecode.sand.client.lora.IDualLoraChipCommunicator;
 import com.firstlinecode.sand.client.lora.LoraAddress;
-import com.firstlinecode.sand.client.lora.configuration.DynamicAddressConfigurator;
 import com.firstlinecode.sand.client.things.IEventListener;
 import com.firstlinecode.sand.client.things.IThing;
 import com.firstlinecode.sand.client.things.ThingsUtils;
@@ -179,13 +179,11 @@ public class Gateway<A, D, C, P extends ParamsMap> extends JFrame implements Act
 	
 	private DynamicAddressConfigurator addressConfigurator;
 	
-	public Gateway(ILoraNetwork network, IDualLoraChipCommunicator gatewayCommunicator,
-			DynamicAddressConfigurator addressConfigurator) {
+	public Gateway(ILoraNetwork network, IDualLoraChipCommunicator gatewayCommunicator) {
 		super("Unregistered Gateway");
 		
 		this.network = network;
 		this.gatewayCommunicator = gatewayCommunicator;
-		this.addressConfigurator = addressConfigurator;
 		
 		deviceId = ThingsUtils.generateRandomDeviceId();
 		
@@ -196,7 +194,6 @@ public class Gateway<A, D, C, P extends ParamsMap> extends JFrame implements Act
 		autoReconnect = false;
 		
 		new Thread(new AutoReconnectThread()).start();
-		addressConfigurator.start();
 		
 		setupUi();
 	}
@@ -428,6 +425,11 @@ public class Gateway<A, D, C, P extends ParamsMap> extends JFrame implements Act
 			autoReconnect = false;
 			chatClient.close();
 		}
+		
+		if (addressConfigurator != null) {
+			addressConfigurator.stop();
+			addressConfigurator = null;
+		}
 	}
 	
 	private void connect() {
@@ -462,7 +464,10 @@ public class Gateway<A, D, C, P extends ParamsMap> extends JFrame implements Act
 			chatClient.addConnectionListener(getConnectionListener());
 		
 		chatClient.connect(new UsernamePasswordToken(deviceIdentity.getDeviceName().toString(), deviceIdentity.getCredentials()));
+		
 		autoReconnect = true;
+		addressConfigurator = new DynamicAddressConfigurator(gatewayCommunicator, chatClient);
+		addressConfigurator.start();
 		
 		refreshConnectionStateRelativatedMenus();
 		updateStatus();
@@ -765,9 +770,14 @@ public class Gateway<A, D, C, P extends ParamsMap> extends JFrame implements Act
 		if (chatClient != null && chatClient.isConnected()) {
 			getMenuItem(MENU_NAME_TOOLS, MENU_ITEM_NAME_CONNECT).setEnabled(false);			
 			getMenuItem(MENU_NAME_TOOLS, MENU_ITEM_NAME_DISCONNECT).setEnabled(true);			
+			getMenuItem(MENU_NAME_TOOLS, MENU_ITEM_NAME_ADDRESS_CONFIGURATION_MODE).setEnabled(true);
+			getMenuItem(MENU_NAME_TOOLS, MENU_ITEM_NAME_WORKING_MODE).setEnabled(false);
 		} else {
 			getMenuItem(MENU_NAME_TOOLS, MENU_ITEM_NAME_DISCONNECT).setEnabled(false);			
-			getMenuItem(MENU_NAME_TOOLS, MENU_ITEM_NAME_CONNECT).setEnabled(true);			
+			getMenuItem(MENU_NAME_TOOLS, MENU_ITEM_NAME_CONNECT).setEnabled(true);
+			
+			getMenuItem(MENU_NAME_TOOLS, MENU_ITEM_NAME_ADDRESS_CONFIGURATION_MODE).setEnabled(false);
+			getMenuItem(MENU_NAME_TOOLS, MENU_ITEM_NAME_WORKING_MODE).setEnabled(false);
 		}
 	}
 
@@ -1019,10 +1029,10 @@ public class Gateway<A, D, C, P extends ParamsMap> extends JFrame implements Act
 		
 		toolsMenu.addSeparator();
 		
+		toolsMenu.add(createMenuItem(MENU_ITEM_NAME_WORKING_MODE,
+				MENU_ITEM_TEXT_WORKING_MODE, -1, null, false));
 		toolsMenu.add(createMenuItem(MENU_ITEM_NAME_ADDRESS_CONFIGURATION_MODE,
 				MENU_ITEM_TEXT_ADDRESS_CONFIGURATION_MODE, -1, null, false));
-		toolsMenu.add(createMenuItem(MENU_ITEM_NAME_WORKING_MODE,
-				MENU_ITEM_TEXT_WORKING_MODE, -1, null, true));
 		
 		toolsMenu.addSeparator();
 		

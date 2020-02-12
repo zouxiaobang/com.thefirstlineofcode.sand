@@ -22,6 +22,14 @@
 			<groupId>com.firstlinecode.sand.client</groupId>
 			<artifactId>com.firstlinecode.sand.client.things</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>com.firstlinecode.sand.protocols</groupId>
+			<artifactId>com.firstlinecode.sand.protocols.core</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.firstlinecode.chalk</groupId>
+			<artifactId>com.firstlinecode.chalk</artifactId>
+		</dependency>
 	</dependencies>
 	
 </project>

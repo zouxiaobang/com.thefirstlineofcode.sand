@@ -42,12 +42,12 @@ public abstract class AbstractThingEmulator implements IThingEmulator {
 		this.deviceMode = mode;
 		this.thingName = type + " - " + mode;
 		this.communicator = communicator;
-		addressConfigurator = new DynamicAddressConfigurator((LoraCommunicator)communicator);
-		
+
 		deviceId = ThingsUtils.generateRandomDeviceId();			
-		
 		batteryPower = 100;
 		powered = false;
+		
+		addressConfigurator = new DynamicAddressConfigurator(deviceId, (LoraCommunicator)communicator);
 		
 		thingListeners = new ArrayList<>();
 		

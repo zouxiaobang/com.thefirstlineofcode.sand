@@ -34,12 +34,12 @@ public class GatewayLogConsolePanel extends AbstractLogConsolePanel {
 
 		@Override
 		public void sent(LoraAddress to, byte[] data) {
-			log(String.format("G.%s(%s)-->%s:", communicator.getMasterChip().getAddress(), to, ThingsUtils.getHexString(data)));
+			log(String.format("-->%s: %s", to, ThingsUtils.getHexString(data)));
 		}
 
 		@Override
 		public void received(LoraAddress from, byte[] data) {
-			log(String.format("G.%s(%s)<--%s:", communicator.getMasterChip().getAddress(), from, ThingsUtils.getHexString(data)));
+			log(String.format("<--%s: %s", from, ThingsUtils.getHexString(data)));
 		}
 
 		@Override
