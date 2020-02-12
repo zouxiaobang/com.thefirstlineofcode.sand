@@ -43,4 +43,9 @@ public class ThingLogConsolePanel extends AbstractLogConsolePanel implements ICo
 		((ICommunicator<LoraAddress, byte[]>)thing.getCommunicator()).removeCommunicationListener(this);
 	}
 
+	@Override
+	public void addressChanged(LoraAddress newAddress, LoraAddress oldAddress) {
+		log(String.format("D(%s)<=N, D(%s)=>N", oldAddress, newAddress));
+	}
+
 }

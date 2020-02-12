@@ -368,13 +368,13 @@ public class LoraNetwork implements ILoraNetwork {
 	}
 	
 	@Override
-	public void changeAddress(ICommunicationChip<LoraAddress, byte[]> chip, LoraAddress newAddress) {
-		doChangeAddress((LoraChip)chip, newAddress);
+	public void changeAddress(ICommunicationChip<LoraAddress, byte[]> chip, LoraAddress address) {
+		doChangeAddress((LoraChip)chip, address);
 	}
 	
-	public synchronized void doChangeAddress(LoraChip chip, LoraAddress newAddress) {
+	public synchronized void doChangeAddress(LoraChip chip, LoraAddress address) {
 		LoraAddress oldAddress = chip.getAddress();
-		LoraChip newChip = createChip(newAddress, chip.getType());
+		LoraChip newChip = createChip(address, chip.getType());
 		
 		LoraChipPair oldPair = null;
 		LoraChipPair newPair = null;
@@ -400,7 +400,7 @@ public class LoraNetwork implements ILoraNetwork {
 		chips.remove(chip.getAddress());
 		
 		for (ICommunicationNetworkListener<LoraAddress, byte[]> listener : listeners) {
-			listener.addressChanged(oldAddress, newAddress);
+			listener.addressChanged(address, oldAddress);
 		}
 	}
 }

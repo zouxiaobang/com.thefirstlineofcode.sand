@@ -96,5 +96,11 @@ public class DynamicAddressConfigurator implements IAddressConfigurator<ICommuni
 	public void done(LoraAddress address) {
 		
 	}
+
+	@Override
+	public void addressChanged(LoraAddress newAddress, LoraAddress oldAddress) {
+		// TODO Auto-generated method stub
+		
+	}
 	
 }

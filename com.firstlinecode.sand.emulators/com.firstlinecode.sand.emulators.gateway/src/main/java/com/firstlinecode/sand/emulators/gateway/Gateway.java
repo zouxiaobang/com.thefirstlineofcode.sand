@@ -399,17 +399,17 @@ public class Gateway<A, D, C, P extends ParamsMap> extends JFrame implements Act
 	}
 	
 	private void setToWorkingMode() {
+		addressConfigurator.stop();
+		
 		getMenuItem(MENU_NAME_TOOLS, MENU_ITEM_NAME_WORKING_MODE).setEnabled(false);
 		getMenuItem(MENU_NAME_TOOLS, MENU_ITEM_NAME_ADDRESS_CONFIGURATION_MODE).setEnabled(true);	
-		
-		addressConfigurator.stop();
 	}
 
 	private void setToAddressConfigurationMode() {
+		addressConfigurator.start();
+		
 		getMenuItem(MENU_NAME_TOOLS, MENU_ITEM_NAME_ADDRESS_CONFIGURATION_MODE).setEnabled(false);
 		getMenuItem(MENU_NAME_TOOLS, MENU_ITEM_NAME_WORKING_MODE).setEnabled(true);
-		
-		addressConfigurator.start();
 	}
 	
 	private void disconnect() {

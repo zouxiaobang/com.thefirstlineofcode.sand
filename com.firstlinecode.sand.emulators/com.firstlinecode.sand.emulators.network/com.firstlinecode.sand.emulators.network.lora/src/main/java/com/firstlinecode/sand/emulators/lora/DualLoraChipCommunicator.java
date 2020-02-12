@@ -81,17 +81,5 @@ public class DualLoraChipCommunicator implements IDualLoraChipCommunicator {
 		return new DualLoraAddress(masterChip.getAddress().getAddress(),
 				masterChip.getAddress().getFrequencyBand() / 2);
 	}
-
-	@Override
-	public void setAddressChangedListener(AddressChangedListener listener) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void removeAddressChangedListener(AddressChangedListener listener) {
-		// TODO Auto-generated method stub
-		
-	}
 	
 }

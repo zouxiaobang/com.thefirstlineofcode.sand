@@ -4,4 +4,5 @@ public interface ICommunicationListener<A, D> {
 	void sent(A to, D data);
 	void received(A from, D data);
 	void occurred(CommunicationException e);
+	void addressChanged(A newAddress, A oldAddress);
 }

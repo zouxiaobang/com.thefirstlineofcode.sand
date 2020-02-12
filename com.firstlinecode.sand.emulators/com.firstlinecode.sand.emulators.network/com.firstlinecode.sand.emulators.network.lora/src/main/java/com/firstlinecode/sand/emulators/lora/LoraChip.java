@@ -106,8 +106,13 @@ public class LoraChip implements ILoraChip {
 
 	@Override
 	public void changeAddress(LoraAddress address) {
+		LoraAddress oldAddress = this.address;
 		network.changeAddress(this, address);
 		this.address = address;
+		
+		for (ICommunicationListener<LoraAddress, byte[]> listener : listeners) {
+			listener.addressChanged(address, oldAddress);
+		}
 	}
 	
 	@Override

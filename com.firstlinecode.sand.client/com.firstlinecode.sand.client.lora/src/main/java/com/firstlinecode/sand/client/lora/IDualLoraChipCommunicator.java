@@ -9,10 +9,4 @@ public interface IDualLoraChipCommunicator {
 	LoraData receive();
 	DualLoraAddress getAddress();
 	void changeAddress(DualLoraAddress address) throws CommunicationException;
-	void setAddressChangedListener(AddressChangedListener listener);
-	void removeAddressChangedListener(AddressChangedListener listener);
-	
-	public interface AddressChangedListener {
-		void addressChanged(DualLoraAddress newAddress, DualLoraAddress oldAddress);
-	}
 }
