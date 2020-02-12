@@ -18,6 +18,10 @@
 	
 	<dependencies>
 		<dependency>
+			<groupId>com.firstlinecode.sand.protocols</groupId>
+			<artifactId>com.firstlinecode.sand.protocols.core</artifactId>
+		</dependency>
+		<dependency>
 			<groupId>com.firstlinecode.sand.emulators.network</groupId>
 			<artifactId>com.firstlinecode.sand.emulators.network.lora</artifactId>
 		</dependency>

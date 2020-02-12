@@ -67,14 +67,13 @@ import com.firstlinecode.sand.client.ibdr.IbdrPlugin;
 import com.firstlinecode.sand.client.ibdr.RegistrationException;
 import com.firstlinecode.sand.client.lora.IDualLoraChipCommunicator;
 import com.firstlinecode.sand.client.lora.LoraAddress;
+import com.firstlinecode.sand.client.lora.configuration.DynamicAddressConfigurator;
 import com.firstlinecode.sand.client.things.IEventListener;
 import com.firstlinecode.sand.client.things.IThing;
 import com.firstlinecode.sand.client.things.ThingsUtils;
 import com.firstlinecode.sand.client.things.actuator.IAction;
 import com.firstlinecode.sand.client.things.actuator.IActionListener;
-import com.firstlinecode.sand.client.things.commuication.ICommunicatorFactory;
 import com.firstlinecode.sand.client.things.commuication.ParamsMap;
-import com.firstlinecode.sand.client.things.concentrator.IAddressConfigurator;
 import com.firstlinecode.sand.client.things.concentrator.Node;
 import com.firstlinecode.sand.client.things.concentrator.NodeCreationException;
 import com.firstlinecode.sand.client.things.concentrator.NodeNotFoundException;
@@ -139,6 +138,12 @@ public class Gateway<A, D, C, P extends ParamsMap> extends JFrame implements Act
 	private static final String MENU_ITEM_NAME_CONNECT = "connect";
 	private static final String MENU_ITEM_TEXT_DISCONNECT = "Disconnect";
 	private static final String MENU_ITEM_NAME_DISCONNECT = "disconnect";
+	
+	private static final String MENU_ITEM_NAME_ADDRESS_CONFIGURATION_MODE = "address_configuration_mode";
+	private static final String MENU_ITEM_TEXT_ADDRESS_CONFIGURATION_MODE = "Address Configuration Mode";
+	private static final String MENU_ITEM_NAME_WORKING_MODE = "working_mode";
+	private static final String MENU_ITEM_TEXT_WORKING_MODE = "Working Mode";
+	
 	private static final String MENU_ITEM_TEXT_SHOW_LOG_CONSOLE = "Show Log Console";
 	private static final String MENU_ITEM_NAME_SHOW_LOG_CONSOLE = "show_log_console";
 	
@@ -161,7 +166,6 @@ public class Gateway<A, D, C, P extends ParamsMap> extends JFrame implements Act
 	
 	private ILoraNetwork network;
 	private IDualLoraChipCommunicator gatewayCommunicator;
-	private ICommunicatorFactory thingsCommunicatorFactory;
 	
 	private JDesktopPane desktop;
 	private JMenuBar menuBar;
@@ -173,32 +177,26 @@ public class Gateway<A, D, C, P extends ParamsMap> extends JFrame implements Act
 	private IChatClient chatClient;
 	private boolean autoReconnect;
 	
-	private IAddressConfigurator<IDualLoraChipCommunicator, LoraAddress, byte[]> addressConfigurator;
+	private DynamicAddressConfigurator addressConfigurator;
 	
 	public Gateway(ILoraNetwork network, IDualLoraChipCommunicator gatewayCommunicator,
-			ICommunicatorFactory thingsCommunicatorFactory,
-			IAddressConfigurator<IDualLoraChipCommunicator, LoraAddress, byte[]> addressConfigurator) {
+			DynamicAddressConfigurator addressConfigurator) {
 		super("Unregistered Gateway");
 		
 		this.network = network;
+		this.gatewayCommunicator = gatewayCommunicator;
+		this.addressConfigurator = addressConfigurator;
 		
 		deviceId = ThingsUtils.generateRandomDeviceId();
 		
 		thingFactories = new ArrayList<>();
 		allThings = new HashMap<>();
 		nodes = new HashMap<>();
-		dirty = false;
-		
-		this.gatewayCommunicator = gatewayCommunicator;
-		this.thingsCommunicatorFactory = thingsCommunicatorFactory;
-		
-		this.addressConfigurator = addressConfigurator;
-		addressConfigurator.introduce();
-		
+		dirty = false;	
 		autoReconnect = false;
-		new Thread(new AutoReconnectThread()).start();
 		
-		addressConfigurator.introduce();
+		new Thread(new AutoReconnectThread()).start();
+		addressConfigurator.start();
 		
 		setupUi();
 	}
@@ -387,13 +385,31 @@ public class Gateway<A, D, C, P extends ParamsMap> extends JFrame implements Act
 			connect();
 		} else if (MENU_ITEM_NAME_DISCONNECT.equals(actionCommand)) {
 			disconnect();
-		} else if (MENU_ITEM_NAME_SHOW_LOG_CONSOLE.equals(actionCommand)) {
+		} else if (MENU_ITEM_NAME_ADDRESS_CONFIGURATION_MODE.equals(actionCommand)) {
+			setToAddressConfigurationMode();
+		} else if (MENU_ITEM_NAME_WORKING_MODE.equals(actionCommand)) {
+			setToWorkingMode();
+		}  else if (MENU_ITEM_NAME_SHOW_LOG_CONSOLE.equals(actionCommand)) {
 			showLogConsoleDialog();
 		} else if (MENU_ITEM_NAME_ABOUT.equals(actionCommand)) {
 			showAboutDialog();
 		} else {
 			throw new IllegalArgumentException("Illegal action command: " + actionCommand);
 		}
+	}
+	
+	private void setToWorkingMode() {
+		getMenuItem(MENU_NAME_TOOLS, MENU_ITEM_NAME_WORKING_MODE).setEnabled(false);
+		getMenuItem(MENU_NAME_TOOLS, MENU_ITEM_NAME_ADDRESS_CONFIGURATION_MODE).setEnabled(true);	
+		
+		addressConfigurator.stop();
+	}
+
+	private void setToAddressConfigurationMode() {
+		getMenuItem(MENU_NAME_TOOLS, MENU_ITEM_NAME_ADDRESS_CONFIGURATION_MODE).setEnabled(false);
+		getMenuItem(MENU_NAME_TOOLS, MENU_ITEM_NAME_WORKING_MODE).setEnabled(true);
+		
+		addressConfigurator.start();
 	}
 	
 	private void disconnect() {
@@ -1000,6 +1016,13 @@ public class Gateway<A, D, C, P extends ParamsMap> extends JFrame implements Act
 		
 		toolsMenu.add(createMenuItem(MENU_ITEM_NAME_CONNECT, MENU_ITEM_TEXT_CONNECT, -1, null, false));
 		toolsMenu.add(createMenuItem(MENU_ITEM_NAME_DISCONNECT, MENU_ITEM_TEXT_DISCONNECT, -1, null, false));
+		
+		toolsMenu.addSeparator();
+		
+		toolsMenu.add(createMenuItem(MENU_ITEM_NAME_ADDRESS_CONFIGURATION_MODE,
+				MENU_ITEM_TEXT_ADDRESS_CONFIGURATION_MODE, -1, null, false));
+		toolsMenu.add(createMenuItem(MENU_ITEM_NAME_WORKING_MODE,
+				MENU_ITEM_TEXT_WORKING_MODE, -1, null, true));
 		
 		toolsMenu.addSeparator();
 		

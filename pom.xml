@@ -16,6 +16,7 @@
 		<chalk.version>0.2.0.RELEASE</chalk.version>
 		<granite.framework.version>0.2.1.RELEASE</granite.framework.version>
 		<sand.version>0.1.0.RELEASE</sand.version>
+		<gem.version>0.2.0.RELEASE</gem.version>
 	</properties>
 
 	<modules>
@@ -358,6 +359,13 @@
 				<groupId>com.firstlinecode.granite.framework.supports</groupId>
         			<artifactId>com.firstlinecode.granite.framework.supports.mybatis</artifactId>
         			<version>${granite.framework.version}</version>
+			</dependency>
+
+			<!-- gem libraries -->
+			<dependency>
+        			<groupId>com.firstlinecode.gem</groupId>
+        			<artifactId>com.firstlinecode.gem.protocol.bxmpp</artifactId>
+        			<version>${gem.version}</version>
 			</dependency>
 
 			<!-- sand xmpp libraries -->

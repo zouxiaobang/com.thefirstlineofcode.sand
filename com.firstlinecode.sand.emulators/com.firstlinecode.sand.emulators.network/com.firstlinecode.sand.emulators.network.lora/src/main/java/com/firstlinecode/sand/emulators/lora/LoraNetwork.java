@@ -131,6 +131,10 @@ public class LoraNetwork implements ILoraNetwork {
 			}
 			
 			signals.add(new LoraSignal(from, toChip, data, getArrivedTime(from, toChip, System.currentTimeMillis())));
+			
+			for (ILoraNetworkListener listener : listeners) {
+				listener.sent(from.getAddress(), to, data);
+			}
 		} catch (AddressNotFoundException e) {
 			for (ILoraNetworkListener listener : listeners) {
 				listener.lost(from.getAddress(), to, data);
@@ -159,10 +163,10 @@ public class LoraNetwork implements ILoraNetwork {
 	
 	@Override
 	public LoraData receiveData(ICommunicationChip<LoraAddress, byte[]> target) {
-		return receiveMessage((LoraChip)target);
+		return doReceiveData((LoraChip)target);
 	}
 	
-	public synchronized LoraData receiveMessage(LoraChip target) {
+	public synchronized LoraData doReceiveData(LoraChip target) {
 		LoraSignal received = null;
 		for (LoraSignal signal : signals) {
 			if (isSendToTarget(signal, target) && isArrived(signal.arrivedTime)) {
@@ -193,8 +197,13 @@ public class LoraNetwork implements ILoraNetwork {
 			for (ILoraNetworkListener listener : listeners) {
 				listener.lost(received.from.getAddress(), received.to.getAddress(), received.data);
 			}
+			
+			return null;
 		}
 		
+		for (ILoraNetworkListener listener : listeners) {
+			listener.received(received.from.getAddress(), received.to.getAddress(), received.data);
+		}
 		return new LoraData(received.from.getAddress(), received.data);
 	}
 	
@@ -360,10 +369,10 @@ public class LoraNetwork implements ILoraNetwork {
 	
 	@Override
 	public void changeAddress(ICommunicationChip<LoraAddress, byte[]> chip, LoraAddress newAddress) {
-		changeAddress((ILoraChip)chip, newAddress);
+		doChangeAddress((LoraChip)chip, newAddress);
 	}
 	
-	public synchronized void changeAddress(LoraChip chip, LoraAddress newAddress) {
+	public synchronized void doChangeAddress(LoraChip chip, LoraAddress newAddress) {
 		LoraAddress oldAddress = chip.getAddress();
 		LoraChip newChip = createChip(newAddress, chip.getType());
 		

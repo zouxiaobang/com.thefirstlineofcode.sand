@@ -23,12 +23,12 @@ public class CommunicationNetworkLogConsolePanel extends AbstractLogConsolePanel
 
 	@Override
 	public void sent(LoraAddress from, LoraAddress to, byte[] data) {
-		log(String.format("D(%s)-->N: ", from) + ThingsUtils.getHexString(data));
+		log(String.format("D(%s)-->N-->D(%s): %s", from, to, ThingsUtils.getHexString(data)));
 	}
 
 	@Override
 	public void received(LoraAddress from, LoraAddress to, byte[] data) {
-		log(String.format("N-->D: (%s)", from, to) + ThingsUtils.getHexString(data));
+		log(String.format("D(%s)<--N<--D(%s): %s", to, from, ThingsUtils.getHexString(data)));
 		
 	}
 
@@ -39,12 +39,12 @@ public class CommunicationNetworkLogConsolePanel extends AbstractLogConsolePanel
 
 	@Override
 	public void collided(LoraAddress from, LoraAddress to, byte[] data) {
-		log(String.format("?* D(%s)-->D(%s)", from, to));
+		log(String.format("?* D(%s)-->N-->D(%s): %s", from, to, data));
 	}
 
 	@Override
 	public void lost(LoraAddress from, LoraAddress to, byte[] data) {
-		log(String.format("?& N-->D(%s): ", from, to) + ThingsUtils.getHexString(data));
+		log(String.format("?& D(%s)->N-->D(%s): %s", from, to, ThingsUtils.getHexString(data)));
 	}
 
 }

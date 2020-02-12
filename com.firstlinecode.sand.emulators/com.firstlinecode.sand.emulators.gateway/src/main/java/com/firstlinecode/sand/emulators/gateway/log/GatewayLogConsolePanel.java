@@ -15,7 +15,6 @@ public class GatewayLogConsolePanel extends AbstractLogConsolePanel implements I
 
 	public GatewayLogConsolePanel(IDualLoraChipCommunicator communicator) {
 		this.communicator = communicator;
-		
 		communicator.getMasterChip().addListener(this);
 		communicator.getSlaveChip().addListener(this);
 	}
@@ -25,55 +24,19 @@ public class GatewayLogConsolePanel extends AbstractLogConsolePanel implements I
 		communicator.getMasterChip().removeListener(this);
 		communicator.getSlaveChip().removeListener(this);
 	}
-
-	@Override
+	
 	public void sent(LoraAddress to, byte[] data) {
-		// TODO Auto-generated method stub
-		
+		log(String.format("G.M(%s)-->%s:", communicator.getMasterChip().getAddress(), to, ThingsUtils.getHexString(data)));
 	}
 
 	@Override
 	public void received(LoraAddress from, byte[] data) {
-		// TODO Auto-generated method stub
-		
+		log(String.format("G.M(%s)<--%s: %s", communicator.getMasterChip().getAddress(), from, ThingsUtils.getHexString(data)));
 	}
 
 	@Override
 	public void occurred(CommunicationException e) {
-		// TODO Auto-generated method stub
-		
-	}
-	
-	private class DualChipCommunicatorListener implements ICommunicationListener<LoraAddress, byte[]> {
-		private boolean master;
-		
-		public DualChipCommunicatorListener(boolean master) {
-			this.master = master;
-		}
-
-		@Override
-		public void sent(LoraAddress to, byte[] data) {
-			if (master) {
-				log(String.format("G.M(%s)-->%s:", communicator.getMasterChip().getAddress(), to, ThingsUtils.getHexString(data)));
-			} else {
-				log(String.format("G.S(%s)-->%s:", communicator.getSlaveChip().getAddress(), to, ThingsUtils.getHexString(data)));				
-			}
-		}
-
-		@Override
-		public void received(LoraAddress from, byte[] data) {
-			if (master) {
-				log(String.format("G.M(%s)<--%s:", communicator.getMasterChip().getAddress(), from, ThingsUtils.getHexString(data)));
-			} else {
-				log(String.format("G.S(%s)<--%s:", communicator.getSlaveChip().getAddress(), from, ThingsUtils.getHexString(data)));				
-			}
-		}
-
-		@Override
-		public void occurred(CommunicationException e) {
-			log(e);
-		}
-		
+		log(e);
 	}
 
 }

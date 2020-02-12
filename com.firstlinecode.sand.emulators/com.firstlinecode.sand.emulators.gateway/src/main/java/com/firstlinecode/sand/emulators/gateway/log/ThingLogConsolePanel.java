@@ -25,7 +25,7 @@ public class ThingLogConsolePanel extends AbstractLogConsolePanel implements ICo
 
 	@Override
 	public void sent(LoraAddress to, byte[] data) {
-		log(String.format("-->%s", to, ThingsUtils.getHexString(data)));
+		log(String.format("-->%s: %s", to, ThingsUtils.getHexString(data)));
 	}
 
 	@Override

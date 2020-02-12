@@ -31,8 +31,12 @@ public abstract class AbstractCommunicator<A, D> implements ICommunicator<A, D> 
 			doSend(to, data);
 		} catch (CommunicationException e) {
 			for (ICommunicationListener<A, D> listener : listeners) {
-				listener.sent(to, data);
+				listener.occurred(e);
 			}
+		}
+		
+		for (ICommunicationListener<A, D> listener : listeners) {
+			listener.sent(to, data);
 		}
 	}
 	
@@ -44,6 +48,13 @@ public abstract class AbstractCommunicator<A, D> implements ICommunicator<A, D> 
 	@Override
 	public void removeCommunicationListener(ICommunicationListener<A, D> listener) {
 		listeners.remove(listener);
+	}
+	
+	@Override
+	public void received(A from, D data) {
+		for (ICommunicationListener<A, D> listener : listeners) {
+			listener.received(from, data);
+		}
 	}
 	
 	protected abstract void doChangeAddress(A address) throws CommunicationException;

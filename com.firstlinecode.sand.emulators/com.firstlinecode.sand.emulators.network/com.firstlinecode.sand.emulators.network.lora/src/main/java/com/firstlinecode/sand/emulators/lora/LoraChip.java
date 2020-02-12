@@ -7,6 +7,7 @@ import java.util.TimerTask;
 
 import com.firstlinecode.sand.client.lora.ILoraChip;
 import com.firstlinecode.sand.client.lora.LoraAddress;
+import com.firstlinecode.sand.client.lora.LoraData;
 import com.firstlinecode.sand.client.things.commuication.ICommunicationListener;
 
 public class LoraChip implements ILoraChip {
@@ -91,20 +92,22 @@ public class LoraChip implements ILoraChip {
 	}
 
 	@Override
-	public void received(LoraAddress from, byte[] message) {
-		for (ICommunicationListener<LoraAddress, byte[]> listener : listeners) {
-			listener.received(from, message);
+	public LoraData receive() {
+		LoraData data = (LoraData)network.receiveData(this);
+		
+		if (data != null) {			
+			for (ICommunicationListener<LoraAddress, byte[]> listener : listeners) {
+				listener.received(data.getAddress(), data.getData());
+			}
 		}
 		
-		doReceived(from, message);
+		return data;
 	}
-
-	protected void doReceived(LoraAddress from, byte[] message) {}
 
 	@Override
 	public void changeAddress(LoraAddress address) {
-		this.address = address;
 		network.changeAddress(this, address);
+		this.address = address;
 	}
 	
 	@Override

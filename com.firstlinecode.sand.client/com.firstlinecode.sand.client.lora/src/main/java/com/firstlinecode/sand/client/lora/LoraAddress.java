@@ -2,23 +2,25 @@ package com.firstlinecode.sand.client.lora;
 
 import java.util.Random;
 
-import com.firstlinecode.sand.client.things.ThingsUtils;
-
 public class LoraAddress {
-	public static final byte[] DEFAULT_DYANAMIC_ADDRESS_CONFIGURATOR_ADDRESS = new byte[] {0xF, 0xF, 0xF};
-	public static final int DEFAULT_DYANAMIC_ADDRESS_CONFIGURATOR_FREQUENCE_BAND = 63;
-	public static final LoraAddress DEFAULLT_ADDRESS_CONFIGURATOR_LORA_ADDRESS = new LoraAddress(
+	public static final int DEFAULT_DYANAMIC_ADDRESS_CONFIGURATOR_ADDRESS = 65535;
+	public static final int DEFAULT_DYANAMIC_ADDRESS_CONFIGURATOR_MASTER_CHIP_FREQUENCE_BAND = 62;
+	public static final int DEFAULT_DYANAMIC_ADDRESS_CONFIGURATOR_SLAVE_CHIP_FREQUENCE_BAND = 63;
+	
+	public static final LoraAddress DEFAULLT_ADDRESS_CONFIGURATOR_NEGOTIATION_ADDRESS = new LoraAddress(
 			DEFAULT_DYANAMIC_ADDRESS_CONFIGURATOR_ADDRESS,
-			DEFAULT_DYANAMIC_ADDRESS_CONFIGURATOR_FREQUENCE_BAND);
+			DEFAULT_DYANAMIC_ADDRESS_CONFIGURATOR_SLAVE_CHIP_FREQUENCE_BAND);
 	
 	public static final int DEFAULT_THING_COMMUNICATION_FREQUENCE_BAND = 0;
+	public static final int MAX_TWO_BYTES_ADDRESS = 65535;
+	public static final long MAX_FOUR_BYTES_ADDRESS = 4294836225L;
 	
-	private byte[] address;
+	private long address;
 	private int frequencyBand;
 	
-	public LoraAddress(byte[] address, int frequencyBand) {
-		if (address == null)
-			throw new IllegalArgumentException("Null address.");
+	public LoraAddress(long address, int frequencyBand) {
+		if (address < 0 || address > MAX_FOUR_BYTES_ADDRESS)
+			throw new IllegalArgumentException("Invalid dual lora addresses.");
 		
 		if (frequencyBand < 0 || frequencyBand > 63)
 			throw new IllegalArgumentException("Lora frequency band must be range of 0~63.");
@@ -27,11 +29,11 @@ public class LoraAddress {
 		this.frequencyBand = frequencyBand;
 	}
 	
-	public byte[] getAddress() {
+	public long getAddress() {
 		return address;
 	}
 	
-	public void setAddress(byte[] address) {
+	public void setAddress(long address) {
 		this.address = address;
 	}
 	
@@ -47,15 +49,8 @@ public class LoraAddress {
 	public boolean equals(Object obj) {
 		if (obj instanceof LoraAddress) {
 			LoraAddress other = (LoraAddress)obj;
-			if (address.length != other.address.length)
-				return false;
 			
-			for (int i = 0; i < address.length; i++) {
-				if (address[i] != other.address[i])
-					return false;
-			}
-			
-			return frequencyBand == other.frequencyBand;
+			return address == other.address && frequencyBand == other.frequencyBand;
 		}
 		
 		return false;
@@ -64,7 +59,7 @@ public class LoraAddress {
 	@Override
 	public int hashCode() {
 		int hash = 7;
-		hash += 31 * hash + address.hashCode();
+		hash += 31 * hash + address;
 		hash += 31 * hash + frequencyBand;
 		
 		return hash;
@@ -72,20 +67,14 @@ public class LoraAddress {
 	
 	@Override
 	public String toString() {
-		return String.format("LoraAddress[%s, %d]", ThingsUtils.getHexString(address), frequencyBand);
+		return String.format("LoraAddress[%d, %d]", address, frequencyBand);
 	}
 	
 	public static LoraAddress randomLoraAddress() {
-		byte[] address = new byte[2];
-		new Random().nextBytes(address);
-		
-		return new LoraAddress(address, DEFAULT_THING_COMMUNICATION_FREQUENCE_BAND);
+		return LoraAddress.randomLoraAddress(DEFAULT_THING_COMMUNICATION_FREQUENCE_BAND);
 	}
 	
 	public static LoraAddress randomLoraAddress(int frequencyBand) {
-		byte[] address = new byte[2];
-		new Random().nextBytes(address);
-		
-		return new LoraAddress(address, frequencyBand);
+		return new LoraAddress(new Random().nextInt(LoraAddress.MAX_TWO_BYTES_ADDRESS - 1), frequencyBand);
 	}
 }

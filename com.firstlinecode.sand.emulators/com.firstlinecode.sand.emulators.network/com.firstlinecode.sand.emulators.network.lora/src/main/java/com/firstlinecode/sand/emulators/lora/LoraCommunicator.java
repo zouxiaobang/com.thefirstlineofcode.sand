@@ -28,10 +28,4 @@ public class LoraCommunicator extends AbstractCommunicator<LoraAddress, byte[]> 
 		chip.send(to, data);
 	}
 
-	@Override
-	public void received(LoraAddress from, byte[] data) {
-		// TODO Auto-generated method stub
-		
-	}
-
 }

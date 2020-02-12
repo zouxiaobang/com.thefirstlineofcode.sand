@@ -55,7 +55,7 @@ public abstract class AbstractLogConsolePanel extends JPanel implements ILogger,
 		logConsole.append(message);
 		logConsole.append(LINE_SEPARATOR);
 		
-		logConsole.setCaretPosition(logConsole.getDocument().getLength() - 1);
+		logConsole.setCaretPosition(logConsole.getDocument().getLength());
 	}
 
 	@Override
