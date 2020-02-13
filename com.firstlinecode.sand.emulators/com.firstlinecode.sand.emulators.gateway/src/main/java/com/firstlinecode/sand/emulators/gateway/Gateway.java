@@ -69,13 +69,12 @@ import com.firstlinecode.sand.client.lora.DynamicAddressConfigurator;
 import com.firstlinecode.sand.client.lora.IDualLoraChipCommunicator;
 import com.firstlinecode.sand.client.lora.LoraAddress;
 import com.firstlinecode.sand.client.things.IEventListener;
-import com.firstlinecode.sand.client.things.IThing;
 import com.firstlinecode.sand.client.things.ThingsUtils;
 import com.firstlinecode.sand.client.things.actuator.IAction;
 import com.firstlinecode.sand.client.things.actuator.IActionListener;
 import com.firstlinecode.sand.client.things.commuication.ParamsMap;
 import com.firstlinecode.sand.client.things.concentrator.Node;
-import com.firstlinecode.sand.client.things.concentrator.NodeCreationException;
+import com.firstlinecode.sand.client.things.concentrator.NodeAdditionException;
 import com.firstlinecode.sand.client.things.concentrator.NodeNotFoundException;
 import com.firstlinecode.sand.emulators.gateway.log.LogConsolesDialog;
 import com.firstlinecode.sand.emulators.gateway.things.DeviceIdentityInfo;
@@ -92,8 +91,8 @@ import com.firstlinecode.sand.emulators.thing.IThingEmulator;
 import com.firstlinecode.sand.emulators.thing.IThingEmulatorFactory;
 import com.firstlinecode.sand.protocols.core.DeviceIdentity;
 
-public class Gateway<A, D, C, P extends ParamsMap> extends JFrame implements ActionListener, InternalFrameListener,
-		ComponentListener, WindowListener, IGateway<A> {
+public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionListener, InternalFrameListener,
+		ComponentListener, WindowListener, IGateway {
 	private static final String DEFAULT_GATEWAY_LAN_ID = "00";
 	private static final int ALWAYS_FULL_POWER = 100;
 	private static final String DEVICE_TYPE = "Gateway";
@@ -161,7 +160,7 @@ public class Gateway<A, D, C, P extends ParamsMap> extends JFrame implements Act
 	
 	private List<IThingEmulatorFactory<?>> thingFactories;
 	private Map<String, List<IThingEmulator>> allThings;
-	private Map<String, Node<A>> nodes;
+	private Map<String, Node<LoraAddress>> nodes;
 	private boolean dirty;
 	
 	private ILoraNetwork network;
@@ -468,7 +467,6 @@ public class Gateway<A, D, C, P extends ParamsMap> extends JFrame implements Act
 		
 		autoReconnect = true;
 		addressConfigurator = new DynamicAddressConfigurator(gatewayCommunicator, chatClient);
-		addressConfigurator.start();
 		
 		refreshConnectionStateRelativatedMenus();
 		updateStatus();
@@ -1286,40 +1284,31 @@ public class Gateway<A, D, C, P extends ParamsMap> extends JFrame implements Act
 	}
 	
 	@Override
-	public String createNode(Node<A> node) throws NodeCreationException {
-		return createNode(node.getThing(), node.getAddress());
-	}
-	
-	@Override
-	public String createNode(IThing thing, A address) throws NodeCreationException {
-		if (thing == null || address == null) {
-			throw new IllegalArgumentException("Null thing or null address.");
-		}
-		
+	public String createNode(Node<LoraAddress> node) throws NodeAdditionException {
 		if (nodes.size() > 99) {
-			throw new NodeCreationException(NodeCreationException.Reason.OVERFLOW_SIZE,
+			throw new NodeAdditionException(NodeAdditionException.Reason.OVERFLOW_SIZE,
 					"Can't create node. Overflow size of nodes.");
 		}
 		
-		if (thingHasAdded(thing)) {
-			throw new NodeCreationException(NodeCreationException.Reason.REDUPLICATED_THING,
-					String.format("Can't create node. The node which's thing is %s has already added.", thing));
+		if (nodeHasAdded(node.getDeviceId())) {
+			throw new NodeAdditionException(NodeAdditionException.Reason.REDUPLICATED_THING,
+					String.format("Can't add node. The node which's device ID is %s has already added.",
+							node.getDeviceId()));
 		}
 		
-		if (addressHasUsed(address)) {
-			throw new NodeCreationException(NodeCreationException.Reason.REDUPLICATED_THING,
-					String.format("Can't create node. The address %s has already used.", address));
+		if (addressHasUsed(node.getAddress())) {
+			throw new NodeAdditionException(NodeAdditionException.Reason.REDUPLICATED_THING,
+					String.format("Can't add node. The address %s has already used.", node.getAddress()));
 		}
 		
-		Node<A> node = new Node<>(thing, address);
-		String lanId = String.format("%02d", nodes.size());
+		String lanId = String.format("%02d", nodes.size() + 1);
 		nodes.put(lanId, node);
 		
 		return lanId;
 	}
 
-	private boolean addressHasUsed(A address) {
-		for (Node<A> node : nodes.values()) {
+	private boolean addressHasUsed(LoraAddress address) {
+		for (Node<LoraAddress> node : nodes.values()) {
 			if (node.getAddress().equals(address))
 				return true;
 		}
@@ -1327,9 +1316,9 @@ public class Gateway<A, D, C, P extends ParamsMap> extends JFrame implements Act
 		return false;
 	}
 
-	private boolean thingHasAdded(IThing thing) {
-		for (Node<A> node : nodes.values()) {
-			if (node.getThing().equals(thing))
+	private boolean nodeHasAdded(String deviceId) {
+		for (Node<LoraAddress> node : nodes.values()) {
+			if (node.getDeviceId().equals(deviceId))
 				return true;
 		}
 		
@@ -1337,24 +1326,13 @@ public class Gateway<A, D, C, P extends ParamsMap> extends JFrame implements Act
 	}
 
 	@Override
-	public Node<A> removeNode(String nodeLanId) {
+	public Node<LoraAddress> removeNode(String nodeLanId) {
 		return nodes.remove(nodeLanId);
 	}
-
+	
 	@Override
-	public String[] getChildren() {
-		return this.nodes.keySet().toArray(new String[nodes.size()]);
-	}
-
-	@SuppressWarnings("unchecked")
-	@Override
-	public Node<A>[] getNodes() {
-		return this.nodes.values().toArray(new Node[nodes.size()]);
-	}
-
-	@Override
-	public Node<A> getNode(String nodeLanId) throws NodeNotFoundException {
-		Node<A> node = nodes.get(nodeLanId);
+	public Node<LoraAddress> getNode(String nodeLanId) throws NodeNotFoundException {
+		Node<LoraAddress> node = nodes.get(nodeLanId);
 		if (node != null)
 			return node;
 		
@@ -1377,5 +1355,10 @@ public class Gateway<A, D, C, P extends ParamsMap> extends JFrame implements Act
 	public void addActionListener(IActionListener<?> listener) {
 		// TODO Auto-generated method stub
 		
+	}
+
+	@Override
+	public String[] getLanIds() {
+		return nodes.keySet().toArray(new String[nodes.size()]);
 	}
 }

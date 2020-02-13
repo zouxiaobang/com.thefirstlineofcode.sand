@@ -10,7 +10,7 @@ import com.firstlinecode.sand.protocols.core.lora.Confirmation;
 import com.firstlinecode.sand.protocols.core.lora.Introduction;
 
 public class DynamicAddressConfigurator implements IAddressConfigurator<IDualLoraChipCommunicator, LoraAddress, byte[]> {
-	private static final DualLoraAddress CONFIGURATION_ADDRESS = new DualLoraAddress(
+	private static final DualLoraAddress ADDRESS_CONFIGURATION_MODE_DUAL_LORA_ADDRESS = new DualLoraAddress(
 			LoraAddress.MAX_TWO_BYTES_ADDRESS, DualLoraAddress.MAX_CHANNEL);
 	
 	private enum State {
@@ -42,7 +42,9 @@ public class DynamicAddressConfigurator implements IAddressConfigurator<IDualLor
 	
 	public void start() {
 		try {
-			communicator.changeAddress(CONFIGURATION_ADDRESS);
+			if (!communicator.getAddress().equals(ADDRESS_CONFIGURATION_MODE_DUAL_LORA_ADDRESS)) {				
+				communicator.changeAddress(ADDRESS_CONFIGURATION_MODE_DUAL_LORA_ADDRESS);
+			}
 		} catch (CommunicationException e) {
 			throw new RuntimeException("Failed to change address.", e);
 		}
@@ -53,6 +55,7 @@ public class DynamicAddressConfigurator implements IAddressConfigurator<IDualLor
 	
 	public void stop() {
 		state = State.WORKING;
+		if (communicator.getAddress().equals(ADDRESS_CONFIGURATION_MODE_DUAL_LORA_ADDRESS))
 		try {
 			communicator.changeAddress(workingAddress);
 		} catch (CommunicationException e) {

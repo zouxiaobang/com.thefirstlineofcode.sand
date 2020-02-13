@@ -1,21 +1,20 @@
 package com.firstlinecode.sand.client.things.concentrator;
 
-import com.firstlinecode.sand.client.things.IThing;
-
 public class Node<T> {
-	private IThing thing;
+	private String deviceId;
 	private T address;
 	
-	public Node(IThing thing, T address) {
-		this.thing = thing;
+	public Node(String deviceId, T address) {
+		this.deviceId = deviceId;
 		this.address = address;
 	}
 	
-	public IThing getThing() {
-		return thing;
+	public String getDeviceId() {
+		return deviceId;
 	}
 	
 	public T getAddress() {
 		return address;
 	}
+	
 }

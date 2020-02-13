@@ -16,20 +16,23 @@ public class Main {
 	}
 	
 	private void run() {
-		LoraNetwork network = new LoraNetwork();
+		configureLogDir();
 		
-		Gateway<?, ?, ?, ?> gateway = createGateway(network);
+		Gateway<?, ?> gateway = createGateway(new LoraNetwork());
 		gateway.registerThingEmulatorFactory(new BlubEmulatorFactory());
+		
 		gateway.setVisible(true);
 	}
 	
-	private Gateway<LoraAddress, byte[], ICommunicator<LoraAddress, byte[]>,
-			LoraChipCreationParams> createGateway(LoraNetwork network) {
+	private void configureLogDir() {
+		System.setProperty("sand.log.dir", System.getProperty("user.home") + "/.sand/logs");
+	}
+	
+	private Gateway<ICommunicator<LoraAddress, byte[]>, LoraChipCreationParams> createGateway(LoraNetwork network) {
 		IDualLoraChipCommunicator gatewayCommunicator = DualLoraChipCommunicator.createInstance(
 				network, DualLoraAddress.randomDualLoraAddress(0), new LoraChipCreationParams(
 						LoraChip.Type.HIGH_POWER));
-		return new Gateway<LoraAddress, byte[], ICommunicator<LoraAddress, byte[]>,
-				LoraChipCreationParams>(network, gatewayCommunicator);
+		return new Gateway<ICommunicator<LoraAddress, byte[]>, LoraChipCreationParams>(network, gatewayCommunicator);
 	}
 	
 }

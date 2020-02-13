@@ -36,7 +36,7 @@ public class DualLoraAddress {
 	
 	@Override
 	public boolean equals(Object obj) {
-		if (obj instanceof LoraAddress) {
+		if (obj instanceof DualLoraAddress) {
 			DualLoraAddress other = (DualLoraAddress)obj;
 			
 			return address == other.address && channel == other.channel;

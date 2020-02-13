@@ -17,7 +17,8 @@ import com.firstlinecode.sand.protocols.core.lora.Introduction;
 
 public class DynamicAddressConfigurator implements IAddressConfigurator<ICommunicator<LoraAddress, byte[]>,
 		LoraAddress, byte[]>, ICommunicationListener<LoraAddress, byte[]> {
-	private static final int DEFAULT_ADDRESS_CONFIGURATION_TIMEOUT = 5000;
+	private static final int DEFAULT_ADDRESS_CONFIGURATION_NEGOTIATION_TIMEOUT = 1000 * 10;
+	private static final int DEFAULT_ADDRESS_CONFIGURATION_CONFIRMATION_TIMEOUT = 1000 * 60 * 2;
 	
 	private enum State {
 		INITIAL,
@@ -86,7 +87,7 @@ public class DynamicAddressConfigurator implements IAddressConfigurator<ICommuni
 				
 				runTimeoutTask();
 			}
-		}, DEFAULT_ADDRESS_CONFIGURATION_TIMEOUT);
+		}, DEFAULT_ADDRESS_CONFIGURATION_NEGOTIATION_TIMEOUT);
 	}
 	
 	@Override

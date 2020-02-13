@@ -1,6 +1,6 @@
 package com.firstlinecode.sand.client.things.concentrator;
 
-public class NodeCreationException extends Exception {
+public class NodeAdditionException extends Exception {
 	private static final long serialVersionUID = -1164237073777410917L;
 	
 	public enum Reason {
@@ -9,11 +9,11 @@ public class NodeCreationException extends Exception {
 		ADDRESS_CONFLICT
 	}
 	
-	public NodeCreationException(Reason reason) {
+	public NodeAdditionException(Reason reason) {
 		super();
 	}
 	
-	public NodeCreationException(Reason reason, String message) {
+	public NodeAdditionException(Reason reason, String message) {
 		super(message);
 	}
 }

@@ -6,13 +6,19 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.firstlinecode.sand.client.lora.ILoraChip;
 import com.firstlinecode.sand.client.lora.LoraAddress;
 import com.firstlinecode.sand.client.lora.LoraData;
+import com.firstlinecode.sand.client.things.ThingsUtils;
 import com.firstlinecode.sand.client.things.commuication.ICommunicationChip;
 import com.firstlinecode.sand.client.things.commuication.ICommunicationNetworkListener;
 
 public class LoraNetwork implements ILoraNetwork {
+	private static final Logger logger = LoggerFactory.getLogger(LoraNetwork.class);
+	
 	private static final int DEFAULT_SIGNAL_COLLISION_INTERVAL = 500;
 	private static final int DEFAULT_SIGNAL_TRANSFER_TIMEOUT = 2000;
 	
@@ -107,6 +113,7 @@ public class LoraNetwork implements ILoraNetwork {
 		
 		signalQualities.put(new LoraChipPair(chip1, chip2), signalQuality);
 	}
+	
 	@Override
 	public void sendData(ICommunicationChip<LoraAddress, byte[]> from, LoraAddress to, byte[] data) {
 		sendData((LoraChip)from, to, data);
@@ -130,7 +137,14 @@ public class LoraNetwork implements ILoraNetwork {
 				signalQualities.put(pair, quality);
 			}
 			
-			signals.add(new LoraSignal(from, toChip, data, getArrivedTime(from, toChip, System.currentTimeMillis())));
+			long currentTime = System.currentTimeMillis();
+			long arrivedTime = getArrivedTime(from, toChip, currentTime);
+			signals.add(new LoraSignal(from, toChip, data, arrivedTime));
+			
+			if (logger.isDebugEnabled()) {
+				logger.debug(String.format("Lora signal[%s, %s, %d, %d: %s] is sent to network.", from.address,
+						toChip.getAddress(), currentTime, arrivedTime, ThingsUtils.getHexString(data)));
+			}
 			
 			for (ILoraNetworkListener listener : listeners) {
 				listener.sent(from.getAddress(), to, data);
@@ -180,6 +194,14 @@ public class LoraNetwork implements ILoraNetwork {
 		
 		List<LoraSignal> collisions = findCollisions(received);
 		if (!collisions.isEmpty()) {
+			if (logger.isDebugEnabled()) {
+				for (LoraSignal collision : collisions) {					
+					logger.debug(String.format("Lora signal[%s, %s, %s] is collided.",
+							ThingsUtils.getHexString(collision.data),
+							collision.from, collision.to));
+				}
+			}
+			
 			collisions.add(received);
 			signals.removeAll(collisions);
 			
@@ -194,6 +216,12 @@ public class LoraNetwork implements ILoraNetwork {
 		
 		signals.remove(received);
 		if (isLost(received)) {
+			if (logger.isDebugEnabled()) {
+				logger.debug(String.format("Lora signal[%s, %s, %s] is lost.",
+							ThingsUtils.getHexString(received.data),
+							received.from, received.to));
+			}
+			
 			for (ILoraNetworkListener listener : listeners) {
 				listener.lost(received.from.getAddress(), received.to.getAddress(), received.data);
 			}
