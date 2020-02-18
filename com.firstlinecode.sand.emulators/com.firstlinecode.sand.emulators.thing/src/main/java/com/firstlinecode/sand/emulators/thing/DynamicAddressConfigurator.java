@@ -4,6 +4,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import com.firstlinecode.sand.client.lora.LoraAddress;
+import com.firstlinecode.sand.client.lora.LoraData;
 import com.firstlinecode.sand.client.things.commuication.CommunicationException;
 import com.firstlinecode.sand.client.things.commuication.ICommunicationListener;
 import com.firstlinecode.sand.client.things.commuication.ICommunicator;
@@ -28,15 +29,15 @@ public class DynamicAddressConfigurator implements IAddressConfigurator<ICommuni
 	}
 	
 	private String deviceId;
-	private ICommunicator<LoraAddress, byte[]> communicator;
+	private LoraCommunicator communicator;
 	private IObmFactory obmFactory;
 	
 	private LoraAddress gatewayAddress;
 	private LoraAddress allocatedAddress;
 	
-	private Thread executorThread;
-	
 	private State state;
+	
+	private Timer timeoutTimer;
 	
 	public DynamicAddressConfigurator(String deviceId, LoraCommunicator communicator) {
 		this.deviceId = deviceId;
@@ -48,50 +49,54 @@ public class DynamicAddressConfigurator implements IAddressConfigurator<ICommuni
 
 	@Override
 	public void setCommunicator(ICommunicator<LoraAddress, byte[]> communicator) {
-		this.communicator = communicator;
+		this.communicator = (LoraCommunicator)communicator;
 		communicator.addCommunicationListener(this);
 	}
 	
 	@Override
 	public void introduce() {
-		executorThread = new Thread(new ExecutorThread());
-		executorThread.start();
+		doIntroduce();
 		
-		runTimeoutTask();
-	}
-	
-	private class ExecutorThread implements Runnable {
-		@Override
-		public void run() {
-			gatewayAddress = null;
-			allocatedAddress = null;
-			state = State.INITIAL;
-			
-			Introduction introduction = new Introduction();
-			introduction.setDeviceId(deviceId);
-			introduction.setAddress(LoraAddress.DEFAULT_DYANAMIC_ADDRESS_CONFIGURATOR_ADDRESS);
-			introduction.setFrequencyBand(LoraAddress.DEFAULT_DYANAMIC_ADDRESS_CONFIGURATOR_SLAVE_CHIP_FREQUENCE_BAND);
-			communicator.send(LoraAddress.DEFAULLT_ADDRESS_CONFIGURATOR_NEGOTIATION_ADDRESS,
-					obmFactory.toBinary(introduction));
-		}
-	}
+		timeoutTimer = new Timer();
+		timeoutTimer.schedule(new TimerTask() {
 
-	private void runTimeoutTask() {
-		Timer timeoutTimer = new Timer();
-		timeoutTimer.schedule(new TimerTask() {	
 			@Override
 			public void run() {
-				executorThread.interrupt();
-				executorThread = new Thread(new ExecutorThread());
-				executorThread.start();
-				
-				runTimeoutTask();
+				if (state != State.CONFIRMED && state != State.ALLOCATED) {
+					doIntroduce();
+				}
 			}
-		}, DEFAULT_ADDRESS_CONFIGURATION_NEGOTIATION_TIMEOUT);
+			
+		}, DEFAULT_ADDRESS_CONFIGURATION_NEGOTIATION_TIMEOUT,
+			DEFAULT_ADDRESS_CONFIGURATION_NEGOTIATION_TIMEOUT);
+	}
+	
+	private synchronized void doIntroduce() {
+		resetToInitialState();
+		
+		Introduction introduction = new Introduction();
+		introduction.setDeviceId(deviceId);
+		introduction.setAddress(communicator.getAddress().getAddress());
+		introduction.setFrequencyBand(communicator.getAddress().getFrequencyBand());
+		communicator.send(LoraAddress.DEFAULLT_ADDRESS_CONFIGURATOR_NEGOTIATION_ADDRESS,
+				obmFactory.toBinary(introduction));
+	}
+	
+	public void stop() {
+		timeoutTimer.cancel();
+		timeoutTimer = null;
+		
+		resetToInitialState();
+	}
+
+	private void resetToInitialState() {
+		gatewayAddress = null;
+		allocatedAddress = null;
+		state = State.INITIAL;
 	}
 	
 	@Override
-	public void negotiate(LoraAddress peerAddress, byte[] data) {
+	public synchronized void negotiate(LoraAddress peerAddress, byte[] data) {
 		try {
 			if (state == State.INITIAL) {
 				Allocation allocation = (Allocation)obmFactory.toObject(Allocation.class, data);
@@ -108,10 +113,33 @@ public class DynamicAddressConfigurator implements IAddressConfigurator<ICommuni
 				state = State.ALLOCATED;
 			} else if (state == State.ALLOCATED) {
 				System.out.println("Allocated");
+			} else { // state == State.CONFIRMED
+				
 			}
 		} catch (Exception e) {
 			// ignore
 		}
+	}
+	
+	private class DataReceiver implements Runnable {
+
+		@Override
+		public void run() {
+			while (state != State.CONFIRMED) {
+				LoraData data = communicator.receive();
+				
+				if (data != null) {
+					negotiate(data.getAddress(), data.getData());
+				}
+				
+				try {
+					Thread.sleep(200);
+				} catch (InterruptedException e) {
+					// ignore
+				}
+			}
+		}
+		
 	}
 
 	@Override
@@ -134,12 +162,11 @@ public class DynamicAddressConfigurator implements IAddressConfigurator<ICommuni
 
 	@Override
 	public void addressChanged(LoraAddress newAddress, LoraAddress oldAddress) {
-		// TODO Auto-generated method stub
-		
+		// No-Op
 	}
 
 	@Override
-	public void confirm() {
+	public synchronized void confirm() {
 		// TODO Auto-generated method stub
 		
 	}

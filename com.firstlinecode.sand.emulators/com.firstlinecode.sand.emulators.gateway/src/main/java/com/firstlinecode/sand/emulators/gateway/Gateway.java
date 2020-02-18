@@ -74,7 +74,7 @@ import com.firstlinecode.sand.client.things.actuator.IAction;
 import com.firstlinecode.sand.client.things.actuator.IActionListener;
 import com.firstlinecode.sand.client.things.commuication.ParamsMap;
 import com.firstlinecode.sand.client.things.concentrator.Node;
-import com.firstlinecode.sand.client.things.concentrator.NodeAdditionException;
+import com.firstlinecode.sand.client.things.concentrator.NodeCreationException;
 import com.firstlinecode.sand.client.things.concentrator.NodeNotFoundException;
 import com.firstlinecode.sand.emulators.gateway.log.LogConsolesDialog;
 import com.firstlinecode.sand.emulators.gateway.things.DeviceIdentityInfo;
@@ -466,7 +466,7 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 		chatClient.connect(new UsernamePasswordToken(deviceIdentity.getDeviceName().toString(), deviceIdentity.getCredentials()));
 		
 		autoReconnect = true;
-		addressConfigurator = new DynamicAddressConfigurator(gatewayCommunicator, chatClient);
+		addressConfigurator = new DynamicAddressConfigurator(this, gatewayCommunicator, chatClient);
 		
 		refreshConnectionStateRelativatedMenus();
 		updateStatus();
@@ -867,6 +867,9 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 	private void createNewThing() {
 		String thingName = (String)JOptionPane.showInputDialog(this, "Choose thing you want to create",
 				"Choose thing", JOptionPane.QUESTION_MESSAGE, null, getThingNames(), null);
+		if (thingName == null)
+			return;
+		
 		createThing(thingName);
 	}
 	
@@ -878,8 +881,6 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 		List<IThingEmulator> things = getThings(thingFactory);
 		
 		int instanceIndex = things.size();
-		thing.powerOn();
-		
 		things.add(thing);
 		
 		showThing(thing, getThingInstanceName(thingFactory, instanceIndex), -1, 30 * instanceIndex, 30 * instanceIndex);
@@ -897,7 +898,7 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 			logConsolesDialog.createThingLogConsole(thing);
 		}
 		
-		thing.configureAddress();
+		thing.powerOn();
 		
 		return thing;
 	}
@@ -1284,21 +1285,21 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 	}
 	
 	@Override
-	public String createNode(Node<LoraAddress> node) throws NodeAdditionException {
+	public String createNode(Node<LoraAddress> node) throws NodeCreationException {
 		if (nodes.size() > 99) {
-			throw new NodeAdditionException(NodeAdditionException.Reason.OVERFLOW_SIZE,
+			throw new NodeCreationException(NodeCreationException.Reason.OVERFLOW_SIZE,
 					"Can't create node. Overflow size of nodes.");
 		}
 		
 		if (nodeHasAdded(node.getDeviceId())) {
-			throw new NodeAdditionException(NodeAdditionException.Reason.REDUPLICATED_THING,
-					String.format("Can't add node. The node which's device ID is %s has already added.",
+			throw new NodeCreationException(NodeCreationException.Reason.REDUPLICATED_NODE,
+					String.format("Can't create node. The node which's device ID is %s has already existed.",
 							node.getDeviceId()));
 		}
 		
 		if (addressHasUsed(node.getAddress())) {
-			throw new NodeAdditionException(NodeAdditionException.Reason.REDUPLICATED_THING,
-					String.format("Can't add node. The address %s has already used.", node.getAddress()));
+			throw new NodeCreationException(NodeCreationException.Reason.REDUPLICATED_NODE,
+					String.format("Can't create node. The address %s has already existed.", node.getAddress()));
 		}
 		
 		String lanId = String.format("%02d", nodes.size() + 1);

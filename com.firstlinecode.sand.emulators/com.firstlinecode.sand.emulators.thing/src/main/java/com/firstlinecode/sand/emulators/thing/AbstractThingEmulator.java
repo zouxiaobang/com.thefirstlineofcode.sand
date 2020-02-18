@@ -81,13 +81,11 @@ public abstract class AbstractThingEmulator implements IThingEmulator {
 		private Timer timer = new Timer();
 		
 		public void start() {
-			timer.schedule(new BatteryPowerTimerTask(), 1000 * 10);
+			timer.schedule(new BatteryPowerTimerTask(), 1000 * 10, 1000 * 10);
 		}
 	}
 	
 	private class BatteryPowerTimerTask extends TimerTask {
-		private Timer timer = new Timer();
-		
 		@Override
 		public void run() {
 			synchronized (AbstractThingEmulator.this) {
@@ -105,8 +103,6 @@ public abstract class AbstractThingEmulator implements IThingEmulator {
 						deviceListener.batteryPowerChanged(new BatteryPowerEvent(AbstractThingEmulator.this, batteryPower));
 					}
 				}
-				
-				timer.schedule(new BatteryPowerTimerTask(), 1000 * 10);
 			}
 		}
 	}
@@ -171,6 +167,8 @@ public abstract class AbstractThingEmulator implements IThingEmulator {
 	@Override
 	public void powerOn() {
 		this.powered = true;
+		addressConfigurator.introduce();
+		
 		doPowerOn();
 		
 		for (IThingEmulatorListener thingEmulatorListener : getThingEmulatorListeners()) {
@@ -192,6 +190,9 @@ public abstract class AbstractThingEmulator implements IThingEmulator {
 	@Override
 	public void powerOff() {
 		this.powered = false;
+		addressConfigurator.stop();
+		addressConfigurator = null;
+		
 		doPowerOff();
 		
 		for (IThingEmulatorListener thingEmulatorListener : getThingEmulatorListeners()) {
@@ -233,11 +234,6 @@ public abstract class AbstractThingEmulator implements IThingEmulator {
 	@Override
 	public ICommunicator<?, ?> getCommunicator() {
 		return communicator;
-	}
-	
-	@Override
-	public void configureAddress() {
-		addressConfigurator.introduce();
 	}
 	
 	@Override

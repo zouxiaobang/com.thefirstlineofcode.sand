@@ -2,7 +2,7 @@ package com.firstlinecode.sand.protocols.core.lora;
 
 import com.firstlinecode.basalt.protocol.oxm.convention.annotations.ProtocolObject;
 
-@ProtocolObject(namespace="http://firstlinecode.com/protocol/address-configuration", localName="allocation")
+@ProtocolObject(namespace="http://firstlinecode.com/protocols/address-configuration", localName="allocation")
 public class Allocation {
 	private long gatewayAddress;
 	private int gatewayFrequencyBand;

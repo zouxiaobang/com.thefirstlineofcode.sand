@@ -5,6 +5,7 @@ import com.firstlinecode.sand.client.things.commuication.CommunicationException;
 import com.firstlinecode.sand.client.things.commuication.IObmFactory;
 import com.firstlinecode.sand.client.things.commuication.ObmFactory;
 import com.firstlinecode.sand.client.things.concentrator.IAddressConfigurator;
+import com.firstlinecode.sand.client.things.concentrator.IConcentrator;
 import com.firstlinecode.sand.protocols.core.lora.Allocation;
 import com.firstlinecode.sand.protocols.core.lora.Confirmation;
 import com.firstlinecode.sand.protocols.core.lora.Introduction;
@@ -20,6 +21,7 @@ public class DynamicAddressConfigurator implements IAddressConfigurator<IDualLor
 		CONFIRMING
 	}
 	
+	private IConcentrator<LoraAddress> concentrator;
 	private IDualLoraChipCommunicator communicator;
 	private DualLoraAddress workingAddress;
 	private String nodeDeviceId;
@@ -31,7 +33,9 @@ public class DynamicAddressConfigurator implements IAddressConfigurator<IDualLor
 	
 	private State state;
 	
-	public DynamicAddressConfigurator(IDualLoraChipCommunicator communicator, IChatClient chatClient) {
+	public DynamicAddressConfigurator(IConcentrator<LoraAddress> concentrator,
+			IDualLoraChipCommunicator communicator, IChatClient chatClient) {
+		this.concentrator = concentrator;
 		this.communicator = communicator;
 		this.chatClient = chatClient;
 		
@@ -43,6 +47,7 @@ public class DynamicAddressConfigurator implements IAddressConfigurator<IDualLor
 	public void start() {
 		try {
 			if (!communicator.getAddress().equals(ADDRESS_CONFIGURATION_MODE_DUAL_LORA_ADDRESS)) {				
+				workingAddress = communicator.getAddress();
 				communicator.changeAddress(ADDRESS_CONFIGURATION_MODE_DUAL_LORA_ADDRESS);
 			}
 		} catch (CommunicationException e) {
@@ -54,6 +59,9 @@ public class DynamicAddressConfigurator implements IAddressConfigurator<IDualLor
 	}
 	
 	public void stop() {
+		if (state == State.WORKING)
+			return;
+		
 		state = State.WORKING;
 		if (communicator.getAddress().equals(ADDRESS_CONFIGURATION_MODE_DUAL_LORA_ADDRESS))
 		try {
@@ -107,12 +115,17 @@ public class DynamicAddressConfigurator implements IAddressConfigurator<IDualLor
 				allocation.setGatewayAddress(workingAddress.getSlaveAddress().getAddress());
 				allocation.setGatewayFrequencyBand(workingAddress.getSlaveAddress().getFrequencyBand());
 				
+				int nodesSize = concentrator.getLanIds().length;
+				nodeLanId = Integer.toString(nodesSize);
+				allocation.setAllocatedAddress(nodesSize);
+				allocation.setAllocatedFrequencyBand(LoraAddress.DEFAULT_THING_COMMUNICATION_FREQUENCE_BAND);
+				
 				byte[] response = obmFactory.toBinary(allocation);
 				communicator.send(nodeAddress, response);
 				
 				state = State.ALLOCATING;
 			} else if (state == State.ALLOCATING) {
-				Confirmation confirmation = (Confirmation)obmFactory.toObject(Introduction.class, data);
+				Confirmation confirmation = (Confirmation)obmFactory.toObject(Confirmation.class, data);
 				
 				if (nodeDeviceId == confirmation.getDeviceId()) {
 					confirm();
@@ -123,6 +136,7 @@ public class DynamicAddressConfigurator implements IAddressConfigurator<IDualLor
 			}
 		} catch (Exception e) {
 			// TODO: handle exception
+			System.out.println(e);
 		}
 	}
 
