@@ -29,7 +29,6 @@ public class LoraCommunicator extends AbstractCommunicator<LoraAddress, byte[]> 
 	}
 	
 	public LoraData receive() {
-		// TODO
-		return null;
+		return (LoraData)chip.receive();
 	}
 }

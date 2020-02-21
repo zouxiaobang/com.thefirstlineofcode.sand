@@ -191,7 +191,6 @@ public abstract class AbstractThingEmulator implements IThingEmulator {
 	public void powerOff() {
 		this.powered = false;
 		addressConfigurator.stop();
-		addressConfigurator = null;
 		
 		doPowerOff();
 		

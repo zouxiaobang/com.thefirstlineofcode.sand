@@ -25,7 +25,7 @@ public class Main {
 	}
 	
 	private void configureLogDir() {
-		System.setProperty("sand.log.dir", System.getProperty("user.home") + "/.sand/logs");
+		System.setProperty("sand.log.dir", System.getProperty("user.home") + "/.com.firstlinecode.sand/logs");
 	}
 	
 	private Gateway<ICommunicator<LoraAddress, byte[]>, LoraChipCreationParams> createGateway(LoraNetwork network) {

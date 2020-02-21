@@ -18,7 +18,8 @@ import com.firstlinecode.sand.protocols.core.lora.Introduction;
 
 public class DynamicAddressConfigurator implements IAddressConfigurator<ICommunicator<LoraAddress, byte[]>,
 		LoraAddress, byte[]>, ICommunicationListener<LoraAddress, byte[]> {
-	private static final int DEFAULT_ADDRESS_CONFIGURATION_NEGOTIATION_TIMEOUT = 1000 * 10;
+	private static final int DEFAULT_ADDRESS_CONFIGURATION_NEGOTIATION_DATA_RETRIVE_INTERVAL = 1000;
+	private static final int DEFAULT_ADDRESS_CONFIGURATION_NEGOTIATION_TIMEOUT = 1000 * 30;
 	private static final int DEFAULT_ADDRESS_CONFIGURATION_CONFIRMATION_TIMEOUT = 1000 * 60 * 2;
 	
 	private enum State {
@@ -38,6 +39,7 @@ public class DynamicAddressConfigurator implements IAddressConfigurator<ICommuni
 	private State state;
 	
 	private Timer timeoutTimer;
+	private DataReceiver dataReceiver = new DataReceiver();
 	
 	public DynamicAddressConfigurator(String deviceId, LoraCommunicator communicator) {
 		this.deviceId = deviceId;
@@ -78,7 +80,7 @@ public class DynamicAddressConfigurator implements IAddressConfigurator<ICommuni
 		introduction.setDeviceId(deviceId);
 		introduction.setAddress(communicator.getAddress().getAddress());
 		introduction.setFrequencyBand(communicator.getAddress().getFrequencyBand());
-		communicator.send(LoraAddress.DEFAULLT_ADDRESS_CONFIGURATOR_NEGOTIATION_ADDRESS,
+		communicator.send(LoraAddress.DEFAULT_DYNAMIC_ADDRESS_CONFIGURATOR_NEGOTIATION_LORAADDRESS,
 				obmFactory.toBinary(introduction));
 	}
 	
@@ -90,6 +92,13 @@ public class DynamicAddressConfigurator implements IAddressConfigurator<ICommuni
 	}
 
 	private void resetToInitialState() {
+		if (dataReceiver != null) {
+			dataReceiver.stop();
+		}
+		
+		dataReceiver = new DataReceiver();
+		new Thread(dataReceiver).start();
+		
 		gatewayAddress = null;
 		allocatedAddress = null;
 		state = State.INITIAL;
@@ -108,7 +117,7 @@ public class DynamicAddressConfigurator implements IAddressConfigurator<ICommuni
 				confirmation.setDeviceId(deviceId);
 				
 				byte[] response = obmFactory.toBinary(confirmation);
-				communicator.send(LoraAddress.DEFAULLT_ADDRESS_CONFIGURATOR_NEGOTIATION_ADDRESS, response);
+				communicator.send(LoraAddress.DEFAULT_DYNAMIC_ADDRESS_CONFIGURATOR_NEGOTIATION_LORAADDRESS, response);
 				
 				state = State.ALLOCATED;
 			} else if (state == State.ALLOCATED) {
@@ -122,10 +131,12 @@ public class DynamicAddressConfigurator implements IAddressConfigurator<ICommuni
 	}
 	
 	private class DataReceiver implements Runnable {
+		private boolean stop = false;
 
 		@Override
 		public void run() {
-			while (state != State.CONFIRMED) {
+			stop = false;
+			while (!stop && state != State.CONFIRMED) {
 				LoraData data = communicator.receive();
 				
 				if (data != null) {
@@ -133,11 +144,15 @@ public class DynamicAddressConfigurator implements IAddressConfigurator<ICommuni
 				}
 				
 				try {
-					Thread.sleep(200);
+					Thread.sleep(DEFAULT_ADDRESS_CONFIGURATION_NEGOTIATION_DATA_RETRIVE_INTERVAL);
 				} catch (InterruptedException e) {
 					// ignore
 				}
 			}
+		}
+		
+		public void stop() {
+			this.stop = true;
 		}
 		
 	}
