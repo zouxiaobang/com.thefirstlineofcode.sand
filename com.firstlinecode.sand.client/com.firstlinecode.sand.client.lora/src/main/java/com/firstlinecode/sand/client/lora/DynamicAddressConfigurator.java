@@ -1,5 +1,10 @@
 package com.firstlinecode.sand.client.lora;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.firstlinecode.basalt.protocol.core.ProtocolException;
+import com.firstlinecode.basalt.protocol.core.stanza.error.Conflict;
 import com.firstlinecode.chalk.IChatClient;
 import com.firstlinecode.sand.client.things.commuication.CommunicationException;
 import com.firstlinecode.sand.client.things.commuication.IObmFactory;
@@ -11,10 +16,12 @@ import com.firstlinecode.sand.protocols.core.lora.Confirmation;
 import com.firstlinecode.sand.protocols.core.lora.Introduction;
 
 public class DynamicAddressConfigurator implements IAddressConfigurator<IDualLoraChipCommunicator, LoraAddress, byte[]> {
+	private static final Logger logger = LoggerFactory.getLogger(DynamicAddressConfigurator.class);
+	
 	private static final DualLoraAddress ADDRESS_CONFIGURATION_MODE_DUAL_LORA_ADDRESS = new DualLoraAddress(
 			LoraAddress.MAX_TWO_BYTES_ADDRESS, DualLoraAddress.MAX_CHANNEL);
 	
-	private enum State {
+	public enum State {
 		WORKING,
 		WAITING,
 		ALLOCATING,
@@ -45,10 +52,20 @@ public class DynamicAddressConfigurator implements IAddressConfigurator<IDualLor
 	}
 	
 	public void start() {
+		if (logger.isDebugEnabled()) {
+			logger.debug("Starting dynamic address configurator.");
+		}
+		
 		try {
-			if (!communicator.getAddress().equals(ADDRESS_CONFIGURATION_MODE_DUAL_LORA_ADDRESS)) {				
-				workingAddress = communicator.getAddress();
-				communicator.changeAddress(ADDRESS_CONFIGURATION_MODE_DUAL_LORA_ADDRESS);
+			if (state != State.WORKING || communicator.getAddress().equals(ADDRESS_CONFIGURATION_MODE_DUAL_LORA_ADDRESS)) {				
+				throw new IllegalStateException("It seemed that device is being in address configuration mode.");
+			}
+			
+			workingAddress = communicator.getAddress();
+			communicator.changeAddress(ADDRESS_CONFIGURATION_MODE_DUAL_LORA_ADDRESS);
+			
+			if (logger.isDebugEnabled()) {
+				logger.debug("Change to address configuration mode. Current address is " + communicator.getAddress());
 			}
 		} catch (CommunicationException e) {
 			throw new RuntimeException("Failed to change address.", e);
@@ -59,15 +76,25 @@ public class DynamicAddressConfigurator implements IAddressConfigurator<IDualLor
 	}
 	
 	public void stop() {
-		if (state == State.WORKING)
-			return;
+		if (logger.isDebugEnabled()) {
+			logger.debug("Stopping dynamic address configurator.");
+		}
+		
+		if (state == State.WORKING || !communicator.getAddress().equals(ADDRESS_CONFIGURATION_MODE_DUAL_LORA_ADDRESS)) {				
+			throw new IllegalStateException("It seemed that device is being in working mode.");
+		}
 		
 		state = State.WORKING;
-		if (communicator.getAddress().equals(ADDRESS_CONFIGURATION_MODE_DUAL_LORA_ADDRESS))
-		try {
-			communicator.changeAddress(workingAddress);
-		} catch (CommunicationException e) {
-			throw new RuntimeException("Failed to change address.", e);
+		if (communicator.getAddress().equals(ADDRESS_CONFIGURATION_MODE_DUAL_LORA_ADDRESS)) {
+			try {
+				communicator.changeAddress(workingAddress);
+				
+				if (logger.isDebugEnabled()) {
+					logger.debug("Change to working mode. Current address is " + communicator.getAddress());
+				}
+			} catch (CommunicationException e) {
+				throw new RuntimeException("Failed to change address.", e);
+			}
 		}
 	}
 	
@@ -76,7 +103,7 @@ public class DynamicAddressConfigurator implements IAddressConfigurator<IDualLor
 		if (state == State.WORKING)
 			return;
 		
-		new Thread(new DataReceiver()).start();;
+		new Thread(new DataReceiver()).start();
 	}
 	
 	private class DataReceiver implements Runnable {
@@ -102,42 +129,80 @@ public class DynamicAddressConfigurator implements IAddressConfigurator<IDualLor
 
 	@Override
 	public void negotiate(LoraAddress peerAddress, byte[] data) {
-		if (state == State.WORKING)
+		if (state == State.WORKING) {
+			if (logger.isDebugEnabled()) {
+				logger.debug(String.format("Receiving address configuration request from %s in working state.", peerAddress));
+			}
+			
 			return;
+		}
 		
 		try {			
 			if (state == State.WAITING) {
 				Introduction introduction = (Introduction)obmFactory.toObject(Introduction.class, data);
 				nodeDeviceId = introduction.getDeviceId();
-				nodeAddress = new LoraAddress(introduction.getAddress(), introduction.getFrequencyBand());
+				LoraAddress introductedAddress = new LoraAddress(introduction.getAddress(), introduction.getFrequencyBand());
+				
+				if (logger.isDebugEnabled()) {
+					logger.debug(String.format("Receving an intrduction request from %s, %s.", introduction.getAddress(), introduction.getFrequencyBand()));
+				}
 				
 				Allocation allocation = new Allocation();
 				allocation.setGatewayAddress(workingAddress.getSlaveAddress().getAddress());
 				allocation.setGatewayFrequencyBand(workingAddress.getSlaveAddress().getFrequencyBand());
 				
 				int nodesSize = concentrator.getLanIds().length;
-				nodeLanId = Integer.toString(nodesSize);
-				allocation.setAllocatedAddress(nodesSize);
-				allocation.setAllocatedFrequencyBand(LoraAddress.DEFAULT_THING_COMMUNICATION_FREQUENCE_BAND);
+				int iNodeLanId = nodesSize + 1;
+				nodeLanId = Integer.toString(iNodeLanId);
+				nodeAddress = new LoraAddress(iNodeLanId, LoraAddress.DEFAULT_THING_COMMUNICATION_FREQUENCE_BAND);
+				allocation.setAllocatedAddress(nodeAddress.getAddress());
+				allocation.setAllocatedFrequencyBand(nodeAddress.getFrequencyBand());
+				
+				if (logger.isDebugEnabled()) {
+					logger.debug(String.format("Node allocation: %s, %s => %s, %s.",
+								nodeDeviceId, peerAddress, nodeLanId, new LoraAddress(allocation.getAllocatedAddress(),
+										allocation.getAllocatedFrequencyBand())));
+				}
 				
 				byte[] response = obmFactory.toBinary(allocation);
-				communicator.send(nodeAddress, response);
+				communicator.send(introductedAddress, response);
 				
 				state = State.ALLOCATING;
-			} else if (state == State.ALLOCATING) {
+				return;
+			}
+			
+			if (!nodeAddress.equals(peerAddress)) {
+				processParallelAddressConfigurationRequest(peerAddress);
+			}
+			
+			if (state == State.ALLOCATING) {
 				Confirmation confirmation = (Confirmation)obmFactory.toObject(Confirmation.class, data);
 				
-				if (nodeDeviceId == confirmation.getDeviceId()) {
-					confirm();
-					state = State.CONFIRMING;
+				if (nodeDeviceId != confirmation.getDeviceId()) {
+					processParallelAddressConfigurationRequest(peerAddress);
 				}
-			} else {
 				
+				confirm();
+				state = State.CONFIRMING;
 			}
+		} catch (ProtocolException pe) {
+			// TODO: handle exception
+			System.out.println(pe);
+		} catch (ClassCastException cce) {			
+			// TODO: handle exception
+			System.out.println(cce);
 		} catch (Exception e) {
 			// TODO: handle exception
 			System.out.println(e);
 		}
+	}
+
+	private void processParallelAddressConfigurationRequest(LoraAddress peerAddress) {
+		if (logger.isDebugEnabled()) {
+			logger.debug(String.format("Parallel address configuration request from %s.", peerAddress.getAddress()));
+		}
+		
+		throw new ProtocolException(new Conflict());
 	}
 
 	@Override
@@ -148,6 +213,10 @@ public class DynamicAddressConfigurator implements IAddressConfigurator<IDualLor
 	@Override
 	public void confirm() {
 		// TODO Auto-generated method stub
-		
+		System.out.println("Received a confirmation request.");
+	}
+	
+	public State getState() {
+		return state;
 	}
 }

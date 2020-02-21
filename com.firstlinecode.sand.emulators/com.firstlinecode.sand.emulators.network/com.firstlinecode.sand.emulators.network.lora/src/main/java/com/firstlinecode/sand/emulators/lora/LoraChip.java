@@ -5,12 +5,17 @@ import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.firstlinecode.sand.client.lora.ILoraChip;
 import com.firstlinecode.sand.client.lora.LoraAddress;
 import com.firstlinecode.sand.client.lora.LoraData;
 import com.firstlinecode.sand.client.things.commuication.ICommunicationListener;
 
 public class LoraChip implements ILoraChip {
+	private static final Logger logger = LoggerFactory.getLogger(LoraChip.class);
+	
 	public enum Type {
 		HIGH_POWER,
 		NORMAL
@@ -107,6 +112,15 @@ public class LoraChip implements ILoraChip {
 	@Override
 	public void changeAddress(LoraAddress address) {
 		LoraAddress oldAddress = this.address;
+		
+		if (oldAddress.equals(address)) {
+			if (logger.isWarnEnabled()) {
+				logger.warn("Trying to change to the same address.");
+			}
+			
+			return;
+		}
+		
 		network.changeAddress(this, address);
 		this.address = address;
 		

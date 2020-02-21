@@ -7,7 +7,7 @@ public class LoraAddress {
 	public static final int DEFAULT_DYANAMIC_ADDRESS_CONFIGURATOR_MASTER_CHIP_FREQUENCE_BAND = 62;
 	public static final int DEFAULT_DYANAMIC_ADDRESS_CONFIGURATOR_SLAVE_CHIP_FREQUENCE_BAND = 63;
 	
-	public static final LoraAddress DEFAULLT_ADDRESS_CONFIGURATOR_NEGOTIATION_ADDRESS = new LoraAddress(
+	public static final LoraAddress DEFAULT_DYNAMIC_ADDRESS_CONFIGURATOR_NEGOTIATION_LORAADDRESS = new LoraAddress(
 			DEFAULT_DYANAMIC_ADDRESS_CONFIGURATOR_ADDRESS,
 			DEFAULT_DYANAMIC_ADDRESS_CONFIGURATOR_SLAVE_CHIP_FREQUENCE_BAND);
 	
@@ -50,7 +50,7 @@ public class LoraAddress {
 		if (obj instanceof LoraAddress) {
 			LoraAddress other = (LoraAddress)obj;
 			
-			return address == other.address && frequencyBand == other.frequencyBand;
+			return Long.compare(address, other.address) == 0 && frequencyBand == other.frequencyBand;
 		}
 		
 		return false;

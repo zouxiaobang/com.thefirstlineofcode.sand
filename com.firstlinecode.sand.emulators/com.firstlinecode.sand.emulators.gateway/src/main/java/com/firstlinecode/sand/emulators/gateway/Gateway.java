@@ -92,7 +92,7 @@ import com.firstlinecode.sand.emulators.thing.IThingEmulatorFactory;
 import com.firstlinecode.sand.protocols.core.DeviceIdentity;
 
 public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionListener, InternalFrameListener,
-		ComponentListener, WindowListener, IGateway {
+		ComponentListener, WindowListener, IGateway, IConnectionListener {
 	private static final String DEFAULT_GATEWAY_LAN_ID = "00";
 	private static final int ALWAYS_FULL_POWER = 100;
 	private static final String DEVICE_TYPE = "Gateway";
@@ -394,21 +394,21 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 		}
 	}
 	
-	private void setToWorkingMode() {
+	private synchronized void setToWorkingMode() {
 		addressConfigurator.stop();
 		
 		getMenuItem(MENU_NAME_TOOLS, MENU_ITEM_NAME_WORKING_MODE).setEnabled(false);
 		getMenuItem(MENU_NAME_TOOLS, MENU_ITEM_NAME_ADDRESS_CONFIGURATION_MODE).setEnabled(true);	
 	}
 
-	private void setToAddressConfigurationMode() {
+	private synchronized void setToAddressConfigurationMode() {
 		addressConfigurator.start();
 		
 		getMenuItem(MENU_NAME_TOOLS, MENU_ITEM_NAME_ADDRESS_CONFIGURATION_MODE).setEnabled(false);
 		getMenuItem(MENU_NAME_TOOLS, MENU_ITEM_NAME_WORKING_MODE).setEnabled(true);
 	}
 	
-	private void disconnect() {
+	private synchronized void disconnect() {
 		if (chatClient == null || chatClient.isClosed())
 			throw new IllegalStateException("Gateway has already disconnected.");
 		
@@ -425,10 +425,10 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 			chatClient.close();
 		}
 		
-		if (addressConfigurator != null) {
+		if (addressConfigurator != null && DynamicAddressConfigurator.State.WORKING != addressConfigurator.getState()) {
 			addressConfigurator.stop();
-			addressConfigurator = null;
 		}
+		addressConfigurator = null;
 	}
 	
 	private void connect() {
@@ -462,6 +462,10 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 		IConnectionListener logConsoleListener = getLogConsoleConnectionListener();
 		if (logConsoleListener != null && !chatClient.getConnectionListeners().contains(logConsoleListener))
 			chatClient.addConnectionListener(getLogConsoleConnectionListener());
+		
+		if (!chatClient.getConnectionListeners().contains(this)) {
+			chatClient.addConnectionListener(this);
+		}
 		
 		chatClient.connect(new UsernamePasswordToken(deviceIdentity.getDeviceName().toString(), deviceIdentity.getCredentials()));
 		
@@ -769,8 +773,11 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 		if (chatClient != null && chatClient.isConnected()) {
 			getMenuItem(MENU_NAME_TOOLS, MENU_ITEM_NAME_CONNECT).setEnabled(false);			
 			getMenuItem(MENU_NAME_TOOLS, MENU_ITEM_NAME_DISCONNECT).setEnabled(true);			
+			
 			getMenuItem(MENU_NAME_TOOLS, MENU_ITEM_NAME_ADDRESS_CONFIGURATION_MODE).setEnabled(true);
 			getMenuItem(MENU_NAME_TOOLS, MENU_ITEM_NAME_WORKING_MODE).setEnabled(false);
+			
+			refreshGatewayInstanceRelativatedMenus();
 		} else {
 			getMenuItem(MENU_NAME_TOOLS, MENU_ITEM_NAME_DISCONNECT).setEnabled(false);			
 			getMenuItem(MENU_NAME_TOOLS, MENU_ITEM_NAME_CONNECT).setEnabled(true);
@@ -1362,4 +1369,23 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 	public String[] getLanIds() {
 		return nodes.keySet().toArray(new String[nodes.size()]);
 	}
+
+	@Override
+	public synchronized void occurred(ConnectionException exception) {
+		if (exception.getType() == ConnectionException.Type.CONNECTION_CLOSED && chatClient.isClosed()) {
+			if (addressConfigurator != null && addressConfigurator.getState() != DynamicAddressConfigurator.State.WORKING) {				
+				addressConfigurator.stop();
+			}
+			
+			refreshConnectionStateRelativatedMenus();
+			updateStatus();
+			showNotification(this, "Message", "Gateway has disconnected.", DEFAULT_NOTIFICATION_DELAY_TIME);
+		}
+	}
+
+	@Override
+	public void received(String message) {}
+
+	@Override
+	public void sent(String message) {}
 }

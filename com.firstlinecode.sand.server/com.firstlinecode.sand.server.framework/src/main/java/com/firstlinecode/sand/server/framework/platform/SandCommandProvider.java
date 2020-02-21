@@ -7,10 +7,14 @@ import com.firstlinecode.granite.framework.core.annotations.Dependency;
 import com.firstlinecode.sand.server.framework.auth.IDeviceManager;
 
 public class SandCommandProvider implements CommandProvider {
+	private static final String COMMAND_SAND = "sand";
+	private static final String PARAM_DEVICES = "devices";
+	private static final String PARAM_AUTHORIZE = "authorize";
+	private static final String PARAM_HELP = "help";
 	private static final String SYSTEM_CONSOLE_AUTHORIZER = "System.Console";
 	private static final int DEFAULT_VALIDITY_TIME = 1000 * 60 * 30;
 
-	private static final String MSG_HELP = "sand - monitoring and managing sand application.\r\n";
+	private static final String MSG_HELP = "sand - Monitoring and managing sand application.\r\n";
 	
 	private static final String MSG_DETAIL_HELP =
 			"\tsand authorize <device_id> - Authorize a device to register.\r\n" +
@@ -27,7 +31,7 @@ public class SandCommandProvider implements CommandProvider {
 	
 	public Object _help(CommandInterpreter interpreter) {
 		String commandName = interpreter.nextArgument();
-		if ("sand".equals(commandName))
+		if (COMMAND_SAND.equals(commandName))
 			return getDetailHelp();
 		
 		return false;
@@ -40,9 +44,9 @@ public class SandCommandProvider implements CommandProvider {
 	public void _sand(CommandInterpreter interpreter) {
 		String nextArg = interpreter.nextArgument();
 		
-		if (nextArg == null || "help".equals(nextArg)) {
+		if (nextArg == null || PARAM_HELP.equals(nextArg)) {
 			printDetailHelp(interpreter);
-		} else if ("authorize".equals(nextArg)) {
+		} else if (PARAM_AUTHORIZE.equals(nextArg)) {
 			String deviceId = interpreter.nextArgument();
 			if (deviceId == null) {
 				interpreter.print(String.format("Error: You must provide a device ID.\n"));	
@@ -50,7 +54,7 @@ public class SandCommandProvider implements CommandProvider {
 			}
 			
 			authorize(interpreter, deviceId);
-		} else if ("devices".equals(nextArg)) {
+		} else if (PARAM_DEVICES.equals(nextArg)) {
 			String sStartIndex = interpreter.nextArgument();
 			
 			int startIndex = 0;
@@ -76,12 +80,12 @@ public class SandCommandProvider implements CommandProvider {
 
 	private void authorize(CommandInterpreter interpreter, String deviceId) {
 		if (deviceManager.deviceIdExists(deviceId)) {
-			interpreter.print(String.format("Error: Device which ID is '%s' has already registered.\n", deviceId));
+			interpreter.print(String.format("Error: Device which's ID is '%s' has already registered.\n", deviceId));
 			return;
 		}
 		
 		deviceManager.authorize(deviceId, SYSTEM_CONSOLE_AUTHORIZER, DEFAULT_VALIDITY_TIME);
-		interpreter.print(String.format("Device which ID is '%s' has authorized.\n", deviceId));
+		interpreter.print(String.format("Device which's ID is '%s' has authorized.\n", deviceId));
 	}
 
 	private void printDetailHelp(CommandInterpreter interpreter) {

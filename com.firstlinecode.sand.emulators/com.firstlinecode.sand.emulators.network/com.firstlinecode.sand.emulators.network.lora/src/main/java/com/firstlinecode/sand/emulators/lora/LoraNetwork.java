@@ -141,8 +141,8 @@ public class LoraNetwork implements ILoraNetwork {
 			long arrivedTime = getArrivedTime(from, toChip, currentTime);
 			signals.add(new LoraSignal(from, toChip, data, arrivedTime));
 			
-			if (logger.isDebugEnabled()) {
-				logger.debug(String.format("Lora signal[%s, %s, %d, %d: %s] is sent to network.", from.address,
+			if (logger.isTraceEnabled()) {
+				logger.trace(String.format("Lora signal[%s, %s, %d, %d: %s] is sent to network.", from.address,
 						toChip.getAddress(), currentTime, arrivedTime, ThingsUtils.getHexString(data)));
 			}
 			
@@ -194,9 +194,9 @@ public class LoraNetwork implements ILoraNetwork {
 		
 		List<LoraSignal> collisions = findCollisions(received);
 		if (!collisions.isEmpty()) {
-			if (logger.isDebugEnabled()) {
+			if (logger.isTraceEnabled()) {
 				for (LoraSignal collision : collisions) {					
-					logger.debug(String.format("Lora signal[%s, %s, %s] is collided.",
+					logger.trace(String.format("Lora signal[%s, %s, %s] is collided.",
 							ThingsUtils.getHexString(collision.data),
 							collision.from, collision.to));
 				}
@@ -235,7 +235,7 @@ public class LoraNetwork implements ILoraNetwork {
 		return new LoraData(received.from.getAddress(), received.data);
 	}
 	
-	private boolean isLost(LoraSignal received) {
+	private synchronized boolean isLost(LoraSignal received) {
 		SignalQuality quality = signalQualities.get(new LoraChipPair(received.from, received.to));
 		if (received.from.getType() == LoraChip.Type.HIGH_POWER) {
 			quality = adjustHighPowerDeviceSignalQuality(quality);
