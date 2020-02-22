@@ -310,6 +310,8 @@ public class Blub extends AbstractThingEmulator implements IBlub {
 	protected void doPowerOn() {
 		if (switchState == SwitchState.ON || blubState == BlubState.ON)
 			lightBlub();
+		
+		panel.refreshFlashButtionStatus();
 	}
 
 	private void lightBlub() {
@@ -323,8 +325,10 @@ public class Blub extends AbstractThingEmulator implements IBlub {
 	}
 
 	@Override
-	protected void doPowerOff() {
+	protected void doPowerOff() {		
 		unlightBlub();
+		
+		panel.refreshFlashButtionStatus();
 	}
 
 	@Override

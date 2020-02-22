@@ -3,6 +3,7 @@ package com.firstlinecode.sand.emulators.thing;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import com.firstlinecode.sand.client.lora.DualLoraAddress;
 import com.firstlinecode.sand.client.lora.LoraAddress;
 import com.firstlinecode.sand.client.lora.LoraData;
 import com.firstlinecode.sand.client.things.commuication.CommunicationException;
@@ -18,7 +19,7 @@ import com.firstlinecode.sand.protocols.core.lora.Introduction;
 
 public class DynamicAddressConfigurator implements IAddressConfigurator<ICommunicator<LoraAddress, byte[]>,
 		LoraAddress, byte[]>, ICommunicationListener<LoraAddress, byte[]> {
-	private static final int DEFAULT_ADDRESS_CONFIGURATION_NEGOTIATION_DATA_RETRIVE_INTERVAL = 1000;
+	private static final int DEFAULT_ADDRESS_CONFIGURATION_DATA_RETRIVE_INTERVAL = 1000;
 	private static final int DEFAULT_ADDRESS_CONFIGURATION_NEGOTIATION_TIMEOUT = 1000 * 30;
 	private static final int DEFAULT_ADDRESS_CONFIGURATION_CONFIRMATION_TIMEOUT = 1000 * 60 * 2;
 	
@@ -33,7 +34,7 @@ public class DynamicAddressConfigurator implements IAddressConfigurator<ICommuni
 	private LoraCommunicator communicator;
 	private IObmFactory obmFactory;
 	
-	private LoraAddress gatewayAddress;
+	private DualLoraAddress gatewayAddress;
 	private LoraAddress allocatedAddress;
 	
 	private State state;
@@ -64,7 +65,7 @@ public class DynamicAddressConfigurator implements IAddressConfigurator<ICommuni
 
 			@Override
 			public void run() {
-				if (state != State.CONFIRMED && state != State.ALLOCATED) {
+				if (state != State.ALLOCATED && state != State.CONFIRMED) {
 					doIntroduce();
 				}
 			}
@@ -109,10 +110,11 @@ public class DynamicAddressConfigurator implements IAddressConfigurator<ICommuni
 		try {
 			if (state == State.INITIAL) {
 				Allocation allocation = (Allocation)obmFactory.toObject(Allocation.class, data);
-				gatewayAddress = new LoraAddress(allocation.getGatewayAddress(), allocation.getGatewayFrequencyBand());
+				gatewayAddress = new DualLoraAddress(allocation.getGatewayAddress(), allocation.getGatewayChannel());
 				allocatedAddress = new LoraAddress(allocation.getAllocatedAddress(), allocation.getAllocatedFrequencyBand());
 				
 				communicator.changeAddress(allocatedAddress);
+				
 				Confirmation confirmation = new Confirmation();
 				confirmation.setDeviceId(deviceId);
 				
@@ -121,9 +123,14 @@ public class DynamicAddressConfigurator implements IAddressConfigurator<ICommuni
 				
 				state = State.ALLOCATED;
 			} else if (state == State.ALLOCATED) {
-				System.out.println("Allocated");
-			} else { // state == State.CONFIRMED
+				Confirmation confirmation = (Confirmation)obmFactory.toObject(Confirmation.class, data);
+				if (!deviceId.equals(confirmation.getDeviceId())) {
+					throw new IllegalStateException("Device ID doesn't match.");
+				}
 				
+				done(gatewayAddress, communicator.getAddress());
+			} else { // state == State.CONFIRMED
+				// It's impossible code goes to here.
 			}
 		} catch (Exception e) {
 			// ignore
@@ -140,11 +147,15 @@ public class DynamicAddressConfigurator implements IAddressConfigurator<ICommuni
 				LoraData data = communicator.receive();
 				
 				if (data != null) {
-					negotiate(data.getAddress(), data.getData());
+					if (state != State.ALLOCATED) {						
+						negotiate(data.getAddress(), data.getData());
+					} else {
+						confirm();
+					}
 				}
 				
 				try {
-					Thread.sleep(DEFAULT_ADDRESS_CONFIGURATION_NEGOTIATION_DATA_RETRIVE_INTERVAL);
+					Thread.sleep(DEFAULT_ADDRESS_CONFIGURATION_DATA_RETRIVE_INTERVAL);
 				} catch (InterruptedException e) {
 					// ignore
 				}
@@ -171,8 +182,9 @@ public class DynamicAddressConfigurator implements IAddressConfigurator<ICommuni
 		
 	}
 	
-	public void done(LoraAddress address) {
-		
+	public void done(DualLoraAddress gatewayAddress, LoraAddress address) {
+		System.out.println(String.format("Address configuration done. Gateway address is %s. Device address is %s ",
+				gatewayAddress, address));		
 	}
 
 	@Override
@@ -182,8 +194,17 @@ public class DynamicAddressConfigurator implements IAddressConfigurator<ICommuni
 
 	@Override
 	public synchronized void confirm() {
-		// TODO Auto-generated method stub
-		
+		timeoutTimer.cancel();
+		timeoutTimer.schedule(new TimerTask() {
+
+			@Override
+			public void run() {
+				if (state != State.CONFIRMED) {
+					doIntroduce();
+				}
+			}
+			
+		}, DEFAULT_ADDRESS_CONFIGURATION_CONFIRMATION_TIMEOUT, 0);
 	}
 	
 }

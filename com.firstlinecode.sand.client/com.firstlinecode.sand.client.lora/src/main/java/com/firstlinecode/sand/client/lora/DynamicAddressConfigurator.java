@@ -149,7 +149,7 @@ public class DynamicAddressConfigurator implements IAddressConfigurator<IDualLor
 				
 				Allocation allocation = new Allocation();
 				allocation.setGatewayAddress(workingAddress.getSlaveAddress().getAddress());
-				allocation.setGatewayFrequencyBand(workingAddress.getSlaveAddress().getFrequencyBand());
+				allocation.setGatewayChannel(workingAddress.getChannel());
 				
 				int nodesSize = concentrator.getLanIds().length;
 				int iNodeLanId = nodesSize + 1;
@@ -178,7 +178,7 @@ public class DynamicAddressConfigurator implements IAddressConfigurator<IDualLor
 			if (state == State.ALLOCATING) {
 				Confirmation confirmation = (Confirmation)obmFactory.toObject(Confirmation.class, data);
 				
-				if (nodeDeviceId != confirmation.getDeviceId()) {
+				if (!nodeDeviceId.equals(confirmation.getDeviceId())) {
 					processParallelAddressConfigurationRequest(peerAddress);
 				}
 				
@@ -202,7 +202,7 @@ public class DynamicAddressConfigurator implements IAddressConfigurator<IDualLor
 			logger.debug(String.format("Parallel address configuration request from %s.", peerAddress.getAddress()));
 		}
 		
-		throw new ProtocolException(new Conflict());
+		throw new ProtocolException(new Conflict(String.format("Parallel address configuration request from %s.", peerAddress.getAddress())));
 	}
 
 	@Override

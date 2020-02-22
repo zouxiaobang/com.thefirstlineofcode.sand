@@ -45,7 +45,7 @@ public abstract class AbstractThingEmulator implements IThingEmulator {
 
 		deviceId = ThingsUtils.generateRandomDeviceId();			
 		batteryPower = 100;
-		powered = false;
+		powered = true;
 		
 		addressConfigurator = new DynamicAddressConfigurator(deviceId, (LoraCommunicator)communicator);
 		

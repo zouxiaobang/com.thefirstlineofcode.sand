@@ -5,24 +5,24 @@ import com.firstlinecode.basalt.protocol.oxm.convention.annotations.ProtocolObje
 @ProtocolObject(namespace="http://firstlinecode.com/protocols/address-configuration", localName="allocation")
 public class Allocation {
 	private long gatewayAddress;
-	private int gatewayFrequencyBand;
+	private int gatewayChannel;
 	private long allocatedAddress;
 	private int allocatedFrequencyBand;
 	
 	public long getGatewayAddress() {
 		return gatewayAddress;
 	}
-	
-	public void setGatewayAddress(long gatewayAddress) {
-		this.gatewayAddress = gatewayAddress;
+
+	public void setGatewayAddress(long gatewayMasterAddress) {
+		this.gatewayAddress = gatewayMasterAddress;
 	}
-	
-	public int getGatewayFrequencyBand() {
-		return gatewayFrequencyBand;
+
+	public int getGatewayChannel() {
+		return gatewayChannel;
 	}
-	
-	public void setGatewayFrequencyBand(int gatewayFrequencyBand) {
-		this.gatewayFrequencyBand = gatewayFrequencyBand;
+
+	public void setGatewayChannel(int gatewayMasterFrequencyBand) {
+		this.gatewayChannel = gatewayMasterFrequencyBand;
 	}
 	
 	public long getAllocatedAddress() {
