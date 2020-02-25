@@ -2,7 +2,7 @@
 # Use this file to add customized Bnd instructions for the bundle
 #-----------------------------------------------------------------
 
-Basalt-Parsers: protocol-chain=iq|null->query|http://firstlinecode.com/protocol/device-register;\
+Basalt-Parsers: protocol-chain=iq|null->query|urn:lep:iot:ibdr;\
  class=com.firstlinecode.sand.protocols.DeviceRegister;\
  type=custom;\
  parser-factory=com.firstlinecode.sand.protocols.ibdr.oxm.DeviceRegisterParserFactory

@@ -1,8 +1,8 @@
-package com.firstlinecode.sand.protocols.core.lora;
+package com.firstlinecode.sand.protocols.lora.dac;
 
-import com.firstlinecode.basalt.protocol.oxm.convention.annotations.ProtocolObject;
+import com.firstlinecode.basalt.oxm.convention.annotations.ProtocolObject;
 
-@ProtocolObject(namespace="http://firstlinecode.com/protocols/address-configuration", localName="introduction")
+@ProtocolObject(namespace="urn:leps:iot:dac", localName="introduction")
 public class Introduction {
 	private String deviceId;
 	private long address;

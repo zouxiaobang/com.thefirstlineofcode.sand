@@ -6,12 +6,12 @@ import java.util.List;
 import com.firstlinecode.basalt.protocol.core.Protocol;
 import com.firstlinecode.basalt.protocol.core.ProtocolChain;
 import com.firstlinecode.basalt.protocol.im.stanza.Message;
-import com.firstlinecode.basalt.protocol.oxm.IOxmFactory;
-import com.firstlinecode.basalt.protocol.oxm.OxmService;
-import com.firstlinecode.basalt.protocol.oxm.binary.IBinaryXmppProtocolConverter;
-import com.firstlinecode.basalt.protocol.oxm.convention.NamingConventionParserFactory;
-import com.firstlinecode.basalt.protocol.oxm.convention.NamingConventionTranslatorFactory;
-import com.firstlinecode.basalt.protocol.oxm.convention.annotations.ProtocolObject;
+import com.firstlinecode.basalt.oxm.IOxmFactory;
+import com.firstlinecode.basalt.oxm.OxmService;
+import com.firstlinecode.basalt.oxm.binary.IBinaryXmppProtocolConverter;
+import com.firstlinecode.basalt.oxm.convention.NamingConventionParserFactory;
+import com.firstlinecode.basalt.oxm.convention.NamingConventionTranslatorFactory;
+import com.firstlinecode.basalt.oxm.convention.annotations.ProtocolObject;
 import com.firstlinecode.gem.client.bxmpp.BinaryXmppProtocolFactory;
 
 public class ObmFactory implements IObmFactory {

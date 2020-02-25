@@ -1,12 +1,12 @@
 package com.firstlinecode.sand.protocols.ibdr;
 
 import com.firstlinecode.basalt.protocol.core.Protocol;
-import com.firstlinecode.basalt.protocol.oxm.convention.annotations.ProtocolObject;
+import com.firstlinecode.basalt.oxm.convention.annotations.ProtocolObject;
 import com.firstlinecode.sand.protocols.core.DeviceIdentity;
 
-@ProtocolObject(namespace="http://firstlinecode.com/protocols/device-register", localName="query")
+@ProtocolObject(namespace="urn:leps:iot:ibdr", localName="query")
 public class DeviceRegister {
-	public static final Protocol PROTOCOL = new Protocol("http://firstlinecode.com/protocols/device-register", "query");
+	public static final Protocol PROTOCOL = new Protocol("urn:leps:iot:ibdr", "query");
 	
 	private Object register;
 	

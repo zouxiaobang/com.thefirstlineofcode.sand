@@ -341,7 +341,7 @@
 			</dependency>
 			<dependency>
 				<groupId>com.firstlinecode.basalt</groupId>
-				<artifactId>com.firstlinecode.basalt.protocol.oxm</artifactId>
+				<artifactId>com.firstlinecode.basalt.oxm</artifactId>
 				<version>${basalt.version}</version>
 			</dependency>
 			
@@ -403,6 +403,18 @@
 				<version>${sand.version}</version>
 			</dependency>
 
+			<dependency>
+				<groupId>com.firstlinecode.sand.protocols</groupId>
+				<artifactId>com.firstlinecode.sand.protocols.lora</artifactId>
+				<version>${sand.version}</version>
+			</dependency>
+			
+			<dependency>
+				<groupId>com.firstlinecode.sand.protocols</groupId>
+				<artifactId>com.firstlinecode.sand.protocols.concentrator</artifactId>
+				<version>${sand.version}</version>
+			</dependency>
+			
 			<dependency>
 				<groupId>com.firstlinecode.sand.protocols</groupId>
 				<artifactId>com.firstlinecode.sand.protocols.ibdr</artifactId>

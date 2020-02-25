@@ -43,7 +43,7 @@ public abstract class AbstractThingEmulator implements IThingEmulator {
 		this.thingName = type + " - " + mode;
 		this.communicator = communicator;
 
-		deviceId = ThingsUtils.generateRandomDeviceId();			
+		deviceId = ThingsUtils.generateRandomDeviceId();
 		batteryPower = 100;
 		powered = true;
 		

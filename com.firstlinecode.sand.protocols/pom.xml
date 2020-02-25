@@ -19,6 +19,8 @@
 	<modules>
 		<module>com.firstlinecode.sand.protocols.core</module>
 		<module>com.firstlinecode.sand.protocols.ibdr</module>
+		<module>com.firstlinecode.sand.protocols.lora</module>
+		<module>com.firstlinecode.sand.protocols.concentrator</module>
 	</modules>
 
 </project>

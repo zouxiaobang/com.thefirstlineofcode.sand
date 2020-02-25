@@ -2,9 +2,9 @@ package com.firstlinecode.sand.protocols.ibdr;
 
 import com.firstlinecode.basalt.protocol.core.Protocol;
 import com.firstlinecode.basalt.protocol.core.stream.Feature;
-import com.firstlinecode.basalt.protocol.oxm.convention.annotations.ProtocolObject;
+import com.firstlinecode.basalt.oxm.convention.annotations.ProtocolObject;
 
-@ProtocolObject(namespace="http://firstlinecode.com/features/device-register", localName="register")
+@ProtocolObject(namespace="urn:leps:iot:ibdr", localName="register")
 public class Register implements Feature {
-	public static final Protocol PROTOCOL = new Protocol("http://firstlinecode.com/features/device-register", "register");
+	public static final Protocol PROTOCOL = new Protocol("urn:leps:iot:ibdr", "register");
 }

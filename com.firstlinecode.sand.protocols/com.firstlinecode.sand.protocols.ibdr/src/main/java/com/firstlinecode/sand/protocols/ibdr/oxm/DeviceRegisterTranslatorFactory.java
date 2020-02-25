@@ -1,11 +1,11 @@
 package com.firstlinecode.sand.protocols.ibdr.oxm;
 
 import com.firstlinecode.basalt.protocol.core.Protocol;
-import com.firstlinecode.basalt.protocol.oxm.Value;
-import com.firstlinecode.basalt.protocol.oxm.translating.IProtocolWriter;
-import com.firstlinecode.basalt.protocol.oxm.translating.ITranslatingFactory;
-import com.firstlinecode.basalt.protocol.oxm.translating.ITranslator;
-import com.firstlinecode.basalt.protocol.oxm.translating.ITranslatorFactory;
+import com.firstlinecode.basalt.oxm.Value;
+import com.firstlinecode.basalt.oxm.translating.IProtocolWriter;
+import com.firstlinecode.basalt.oxm.translating.ITranslatingFactory;
+import com.firstlinecode.basalt.oxm.translating.ITranslator;
+import com.firstlinecode.basalt.oxm.translating.ITranslatorFactory;
 import com.firstlinecode.sand.protocols.core.DeviceIdentity;
 import com.firstlinecode.sand.protocols.ibdr.DeviceRegister;
 

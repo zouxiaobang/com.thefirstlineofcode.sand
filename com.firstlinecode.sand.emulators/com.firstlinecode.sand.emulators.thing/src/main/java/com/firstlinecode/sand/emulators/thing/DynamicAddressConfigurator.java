@@ -13,9 +13,9 @@ import com.firstlinecode.sand.client.things.commuication.IObmFactory;
 import com.firstlinecode.sand.client.things.commuication.ObmFactory;
 import com.firstlinecode.sand.client.things.concentrator.IAddressConfigurator;
 import com.firstlinecode.sand.emulators.lora.LoraCommunicator;
-import com.firstlinecode.sand.protocols.core.lora.Allocation;
-import com.firstlinecode.sand.protocols.core.lora.Confirmation;
-import com.firstlinecode.sand.protocols.core.lora.Introduction;
+import com.firstlinecode.sand.protocols.lora.dac.Allocation;
+import com.firstlinecode.sand.protocols.lora.dac.Confirmation;
+import com.firstlinecode.sand.protocols.lora.dac.Introduction;
 
 public class DynamicAddressConfigurator implements IAddressConfigurator<ICommunicator<LoraAddress, byte[]>,
 		LoraAddress, byte[]>, ICommunicationListener<LoraAddress, byte[]> {
@@ -130,7 +130,7 @@ public class DynamicAddressConfigurator implements IAddressConfigurator<ICommuni
 				
 				done(gatewayAddress, communicator.getAddress());
 			} else { // state == State.CONFIRMED
-				// It's impossible code goes to here.
+				// It's impossible the code goes to here.
 			}
 		} catch (Exception e) {
 			// ignore

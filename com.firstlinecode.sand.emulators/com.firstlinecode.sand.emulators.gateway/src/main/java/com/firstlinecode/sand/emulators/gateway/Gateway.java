@@ -161,6 +161,7 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 	private List<IThingEmulatorFactory<?>> thingFactories;
 	private Map<String, List<IThingEmulator>> allThings;
 	private Map<String, Node<LoraAddress>> nodes;
+	private Object nodesLock = new Object();
 	private boolean dirty;
 	
 	private ILoraNetwork network;
@@ -189,7 +190,7 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 		thingFactories = new ArrayList<>();
 		allThings = new HashMap<>();
 		nodes = new HashMap<>();
-		dirty = false;	
+		dirty = false;
 		autoReconnect = false;
 		
 		new Thread(new AutoReconnectThread()).start();
@@ -1293,58 +1294,48 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 	
 	@Override
 	public String createNode(Node<LoraAddress> node) throws NodeCreationException {
-		if (nodes.size() > 99) {
-			throw new NodeCreationException(NodeCreationException.Reason.OVERFLOW_SIZE,
-					"Can't create node. Overflow size of nodes.");
+		synchronized (nodesLock) {
+			if (nodes.size() > 99) {
+				throw new NodeCreationException(NodeCreationException.Reason.OVERFLOW_SIZE,
+						"Can't create node. Overflow size of nodes.");
+			}
+			
+			String lanId = getLanId(node.getDeviceId());
+			if (lanId != null) {
+				throw new NodeCreationException(NodeCreationException.Reason.REDUPLICATED_NODE,
+						String.format("Can't create node. The node which's device ID is %s has already existed.",
+								node.getDeviceId()));
+			}
+			
+			lanId = getLanId(node.getAddress());
+			if (lanId != null) {
+				throw new NodeCreationException(NodeCreationException.Reason.REDUPLICATED_NODE,
+						String.format("Can't create node. The node which's address is %s has already existed.", node.getAddress()));
+			}
+			
+			lanId = String.format("%02d", nodes.size() + 1);
+			nodes.put(lanId, node);
+			
+			return lanId;
 		}
-		
-		if (nodeHasAdded(node.getDeviceId())) {
-			throw new NodeCreationException(NodeCreationException.Reason.REDUPLICATED_NODE,
-					String.format("Can't create node. The node which's device ID is %s has already existed.",
-							node.getDeviceId()));
-		}
-		
-		if (addressHasUsed(node.getAddress())) {
-			throw new NodeCreationException(NodeCreationException.Reason.REDUPLICATED_NODE,
-					String.format("Can't create node. The address %s has already existed.", node.getAddress()));
-		}
-		
-		String lanId = String.format("%02d", nodes.size() + 1);
-		nodes.put(lanId, node);
-		
-		return lanId;
-	}
-
-	private boolean addressHasUsed(LoraAddress address) {
-		for (Node<LoraAddress> node : nodes.values()) {
-			if (node.getAddress().equals(address))
-				return true;
-		}
-		
-		return false;
-	}
-
-	private boolean nodeHasAdded(String deviceId) {
-		for (Node<LoraAddress> node : nodes.values()) {
-			if (node.getDeviceId().equals(deviceId))
-				return true;
-		}
-		
-		return false;
 	}
 
 	@Override
 	public Node<LoraAddress> removeNode(String nodeLanId) {
-		return nodes.remove(nodeLanId);
+		synchronized (nodesLock) {
+			return nodes.remove(nodeLanId);
+		}
 	}
 	
 	@Override
 	public Node<LoraAddress> getNode(String nodeLanId) throws NodeNotFoundException {
-		Node<LoraAddress> node = nodes.get(nodeLanId);
-		if (node != null)
-			return node;
-		
-		throw new NodeNotFoundException(String.format("Node which's lan id is % not be found.", nodeLanId));
+		synchronized (nodesLock) {
+			Node<LoraAddress> node = nodes.get(nodeLanId);
+			if (node != null)
+				return node;
+			
+			throw new NodeNotFoundException(String.format("Node which's lan ID is % not be found.", nodeLanId));			
+		}
 	}
 
 	@Override
@@ -1367,7 +1358,9 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 
 	@Override
 	public String[] getLanIds() {
-		return nodes.keySet().toArray(new String[nodes.size()]);
+		synchronized (nodesLock) {			
+			return nodes.keySet().toArray(new String[nodes.size()]);
+		}
 	}
 
 	@Override
@@ -1388,4 +1381,37 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 
 	@Override
 	public void sent(String message) {}
+
+	@Override
+	public void setNodeEnabled(String lanId, boolean enabled) throws NodeNotFoundException {
+		getNode(lanId).setEnabled(enabled);
+	}
+	
+	@Override
+	public boolean isNodeEnabled(String lanId) throws NodeNotFoundException {
+		return getNode(lanId).isEnabled();
+	}
+	
+	@Override
+	public String getLanId(LoraAddress address) {
+		synchronized (nodesLock) {
+			for (String lanId : nodes.keySet()) {
+				if (nodes.get(lanId).getAddress().equals(address))
+					return lanId;
+			}
+			
+			return null;
+		}
+		
+	}
+	
+	@Override
+	public String getLanId(String deviceId) {
+		for (String lanId : nodes.keySet()) {
+			if (nodes.get(lanId).getDeviceId().equals(deviceId))
+				return lanId;
+		}
+		
+		return null;
+	}
 }

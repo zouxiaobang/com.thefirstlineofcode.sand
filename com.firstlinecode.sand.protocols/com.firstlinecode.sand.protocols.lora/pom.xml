@@ -13,15 +13,10 @@
 	</parent>
 
 	<groupId>com.firstlinecode.sand.protocols</groupId>
-	<artifactId>com.firstlinecode.sand.protocols.ibdr</artifactId>
-	<name>com.firstlinecode.sand.protocols.ibdr</name>
-	<packaging>bundle</packaging>
+	<artifactId>com.firstlinecode.sand.protocols.lora</artifactId>
+	<name>com.firstlinecode.sand.protocols.lora</name>
 	
 	<dependencies>
-		<dependency>
-			<groupId>com.firstlinecode.sand.protocols</groupId>
-			<artifactId>com.firstlinecode.sand.protocols.core</artifactId>
-		</dependency>
 		<dependency>
 			<groupId>com.firstlinecode.basalt</groupId>
 			<artifactId>com.firstlinecode.basalt.oxm</artifactId>
