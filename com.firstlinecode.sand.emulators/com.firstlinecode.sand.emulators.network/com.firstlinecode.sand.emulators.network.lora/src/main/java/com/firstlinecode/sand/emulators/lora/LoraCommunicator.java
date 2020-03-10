@@ -2,9 +2,9 @@ package com.firstlinecode.sand.emulators.lora;
 
 import com.firstlinecode.sand.client.lora.AbstractCommunicator;
 import com.firstlinecode.sand.client.lora.ILoraChip;
-import com.firstlinecode.sand.client.lora.LoraAddress;
 import com.firstlinecode.sand.client.lora.LoraData;
 import com.firstlinecode.sand.client.things.commuication.CommunicationException;
+import com.firstlinecode.sand.protocols.lora.LoraAddress;
 
 public class LoraCommunicator extends AbstractCommunicator<LoraAddress, byte[]> {
 	protected ILoraChip chip;

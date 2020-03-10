@@ -17,7 +17,8 @@
 	<name>Lithosphere IoT server Lite Plugins</name>
 
 	<modules>
-		<module>com.firstlinecode.sand.server.lite.auth</module>
+		<module>com.firstlinecode.sand.server.lite.devices</module>
+		<module>com.firstlinecode.sand.server.lite.leps.concentrator</module>
 	</modules>
 
 </project>

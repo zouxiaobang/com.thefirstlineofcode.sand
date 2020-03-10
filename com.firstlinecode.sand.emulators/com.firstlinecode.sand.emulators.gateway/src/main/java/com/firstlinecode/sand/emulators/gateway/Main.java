@@ -1,14 +1,14 @@
 package com.firstlinecode.sand.emulators.gateway;
 
-import com.firstlinecode.sand.client.lora.DualLoraAddress;
 import com.firstlinecode.sand.client.lora.IDualLoraChipCommunicator;
-import com.firstlinecode.sand.client.lora.LoraAddress;
 import com.firstlinecode.sand.client.things.commuication.ICommunicator;
 import com.firstlinecode.sand.emulators.blub.BlubEmulatorFactory;
 import com.firstlinecode.sand.emulators.lora.DualLoraChipCommunicator;
 import com.firstlinecode.sand.emulators.lora.LoraChip;
 import com.firstlinecode.sand.emulators.lora.LoraChipCreationParams;
 import com.firstlinecode.sand.emulators.lora.LoraNetwork;
+import com.firstlinecode.sand.protocols.lora.DualLoraAddress;
+import com.firstlinecode.sand.protocols.lora.LoraAddress;
 
 public class Main {
 	public static void main(String[] args) {

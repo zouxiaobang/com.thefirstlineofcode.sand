@@ -1,8 +1,8 @@
 package com.firstlinecode.sand.emulators.lora;
 
 import com.firstlinecode.sand.client.lora.ILoraChip;
-import com.firstlinecode.sand.client.lora.LoraAddress;
 import com.firstlinecode.sand.client.things.commuication.ICommunicationNetwork;
+import com.firstlinecode.sand.protocols.lora.LoraAddress;
 
 public interface ILoraNetwork extends ICommunicationNetwork<LoraAddress, byte[], LoraChipCreationParams> {
 	public enum SignalQuality {

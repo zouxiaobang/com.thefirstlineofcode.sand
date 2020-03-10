@@ -1,12 +1,12 @@
 package com.firstlinecode.sand.emulators.gateway.lora;
 
-import com.firstlinecode.sand.client.lora.LoraAddress;
 import com.firstlinecode.sand.client.things.commuication.ICommunicator;
 import com.firstlinecode.sand.client.things.commuication.ICommunicatorFactory;
 import com.firstlinecode.sand.client.things.commuication.ParamsMap;
 import com.firstlinecode.sand.emulators.lora.ILoraNetwork;
 import com.firstlinecode.sand.emulators.lora.LoraChipCreationParams;
 import com.firstlinecode.sand.emulators.lora.LoraCommunicator;
+import com.firstlinecode.sand.protocols.lora.LoraAddress;
 
 public class LoraCommunicatorFactory implements ICommunicatorFactory{
 	protected ILoraNetwork network;

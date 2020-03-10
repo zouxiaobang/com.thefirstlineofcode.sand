@@ -18,7 +18,11 @@ import com.firstlinecode.sand.client.things.concentrator.IConcentrator;
 import com.firstlinecode.sand.client.things.concentrator.Node;
 import com.firstlinecode.sand.client.things.concentrator.NodeCreationException;
 import com.firstlinecode.sand.client.things.concentrator.NodeNotFoundException;
-import com.firstlinecode.sand.protocols.concentrator.CreateNode;
+import com.firstlinecode.sand.protocols.concentrator.NodeCreationRequest;
+import com.firstlinecode.sand.protocols.concentrator.NodeAddress;
+import com.firstlinecode.sand.protocols.core.ProtocolType;
+import com.firstlinecode.sand.protocols.lora.DualLoraAddress;
+import com.firstlinecode.sand.protocols.lora.LoraAddress;
 import com.firstlinecode.sand.protocols.lora.dac.Allocation;
 import com.firstlinecode.sand.protocols.lora.dac.Confirmation;
 import com.firstlinecode.sand.protocols.lora.dac.Introduction;
@@ -232,9 +236,9 @@ public class DynamicAddressConfigurator implements IAddressConfigurator<IDualLor
 					e.printStackTrace();
 				}
 				
-				CreateNode<LoraAddress> createNode = new CreateNode<>();
+				NodeCreationRequest<LoraAddress> createNode = new NodeCreationRequest<>();
 				createNode.setDeviceId(nodeDeviceId);
-				createNode.setAddress(nodeAddress);
+				createNode.setAddress(new NodeAddress<LoraAddress>(ProtocolType.LORA, nodeAddress));
 				createNode.setLanId(nodeLanId);
 				
 				Iq iq = new Iq(Iq.Type.SET, "nc-" + nodeLanId);

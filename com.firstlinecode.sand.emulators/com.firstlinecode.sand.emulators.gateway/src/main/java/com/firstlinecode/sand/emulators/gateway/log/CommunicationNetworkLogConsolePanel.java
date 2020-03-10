@@ -2,10 +2,10 @@ package com.firstlinecode.sand.emulators.gateway.log;
 
 import java.awt.event.WindowEvent;
 
-import com.firstlinecode.sand.client.lora.LoraAddress;
 import com.firstlinecode.sand.client.things.ThingsUtils;
 import com.firstlinecode.sand.client.things.commuication.ICommunicationNetwork;
 import com.firstlinecode.sand.emulators.lora.ILoraNetworkListener;
+import com.firstlinecode.sand.protocols.lora.LoraAddress;
 
 public class CommunicationNetworkLogConsolePanel extends AbstractLogConsolePanel implements ILoraNetworkListener {
 	private static final long serialVersionUID = 4598974878913796627L;

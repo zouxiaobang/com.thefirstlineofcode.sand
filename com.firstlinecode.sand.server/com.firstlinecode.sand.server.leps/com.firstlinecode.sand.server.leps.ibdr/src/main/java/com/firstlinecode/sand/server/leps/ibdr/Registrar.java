@@ -5,7 +5,7 @@ import com.firstlinecode.basalt.protocol.core.stanza.error.NotAcceptable;
 import com.firstlinecode.granite.framework.core.annotations.Component;
 import com.firstlinecode.granite.framework.core.annotations.Dependency;
 import com.firstlinecode.sand.protocols.core.DeviceIdentity;
-import com.firstlinecode.sand.server.framework.auth.IDeviceManager;
+import com.firstlinecode.sand.server.framework.devices.IDeviceManager;
 
 @Component("default.device.registrar")
 public class Registrar implements IDeviceRegistrar {

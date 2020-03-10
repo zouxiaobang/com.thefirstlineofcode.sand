@@ -2,12 +2,12 @@ package com.firstlinecode.sand.emulators.gateway.log;
 
 import java.awt.event.WindowEvent;
 
-import com.firstlinecode.sand.client.lora.LoraAddress;
 import com.firstlinecode.sand.client.things.ThingsUtils;
 import com.firstlinecode.sand.client.things.commuication.CommunicationException;
 import com.firstlinecode.sand.client.things.commuication.ICommunicationListener;
 import com.firstlinecode.sand.client.things.commuication.ICommunicator;
 import com.firstlinecode.sand.emulators.thing.IThingEmulator;
+import com.firstlinecode.sand.protocols.lora.LoraAddress;
 
 public class ThingLogConsolePanel extends AbstractLogConsolePanel implements ICommunicationListener<LoraAddress, byte[]> {
 	private static final long serialVersionUID = 506009089461387655L;

@@ -67,7 +67,6 @@ import com.firstlinecode.sand.client.ibdr.IbdrPlugin;
 import com.firstlinecode.sand.client.ibdr.RegistrationException;
 import com.firstlinecode.sand.client.lora.DynamicAddressConfigurator;
 import com.firstlinecode.sand.client.lora.IDualLoraChipCommunicator;
-import com.firstlinecode.sand.client.lora.LoraAddress;
 import com.firstlinecode.sand.client.things.IEventListener;
 import com.firstlinecode.sand.client.things.ThingsUtils;
 import com.firstlinecode.sand.client.things.actuator.IAction;
@@ -90,6 +89,7 @@ import com.firstlinecode.sand.emulators.thing.Constants;
 import com.firstlinecode.sand.emulators.thing.IThingEmulator;
 import com.firstlinecode.sand.emulators.thing.IThingEmulatorFactory;
 import com.firstlinecode.sand.protocols.core.DeviceIdentity;
+import com.firstlinecode.sand.protocols.lora.LoraAddress;
 
 public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionListener, InternalFrameListener,
 		ComponentListener, WindowListener, IGateway, IConnectionListener {

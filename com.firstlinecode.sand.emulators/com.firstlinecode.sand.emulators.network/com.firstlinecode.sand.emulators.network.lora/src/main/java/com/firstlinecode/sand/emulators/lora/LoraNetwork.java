@@ -10,11 +10,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.firstlinecode.sand.client.lora.ILoraChip;
-import com.firstlinecode.sand.client.lora.LoraAddress;
 import com.firstlinecode.sand.client.lora.LoraData;
 import com.firstlinecode.sand.client.things.ThingsUtils;
 import com.firstlinecode.sand.client.things.commuication.ICommunicationChip;
 import com.firstlinecode.sand.client.things.commuication.ICommunicationNetworkListener;
+import com.firstlinecode.sand.protocols.lora.LoraAddress;
 
 public class LoraNetwork implements ILoraNetwork {
 	private static final Logger logger = LoggerFactory.getLogger(LoraNetwork.class);

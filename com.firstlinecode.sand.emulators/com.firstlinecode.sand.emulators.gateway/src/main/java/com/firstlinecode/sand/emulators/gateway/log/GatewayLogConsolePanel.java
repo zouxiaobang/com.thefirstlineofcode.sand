@@ -3,10 +3,10 @@ package com.firstlinecode.sand.emulators.gateway.log;
 import java.awt.event.WindowEvent;
 
 import com.firstlinecode.sand.client.lora.IDualLoraChipCommunicator;
-import com.firstlinecode.sand.client.lora.LoraAddress;
 import com.firstlinecode.sand.client.things.ThingsUtils;
 import com.firstlinecode.sand.client.things.commuication.CommunicationException;
 import com.firstlinecode.sand.client.things.commuication.ICommunicationListener;
+import com.firstlinecode.sand.protocols.lora.LoraAddress;
 
 public class GatewayLogConsolePanel extends AbstractLogConsolePanel {
 	private static final long serialVersionUID = -75294176722668481L;

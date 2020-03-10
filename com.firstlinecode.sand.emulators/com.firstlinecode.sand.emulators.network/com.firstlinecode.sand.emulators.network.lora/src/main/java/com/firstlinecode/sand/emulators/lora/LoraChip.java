@@ -9,9 +9,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.firstlinecode.sand.client.lora.ILoraChip;
-import com.firstlinecode.sand.client.lora.LoraAddress;
 import com.firstlinecode.sand.client.lora.LoraData;
 import com.firstlinecode.sand.client.things.commuication.ICommunicationListener;
+import com.firstlinecode.sand.protocols.lora.LoraAddress;
 
 public class LoraChip implements ILoraChip {
 	private static final Logger logger = LoggerFactory.getLogger(LoraChip.class);

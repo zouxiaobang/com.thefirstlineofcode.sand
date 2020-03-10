@@ -371,6 +371,62 @@
         			<version>${granite.framework.version}</version>
 			</dependency>
 
+			<dependency>
+				<groupId>com.firstlinecode.granite.framework</groupId>
+        			<artifactId>com.firstlinecode.granite.framework.processing</artifactId>
+        			<version>${granite.framework.version}</version>
+			</dependency>
+
+			<!-- gem libraries -->
+			<dependency>
+        			<groupId>com.firstlinecode.gem</groupId>
+        			<artifactId>com.firstlinecode.gem.protocol.bxmpp</artifactId>
+        			<version>${gem.version}</version>
+			</dependency>
+
+			<!-- sand xmpp libraries -->
+			<dependency>
+				<groupId>com.firstlinecode.sand.emulators.network</groupId>
+				<artifactId>com.firstlinecode.sand.emulators.network.lora</artifactId>
+				<version>${sand.version}</version>
+			</dependency>
+			
+			<dependency>
+				<groupId>com.firstlinecode.sand.emulators</groupId>
+				<artifactId>com.firstlinecode.sand.emulators.thing</artifactId>
+				<version>${sand.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>com.firstlinecode.sand.emulators</groupId>
+				<artifactId>com.firstlinecode.sand.emulators.blub</artifactId>
+				<version>${sand.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>com.firstlinecode.sand.protocols</groupId>
+				<artifactId>com.firstlinecode.sand.protocols.core</artifactId>
+				<version>${sand.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>com.firstlinecode.sand.protocols</groupId>
+				<artifactId>com.firstlinecode.sand.protocols.lora</artifactId>
+				<version>${sand.version}</version>
+			</dependency>
+			
+			<dependency>
+				<groupId>com.firstlinecode.sand.protocols</groupId>
+				<artifactId>com.firstlinecode.sand.protocols.ibdr</artifactId>
+				<version>${sand.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>com.firstlinecode.sand.protocols</groupId>
+				<artifactId>com.firstlinecode.sand.protocols.concentrator</artifactId>
+				<version>${sand.version}</version>
+			</dependency>
+
 			<!-- gem libraries -->
 			<dependency>
         			<groupId>com.firstlinecode.gem</groupId>
@@ -448,6 +504,11 @@
 			<dependency>
 				<groupId>com.firstlinecode.sand.server.lite</groupId>
 				<artifactId>com.firstlinecode.sand.server.lite.auth</artifactId>
+				<version>${sand.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.firstlinecode.sand.server.leps</groupId>
+				<artifactId>com.firstlinecode.sand.server.leps.concentrator</artifactId>
 				<version>${sand.version}</version>
 			</dependency>
 		</dependencies>

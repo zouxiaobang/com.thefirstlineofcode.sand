@@ -8,12 +8,12 @@ import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import com.firstlinecode.sand.client.lora.LoraAddress;
 import com.firstlinecode.sand.client.things.BatteryPowerEvent;
 import com.firstlinecode.sand.client.things.IThingListener;
 import com.firstlinecode.sand.client.things.ThingsUtils;
 import com.firstlinecode.sand.client.things.commuication.ICommunicator;
 import com.firstlinecode.sand.emulators.lora.LoraCommunicator;
+import com.firstlinecode.sand.protocols.lora.LoraAddress;
 
 public abstract class AbstractThingEmulator implements IThingEmulator {
 	protected String thingName;

@@ -1,7 +1,7 @@
 package com.firstlinecode.sand.emulators.lora;
 
-import com.firstlinecode.sand.client.lora.LoraAddress;
 import com.firstlinecode.sand.client.things.commuication.ParamsMap;
+import com.firstlinecode.sand.protocols.lora.LoraAddress;
 
 public class LoraChipCreationParams extends ParamsMap {
 	public static final String PARAM_NAME_TYPE = "type";

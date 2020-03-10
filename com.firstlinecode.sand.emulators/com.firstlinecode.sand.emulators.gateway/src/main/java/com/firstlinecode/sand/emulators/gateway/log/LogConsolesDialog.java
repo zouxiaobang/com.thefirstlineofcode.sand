@@ -11,10 +11,10 @@ import javax.swing.JTabbedPane;
 import com.firstlinecode.chalk.IChatClient;
 import com.firstlinecode.chalk.network.IConnectionListener;
 import com.firstlinecode.sand.client.lora.IDualLoraChipCommunicator;
-import com.firstlinecode.sand.client.lora.LoraAddress;
 import com.firstlinecode.sand.client.things.commuication.ICommunicationNetwork;
 import com.firstlinecode.sand.client.things.commuication.ICommunicationNetworkListener;
 import com.firstlinecode.sand.emulators.thing.IThingEmulator;
+import com.firstlinecode.sand.protocols.lora.LoraAddress;
 
 public class LogConsolesDialog extends JDialog {
 	private static final long serialVersionUID = 5197344780011371803L;

@@ -3,8 +3,6 @@ package com.firstlinecode.sand.emulators.thing;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import com.firstlinecode.sand.client.lora.DualLoraAddress;
-import com.firstlinecode.sand.client.lora.LoraAddress;
 import com.firstlinecode.sand.client.lora.LoraData;
 import com.firstlinecode.sand.client.things.commuication.CommunicationException;
 import com.firstlinecode.sand.client.things.commuication.ICommunicationListener;
@@ -13,6 +11,8 @@ import com.firstlinecode.sand.client.things.commuication.IObmFactory;
 import com.firstlinecode.sand.client.things.commuication.ObmFactory;
 import com.firstlinecode.sand.client.things.concentrator.IAddressConfigurator;
 import com.firstlinecode.sand.emulators.lora.LoraCommunicator;
+import com.firstlinecode.sand.protocols.lora.DualLoraAddress;
+import com.firstlinecode.sand.protocols.lora.LoraAddress;
 import com.firstlinecode.sand.protocols.lora.dac.Allocation;
 import com.firstlinecode.sand.protocols.lora.dac.Confirmation;
 import com.firstlinecode.sand.protocols.lora.dac.Introduction;

@@ -18,6 +18,7 @@
 
 	<modules>
 		<module>com.firstlinecode.sand.server.leps.ibdr</module>
+		<module>com.firstlinecode.sand.server.leps.concentrator</module>
 	</modules>
 
 </project>

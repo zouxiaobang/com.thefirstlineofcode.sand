@@ -4,7 +4,7 @@ import org.eclipse.osgi.framework.console.CommandInterpreter;
 import org.eclipse.osgi.framework.console.CommandProvider;
 
 import com.firstlinecode.granite.framework.core.annotations.Dependency;
-import com.firstlinecode.sand.server.framework.auth.IDeviceManager;
+import com.firstlinecode.sand.server.framework.devices.IDeviceManager;
 
 public class SandCommandProvider implements CommandProvider {
 	private static final String COMMAND_SAND = "sand";

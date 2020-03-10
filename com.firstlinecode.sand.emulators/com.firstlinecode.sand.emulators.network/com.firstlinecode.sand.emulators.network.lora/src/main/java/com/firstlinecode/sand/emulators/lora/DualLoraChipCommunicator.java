@@ -1,11 +1,11 @@
 package com.firstlinecode.sand.emulators.lora;
 
-import com.firstlinecode.sand.client.lora.DualLoraAddress;
 import com.firstlinecode.sand.client.lora.IDualLoraChipCommunicator;
 import com.firstlinecode.sand.client.lora.ILoraChip;
-import com.firstlinecode.sand.client.lora.LoraAddress;
 import com.firstlinecode.sand.client.lora.LoraData;
 import com.firstlinecode.sand.client.things.commuication.CommunicationException;
+import com.firstlinecode.sand.protocols.lora.DualLoraAddress;
+import com.firstlinecode.sand.protocols.lora.LoraAddress;
 
 public class DualLoraChipCommunicator implements IDualLoraChipCommunicator {
 	private ILoraChip masterChip;
