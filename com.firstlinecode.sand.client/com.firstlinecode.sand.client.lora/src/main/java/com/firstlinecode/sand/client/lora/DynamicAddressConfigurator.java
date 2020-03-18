@@ -4,23 +4,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.firstlinecode.basalt.protocol.core.ProtocolException;
-import com.firstlinecode.basalt.protocol.core.stanza.Iq;
 import com.firstlinecode.basalt.protocol.core.stanza.error.Conflict;
-import com.firstlinecode.basalt.protocol.core.stanza.error.StanzaError;
-import com.firstlinecode.chalk.IChatClient;
-import com.firstlinecode.chalk.ITask;
-import com.firstlinecode.chalk.IUnidirectionalStream;
+import com.firstlinecode.sand.client.concentrator.IConcentrator;
 import com.firstlinecode.sand.client.things.commuication.CommunicationException;
-import com.firstlinecode.sand.client.things.commuication.IObmFactory;
-import com.firstlinecode.sand.client.things.commuication.ObmFactory;
-import com.firstlinecode.sand.client.things.concentrator.IAddressConfigurator;
-import com.firstlinecode.sand.client.things.concentrator.IConcentrator;
-import com.firstlinecode.sand.client.things.concentrator.Node;
-import com.firstlinecode.sand.client.things.concentrator.NodeCreationException;
-import com.firstlinecode.sand.client.things.concentrator.NodeNotFoundException;
-import com.firstlinecode.sand.protocols.concentrator.NodeCreationRequest;
+import com.firstlinecode.sand.client.things.commuication.IAddressConfigurator;
+import com.firstlinecode.sand.client.things.obm.IObmFactory;
+import com.firstlinecode.sand.client.things.obm.ObmFactory;
 import com.firstlinecode.sand.protocols.concentrator.NodeAddress;
-import com.firstlinecode.sand.protocols.core.ProtocolType;
+import com.firstlinecode.sand.protocols.core.CommunicationNet;
 import com.firstlinecode.sand.protocols.lora.DualLoraAddress;
 import com.firstlinecode.sand.protocols.lora.LoraAddress;
 import com.firstlinecode.sand.protocols.lora.dac.Allocation;
@@ -32,7 +23,6 @@ public class DynamicAddressConfigurator implements IAddressConfigurator<IDualLor
 	
 	private static final DualLoraAddress ADDRESS_CONFIGURATION_MODE_DUAL_LORA_ADDRESS = new DualLoraAddress(
 			LoraAddress.MAX_TWO_BYTES_ADDRESS, DualLoraAddress.MAX_CHANNEL);
-	private static final int DEFAULT_ADDRESS_CONFIGURATION_NODE_CREATION_TIMEOUT = 1000 * 60 * 2;
 	
 	public enum State {
 		WORKING,
@@ -41,23 +31,19 @@ public class DynamicAddressConfigurator implements IAddressConfigurator<IDualLor
 		CONFIRMING
 	}
 	
-	private IConcentrator<LoraAddress> concentrator;
 	private IDualLoraChipCommunicator communicator;
+	private IConcentrator concentrator;
 	private DualLoraAddress workingAddress;
 	private String nodeDeviceId;
 	private LoraAddress nodeAddress;
-	private String nodeLanId;
 	
 	private IObmFactory obmFactory;
-	private IChatClient chatClient;
 	
 	private State state;
 	
-	public DynamicAddressConfigurator(IConcentrator<LoraAddress> concentrator,
-			IDualLoraChipCommunicator communicator, IChatClient chatClient) {
-		this.concentrator = concentrator;
+	public DynamicAddressConfigurator(IDualLoraChipCommunicator communicator, IConcentrator concentrator) {
 		this.communicator = communicator;
-		this.chatClient = chatClient;
+		this.concentrator =  concentrator;
 		
 		obmFactory = new ObmFactory();
 		workingAddress = communicator.getAddress();
@@ -164,7 +150,8 @@ public class DynamicAddressConfigurator implements IAddressConfigurator<IDualLor
 				allocation.setGatewayAddress(workingAddress.getSlaveAddress().getAddress());
 				allocation.setGatewayChannel(workingAddress.getChannel());
 				
-				int nodesSize = concentrator.getLanIds().length;
+				// TODO Use chalk concentrator plugin to get size of nodes.
+				/* int nodesSize = concentrator.getLanIds().length;
 				int iNodeLanId = nodesSize + 1;
 				nodeLanId = Integer.toString(iNodeLanId);
 				nodeAddress = new LoraAddress(iNodeLanId, LoraAddress.DEFAULT_THING_COMMUNICATION_FREQUENCE_BAND);
@@ -178,7 +165,7 @@ public class DynamicAddressConfigurator implements IAddressConfigurator<IDualLor
 				}
 				
 				byte[] response = obmFactory.toBinary(allocation);
-				communicator.send(introductedAddress, response);
+				communicator.send(introductedAddress, response);*/
 				
 				state = State.ALLOCATING;
 				return;
@@ -225,70 +212,8 @@ public class DynamicAddressConfigurator implements IAddressConfigurator<IDualLor
 	
 	@Override
 	public void confirm() {
-		chatClient.getChatServices().getTaskService().execute(new ITask<Iq>() {
-
-			@Override
-			public void trigger(IUnidirectionalStream<Iq> stream) {
-				try {
-					concentrator.createNode(new Node<LoraAddress>(nodeDeviceId, nodeAddress));
-				} catch (NodeCreationException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-				
-				NodeCreationRequest<LoraAddress> createNode = new NodeCreationRequest<>();
-				createNode.setDeviceId(nodeDeviceId);
-				createNode.setAddress(new NodeAddress<LoraAddress>(ProtocolType.LORA, nodeAddress));
-				createNode.setLanId(nodeLanId);
-				
-				Iq iq = new Iq(Iq.Type.SET, "nc-" + nodeLanId);
-				iq.setObject(createNode);
-				
-				stream.send(iq, DEFAULT_ADDRESS_CONFIGURATION_NODE_CREATION_TIMEOUT);
-			}
-			
-			@Override
-			public void processResponse(IUnidirectionalStream<Iq> stream, Iq iq) {
-				try {
-					concentrator.setNodeEnabled(nodeLanId, true);
-				} catch (NodeNotFoundException e) {
-					// ???
-					String errorMsg = String.format("Node which's lan ID is %s not found.", nodeLanId);
-					if (logger.isErrorEnabled()) {
-						logger.error(errorMsg);
-					}
-					
-					throw new RuntimeException(errorMsg);
-				}
-			}
-			
-			@Override
-			public boolean processError(IUnidirectionalStream<Iq> stream, StanzaError error) {
-				String errorMsg = String.format("Some errors occurred while creating node. Error defined condition is %s.",
-						error.getDefinedCondition());
-				if (logger.isErrorEnabled()) {
-					logger.error(errorMsg);
-				}
-				
-				throw new RuntimeException(errorMsg);
-			}
-			
-			@Override
-			public boolean processTimeout(IUnidirectionalStream<Iq> stream, Iq stanza) {
-				if (logger.isErrorEnabled()) {
-					logger.error(String.format("Timeout on node[%s, %s] creation.",
-							communicator.getAddress(), nodeLanId));
-				}
-				
-				return true;
-			}
-
-			@Override
-			public void interrupted() {
-				// No-Op
-			}
-			
-		});
+		concentrator.createNode(nodeDeviceId, new NodeAddress<LoraAddress>(CommunicationNet.LORA, nodeAddress));
+/*		*/
 	}
 	
 	public State getState() {

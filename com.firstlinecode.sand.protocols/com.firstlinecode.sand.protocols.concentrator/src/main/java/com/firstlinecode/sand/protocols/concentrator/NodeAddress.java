@@ -1,24 +1,24 @@
 package com.firstlinecode.sand.protocols.concentrator;
 
-import com.firstlinecode.sand.protocols.core.ProtocolType;
+import com.firstlinecode.sand.protocols.core.CommunicationNet;
 
 public class NodeAddress<T> {
-	private ProtocolType type;
+	private CommunicationNet communicationNet;
 	private T address;
 	
 	public NodeAddress() {}
 	
-	public NodeAddress(ProtocolType type, T address) {
-		this.type = type;
+	public NodeAddress(CommunicationNet communicationNet, T address) {
+		this.communicationNet = communicationNet;
 		this.address = address;
 	}
 	
-	public void setType(ProtocolType type) {
-		this.type = type;
+	public void setCommunicationNet(CommunicationNet communicationNet) {
+		this.communicationNet = communicationNet;
 	} 
 	
-	public ProtocolType getType() {
-		return type;
+	public CommunicationNet getCommunicationNet() {
+		return communicationNet;
 	}
 	
 	public void setAddress(T address) {

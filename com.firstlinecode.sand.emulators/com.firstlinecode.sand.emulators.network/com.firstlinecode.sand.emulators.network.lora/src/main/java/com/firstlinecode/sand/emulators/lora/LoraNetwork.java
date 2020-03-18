@@ -102,19 +102,6 @@ public class LoraNetwork implements ILoraNetwork {
 	}
 	
 	@Override
-	public synchronized void setSingalQuality(LoraChip chip1, LoraChip chip2, SignalQuality signalQuality) {
-		if (!chips.containsValue(chip1)) {
-			throw new IllegalArgumentException(String.format("Can't find lora chip which's address is %s in network.", chip1));
-		}
-		
-		if (!chips.containsValue(chip2)) {
-			throw new IllegalArgumentException(String.format("Can't find lora chip which's address is %s in network.", chip1));
-		}
-		
-		signalQualities.put(new LoraChipPair(chip1, chip2), signalQuality);
-	}
-	
-	@Override
 	public void sendData(ICommunicationChip<LoraAddress, byte[]> from, LoraAddress to, byte[] data) {
 		sendData((LoraChip)from, to, data);
 	}
@@ -422,7 +409,8 @@ public class LoraNetwork implements ILoraNetwork {
 		
 		if (oldPair != null) {
 			SignalQuality quality = signalQualities.remove(oldPair);
-			signalQualities.put(newPair, quality);
+			if (quality != null)
+				signalQualities.put(newPair, quality);
 		}
 		
 		chips.remove(chip.getAddress());

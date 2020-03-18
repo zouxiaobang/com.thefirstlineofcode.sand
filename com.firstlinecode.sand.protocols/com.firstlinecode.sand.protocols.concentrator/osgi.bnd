@@ -2,9 +2,15 @@
 # Use this file to add customized Bnd instructions for the bundle
 #-----------------------------------------------------------------
 
-Basalt-Parsers: protocol-chain=iq|null->create-node|urn:leps:iot:concentrator;\
- class=com.firstlinecode.sand.protocols.core.concentrator.CreateNode;\
+Basalt-Parsers: protocol-chain=iq|null->node-creation-request|urn:leps:iot:concentrator;\
+ class=com.firstlinecode.sand.protocols.concentrator.NodeCreationRequest;\
+ type=naming-convention,\
+ protocol-chain=iq|null->node-creation-confirmation|urn:leps:iot:concentrator;\
+ class=com.firstlinecode.sand.protocols.concentrator.NodeCreationConfirmation;\
  type=naming-convention
  
-Basalt-Translators: class=com.firstlinecode.sand.protocols.core.concentrator.CreateNode;\
+Basalt-Translators: class=com.firstlinecode.sand.protocols.concentrator.NodeCreationRequest;\
+ type=naming-convention,\
+ class=com.firstlinecode.sand.protocols.concentrator.NodeCreationConfirmation;\
  type=naming-convention
+ 

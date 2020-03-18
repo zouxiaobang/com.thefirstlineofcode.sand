@@ -31,8 +31,12 @@
 			<artifactId>com.firstlinecode.sand.protocols.lora</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>com.firstlinecode.sand.protocols</groupId>
-			<artifactId>com.firstlinecode.sand.protocols.concentrator</artifactId>
+			<groupId>com.firstlinecode.sand.client</groupId>
+			<artifactId>com.firstlinecode.sand.client.things</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.firstlinecode.sand.client</groupId>
+			<artifactId>com.firstlinecode.sand.client.concentrator</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>com.firstlinecode.chalk</groupId>

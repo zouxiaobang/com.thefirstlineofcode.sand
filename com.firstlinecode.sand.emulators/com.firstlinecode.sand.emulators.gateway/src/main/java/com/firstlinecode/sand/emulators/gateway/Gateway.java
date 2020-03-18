@@ -55,6 +55,7 @@ import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileSystemView;
 import javax.swing.plaf.FontUIResource;
 
+import com.firstlinecode.basalt.protocol.core.IError;
 import com.firstlinecode.chalk.AuthFailureException;
 import com.firstlinecode.chalk.IChatClient;
 import com.firstlinecode.chalk.StandardChatClient;
@@ -62,19 +63,16 @@ import com.firstlinecode.chalk.core.stream.StandardStreamConfig;
 import com.firstlinecode.chalk.core.stream.UsernamePasswordToken;
 import com.firstlinecode.chalk.network.ConnectionException;
 import com.firstlinecode.chalk.network.IConnectionListener;
+import com.firstlinecode.sand.client.concentrator.ConcentratorPlugin;
+import com.firstlinecode.sand.client.concentrator.IConcentrator;
+import com.firstlinecode.sand.client.concentrator.Node;
 import com.firstlinecode.sand.client.ibdr.IRegistration;
 import com.firstlinecode.sand.client.ibdr.IbdrPlugin;
 import com.firstlinecode.sand.client.ibdr.RegistrationException;
 import com.firstlinecode.sand.client.lora.DynamicAddressConfigurator;
 import com.firstlinecode.sand.client.lora.IDualLoraChipCommunicator;
-import com.firstlinecode.sand.client.things.IEventListener;
 import com.firstlinecode.sand.client.things.ThingsUtils;
-import com.firstlinecode.sand.client.things.actuator.IAction;
-import com.firstlinecode.sand.client.things.actuator.IActionListener;
 import com.firstlinecode.sand.client.things.commuication.ParamsMap;
-import com.firstlinecode.sand.client.things.concentrator.Node;
-import com.firstlinecode.sand.client.things.concentrator.NodeCreationException;
-import com.firstlinecode.sand.client.things.concentrator.NodeNotFoundException;
 import com.firstlinecode.sand.emulators.gateway.log.LogConsolesDialog;
 import com.firstlinecode.sand.emulators.gateway.things.DeviceIdentityInfo;
 import com.firstlinecode.sand.emulators.gateway.things.ThingInfo;
@@ -92,11 +90,11 @@ import com.firstlinecode.sand.protocols.core.DeviceIdentity;
 import com.firstlinecode.sand.protocols.lora.LoraAddress;
 
 public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionListener, InternalFrameListener,
-		ComponentListener, WindowListener, IGateway, IConnectionListener {
+		ComponentListener, WindowListener, IGateway, IConnectionListener, IConcentrator.Listener {
 	private static final String DEFAULT_GATEWAY_LAN_ID = "00";
 	private static final int ALWAYS_FULL_POWER = 100;
 	private static final String DEVICE_TYPE = "Gateway";
-	private static final String DEVICE_MODE = "Emulator01";
+	private static final String DEVICE_MODE = "Gateway-Emulator-01";
 	
 	private static final int DEFAULT_NOTIFICATION_DELAY_TIME = 1000 * 2;
 
@@ -151,7 +149,7 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 	private static final String MENU_NAME_HELP = "help";
 	private static final String MENU_ITEM_TEXT_ABOUT = "About";
 	private static final String MENU_ITEM_NAME_ABOUT = "about";
-
+	
 	private static final String RESOURCE_NAME_GATEWAY = "gateway";
 	
 	private String deviceId;
@@ -160,8 +158,7 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 	
 	private List<IThingEmulatorFactory<?>> thingFactories;
 	private Map<String, List<IThingEmulator>> allThings;
-	private Map<String, Node<LoraAddress>> nodes;
-	private Object nodesLock = new Object();
+	private Map<String, Node> nodes;
 	private boolean dirty;
 	
 	private ILoraNetwork network;
@@ -471,17 +468,28 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 		chatClient.connect(new UsernamePasswordToken(deviceIdentity.getDeviceName().toString(), deviceIdentity.getCredentials()));
 		
 		autoReconnect = true;
-		addressConfigurator = new DynamicAddressConfigurator(this, gatewayCommunicator, chatClient);
+		addressConfigurator = new DynamicAddressConfigurator(gatewayCommunicator, createConcentrator());
 		
 		refreshConnectionStateRelativatedMenus();
 		updateStatus();
+	}
+
+	private IConcentrator createConcentrator() {
+		IConcentrator concentrator = chatClient.createApi(IConcentrator.class);
+		concentrator.init(nodes);
+		concentrator.addListener(this);
+		
+		return concentrator;
 	}
 
 	private IChatClient createChatClient() {
 		if (deviceIdentity == null)
 			throw new IllegalStateException("Device identity is null. Please register your gateway.");
 		
-		return new StandardChatClient(streamConfig);
+		IChatClient chatClient = new StandardChatClient(streamConfig);
+		chatClient.register(ConcentratorPlugin.class);
+		
+		return chatClient;
 	}
 
 	private void showLogConsoleDialog() {
@@ -521,20 +529,20 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 		chatClient.register(IbdrPlugin.class);
 		IRegistration registration = chatClient.createApi(IRegistration.class);
 		adddInternetLogListener(registration);
+		
 		try {
 			deviceIdentity = registration.register(deviceId);
-			
-			registration.removeConnectionListener(getLogConsoleConnectionListener());
-			
-			setDirty(true);
-			refreshGatewayInstanceRelativatedMenus();
-			updateTitle();
-			updateStatus();			
 		} catch (RegistrationException e) {
 			JOptionPane.showMessageDialog(this, "Can't register device. Error: " + e.getError(), "Registration Error", JOptionPane.ERROR_MESSAGE);
 		} finally {			
+			registration.removeConnectionListener(getLogConsoleConnectionListener());
 			chatClient.close();
 		}
+		
+		setDirty(true);
+		refreshGatewayInstanceRelativatedMenus();
+		updateTitle();
+		updateStatus();
 	}
 
 	private void adddInternetLogListener(IRegistration registration) {
@@ -1291,77 +1299,6 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 	public String getSoftwareVersion() {
 		return Constants.SOFTWARE_VERSION;
 	}
-	
-	@Override
-	public String createNode(Node<LoraAddress> node) throws NodeCreationException {
-		synchronized (nodesLock) {
-			if (nodes.size() > 99) {
-				throw new NodeCreationException(NodeCreationException.Reason.OVERFLOW_SIZE,
-						"Can't create node. Overflow size of nodes.");
-			}
-			
-			String lanId = getLanId(node.getDeviceId());
-			if (lanId != null) {
-				throw new NodeCreationException(NodeCreationException.Reason.REDUPLICATED_NODE,
-						String.format("Can't create node. The node which's device ID is %s has already existed.",
-								node.getDeviceId()));
-			}
-			
-			lanId = getLanId(node.getAddress());
-			if (lanId != null) {
-				throw new NodeCreationException(NodeCreationException.Reason.REDUPLICATED_NODE,
-						String.format("Can't create node. The node which's address is %s has already existed.", node.getAddress()));
-			}
-			
-			lanId = String.format("%02d", nodes.size() + 1);
-			nodes.put(lanId, node);
-			
-			return lanId;
-		}
-	}
-
-	@Override
-	public Node<LoraAddress> removeNode(String nodeLanId) {
-		synchronized (nodesLock) {
-			return nodes.remove(nodeLanId);
-		}
-	}
-	
-	@Override
-	public Node<LoraAddress> getNode(String nodeLanId) throws NodeNotFoundException {
-		synchronized (nodesLock) {
-			Node<LoraAddress> node = nodes.get(nodeLanId);
-			if (node != null)
-				return node;
-			
-			throw new NodeNotFoundException(String.format("Node which's lan ID is % not be found.", nodeLanId));			
-		}
-	}
-
-	@Override
-	public void addEventListener(IEventListener listener) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void execute(IAction operation) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void addActionListener(IActionListener<?> listener) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public String[] getLanIds() {
-		synchronized (nodesLock) {			
-			return nodes.keySet().toArray(new String[nodes.size()]);
-		}
-	}
 
 	@Override
 	public synchronized void occurred(ConnectionException exception) {
@@ -1383,35 +1320,27 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 	public void sent(String message) {}
 
 	@Override
-	public void setNodeEnabled(String lanId, boolean enabled) throws NodeNotFoundException {
-		getNode(lanId).setEnabled(enabled);
-	}
-	
-	@Override
-	public boolean isNodeEnabled(String lanId) throws NodeNotFoundException {
-		return getNode(lanId).isEnabled();
-	}
-	
-	@Override
-	public String getLanId(LoraAddress address) {
-		synchronized (nodesLock) {
-			for (String lanId : nodes.keySet()) {
-				if (nodes.get(lanId).getAddress().equals(address))
-					return lanId;
-			}
-			
-			return null;
-		}
+	public void created(String lanId, Node node) {
+		// TODO Auto-generated method stub
 		
 	}
-	
+
 	@Override
-	public String getLanId(String deviceId) {
-		for (String lanId : nodes.keySet()) {
-			if (nodes.get(lanId).getDeviceId().equals(deviceId))
-				return lanId;
-		}
+	public void removed(String lanId, Node node) {
+		// TODO Auto-generated method stub
 		
-		return null;
 	}
+
+	@Override
+	public void occurred(IConcentrator.Listener.LanError error, Node source) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void occurred(IError error, Node source) {
+		// TODO Auto-generated method stub
+		
+	}
+
 }

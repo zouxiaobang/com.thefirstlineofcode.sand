@@ -19,7 +19,8 @@
 	<modules>
 		<module>com.firstlinecode.sand.server.framework</module>
 		<module>com.firstlinecode.sand.server.stream</module>
-		<module>com.firstlinecode.sand.server.leps</module>
+		<module>com.firstlinecode.sand.server.ibdr</module>
+		<module>com.firstlinecode.sand.server.concentrator</module>
 		<module>com.firstlinecode.sand.server.lite</module>
 	</modules>
 

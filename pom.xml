@@ -496,6 +496,12 @@
 			</dependency>
 
 			<dependency>
+				<groupId>com.firstlinecode.sand.client</groupId>
+				<artifactId>com.firstlinecode.sand.client.concentrator</artifactId>
+				<version>${sand.version}</version>
+			</dependency>
+
+			<dependency>
 				<groupId>com.firstlinecode.sand.server</groupId>
 				<artifactId>com.firstlinecode.sand.server.framework</artifactId>
 				<version>${sand.version}</version>
@@ -507,8 +513,8 @@
 				<version>${sand.version}</version>
 			</dependency>
 			<dependency>
-				<groupId>com.firstlinecode.sand.server.leps</groupId>
-				<artifactId>com.firstlinecode.sand.server.leps.concentrator</artifactId>
+				<groupId>com.firstlinecode.sand.server</groupId>
+				<artifactId>com.firstlinecode.sand.server.concentrator</artifactId>
 				<version>${sand.version}</version>
 			</dependency>
 		</dependencies>

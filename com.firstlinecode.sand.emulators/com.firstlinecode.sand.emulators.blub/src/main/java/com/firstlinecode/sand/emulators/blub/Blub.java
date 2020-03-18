@@ -28,7 +28,7 @@ import com.firstlinecode.sand.emulators.thing.PowerEvent;
 
 public class Blub extends AbstractThingEmulator implements IBlub {
 	public static final String THING_TYPE = "Blub";
-	public static final String THING_MODE = "Emulator-01";
+	public static final String THING_MODE = "Blub-Emulator-01";
 	
 	private static final SwitchState DEFAULT_SWITCH_STATE = SwitchState.OFF;
 	private static final BlubState DEFAULT_BLUB_STATE = BlubState.OFF;

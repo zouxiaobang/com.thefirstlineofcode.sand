@@ -5,11 +5,11 @@ import java.util.TimerTask;
 
 import com.firstlinecode.sand.client.lora.LoraData;
 import com.firstlinecode.sand.client.things.commuication.CommunicationException;
+import com.firstlinecode.sand.client.things.commuication.IAddressConfigurator;
 import com.firstlinecode.sand.client.things.commuication.ICommunicationListener;
 import com.firstlinecode.sand.client.things.commuication.ICommunicator;
-import com.firstlinecode.sand.client.things.commuication.IObmFactory;
-import com.firstlinecode.sand.client.things.commuication.ObmFactory;
-import com.firstlinecode.sand.client.things.concentrator.IAddressConfigurator;
+import com.firstlinecode.sand.client.things.obm.IObmFactory;
+import com.firstlinecode.sand.client.things.obm.ObmFactory;
 import com.firstlinecode.sand.emulators.lora.LoraCommunicator;
 import com.firstlinecode.sand.protocols.lora.DualLoraAddress;
 import com.firstlinecode.sand.protocols.lora.LoraAddress;

@@ -4,12 +4,12 @@ import com.firstlinecode.basalt.oxm.convention.annotations.ProtocolObject;
 import com.firstlinecode.basalt.protocol.core.Protocol;
 
 @ProtocolObject(namespace="urn:leps:iot:concentrator", localName="node-creation-request")
-public class NodeCreationRequest<T> {
+public class NodeCreationRequest {
 	public static final Protocol PROTOCOL = new Protocol("urn:leps:iot:concentrator", "node-creation-request");
 	
 	private String deviceId;
 	private String lanId;
-	private NodeAddress<T> address;
+	private NodeAddress<?> address;
 	
 	public String getDeviceId() {
 		return deviceId;
@@ -27,11 +27,11 @@ public class NodeCreationRequest<T> {
 		this.lanId = lanId;
 	}
 
-	public NodeAddress<T> getAddress() {
+	public NodeAddress<?> getAddress() {
 		return address;
 	}
 
-	public void setAddress(NodeAddress<T> address) {
+	public void setAddress(NodeAddress<?> address) {
 		this.address = address;
 	}
 	

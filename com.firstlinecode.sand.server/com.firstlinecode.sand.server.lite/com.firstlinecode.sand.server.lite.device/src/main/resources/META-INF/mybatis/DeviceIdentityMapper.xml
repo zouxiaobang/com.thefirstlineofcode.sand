@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.firstlinecode.sand.server.lite.device.DeviceIdentityMapper">
+    <insert id="insert" parameterType="com.firstlinecode.sand.server.lite.device.D_DeviceIdentity">
+        INSERT INTO DEVICE_IDENTITY(id, device_id, device_name, credentials, authorization_id, registered_time) VALUES(#{id}, #{deviceId}, #{deviceName}, #{credentials}, #{authorizationId}, #{registeredTime})
+    </insert>
+    
+   <update id="delete">
+        DELETE FROM DEVICE_IDENTITY WHERE device_Name=#{0}
+    </update>
+    
+	<select id="selectByDeviceId" resultType="DeviceIdentity">
+		SELECT * FROM DEVICE_IDENTITY WHERE device_id=#{0}
+    </select>
+    
+	<select id="selectByDeviceName" resultType="DeviceIdentity">
+		SELECT * FROM DEVICE_IDENTITY WHERE device_name=#{0}
+    </select>
+    
+	<select id="selectCountByDeviceId" resultType="int">
+		SELECT COUNT(*) FROM DEVICE_IDENTITY WHERE device_id=#{0}
+    </select>
+    
+	<select id="selectCountByDeviceName" resultType="int">
+		SELECT COUNT(*) FROM DEVICE_IDENTITY WHERE device_name=#{0}
+    </select>
+</mapper>
