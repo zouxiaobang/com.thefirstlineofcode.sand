@@ -2,6 +2,8 @@ package com.firstlinecode.sand.server.lite.device;
 
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 import org.apache.ibatis.session.SqlSession;
@@ -16,6 +18,7 @@ import com.firstlinecode.basalt.protocol.core.stanza.error.NotAuthorized;
 import com.firstlinecode.sand.protocols.core.DeviceIdentity;
 import com.firstlinecode.sand.server.framework.things.Device;
 import com.firstlinecode.sand.server.framework.things.DeviceAuthorization;
+import com.firstlinecode.sand.server.framework.things.IDeviceIdRuler;
 import com.firstlinecode.sand.server.framework.things.IDeviceManager;
 import com.firstlinecode.sand.server.framework.things.ModeDescriptor;
 
@@ -25,8 +28,20 @@ public class DeviceManager implements IDeviceManager {
 	@Autowired
 	private SqlSession sqlSession;
 	
+	@Autowired(required = false)
+	private IDeviceIdRuler deviceIdRuler;
+	
+	private Map<String, ModeDescriptor> modeDescriptors;
+	
+	public DeviceManager() {
+		modeDescriptors = new HashMap<>();
+	}
+	
 	@Override
 	public void authorize(String deviceId, String authorizer, long validityTime) {
+		if (!isValid(deviceId))
+			throw new RuntimeException(String.format("Invalid device ID '%s'.", deviceId));
+		
 		Date authorizedTime = Calendar.getInstance().getTime();
 		Date expiredTime = getExpiredTime(authorizedTime.getTime(), validityTime);
 		
@@ -54,6 +69,9 @@ public class DeviceManager implements IDeviceManager {
 
 	@Override
 	public DeviceIdentity register(String deviceId) {
+		if (!isValid(deviceId))
+			throw new RuntimeException(String.format("Invalid device ID '%s'.", deviceId));
+		
 		if (isRegistered(deviceId)) {
 			throw new ProtocolException(new Conflict());
 		}
@@ -63,17 +81,18 @@ public class DeviceManager implements IDeviceManager {
 			throw new ProtocolException(new NotAuthorized());
 		}
 		
-		D_DeviceIdentity deviceIdentity = new D_DeviceIdentity();
-		deviceIdentity.setId(UUID.randomUUID().toString());
-		deviceIdentity.setDeviceId(deviceId);
-		deviceIdentity.setDeviceName(createDeviceName(deviceId));
-		deviceIdentity.setCredentials(createCredentials());
-		deviceIdentity.setRegisteredTime(Calendar.getInstance().getTime());
-		deviceIdentity.setAuthorizationId(authorization.getId());
+		D_Device device = new D_Device();
+		device.setId(UUID.randomUUID().toString());
+		device.setDeviceId(deviceId);
+		DeviceIdentity identity = new DeviceIdentity();
+		identity.setDeviceName(createDeviceName(deviceId));
+		identity.setCredentials(createCredentials());
+		device.setRegistrationTime(Calendar.getInstance().getTime());
+		device.setAuthorizationId(authorization.getId());
 		
-		getDeviceIdentityMapper().insert(deviceIdentity);
+		getDeviceMapper().insert(device);
 		
-		return new DeviceIdentity(deviceIdentity.getDeviceName(), deviceIdentity.getCredentials());
+		return device.getIdentity();
 	}
 
 	protected String createCredentials() {
@@ -100,31 +119,32 @@ public class DeviceManager implements IDeviceManager {
 		return null;
 	}
 
-	protected boolean isRegistered(String deviceId) {
-		return getDeviceIdentityMapper().selectByDeviceId(deviceId) != null;
+	@Override
+	public boolean isRegistered(String deviceId) {
+		return getDeviceMapper().selectByDeviceId(deviceId) != null;
 	}
 
 	@Override
 	public void remove(JabberId jid) {
-		getDeviceIdentityMapper().delete(jid);
+		getDeviceMapper().delete(jid);
 	}
 
 	@Override
 	public boolean deviceIdExists(String deviceId) {
-		return getDeviceIdentityMapper().selectCountByDeviceId(deviceId) != 0;
+		return getDeviceMapper().selectCountByDeviceId(deviceId) != 0;
 	}
 	
 	@Override
 	public boolean deviceNameExists(String deviceName) {
-		return getDeviceIdentityMapper().selectCountByDeviceName(deviceName) != 0;
+		return getDeviceMapper().selectCountByDeviceName(deviceName) != 0;
 	}
 	
 	private DeviceAuthorizationMapper getDeviceAuthorizationMapper() {
 		return (DeviceAuthorizationMapper)sqlSession.getMapper(DeviceAuthorizationMapper.class);
 	}
 	
-	private DeviceIdentityMapper getDeviceIdentityMapper() {
-		return (DeviceIdentityMapper)sqlSession.getMapper(DeviceIdentityMapper.class);
+	private DeviceMapper getDeviceMapper() {
+		return (DeviceMapper)sqlSession.getMapper(DeviceMapper.class);
 	}
 	
 	private String generateRandomCredentials(int length) {
@@ -144,43 +164,65 @@ public class DeviceManager implements IDeviceManager {
 
 	@Override
 	public void registerMode(String mode, ModeDescriptor modeDescriptor) {
-		// TODO Auto-generated method stub
-		
+		modeDescriptors.put(mode, modeDescriptor);
 	}
 
 	@Override
-	public void unregisterMode(String mode) {
-		// TODO Auto-generated method stub
-		
+	public ModeDescriptor unregisterMode(String mode) {
+		return modeDescriptors.remove(mode);
 	}
 
 	@Override
 	public boolean isConcentrator(String mode) {
-		// TODO Auto-generated method stub
-		return false;
+		return getModeDescriptor(mode).isConcentrator();
+	}
+
+	private ModeDescriptor getModeDescriptor(String mode) {
+		ModeDescriptor modeDescriptor = modeDescriptors.get(mode);
+		if (modeDescriptor == null)
+			throw new IllegalArgumentException(String.format("Unsupported mode: %s.", mode));
+		return modeDescriptor;
 	}
 
 	@Override
 	public boolean isActuator(String mode) {
-		// TODO Auto-generated method stub
-		return false;
+		return getModeDescriptor(mode).isActuator();
 	}
 
 	@Override
 	public boolean isSensor(String mode) {
-		// TODO Auto-generated method stub
-		return false;
+		return getModeDescriptor(mode).isSensor();
 	}
 
 	@Override
 	public boolean isActionSupported(String mode, Class<?> action) {
-		// TODO Auto-generated method stub
+		ModeDescriptor modeDescriptor = getModeDescriptor(mode);
+		
+		if (!modeDescriptor.isActuator())
+			return false;
+		
+		String actionType = action.getClass().getName();
+		for (String anActionType : modeDescriptor.getActionTypes()) {
+			if (actionType.equals(anActionType))
+				return true;
+		}
+		
 		return false;
 	}
 
 	@Override
 	public boolean isEventSupported(String mode, Class<?> event) {
-		// TODO Auto-generated method stub
+		ModeDescriptor modeDescriptor = getModeDescriptor(mode);
+		
+		if (!modeDescriptor.isSensor())
+			return false;
+		
+		String eventType = event.getClass().getName();
+		for (String anEventType : modeDescriptor.getEventTypes()) {
+			if (eventType.equals(anEventType))
+				return true;
+		}
+		
 		return false;
 	}
 
@@ -193,6 +235,22 @@ public class DeviceManager implements IDeviceManager {
 	@Override
 	public Device getByDeviceName(String deviceName) {
 		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public boolean isValid(String deviceId) {
+		if (deviceIdRuler != null)
+			return deviceIdRuler.isValid(deviceId);
+		
+		return deviceId.length() == 12;
+	}
+
+	@Override
+	public String guessMode(String deviceId) {
+		if (deviceIdRuler != null)
+			return deviceIdRuler.guessMode(deviceId);
+		
 		return null;
 	}
 

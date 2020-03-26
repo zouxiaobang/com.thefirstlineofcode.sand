@@ -3,9 +3,9 @@ package com.firstlinecode.sand.protocols.concentrator;
 import com.firstlinecode.basalt.oxm.convention.annotations.ProtocolObject;
 import com.firstlinecode.basalt.protocol.core.Protocol;
 
-@ProtocolObject(namespace="urn:leps:iot:concentrator", localName="node-creation-request")
-public class NodeCreationRequest {
-	public static final Protocol PROTOCOL = new Protocol("urn:leps:iot:concentrator", "node-creation-request");
+@ProtocolObject(namespace="urn:leps:iot:concentrator", localName="create-code")
+public class CreateNode {
+	public static final Protocol PROTOCOL = new Protocol("urn:leps:iot:concentrator", "create-code");
 	
 	private String deviceId;
 	private String lanId;

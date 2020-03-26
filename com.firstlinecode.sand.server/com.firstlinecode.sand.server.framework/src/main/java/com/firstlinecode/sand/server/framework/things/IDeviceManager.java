@@ -3,7 +3,7 @@ package com.firstlinecode.sand.server.framework.things;
 import com.firstlinecode.basalt.protocol.core.JabberId;
 import com.firstlinecode.sand.protocols.core.DeviceIdentity;
 
-public interface IDeviceManager {
+public interface IDeviceManager extends IDeviceIdRuler {
 	void authorize(String deviceId, String authorizer, long validityTime);
 	void cancelAuthorization(String deviceId);
 	DeviceIdentity register(String deviceId);
@@ -13,7 +13,8 @@ public interface IDeviceManager {
 	boolean deviceIdExists(String deviceId);
 	boolean deviceNameExists(String deviceName);
 	void registerMode(String mode, ModeDescriptor modeDescriptor);
-	void unregisterMode(String mode);
+	ModeDescriptor unregisterMode(String mode);
+	boolean isRegistered(String deviceId);
 	boolean isConcentrator(String mode);
 	boolean isActuator(String mode);
 	boolean isSensor(String mode);

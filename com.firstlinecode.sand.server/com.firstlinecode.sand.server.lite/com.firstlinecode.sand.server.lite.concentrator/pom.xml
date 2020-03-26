@@ -18,6 +18,10 @@
 	
 	<dependencies>
 		<dependency>
+			<groupId>com.firstlinecode.granite.framework.supports</groupId>
+			<artifactId>com.firstlinecode.granite.framework.supports.mybatis</artifactId>
+		</dependency>
+		<dependency>
 			<groupId>com.firstlinecode.sand.server</groupId>
 			<artifactId>com.firstlinecode.sand.server.framework</artifactId>
 		</dependency>

@@ -7,7 +7,7 @@ import com.firstlinecode.basalt.protocol.core.stanza.error.ItemNotFound;
 import com.firstlinecode.basalt.protocol.core.stanza.error.NotAcceptable;
 import com.firstlinecode.granite.framework.processing.IProcessingContext;
 import com.firstlinecode.granite.framework.processing.IXepProcessor;
-import com.firstlinecode.sand.protocols.concentrator.NodeCreationRequest;
+import com.firstlinecode.sand.protocols.concentrator.CreateNode;
 import com.firstlinecode.sand.protocols.core.CommunicationNet;
 import com.firstlinecode.sand.protocols.lora.LoraAddress;
 import com.firstlinecode.sand.server.framework.things.Device;
@@ -16,12 +16,12 @@ import com.firstlinecode.sand.server.framework.things.concentrator.IConcentrator
 import com.firstlinecode.sand.server.framework.things.concentrator.IConcentratorFactory;
 import com.firstlinecode.sand.server.framework.things.concentrator.Node;
 
-public class CreateNodeProcessor implements IXepProcessor<Iq, NodeCreationRequest> {
+public class CreateNodeProcessor implements IXepProcessor<Iq, CreateNode> {
 	private IDeviceManager deviceManager;
 	private IConcentratorFactory concentratorManager;
 	
 	@Override
-	public void process(IProcessingContext context, Iq stanza, NodeCreationRequest xep) {
+	public void process(IProcessingContext context, Iq stanza, CreateNode xep) {
 		Device parent = deviceManager.getByDeviceName(context.getJid().getName());
 		if (parent == null)
 			throw new ProtocolException(new ItemNotFound(String.format("Device which's device name is %s not be found.",
@@ -38,7 +38,7 @@ public class CreateNodeProcessor implements IXepProcessor<Iq, NodeCreationReques
 		node.setAddress(addressToString(xep.getAddress().getCommunicationNet(), xep.getAddress().getAddress()));
 		
 		IConcentrator concentrator = concentratorManager.getConcentrator(parent);
-		concentrator.requestNodeCreation(node);
+		concentrator.createNode(node);
 	}
 	
 	protected String addressToString(CommunicationNet communicationNet, Object address) {

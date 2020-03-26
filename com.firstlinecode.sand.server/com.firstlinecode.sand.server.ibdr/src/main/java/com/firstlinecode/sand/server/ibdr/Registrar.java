@@ -14,14 +14,10 @@ public class Registrar implements IDeviceRegistrar {
 	
 	@Override
 	public DeviceIdentity register(String deviceId) {
-		if (!isValidDeviceId(deviceId))
-			throw new ProtocolException(new NotAcceptable("Invalid device ID."));
-		
+		if (deviceManager.isValid(deviceId))
+			throw new ProtocolException(new NotAcceptable(String.format("Invalid device ID '%s'.", deviceId)));
+
 		return deviceManager.register(deviceId);
-	}
-	
-	protected boolean isValidDeviceId(String deviceId) {
-		return deviceId.length() == 12;
 	}
 
 	@Override

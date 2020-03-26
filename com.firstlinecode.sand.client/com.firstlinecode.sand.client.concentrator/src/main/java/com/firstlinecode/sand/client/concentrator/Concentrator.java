@@ -14,8 +14,8 @@ import com.firstlinecode.chalk.IChatServices;
 import com.firstlinecode.chalk.ITask;
 import com.firstlinecode.chalk.IUnidirectionalStream;
 import com.firstlinecode.sand.client.concentrator.IConcentrator.Listener.LanError;
+import com.firstlinecode.sand.protocols.concentrator.CreateNode;
 import com.firstlinecode.sand.protocols.concentrator.NodeAddress;
-import com.firstlinecode.sand.protocols.concentrator.NodeCreationRequest;
 
 public class Concentrator implements IConcentrator {
 	private static final Logger logger = LoggerFactory.getLogger(Concentrator.class);
@@ -99,13 +99,12 @@ public class Concentrator implements IConcentrator {
 
 		@Override
 		public void trigger(IUnidirectionalStream<Iq> stream) {
-			// TODO Auto-generated method stub
-			NodeCreationRequest request = new NodeCreationRequest();
+			CreateNode request = new CreateNode();
 			request.setDeviceId(node.getDeviceId());
 			request.setAddress(node.getAddress());
 			request.setLanId(lanId);
 			
-			Iq iq = new Iq(Iq.Type.SET, "nc-" + lanId);
+			Iq iq = new Iq(Iq.Type.SET, "cn-" + lanId);
 			iq.setObject(request);
 			
 			stream.send(iq, DEFAULT_ADDRESS_CONFIGURATION_NODE_CREATION_TIMEOUT);
@@ -113,7 +112,6 @@ public class Concentrator implements IConcentrator {
 
 		@Override
 		public void processResponse(IUnidirectionalStream<Iq> stream, Iq stanza) {
-			// TODO Auto-generated method stub
 			nodes.put(lanId, node);
 			
 			for (Listener listener : listeners) {
@@ -123,8 +121,6 @@ public class Concentrator implements IConcentrator {
 
 		@Override
 		public boolean processError(IUnidirectionalStream<Iq> stream, StanzaError error) {
-			// TODO Auto-generated method stub
-			
 			if (logger.isErrorEnabled()) {
 				logger.error(String.format("Some errors occurred while creating node. Error defined condition is %s.",
 						error.getDefinedCondition()));
@@ -135,7 +131,6 @@ public class Concentrator implements IConcentrator {
 
 		@Override
 		public boolean processTimeout(IUnidirectionalStream<Iq> stream, Iq stanza) {
-			// TODO Auto-generated method stub
 			if (logger.isErrorEnabled()) {
 				logger.error(String.format("Timeout on node[%s, %s] creation.",
 						node.getAddress(), lanId));
@@ -146,8 +141,7 @@ public class Concentrator implements IConcentrator {
 
 		@Override
 		public void interrupted() {
-			// TODO Auto-generated method stub
-			
+			// No-Op
 		}
 		
 	}

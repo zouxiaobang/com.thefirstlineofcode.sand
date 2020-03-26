@@ -1,16 +1,16 @@
 package com.firstlinecode.sand.server.framework.things;
 
-import com.firstlinecode.basalt.protocol.core.JabberId;
-import com.firstlinecode.basalt.protocol.datetime.Date;
+import java.util.Date;
+
 import com.firstlinecode.sand.protocols.core.DeviceIdentity;
 
 public class Device {
 	private String deviceId;
+	private String authorizationId;
 	private DeviceIdentity identity;
 	private String mode;
 	private String softwareVersion;
 	private Date registrationTime;
-	private JabberId confirmer;
 	
 	public String getDeviceId() {
 		return deviceId;
@@ -51,12 +51,13 @@ public class Device {
 	public void setRegistrationTime(Date registrationTime) {
 		this.registrationTime = registrationTime;
 	}
-	
-	public JabberId getConfirmer() {
-		return confirmer;
+
+	public String getAuthorizationId() {
+		return authorizationId;
+	}
+
+	public void setAuthorizationId(String authorization) {
+		this.authorizationId = authorization;
 	}
 	
-	public void setConfirmer(JabberId comfirmer) {
-		this.confirmer = comfirmer;
-	}
 }

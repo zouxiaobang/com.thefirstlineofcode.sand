@@ -1,14 +1,17 @@
 package com.firstlinecode.sand.server.lite.concentrator;
 
-import com.firstlinecode.sand.server.framework.things.Device;
+import org.apache.ibatis.session.SqlSession;
+
 import com.firstlinecode.sand.server.framework.things.concentrator.IConcentrator;
 import com.firstlinecode.sand.server.framework.things.concentrator.Node;
 
 public class Concentrator implements IConcentrator {
-	private Device device;
+	private String deviceId;
+	private SqlSession sqlSession;
 	
-	public Concentrator(Device device) {
-		this.device = device;
+	public Concentrator(String deviceId, SqlSession sqlSession) {
+		this.deviceId = deviceId;
+		this.sqlSession = sqlSession;
 	}
 
 	@Override
@@ -18,13 +21,13 @@ public class Concentrator implements IConcentrator {
 	}
 
 	@Override
-	public String requestNodeCreation(Node node) {
+	public String createNode(Node node) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public String confirmNodeCreation(String deviceId) {
+	public String confirm(String deviceId) {
 		// TODO Auto-generated method stub
 		return null;
 	}

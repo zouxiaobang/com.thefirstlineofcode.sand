@@ -6,7 +6,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.firstlinecode.granite.framework.core.auth.IAuthenticator;
-import com.firstlinecode.sand.protocols.core.DeviceIdentity;
+import com.firstlinecode.sand.server.framework.things.Device;
 
 @Transactional
 @Component
@@ -16,20 +16,20 @@ public class DeviceAuthenticator implements IAuthenticator {
 
 	@Override
 	public Object getCredentials(Object principal) {
-		DeviceIdentity deviceIdentity = getDeviceIdentityMapper().selectByDeviceName((String)principal);
-		if (deviceIdentity != null)
-			return deviceIdentity.getCredentials();
+		Device device = getDeviceMapper().selectByDeviceName((String)principal);
+		if (device != null)
+			return device.getIdentity().getCredentials();
 		
 		return null;
 	}
 
 	@Override
 	public boolean exists(Object principal) {
-		return getDeviceIdentityMapper().selectCountByDeviceName((String)principal) != 0;
+		return getDeviceMapper().selectCountByDeviceName((String)principal) != 0;
 	}
 	
-	private DeviceIdentityMapper getDeviceIdentityMapper() {
-		return sqlSession.getMapper(DeviceIdentityMapper.class);
+	private DeviceMapper getDeviceMapper() {
+		return sqlSession.getMapper(DeviceMapper.class);
 	}
 
 }

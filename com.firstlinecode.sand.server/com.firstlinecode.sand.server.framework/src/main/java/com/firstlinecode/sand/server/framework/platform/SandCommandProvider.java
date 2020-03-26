@@ -79,6 +79,11 @@ public class SandCommandProvider implements CommandProvider {
 	}
 
 	private void authorize(CommandInterpreter interpreter, String deviceId) {
+		if (deviceManager.isValid(deviceId)) {			
+			interpreter.print(String.format("Error: Invalid device ID '%s'.\n", deviceId));
+			return;
+		}
+		
 		if (deviceManager.deviceIdExists(deviceId)) {
 			interpreter.print(String.format("Error: Device which's ID is '%s' has already registered.\n", deviceId));
 			return;

@@ -5,8 +5,8 @@ public class ModeDescriptor {
 	private boolean concentrator;
 	private boolean sensor;
 	
-	private Class<?>[] actionTypes;
-	private Class<?>[] eventTypes;
+	private String[] actionTypes;
+	private String[] eventTypes;
 	
 	public ModeDescriptor() {}
 	
@@ -14,11 +14,11 @@ public class ModeDescriptor {
 		this(true, null, null);
 	}
 	
-	public ModeDescriptor(Class<?>[] actionTypes, Class<?>[] eventTypes) {
+	public ModeDescriptor(String[] actionTypes, String[] eventTypes) {
 		this(false, actionTypes, eventTypes);
 	}
 	
-	public ModeDescriptor(boolean concentrator, Class<?>[] actionTypes, Class<?>[] eventTypes) {
+	public ModeDescriptor(boolean concentrator, String[] actionTypes, String[] eventTypes) {
 		this.concentrator = concentrator;
 		this.actionTypes = actionTypes;
 		this.eventTypes = eventTypes;
@@ -56,19 +56,19 @@ public class ModeDescriptor {
 		this.sensor = sensor;
 	}
 	
-	public Class<?>[] getActionTypes() {
+	public String[] getActionTypes() {
 		return actionTypes;
 	}
 	
-	public void setActionTypes(Class<?>[] actionTypes) {
+	public void setActionTypes(String[] actionTypes) {
 		this.actionTypes = actionTypes;
 	}
 	
-	public Class<?>[] getEventTypes() {
+	public String[] getEventTypes() {
 		return eventTypes;
 	}
 	
-	public void setEventTypes(Class<?>[] eventTypes) {
+	public void setEventTypes(String[] eventTypes) {
 		this.eventTypes = eventTypes;
 	}
 }
