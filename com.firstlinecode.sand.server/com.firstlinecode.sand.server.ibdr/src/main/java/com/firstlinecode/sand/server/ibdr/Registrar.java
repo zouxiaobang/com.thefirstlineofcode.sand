@@ -14,7 +14,7 @@ public class Registrar implements IDeviceRegistrar {
 	
 	@Override
 	public DeviceIdentity register(String deviceId) {
-		if (deviceManager.isValid(deviceId))
+		if (!deviceManager.isValid(deviceId))
 			throw new ProtocolException(new NotAcceptable(String.format("Invalid device ID '%s'.", deviceId)));
 
 		return deviceManager.register(deviceId);

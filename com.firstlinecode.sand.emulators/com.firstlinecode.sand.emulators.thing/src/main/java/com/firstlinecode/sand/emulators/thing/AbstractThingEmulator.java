@@ -28,8 +28,8 @@ public abstract class AbstractThingEmulator implements IThingEmulator {
 	protected boolean powered;
 	protected List<IThingListener> thingListeners;
 	
-	private LoraAddress gatewayUplinkAddress;
-	private LoraAddress gatewayDownlinkAddress;
+	protected LoraAddress gatewayUplinkAddress;
+	protected LoraAddress gatewayDownlinkAddress;
 	
 	public AbstractThingEmulator(String  type, String mode, LoraCommunicator communicator) {
 		if (type == null)
@@ -43,7 +43,7 @@ public abstract class AbstractThingEmulator implements IThingEmulator {
 		this.thingName = type + " - " + mode;
 		this.communicator = communicator;
 
-		deviceId = ThingsUtils.generateRandomDeviceId();
+		deviceId = generateDeviceId();
 		batteryPower = 100;
 		powered = true;
 		
@@ -53,6 +53,10 @@ public abstract class AbstractThingEmulator implements IThingEmulator {
 		
 		BatteryTimer timer = new BatteryTimer();
 		timer.start();
+	}
+
+	protected String generateDeviceId() {
+		return getDeviceMode() + ThingsUtils.generateRandomId(8);
 	}
 	
 	public String getThingStatus() {
@@ -206,7 +210,7 @@ public abstract class AbstractThingEmulator implements IThingEmulator {
 	
 	@Override
 	public void reset() {
-		deviceId = ThingsUtils.generateRandomDeviceId();
+		deviceId = generateDeviceId();
 		lanId = null;
 		
 		doReset();

@@ -1,15 +1,21 @@
 package com.firstlinecode.sand.protocols.concentrator;
 
 import com.firstlinecode.basalt.oxm.convention.annotations.ProtocolObject;
+import com.firstlinecode.basalt.oxm.convention.validation.annotations.NotNull;
 import com.firstlinecode.basalt.protocol.core.Protocol;
 
-@ProtocolObject(namespace="urn:leps:iot:concentrator", localName="create-code")
+@ProtocolObject(namespace="urn:leps:iot:concentrator", localName="create-node")
 public class CreateNode {
-	public static final Protocol PROTOCOL = new Protocol("urn:leps:iot:concentrator", "create-code");
+	public static final Protocol PROTOCOL = new Protocol("urn:leps:iot:concentrator", "create-node");
 	
+	@NotNull
 	private String deviceId;
+	@NotNull
 	private String lanId;
-	private NodeAddress<?> address;
+	@NotNull
+	private String communicationNet;
+	@NotNull
+	private String address;
 	
 	public String getDeviceId() {
 		return deviceId;
@@ -27,11 +33,19 @@ public class CreateNode {
 		this.lanId = lanId;
 	}
 
-	public NodeAddress<?> getAddress() {
+	public String getCommunicationNet() {
+		return communicationNet;
+	}
+
+	public void setCommunicationNet(String communicationNet) {
+		this.communicationNet = communicationNet;
+	}
+
+	public String getAddress() {
 		return address;
 	}
 
-	public void setAddress(NodeAddress<?> address) {
+	public void setAddress(String address) {
 		this.address = address;
 	}
 	

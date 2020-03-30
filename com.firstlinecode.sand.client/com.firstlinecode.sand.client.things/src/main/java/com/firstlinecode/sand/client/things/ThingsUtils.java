@@ -13,11 +13,11 @@ public class ThingsUtils {
 		return sb.toString();
 	}
 	
-	public static String generateRandomDeviceId() {
-		return generateRandomDeviceId(12);
+	public static String generateRandomId() {
+		return generateRandomId(12);
 	}
 	
-	public static String generateRandomDeviceId(int length) {
+	public static String generateRandomId(int length) {
 		if (length <= 16) {
 			return String.format("%016X", java.util.UUID.randomUUID().getLeastSignificantBits()).substring(16 - length, 16);
 		}

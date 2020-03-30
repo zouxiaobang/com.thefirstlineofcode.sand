@@ -1,31 +1,32 @@
 package com.firstlinecode.sand.protocols.concentrator;
 
+import com.firstlinecode.sand.protocols.core.Address;
 import com.firstlinecode.sand.protocols.core.CommunicationNet;
 
-public class NodeAddress<T> {
-	private CommunicationNet communicationNet;
-	private T address;
+public class NodeAddress<T extends Address> {
+	private CommunicationNet communicationNet;	
+	private String address;
 	
 	public NodeAddress() {}
 	
-	public NodeAddress(CommunicationNet communicationNet, T address) {
+	public NodeAddress(CommunicationNet communicationNet, String address) {
 		this.communicationNet = communicationNet;
 		this.address = address;
 	}
 	
 	public void setCommunicationNet(CommunicationNet communicationNet) {
 		this.communicationNet = communicationNet;
-	} 
+	}
 	
 	public CommunicationNet getCommunicationNet() {
 		return communicationNet;
 	}
 	
-	public void setAddress(T address) {
+	public void setAddress(String address) {
 		this.address = address;
 	}
 	
-	public T getAddress() {
+	public String getAddress() {
 		return address;
 	}
 }

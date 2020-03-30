@@ -84,9 +84,14 @@ public class DeviceManager implements IDeviceManager {
 		D_Device device = new D_Device();
 		device.setId(UUID.randomUUID().toString());
 		device.setDeviceId(deviceId);
+		
 		DeviceIdentity identity = new DeviceIdentity();
 		identity.setDeviceName(createDeviceName(deviceId));
 		identity.setCredentials(createCredentials());
+		device.setIdentity(identity);
+		
+		device.setMode(guessMode(deviceId));
+		
 		device.setRegistrationTime(Calendar.getInstance().getTime());
 		device.setAuthorizationId(authorization.getId());
 		
@@ -251,7 +256,7 @@ public class DeviceManager implements IDeviceManager {
 		if (deviceIdRuler != null)
 			return deviceIdRuler.guessMode(deviceId);
 		
-		return null;
+		return deviceId.substring(0, 4);
 	}
 
 }

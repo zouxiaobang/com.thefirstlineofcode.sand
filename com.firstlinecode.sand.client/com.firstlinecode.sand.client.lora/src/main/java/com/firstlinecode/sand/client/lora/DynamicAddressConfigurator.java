@@ -80,7 +80,8 @@ public class DynamicAddressConfigurator implements IAddressConfigurator<IDualLor
 		}
 		
 		if (state == State.WORKING || !communicator.getAddress().equals(ADDRESS_CONFIGURATION_MODE_DUAL_LORA_ADDRESS)) {				
-			throw new IllegalStateException("It seemed that device is being in working mode.");
+			logger.warn("It seemed that device has already is being in working mode.");
+			return;
 		}
 		
 		state = State.WORKING;
@@ -150,10 +151,9 @@ public class DynamicAddressConfigurator implements IAddressConfigurator<IDualLor
 				allocation.setGatewayAddress(workingAddress.getSlaveAddress().getAddress());
 				allocation.setGatewayChannel(workingAddress.getChannel());
 				
-				// TODO Use chalk concentrator plugin to get size of nodes.
-				/* int nodesSize = concentrator.getLanIds().length;
+				int nodesSize = concentrator.getNodes().size();
 				int iNodeLanId = nodesSize + 1;
-				nodeLanId = Integer.toString(iNodeLanId);
+				String nodeLanId = Integer.toString(iNodeLanId);
 				nodeAddress = new LoraAddress(iNodeLanId, LoraAddress.DEFAULT_THING_COMMUNICATION_FREQUENCE_BAND);
 				allocation.setAllocatedAddress(nodeAddress.getAddress());
 				allocation.setAllocatedFrequencyBand(nodeAddress.getFrequencyBand());
@@ -165,7 +165,7 @@ public class DynamicAddressConfigurator implements IAddressConfigurator<IDualLor
 				}
 				
 				byte[] response = obmFactory.toBinary(allocation);
-				communicator.send(introductedAddress, response);*/
+				communicator.send(introductedAddress, response);
 				
 				state = State.ALLOCATING;
 				return;
@@ -212,8 +212,8 @@ public class DynamicAddressConfigurator implements IAddressConfigurator<IDualLor
 	
 	@Override
 	public void confirm() {
-		concentrator.createNode(nodeDeviceId, new NodeAddress<LoraAddress>(CommunicationNet.LORA, nodeAddress));
-/*		*/
+		concentrator.createNode(nodeDeviceId, new NodeAddress<LoraAddress>(CommunicationNet.LORA,
+				nodeAddress.toString()));
 	}
 	
 	public State getState() {

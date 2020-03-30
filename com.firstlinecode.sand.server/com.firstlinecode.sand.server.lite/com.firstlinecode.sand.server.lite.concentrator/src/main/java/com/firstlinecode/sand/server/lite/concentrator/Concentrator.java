@@ -15,7 +15,7 @@ public class Concentrator implements IConcentrator {
 	}
 
 	@Override
-	public String[] getNodes() {
+	public Node[] getNodes() {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -27,9 +27,14 @@ public class Concentrator implements IConcentrator {
 	}
 
 	@Override
-	public String confirm(String deviceId) {
+	public void confirm(String deviceId) {
 		// TODO Auto-generated method stub
-		return null;
+	}
+
+	@Override
+	public boolean containsNode(String deviceId) {
+		// TODO Auto-generated method stub
+		return false;
 	}
 
 }

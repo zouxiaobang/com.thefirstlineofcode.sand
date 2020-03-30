@@ -5,6 +5,7 @@ import com.firstlinecode.sand.protocols.core.CommunicationNet;
 public class Node {
 	private String parent;
 	private String deviceId;
+	private String lanId;
 	private CommunicationNet type;
 	private String address;
 	
@@ -24,6 +25,14 @@ public class Node {
 		this.deviceId = deviceId;
 	}
 	
+	public String getLanId() {
+		return lanId;
+	}
+
+	public void setLanId(String lanId) {
+		this.lanId = lanId;
+	}
+
 	public CommunicationNet getType() {
 		return type;
 	}

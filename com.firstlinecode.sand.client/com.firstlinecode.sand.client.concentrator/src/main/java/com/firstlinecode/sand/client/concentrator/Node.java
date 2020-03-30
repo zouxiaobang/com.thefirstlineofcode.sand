@@ -1,10 +1,8 @@
 package com.firstlinecode.sand.client.concentrator;
 
-import com.firstlinecode.sand.protocols.concentrator.NodeAddress;
-
 public class Node {
 	private String deviceId;
-	private NodeAddress<?> address;
+	private String address;
 	
 	public String getDeviceId() {
 		return deviceId;
@@ -14,11 +12,11 @@ public class Node {
 		this.deviceId = deviceId;
 	}
 
-	public NodeAddress<?> getAddress() {
+	public String getAddress() {
 		return address;
 	}
 	
-	public void setAddress(NodeAddress<?> address) {
+	public void setAddress(String address) {
 		this.address = address;
 	}
 }

@@ -79,7 +79,7 @@ public class SandCommandProvider implements CommandProvider {
 	}
 
 	private void authorize(CommandInterpreter interpreter, String deviceId) {
-		if (deviceManager.isValid(deviceId)) {			
+		if (!deviceManager.isValid(deviceId)) {			
 			interpreter.print(String.format("Error: Invalid device ID '%s'.\n", deviceId));
 			return;
 		}

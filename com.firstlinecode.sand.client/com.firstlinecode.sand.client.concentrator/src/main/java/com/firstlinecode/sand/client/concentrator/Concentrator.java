@@ -1,9 +1,10 @@
 package com.firstlinecode.sand.client.concentrator;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,8 +17,11 @@ import com.firstlinecode.chalk.IUnidirectionalStream;
 import com.firstlinecode.sand.client.concentrator.IConcentrator.Listener.LanError;
 import com.firstlinecode.sand.protocols.concentrator.CreateNode;
 import com.firstlinecode.sand.protocols.concentrator.NodeAddress;
+import com.firstlinecode.sand.protocols.core.CommunicationNet;
 
 public class Concentrator implements IConcentrator {
+	private static final String PATTERN_LAN_ID = "%02d";
+
 	private static final Logger logger = LoggerFactory.getLogger(Concentrator.class);
 	
 	private static final int DEFAULT_ADDRESS_CONFIGURATION_NODE_CREATION_TIMEOUT = 1000 * 60 * 2;
@@ -30,7 +34,7 @@ public class Concentrator implements IConcentrator {
 	
 	public Concentrator() {
 		listeners = new ArrayList<>();
-		nodes = new HashMap<>();
+		nodes = new LinkedHashMap<>();
 		nodesLock = new Object();
 	}
 
@@ -44,16 +48,12 @@ public class Concentrator implements IConcentrator {
 		}
 	}
 
-	private String getNewLanId() {
-		return String.format("%02d", nodes.size() + 1);
-	}
-
 	@Override
-	public void createNode(final String deviceId, final NodeAddress<?> address) {
+	public void createNode(final String deviceId, final NodeAddress<?> nodeAddress) {
 		synchronized (nodesLock) {
 			Node node = new Node();
 			node.setDeviceId(deviceId);
-			node.setAddress(address);
+			node.setAddress(nodeAddress.getAddress());
 			
 			if (nodes.size() > 99) {	
 				for (Listener listener : listeners) {
@@ -63,8 +63,10 @@ public class Concentrator implements IConcentrator {
 				return;
 			}
 			
-			for (Node existed : nodes.values()) {
-				if (existed.getDeviceId().equals(node.getDeviceId())) {
+			int i = 1;
+			String lanId = null;
+			for (Entry<String, Node> entry : nodes.entrySet()) {
+				if (entry.getValue().getDeviceId().equals(node.getDeviceId())) {
 					for (Listener listener : listeners) {
 						listener.occurred(LanError.DEREPULICATED_DEVICE_ID, node);
 					}
@@ -72,40 +74,51 @@ public class Concentrator implements IConcentrator {
 					return;
 				}
 				
-				if (existed.getAddress().equals(node.getAddress())) {
+				if (entry.getValue().getAddress().equals(node.getAddress())) {
 					for (Listener listener : listeners) {
 						listener.occurred(LanError.DEREPULICATED_DEVICE_ADDRESS, node);
 					}
 					
 					return;
 				}
+				
+				String currentLanId = entry.getKey();
+				if (lanId == null && Integer.parseInt(currentLanId) != i) {
+					lanId = String.format(PATTERN_LAN_ID, i);
+				}
+				
+				i++;
 			}
 			
-			final String lanId = getNewLanId();
-			nodes.put(lanId, node);
+			if (lanId == null) {
+				lanId = String.format(PATTERN_LAN_ID, i);
+			}
 			
-			chatServices.getTaskService().execute(new NodeCreationTask(lanId, node));
+			chatServices.getTaskService().execute(new NodeCreationTask(lanId, nodeAddress.getCommunicationNet(), node));
 		}
 	}
 	
 	private class NodeCreationTask implements ITask<Iq> {
 		private String lanId;
+		private CommunicationNet communicationNet;
 		private Node node;
 		
-		public NodeCreationTask(String lanId, Node node) {
+		public NodeCreationTask(String lanId, CommunicationNet communicationNet, Node node) {
 			this.lanId = lanId;
+			this.communicationNet = communicationNet;
 			this.node = node;
 		}
 
 		@Override
 		public void trigger(IUnidirectionalStream<Iq> stream) {
-			CreateNode request = new CreateNode();
-			request.setDeviceId(node.getDeviceId());
-			request.setAddress(node.getAddress());
-			request.setLanId(lanId);
+			CreateNode createNode = new CreateNode();
+			createNode.setDeviceId(node.getDeviceId());
+			createNode.setCommunicationNet(communicationNet.toString());
+			createNode.setAddress(node.getAddress());
+			createNode.setLanId(lanId);
 			
 			Iq iq = new Iq(Iq.Type.SET, "cn-" + lanId);
-			iq.setObject(request);
+			iq.setObject(createNode);
 			
 			stream.send(iq, DEFAULT_ADDRESS_CONFIGURATION_NODE_CREATION_TIMEOUT);
 		}

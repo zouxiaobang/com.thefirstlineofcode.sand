@@ -93,8 +93,8 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 		ComponentListener, WindowListener, IGateway, IConnectionListener, IConcentrator.Listener {
 	private static final String DEFAULT_GATEWAY_LAN_ID = "00";
 	private static final int ALWAYS_FULL_POWER = 100;
-	private static final String DEVICE_TYPE = "Gateway";
-	private static final String DEVICE_MODE = "Gateway-Emulator-01";
+	private static final String DEVICE_TYPE = "GE";
+	private static final String DEVICE_MODE = "GE01";
 	
 	private static final int DEFAULT_NOTIFICATION_DELAY_TIME = 1000 * 2;
 
@@ -182,7 +182,7 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 		this.network = network;
 		this.gatewayCommunicator = gatewayCommunicator;
 		
-		deviceId = ThingsUtils.generateRandomDeviceId();
+		deviceId = generateDeviceId();
 		
 		thingFactories = new ArrayList<>();
 		allThings = new HashMap<>();
@@ -193,6 +193,10 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 		new Thread(new AutoReconnectThread()).start();
 		
 		setupUi();
+	}
+
+	protected String generateDeviceId() {
+		return getDeviceMode() + ThingsUtils.generateRandomId(8);
 	}
 	
 	private class AutoReconnectThread implements Runnable {

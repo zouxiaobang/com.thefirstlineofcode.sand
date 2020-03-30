@@ -2,7 +2,11 @@ package com.firstlinecode.sand.protocols.lora;
 
 import java.util.Random;
 
-public class LoraAddress {
+import com.firstlinecode.sand.protocols.core.Address;
+import com.firstlinecode.sand.protocols.core.BadAddressException;
+import com.firstlinecode.sand.protocols.core.CommunicationNet;
+
+public class LoraAddress extends Address {
 	public static final int DEFAULT_DYANAMIC_ADDRESS_CONFIGURATOR_ADDRESS = 65535;
 	public static final int DEFAULT_DYANAMIC_ADDRESS_CONFIGURATOR_MASTER_CHIP_FREQUENCE_BAND = 62;
 	public static final int DEFAULT_DYANAMIC_ADDRESS_CONFIGURATOR_SLAVE_CHIP_FREQUENCE_BAND = 63;
@@ -22,7 +26,7 @@ public class LoraAddress {
 	
 	public LoraAddress(long address, int frequencyBand) {
 		if (address < 0 || address > MAX_FOUR_BYTES_ADDRESS)
-			throw new IllegalArgumentException("Invalid dual lora addresses.");
+			throw new IllegalArgumentException("Invalid lora addresses.");
 		
 		if (frequencyBand < 0 || frequencyBand > 63)
 			throw new IllegalArgumentException("Lora frequency band must be range of 0~63.");
@@ -67,16 +71,45 @@ public class LoraAddress {
 		return hash;
 	}
 	
-	@Override
-	public String toString() {
-		return String.format("LoraAddress[%d, %d]", address, frequencyBand);
-	}
-	
 	public static LoraAddress randomLoraAddress() {
 		return LoraAddress.randomLoraAddress(DEFAULT_THING_COMMUNICATION_FREQUENCE_BAND);
 	}
 	
 	public static LoraAddress randomLoraAddress(int frequencyBand) {
 		return new LoraAddress(new Random().nextInt(LoraAddress.MAX_TWO_BYTES_ADDRESS - 1), frequencyBand);
+	}
+
+	@Override
+	public Address parse(String addressString) throws BadAddressException {
+		if (!addressString.startsWith("la$")) {
+			throw new BadAddressException("Invalid LORA address.");
+		}
+		
+		int conlonIndex = addressString.indexOf(':');
+		if (conlonIndex == -1)
+			throw new BadAddressException("Invalid LORA address.");
+		
+		String addressPart = addressString.substring(3, conlonIndex);
+		String frequencyPart = addressString.substring(conlonIndex + 1);
+		
+		LoraAddress loraAddress = new LoraAddress();		
+		try {			
+			loraAddress.setAddress(Long.parseLong(addressPart));
+			loraAddress.setFrequencyBand(Integer.parseInt(frequencyPart));
+		} catch (NumberFormatException e) {
+			throw new BadAddressException("Invalid LORA address.", e);
+		}
+		
+		return loraAddress;
+	}
+
+	@Override
+	protected String getAddressString() {
+		return String.format("la$%d:%d", address, frequencyBand);
+	}
+	
+	@Override
+	public CommunicationNet getCommunicationNet() {
+		return CommunicationNet.LORA;
 	}
 }
