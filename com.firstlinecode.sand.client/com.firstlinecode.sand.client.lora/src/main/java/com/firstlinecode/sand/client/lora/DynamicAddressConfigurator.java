@@ -18,7 +18,7 @@ import com.firstlinecode.sand.protocols.lora.dac.Allocation;
 import com.firstlinecode.sand.protocols.lora.dac.Confirmation;
 import com.firstlinecode.sand.protocols.lora.dac.Introduction;
 
-public class DynamicAddressConfigurator implements IAddressConfigurator<IDualLoraChipCommunicator, LoraAddress, byte[]> {
+public class DynamicAddressConfigurator implements IAddressConfigurator<IDualLoraChipsCommunicator, LoraAddress, byte[]> {
 	private static final Logger logger = LoggerFactory.getLogger(DynamicAddressConfigurator.class);
 	
 	private static final DualLoraAddress ADDRESS_CONFIGURATION_MODE_DUAL_LORA_ADDRESS = new DualLoraAddress(
@@ -31,7 +31,7 @@ public class DynamicAddressConfigurator implements IAddressConfigurator<IDualLor
 		CONFIRMING
 	}
 	
-	private IDualLoraChipCommunicator communicator;
+	private IDualLoraChipsCommunicator communicator;
 	private IConcentrator concentrator;
 	private DualLoraAddress workingAddress;
 	private String nodeDeviceId;
@@ -41,7 +41,7 @@ public class DynamicAddressConfigurator implements IAddressConfigurator<IDualLor
 	
 	private State state;
 	
-	public DynamicAddressConfigurator(IDualLoraChipCommunicator communicator, IConcentrator concentrator) {
+	public DynamicAddressConfigurator(IDualLoraChipsCommunicator communicator, IConcentrator concentrator) {
 		this.communicator = communicator;
 		this.concentrator =  concentrator;
 		
@@ -148,7 +148,7 @@ public class DynamicAddressConfigurator implements IAddressConfigurator<IDualLor
 				}
 				
 				Allocation allocation = new Allocation();
-				allocation.setGatewayAddress(workingAddress.getSlaveAddress().getAddress());
+				allocation.setGatewayAddress(workingAddress.getSlaveChipAddress().getAddress());
 				allocation.setGatewayChannel(workingAddress.getChannel());
 				
 				int nodesSize = concentrator.getNodes().size();
@@ -206,7 +206,7 @@ public class DynamicAddressConfigurator implements IAddressConfigurator<IDualLor
 	}
 
 	@Override
-	public void setCommunicator(IDualLoraChipCommunicator communicator) {
+	public void setCommunicator(IDualLoraChipsCommunicator communicator) {
 		this.communicator = communicator;
 	}
 	

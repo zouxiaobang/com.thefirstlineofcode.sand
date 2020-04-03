@@ -10,7 +10,7 @@ import javax.swing.JTabbedPane;
 
 import com.firstlinecode.chalk.IChatClient;
 import com.firstlinecode.chalk.network.IConnectionListener;
-import com.firstlinecode.sand.client.lora.IDualLoraChipCommunicator;
+import com.firstlinecode.sand.client.lora.IDualLoraChipsCommunicator;
 import com.firstlinecode.sand.client.things.commuication.ICommunicationNetwork;
 import com.firstlinecode.sand.client.things.commuication.ICommunicationNetworkListener;
 import com.firstlinecode.sand.emulators.thing.IThingEmulator;
@@ -28,7 +28,7 @@ public class LogConsolesDialog extends JDialog {
 	
 	public LogConsolesDialog(JFrame parent, IChatClient chatClient,
 			ICommunicationNetwork<LoraAddress, byte[], ?> network,
-			IDualLoraChipCommunicator gatewayCommunicator,
+			IDualLoraChipsCommunicator gatewayCommunicator,
 			Map<String, List<IThingEmulator>> allThings) {
 		super(parent, "Log Console");
 		
@@ -46,7 +46,7 @@ public class LogConsolesDialog extends JDialog {
 	}
 
 	private void createLogConsoles(IChatClient chatClient, ICommunicationNetwork<LoraAddress, byte[], ?> network,
-			IDualLoraChipCommunicator gatewayCommunicator, Map<String, List<IThingEmulator>> allThings) {
+			IDualLoraChipsCommunicator gatewayCommunicator, Map<String, List<IThingEmulator>> allThings) {
 		createInternetLogConsole(chatClient);
 		createCommunicationNetworkLogConsole(network);
 		createGatewayConsole(gatewayCommunicator);
@@ -65,7 +65,7 @@ public class LogConsolesDialog extends JDialog {
 		createLogConsole(thing.getDeviceId(), new ThingLogConsolePanel(thing));
 	}
 
-	private void createGatewayConsole(IDualLoraChipCommunicator gatewayCommunicator) {
+	private void createGatewayConsole(IDualLoraChipsCommunicator gatewayCommunicator) {
 		createLogConsole(NAME_GATEWAY, new GatewayLogConsolePanel(gatewayCommunicator));
 	}
 

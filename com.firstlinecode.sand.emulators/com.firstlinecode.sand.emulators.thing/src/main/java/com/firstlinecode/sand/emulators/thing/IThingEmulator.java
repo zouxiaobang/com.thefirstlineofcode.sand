@@ -13,5 +13,5 @@ public interface IThingEmulator extends IThing, Externalizable {
 	void powerChanged(PowerEvent event);
 	void reset();
 	AbstractThingEmulatorPanel getPanel();
-	ICommunicator<?, ?> getCommunicator();
+	ICommunicator<?, ?, ?> getCommunicator();
 }

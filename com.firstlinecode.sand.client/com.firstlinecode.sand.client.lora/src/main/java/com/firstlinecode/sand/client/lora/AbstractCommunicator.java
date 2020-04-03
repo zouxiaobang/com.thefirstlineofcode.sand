@@ -7,56 +7,56 @@ import com.firstlinecode.sand.client.things.commuication.CommunicationException;
 import com.firstlinecode.sand.client.things.commuication.ICommunicationListener;
 import com.firstlinecode.sand.client.things.commuication.ICommunicator;
 
-public abstract class AbstractCommunicator<A, D> implements ICommunicator<A, D> {
-	protected List<ICommunicationListener<A, D>> listeners;
+public abstract class AbstractCommunicator<OA, PA, D> implements ICommunicator<OA, PA, D> {
+	protected List<ICommunicationListener<OA, PA, D>> listeners;
 	
 	public AbstractCommunicator() {
 		listeners = new ArrayList<>();
 	}
 	
 	@Override
-	public void changeAddress(A address) {
+	public void changeAddress(OA address) {
 		try {
 			doChangeAddress(address);
 		} catch (CommunicationException e) {
-			for (ICommunicationListener<A, D> listener : listeners) {
+			for (ICommunicationListener<OA, PA, D> listener : listeners) {
 				listener.occurred(e);
 			}
 		}
 	}
 	
 	@Override
-	public void send(A to, D data) {
+	public void send(PA to, D data) {
 		try {
 			doSend(to, data);
 		} catch (CommunicationException e) {
-			for (ICommunicationListener<A, D> listener : listeners) {
+			for (ICommunicationListener<OA, PA, D> listener : listeners) {
 				listener.occurred(e);
 			}
 		}
 		
-		for (ICommunicationListener<A, D> listener : listeners) {
+		for (ICommunicationListener<OA, PA, D> listener : listeners) {
 			listener.sent(to, data);
 		}
 	}
 	
 	@Override
-	public void addCommunicationListener(ICommunicationListener<A, D> listener) {
+	public void addCommunicationListener(ICommunicationListener<OA, PA, D> listener) {
 		listeners.add(listener);
 	}
 	
 	@Override
-	public void removeCommunicationListener(ICommunicationListener<A, D> listener) {
+	public void removeCommunicationListener(ICommunicationListener<OA, PA, D> listener) {
 		listeners.remove(listener);
 	}
 	
 	@Override
-	public void received(A from, D data) {
-		for (ICommunicationListener<A, D> listener : listeners) {
+	public void received(PA from, D data) {
+		for (ICommunicationListener<OA, PA, D> listener : listeners) {
 			listener.received(from, data);
 		}
 	}
 	
-	protected abstract void doChangeAddress(A address) throws CommunicationException;
-	protected abstract void doSend(A to, D data) throws CommunicationException;
+	protected abstract void doChangeAddress(OA address) throws CommunicationException;
+	protected abstract void doSend(PA to, D data) throws CommunicationException;
 }

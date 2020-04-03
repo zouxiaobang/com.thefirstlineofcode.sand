@@ -8,7 +8,7 @@ import com.firstlinecode.sand.emulators.lora.LoraChipCreationParams;
 import com.firstlinecode.sand.emulators.lora.LoraCommunicator;
 import com.firstlinecode.sand.protocols.lora.LoraAddress;
 
-public class LoraCommunicatorFactory implements ICommunicatorFactory{
+public class LoraCommunicatorFactory implements ICommunicatorFactory {
 	protected ILoraNetwork network;
 	
 	public LoraCommunicatorFactory(ILoraNetwork network) {
@@ -16,7 +16,7 @@ public class LoraCommunicatorFactory implements ICommunicatorFactory{
 	}
 
 	@Override
-	public ICommunicator<?, ?> createCommunicator(ParamsMap params) {
+	public ICommunicator<?, ?, ?> createCommunicator(ParamsMap params) {
 		return new LoraCommunicator(network.createChip(getChipAddress(params)));
 	}
 

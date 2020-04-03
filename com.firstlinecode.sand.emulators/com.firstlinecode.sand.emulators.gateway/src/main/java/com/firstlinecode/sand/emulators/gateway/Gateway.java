@@ -70,7 +70,7 @@ import com.firstlinecode.sand.client.ibdr.IRegistration;
 import com.firstlinecode.sand.client.ibdr.IbdrPlugin;
 import com.firstlinecode.sand.client.ibdr.RegistrationException;
 import com.firstlinecode.sand.client.lora.DynamicAddressConfigurator;
-import com.firstlinecode.sand.client.lora.IDualLoraChipCommunicator;
+import com.firstlinecode.sand.client.lora.IDualLoraChipsCommunicator;
 import com.firstlinecode.sand.client.things.ThingsUtils;
 import com.firstlinecode.sand.client.things.commuication.ParamsMap;
 import com.firstlinecode.sand.emulators.gateway.log.LogConsolesDialog;
@@ -162,7 +162,7 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 	private boolean dirty;
 	
 	private ILoraNetwork network;
-	private IDualLoraChipCommunicator gatewayCommunicator;
+	private IDualLoraChipsCommunicator gatewayCommunicator;
 	
 	private JDesktopPane desktop;
 	private JMenuBar menuBar;
@@ -176,7 +176,7 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 	
 	private DynamicAddressConfigurator addressConfigurator;
 	
-	public Gateway(ILoraNetwork network, IDualLoraChipCommunicator gatewayCommunicator) {
+	public Gateway(ILoraNetwork network, IDualLoraChipsCommunicator gatewayCommunicator) {
 		super("Unregistered Gateway");
 		
 		this.network = network;

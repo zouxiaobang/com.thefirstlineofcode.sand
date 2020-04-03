@@ -5,6 +5,6 @@ public interface ICommunicationChip<A, D> {
 	A getAddress();
 	void send(A to, D data) throws CommunicationException;
 	Data<A, D> receive();
-	void addListener(ICommunicationListener<A, D> listener);
-	boolean removeListener(ICommunicationListener<A, D> listener);
+	void addListener(ICommunicationListener<A, A, D> listener);
+	boolean removeListener(ICommunicationListener<A, A, D> listener);
 }

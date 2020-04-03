@@ -26,7 +26,7 @@ public class LoraChip implements ILoraChip {
 	protected LoraAddress address;
 	protected volatile boolean slept;
 	
-	protected List<ICommunicationListener<LoraAddress, byte[]>> listeners;
+	protected List<ICommunicationListener<LoraAddress, LoraAddress, byte[]>> listeners;
 	
 	public LoraChip(ILoraNetwork network, Type type, LoraAddress address) {
 		if (network == null)
@@ -60,14 +60,14 @@ public class LoraChip implements ILoraChip {
 	}
 	
 	@Override
-	public void addListener(ICommunicationListener<LoraAddress, byte[]> listener) {
+	public void addListener(ICommunicationListener<LoraAddress, LoraAddress, byte[]> listener) {
 		if (!listeners.contains(listener)) {
 			listeners.add(listener);
 		}
 	}
 
 	@Override
-	public boolean removeListener(ICommunicationListener<LoraAddress, byte[]> listener) {
+	public boolean removeListener(ICommunicationListener<LoraAddress, LoraAddress, byte[]> listener) {
 		return listeners.remove(listener);
 	}
 	
@@ -101,7 +101,7 @@ public class LoraChip implements ILoraChip {
 		LoraData data = (LoraData)network.receiveData(this);
 		
 		if (data != null) {			
-			for (ICommunicationListener<LoraAddress, byte[]> listener : listeners) {
+			for (ICommunicationListener<LoraAddress, LoraAddress, byte[]> listener : listeners) {
 				listener.received(data.getAddress(), data.getData());
 			}
 		}
@@ -124,7 +124,7 @@ public class LoraChip implements ILoraChip {
 		network.changeAddress(this, address);
 		this.address = address;
 		
-		for (ICommunicationListener<LoraAddress, byte[]> listener : listeners) {
+		for (ICommunicationListener<LoraAddress, LoraAddress, byte[]> listener : listeners) {
 			listener.addressChanged(address, oldAddress);
 		}
 	}

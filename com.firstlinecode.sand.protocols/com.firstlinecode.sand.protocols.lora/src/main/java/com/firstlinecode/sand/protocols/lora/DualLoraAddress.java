@@ -63,19 +63,19 @@ public class DualLoraAddress {
 				getMasterChipFrequencyBand(), getSlaveChipFrequencyBand());
 	}
 	
-	public int getMasterChipFrequencyBand() {
+	private int getMasterChipFrequencyBand() {
 		return channel * 2;
 	}
 	
-	public int getSlaveChipFrequencyBand() {
+	private int getSlaveChipFrequencyBand() {
 		return channel * 2 + 1;
 	}
 	
-	public LoraAddress getMasterAddress() {
+	public LoraAddress getMasterChipAddress() {
 		return new LoraAddress(address, getMasterChipFrequencyBand());
 	}
 	
-	public LoraAddress getSlaveAddress() {
+	public LoraAddress getSlaveChipAddress() {
 		return new LoraAddress(address, getSlaveChipFrequencyBand());
 	}
 	

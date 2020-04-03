@@ -17,7 +17,7 @@ import com.firstlinecode.sand.protocols.lora.LoraAddress;
 
 public abstract class AbstractThingEmulator implements IThingEmulator {
 	protected String thingName;
-	protected ICommunicator<?, ?> communicator;
+	protected ICommunicator<?, ?, ?> communicator;
 	protected DynamicAddressConfigurator addressConfigurator;
 	
 	protected String deviceId;
@@ -235,7 +235,7 @@ public abstract class AbstractThingEmulator implements IThingEmulator {
 	}
 	
 	@Override
-	public ICommunicator<?, ?> getCommunicator() {
+	public ICommunicator<?, ?, ?> getCommunicator() {
 		return communicator;
 	}
 	

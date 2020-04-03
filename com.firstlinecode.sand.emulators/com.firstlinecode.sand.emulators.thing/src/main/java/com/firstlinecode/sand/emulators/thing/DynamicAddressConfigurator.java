@@ -17,8 +17,8 @@ import com.firstlinecode.sand.protocols.lora.dac.Allocation;
 import com.firstlinecode.sand.protocols.lora.dac.Confirmation;
 import com.firstlinecode.sand.protocols.lora.dac.Introduction;
 
-public class DynamicAddressConfigurator implements IAddressConfigurator<ICommunicator<LoraAddress, byte[]>,
-		LoraAddress, byte[]>, ICommunicationListener<LoraAddress, byte[]> {
+public class DynamicAddressConfigurator implements IAddressConfigurator<ICommunicator<LoraAddress, LoraAddress, byte[]>,
+		LoraAddress, byte[]>, ICommunicationListener<LoraAddress, LoraAddress, byte[]> {
 	private static final int DEFAULT_ADDRESS_CONFIGURATION_DATA_RETRIVE_INTERVAL = 1000;
 	private static final int DEFAULT_ADDRESS_CONFIGURATION_NEGOTIATION_TIMEOUT = 1000 * 30;
 	private static final int DEFAULT_ADDRESS_CONFIGURATION_CONFIRMATION_TIMEOUT = 1000 * 60 * 2;
@@ -51,7 +51,7 @@ public class DynamicAddressConfigurator implements IAddressConfigurator<ICommuni
 	}
 
 	@Override
-	public void setCommunicator(ICommunicator<LoraAddress, byte[]> communicator) {
+	public void setCommunicator(ICommunicator<LoraAddress, LoraAddress, byte[]> communicator) {
 		this.communicator = (LoraCommunicator)communicator;
 		communicator.addCommunicationListener(this);
 	}

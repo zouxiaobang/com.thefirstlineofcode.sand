@@ -5,7 +5,7 @@ import java.util.Map;
 import com.firstlinecode.sand.client.things.commuication.ICommunicator;
 
 public interface IThing extends IDevice {
-	ICommunicator<?, ?> getCommunicator();
+	ICommunicator<?, ?, ?> getCommunicator();
 	String getLanId();
 	void configure(String key, Object value);
 	Map<String, Object> getConfiguration();

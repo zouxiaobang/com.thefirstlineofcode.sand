@@ -6,7 +6,7 @@ import com.firstlinecode.sand.client.lora.LoraData;
 import com.firstlinecode.sand.client.things.commuication.CommunicationException;
 import com.firstlinecode.sand.protocols.lora.LoraAddress;
 
-public class LoraCommunicator extends AbstractCommunicator<LoraAddress, byte[]> {
+public class LoraCommunicator extends AbstractCommunicator<LoraAddress, LoraAddress, byte[]> {
 	protected ILoraChip chip;
 	
 	public LoraCommunicator(ILoraChip chip) {

@@ -9,12 +9,12 @@ import com.firstlinecode.sand.client.things.commuication.ICommunicator;
 import com.firstlinecode.sand.emulators.thing.IThingEmulator;
 import com.firstlinecode.sand.protocols.lora.LoraAddress;
 
-public class ThingLogConsolePanel extends AbstractLogConsolePanel implements ICommunicationListener<LoraAddress, byte[]> {
+public class ThingLogConsolePanel extends AbstractLogConsolePanel implements ICommunicationListener<LoraAddress, LoraAddress, byte[]> {
 	private static final long serialVersionUID = 506009089461387655L;
 
 	@SuppressWarnings("unchecked")
 	public ThingLogConsolePanel(IThingEmulator thing) {
-		((ICommunicator<LoraAddress, byte[]>)thing.getCommunicator()).addCommunicationListener(this);
+		((ICommunicator<LoraAddress, LoraAddress, byte[]>)thing.getCommunicator()).addCommunicationListener(this);
 	}
 
 	@Override
@@ -40,7 +40,7 @@ public class ThingLogConsolePanel extends AbstractLogConsolePanel implements ICo
 	
 	@SuppressWarnings("unchecked")
 	public void thingRemoved(IThingEmulator thing) {
-		((ICommunicator<LoraAddress, byte[]>)thing.getCommunicator()).removeCommunicationListener(this);
+		((ICommunicator<LoraAddress, LoraAddress, byte[]>)thing.getCommunicator()).removeCommunicationListener(this);
 	}
 
 	@Override
