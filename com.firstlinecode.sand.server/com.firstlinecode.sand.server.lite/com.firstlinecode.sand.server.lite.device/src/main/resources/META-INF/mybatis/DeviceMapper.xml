@@ -3,7 +3,7 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.firstlinecode.sand.server.lite.device.DeviceMapper">
     <insert id="insert" parameterType="com.firstlinecode.sand.server.lite.device.D_Device">
-        INSERT INTO DEVICE(id, device_id, device_name, credentials, authorization_id, registration_time) VALUES(#{id}, #{deviceId}, #{identity.deviceName}, #{identity.credentials}, #{authorizationId}, #{registrationTime})
+        INSERT INTO DEVICE(id, device_id, device_name, credentials, mode, authorization_id, registration_time) VALUES(#{id}, #{deviceId}, #{identity.deviceName}, #{identity.credentials}, #{mode}, #{authorizationId}, #{registrationTime})
     </insert>
     
    <update id="delete">

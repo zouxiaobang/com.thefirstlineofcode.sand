@@ -20,7 +20,7 @@
 		<module>com.firstlinecode.sand.emulators.network</module>
 		<module>com.firstlinecode.sand.emulators.thing</module>
 		<module>com.firstlinecode.sand.emulators.gateway</module>
-		<module>com.firstlinecode.sand.emulators.blub</module>
+		<module>com.firstlinecode.sand.emulators.light</module>
 	</modules>
 
 </project>

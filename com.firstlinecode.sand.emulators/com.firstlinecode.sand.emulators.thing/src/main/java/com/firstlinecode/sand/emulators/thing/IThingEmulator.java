@@ -14,4 +14,5 @@ public interface IThingEmulator extends IThing, Externalizable {
 	void reset();
 	AbstractThingEmulatorPanel getPanel();
 	ICommunicator<?, ?, ?> getCommunicator();
+	String getThingName();
 }

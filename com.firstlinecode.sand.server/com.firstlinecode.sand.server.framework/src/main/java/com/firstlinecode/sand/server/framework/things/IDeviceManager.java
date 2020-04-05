@@ -2,6 +2,7 @@ package com.firstlinecode.sand.server.framework.things;
 
 import com.firstlinecode.basalt.protocol.core.JabberId;
 import com.firstlinecode.sand.protocols.core.DeviceIdentity;
+import com.firstlinecode.sand.protocols.core.ModeDescriptor;
 
 public interface IDeviceManager {
 	void authorize(String deviceId, String authorizer, long validityTime);
@@ -18,8 +19,10 @@ public interface IDeviceManager {
 	boolean isConcentrator(String mode);
 	boolean isActuator(String mode);
 	boolean isSensor(String mode);
-	boolean isActionSupported(String mode, Class<?> action);
-	boolean isEventSupported(String mode, Class<?> event);
+	boolean isActionSupported(String mode, String actionName);
+	boolean isEventSupported(String mode, String eventName);
+	Class<?> getActionType(String mode, String actionName);
+	Class<?> getEventType(String mode, String eventName);
 	boolean isValid(String deviceId);
 	String guessMode(String deviceId);
 }

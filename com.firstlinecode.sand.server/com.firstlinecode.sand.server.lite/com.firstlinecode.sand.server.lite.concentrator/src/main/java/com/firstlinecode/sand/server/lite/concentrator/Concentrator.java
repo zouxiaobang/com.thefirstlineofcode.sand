@@ -4,6 +4,7 @@ import org.apache.ibatis.session.SqlSession;
 
 import com.firstlinecode.sand.server.framework.things.concentrator.IConcentrator;
 import com.firstlinecode.sand.server.framework.things.concentrator.Node;
+import com.firstlinecode.sand.server.framework.things.concentrator.NodeConfirmationRequest;
 
 public class Concentrator implements IConcentrator {
 	private String deviceId;
@@ -15,7 +16,7 @@ public class Concentrator implements IConcentrator {
 	}
 
 	@Override
-	public Node[] getNodes() {
+	public Node[] getNodes(String deviceId) {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -35,6 +36,12 @@ public class Concentrator implements IConcentrator {
 	public boolean containsNode(String deviceId) {
 		// TODO Auto-generated method stub
 		return false;
+	}
+
+	@Override
+	public void requestConfirmation(NodeConfirmationRequest request) {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

@@ -2,7 +2,7 @@ package com.firstlinecode.sand.emulators.gateway;
 
 import com.firstlinecode.sand.client.lora.IDualLoraChipsCommunicator;
 import com.firstlinecode.sand.client.things.commuication.ICommunicator;
-import com.firstlinecode.sand.emulators.blub.BlubEmulatorFactory;
+import com.firstlinecode.sand.emulators.light.LightEmulatorFactory;
 import com.firstlinecode.sand.emulators.lora.DualLoraChipsCommunicator;
 import com.firstlinecode.sand.emulators.lora.LoraChip;
 import com.firstlinecode.sand.emulators.lora.LoraChipCreationParams;
@@ -19,7 +19,7 @@ public class Main {
 		configureLogDir();
 		
 		Gateway<?, ?> gateway = createGateway(new LoraNetwork());
-		gateway.registerThingEmulatorFactory(new BlubEmulatorFactory());
+		gateway.registerThingEmulatorFactory(new LightEmulatorFactory());
 		
 		gateway.setVisible(true);
 	}

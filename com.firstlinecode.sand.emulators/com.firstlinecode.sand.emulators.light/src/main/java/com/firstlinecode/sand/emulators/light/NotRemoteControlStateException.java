@@ -1,6 +1,6 @@
-package com.firstlinecode.sand.emulators.blub;
+package com.firstlinecode.sand.emulators.light;
 
-import com.firstlinecode.sand.emulators.blub.IBlub.SwitchState;
+import com.firstlinecode.sand.emulators.light.ILight.SwitchState;
 
 public class NotRemoteControlStateException extends Exception {
 	private static final long serialVersionUID = -6203531719787698381L;

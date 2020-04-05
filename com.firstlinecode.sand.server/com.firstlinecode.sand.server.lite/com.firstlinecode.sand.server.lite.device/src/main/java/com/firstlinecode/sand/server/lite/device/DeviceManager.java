@@ -16,11 +16,11 @@ import com.firstlinecode.basalt.protocol.core.ProtocolException;
 import com.firstlinecode.basalt.protocol.core.stanza.error.Conflict;
 import com.firstlinecode.basalt.protocol.core.stanza.error.NotAuthorized;
 import com.firstlinecode.sand.protocols.core.DeviceIdentity;
+import com.firstlinecode.sand.protocols.core.ModeDescriptor;
 import com.firstlinecode.sand.server.framework.things.Device;
 import com.firstlinecode.sand.server.framework.things.DeviceAuthorization;
 import com.firstlinecode.sand.server.framework.things.IDeviceIdRuler;
 import com.firstlinecode.sand.server.framework.things.IDeviceManager;
-import com.firstlinecode.sand.server.framework.things.ModeDescriptor;
 
 @Transactional
 @Component
@@ -186,6 +186,7 @@ public class DeviceManager implements IDeviceManager {
 		ModeDescriptor modeDescriptor = modeDescriptors.get(mode);
 		if (modeDescriptor == null)
 			throw new IllegalArgumentException(String.format("Unsupported mode: %s.", mode));
+		
 		return modeDescriptor;
 	}
 
@@ -200,47 +201,13 @@ public class DeviceManager implements IDeviceManager {
 	}
 
 	@Override
-	public boolean isActionSupported(String mode, Class<?> action) {
-		ModeDescriptor modeDescriptor = getModeDescriptor(mode);
-		
-		if (!modeDescriptor.isActuator())
-			return false;
-		
-		String actionType = action.getClass().getName();
-		for (String anActionType : modeDescriptor.getActionTypes()) {
-			if (actionType.equals(anActionType))
-				return true;
-		}
-		
-		return false;
-	}
-
-	@Override
-	public boolean isEventSupported(String mode, Class<?> event) {
-		ModeDescriptor modeDescriptor = getModeDescriptor(mode);
-		
-		if (!modeDescriptor.isSensor())
-			return false;
-		
-		String eventType = event.getClass().getName();
-		for (String anEventType : modeDescriptor.getEventTypes()) {
-			if (eventType.equals(anEventType))
-				return true;
-		}
-		
-		return false;
-	}
-
-	@Override
 	public Device getByDeviceId(String deviceId) {
-		// TODO Auto-generated method stub
-		return null;
+		return getDeviceMapper().selectByDeviceId(deviceId);
 	}
 
 	@Override
 	public Device getByDeviceName(String deviceName) {
-		// TODO Auto-generated method stub
-		return null;
+		return getDeviceMapper().selectByDeviceName(deviceName);
 	}
 
 	@Override
@@ -257,6 +224,56 @@ public class DeviceManager implements IDeviceManager {
 			return deviceIdRuler.guessMode(deviceId);
 		
 		return deviceId.substring(0, 4);
+	}
+
+	@Override
+	public boolean isActionSupported(String mode, String actionName) {
+		ModeDescriptor modeDescriptor = getModeDescriptor(mode);
+		
+		if (!modeDescriptor.isActuator())
+			return false;
+		
+		for (String supportedActionName : modeDescriptor.getSupportedActions().keySet()) {
+			if (actionName.equals(supportedActionName))
+				return true;
+		}
+		
+		return false;
+	}
+
+	@Override
+	public boolean isEventSupported(String mode, String eventName) {
+		ModeDescriptor modeDescriptor = getModeDescriptor(mode);
+		
+		if (!modeDescriptor.isSensor())
+			return false;
+		
+		for (String supportedEventName : modeDescriptor.getSupportedEvents().keySet()) {
+			if (eventName.equals(supportedEventName))
+				return true;
+		}
+		
+		return false;
+	}
+
+	@Override
+	public Class<?> getActionType(String mode, String actionName) {
+		ModeDescriptor modeDescriptor = getModeDescriptor(mode);
+		
+		if (!modeDescriptor.isActuator())
+			throw new RuntimeException(String.format("Device which's mode is %s isn't an actuator", mode));
+		
+		return modeDescriptor.getSupportedActions().get(actionName);
+	}
+
+	@Override
+	public Class<?> getEventType(String mode, String eventName) {
+		ModeDescriptor modeDescriptor = getModeDescriptor(mode);
+		
+		if (!modeDescriptor.isSensor())
+			throw new RuntimeException(String.format("Device which's mode is %s isn't a sensor", mode));
+		
+		return modeDescriptor.getSupportedEvents().get(eventName);
 	}
 
 }

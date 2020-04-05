@@ -22,7 +22,6 @@ public abstract class AbstractThingEmulator implements IThingEmulator {
 	
 	protected String deviceId;
 	protected String lanId;
-	protected String deviceType;
 	protected String deviceMode;
 	protected int batteryPower;
 	protected boolean powered;
@@ -31,16 +30,12 @@ public abstract class AbstractThingEmulator implements IThingEmulator {
 	protected LoraAddress gatewayUplinkAddress;
 	protected LoraAddress gatewayDownlinkAddress;
 	
-	public AbstractThingEmulator(String  type, String mode, LoraCommunicator communicator) {
-		if (type == null)
-			throw new IllegalArgumentException("Null device type.");
-		
+	public AbstractThingEmulator(String mode, LoraCommunicator communicator) {
 		if (mode == null)
 			throw new IllegalArgumentException("Null device mode.");
 		
-		this.deviceType = type;
 		this.deviceMode = mode;
-		this.thingName = type + " - " + mode;
+		this.thingName = getThingName() + " - " + mode;
 		this.communicator = communicator;
 
 		deviceId = generateDeviceId();
@@ -122,11 +117,6 @@ public abstract class AbstractThingEmulator implements IThingEmulator {
 	}
 	
 	@Override
-	public String getDeviceType() {
-		return deviceType;
-	}
-	
-	@Override
 	public String getDeviceMode() {
 		return deviceMode;
 	}
@@ -146,7 +136,6 @@ public abstract class AbstractThingEmulator implements IThingEmulator {
 
 	@Override
 	public void writeExternal(ObjectOutput out) throws IOException {
-		out.writeObject(deviceType);
 		out.writeObject(deviceMode);
 		out.writeObject(deviceId);
 		out.writeObject(lanId);
@@ -158,7 +147,6 @@ public abstract class AbstractThingEmulator implements IThingEmulator {
 	
 	@Override
 	public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
-		deviceType = (String)in.readObject();
 		deviceMode = (String)in.readObject();
 		deviceId = (String)in.readObject();
 		lanId = (String)in.readObject();

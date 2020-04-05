@@ -43,7 +43,7 @@
 		</dependency>
 		<dependency>
 			<groupId>com.firstlinecode.sand.emulators</groupId>
-			<artifactId>com.firstlinecode.sand.emulators.blub</artifactId>
+			<artifactId>com.firstlinecode.sand.emulators.light</artifactId>
 		</dependency>
 	</dependencies>
 	

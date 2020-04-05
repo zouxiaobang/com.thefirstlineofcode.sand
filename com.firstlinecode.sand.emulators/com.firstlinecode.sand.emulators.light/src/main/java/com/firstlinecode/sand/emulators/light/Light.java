@@ -1,4 +1,4 @@
-package com.firstlinecode.sand.emulators.blub;
+package com.firstlinecode.sand.emulators.light;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
@@ -26,43 +26,43 @@ import com.firstlinecode.sand.emulators.thing.AbstractThingEmulator;
 import com.firstlinecode.sand.emulators.thing.AbstractThingEmulatorPanel;
 import com.firstlinecode.sand.emulators.thing.PowerEvent;
 
-public class Blub extends AbstractThingEmulator implements IBlub {
-	public static final String THING_TYPE = "BE";
-	public static final String THING_MODE = "BE01";
+public class Light extends AbstractThingEmulator implements ILight {
+	public static final String THING_NAME = "Light Emulator";
+	public static final String THING_MODE = "LE01";
 	
 	private static final SwitchState DEFAULT_SWITCH_STATE = SwitchState.OFF;
-	private static final BlubState DEFAULT_BLUB_STATE = BlubState.OFF;
+	private static final LightState DEFAULT_LIGHT_STATE = LightState.OFF;
 	
 	private SwitchState switchState = DEFAULT_SWITCH_STATE;
-	private BlubState blubState = DEFAULT_BLUB_STATE;
+	private LightState lightState = DEFAULT_LIGHT_STATE;
 	
 	private JPanel switchsPanel;
-	private BlubEmulatorPanel panel;
+	private LightEmulatorPanel panel;
 	
-	public Blub(LoraCommunicator communicator) {
-		this(communicator, DEFAULT_SWITCH_STATE, DEFAULT_BLUB_STATE);
+	public Light(LoraCommunicator communicator) {
+		this(communicator, DEFAULT_SWITCH_STATE, DEFAULT_LIGHT_STATE);
 	}
 	
-	public Blub(LoraCommunicator communicator, SwitchState switchState) {
-		this(communicator, switchState, switchState == SwitchState.ON ? BlubState.ON : BlubState.OFF);
+	public Light(LoraCommunicator communicator, SwitchState switchState) {
+		this(communicator, switchState, switchState == SwitchState.ON ? LightState.ON : LightState.OFF);
 	}
 	
-	public Blub(LoraCommunicator communicator, SwitchState switchState, BlubState blubState) {
-		super(THING_TYPE, THING_MODE, communicator);
+	public Light(LoraCommunicator communicator, SwitchState switchState, LightState lightState) {
+		super(THING_MODE, communicator);
 		
 		if (switchState == null)
 			throw new IllegalArgumentException("Null switch state.");
 		
-		if (blubState == null)
-			throw new IllegalArgumentException("Null blub state.");
+		if (lightState == null)
+			throw new IllegalArgumentException("Null light state.");
 		
-		if (switchState == SwitchState.ON && blubState == BlubState.OFF ||
-				switchState == SwitchState.OFF && blubState == BlubState.ON) {
-			throw new IllegalStateException(String.format("Invalid blub states. Switch state: %s. Blub state: %s.", switchState, blubState));
+		if (switchState == SwitchState.ON && lightState == LightState.OFF ||
+				switchState == SwitchState.OFF && lightState == LightState.ON) {
+			throw new IllegalStateException(String.format("Invalid light states. Switch state: %s. Light state: %s.", switchState, lightState));
 		}
 		
 		this.switchState = switchState;
-		this.blubState = blubState;
+		this.lightState = lightState;
 	}
 	
 	@Override
@@ -70,17 +70,17 @@ public class Blub extends AbstractThingEmulator implements IBlub {
 		return "0.1.0.RELEASE";
 	}
 
-	private class BlubEmulatorPanel extends AbstractThingEmulatorPanel implements ActionListener {
+	private class LightEmulatorPanel extends AbstractThingEmulatorPanel implements ActionListener {
 		private static final long serialVersionUID = 7660599095831708565L;
 		
-		private static final String FILE_NAME_BLUB_OFF = "blub_off.png";
-		private static final String FILE_NAME_BLUB_ON = "blub_on.png";
+		private static final String FILE_NAME_LIGHT_OFF = "light_off.png";
+		private static final String FILE_NAME_LIGHT_ON = "light_on.png";
 
-		private JLabel blubImage;
+		private JLabel lightImage;
 		private JButton flash;
 		
-		public BlubEmulatorPanel() {
-			super(Blub.this);
+		public LightEmulatorPanel() {
+			super(Light.this);
 			addThingListener(this);
 		}
 		
@@ -88,11 +88,11 @@ public class Blub extends AbstractThingEmulator implements IBlub {
 		protected JPanel createThingCustomizedUi() {			
 			JPanel customizedUi = new JPanel(new BorderLayout());
 			
-			blubImage = new JLabel(getBlubImageIcon(blubState));
+			lightImage = new JLabel(getLightImageIcon(lightState));
 			switchsPanel = createSwitchsPanel();
 			
 			customizedUi.add(switchsPanel, BorderLayout.NORTH);
-			customizedUi.add(blubImage, BorderLayout.CENTER);			
+			customizedUi.add(lightImage, BorderLayout.CENTER);			
 			customizedUi.add(createFlashPanel(), BorderLayout.SOUTH);
 			
 			customizedUi.setPreferredSize(new Dimension(360, 320));
@@ -159,7 +159,7 @@ public class Blub extends AbstractThingEmulator implements IBlub {
 			
 			flash.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
-					flashBlub();
+					flash();
 				}
 			});
 			
@@ -167,28 +167,28 @@ public class Blub extends AbstractThingEmulator implements IBlub {
 		}
 		
 		private void refreshFlashButtionStatus() {
-			if (powered && switchState == SwitchState.OFF && blubState == BlubState.OFF) {
+			if (powered && switchState == SwitchState.OFF && lightState == LightState.OFF) {
 				panel.flash.setEnabled(true);
 			} else {
 				panel.flash.setEnabled(false);
 			}
 		}
 		
-		private void flashBlub() {
+		private void flash() {
 			if (!powered)
 				return;
 			
 			switchsPanel.setEnabled(false);
 			flash.setEnabled(false);
 			
-			blubImage.setIcon(getBlubImageIcon(BlubState.ON));
+			lightImage.setIcon(getLightImageIcon(LightState.ON));
 			
 			Timer timer = new Timer();
 			timer.schedule(new TimerTask() {
 
 				@Override
 				public void run() {
-					blubImage.setIcon(getBlubImageIcon(BlubState.OFF));
+					lightImage.setIcon(getLightImageIcon(LightState.OFF));
 
 					flash.setEnabled(true);
 					switchsPanel.setEnabled(true);
@@ -197,12 +197,12 @@ public class Blub extends AbstractThingEmulator implements IBlub {
 			}, 50);
 		}
 
-		protected ImageIcon getBlubImageIcon(BlubState blubState) {
-			if (blubState == null) {
-				throw new IllegalArgumentException("Null blub state.");
+		protected ImageIcon getLightImageIcon(LightState lightState) {
+			if (lightState == null) {
+				throw new IllegalArgumentException("Null light state.");
 			}
 			
-			String path = blubState == BlubState.ON ? "/images/" + FILE_NAME_BLUB_ON : "/images/" + FILE_NAME_BLUB_OFF;
+			String path = lightState == LightState.ON ? "/images/" + FILE_NAME_LIGHT_ON : "/images/" + FILE_NAME_LIGHT_OFF;
 			java.net.URL imgURL = getClass().getResource(path);
 			if (imgURL != null) {
 				return new ImageIcon(imgURL);
@@ -237,13 +237,13 @@ public class Blub extends AbstractThingEmulator implements IBlub {
 
 	@Override
 	protected void doWriteExternal(ObjectOutput out) throws IOException {
-		out.writeObject(blubState);
+		out.writeObject(lightState);
 		out.writeObject(switchState);
 	}
 
 	@Override
 	protected void doReadExternal(ObjectInput in) throws IOException, ClassNotFoundException {
-		blubState = (BlubState)in.readObject();
+		lightState = (LightState)in.readObject();
 		switchState = (SwitchState)in.readObject();
 	}
 	
@@ -252,8 +252,8 @@ public class Blub extends AbstractThingEmulator implements IBlub {
 	}
 
 	@Override
-	public BlubState getBlubState() {
-		return blubState;
+	public LightState getLightState() {
+		return lightState;
 	}
 
 	@Override
@@ -267,7 +267,7 @@ public class Blub extends AbstractThingEmulator implements IBlub {
 	private void doTurnOn() {
 		switchState = SwitchState.ON;
 		if (powered) {			
-			lightBlub();
+			light();
 		}
 	}
 
@@ -283,18 +283,18 @@ public class Blub extends AbstractThingEmulator implements IBlub {
 		switchState = SwitchState.OFF;
 		
 		if (powered) {
-			unlightBlub();
+			unlight();
 		}	
 	}
 
 	@Override
 	public void flash() throws NotRemoteControlStateException, NotTurnOffStateException {
-		panel.flashBlub();
+		panel.flash();
 	}
 
 	@Override
 	public AbstractThingEmulatorPanel getPanel() {
-		panel = new BlubEmulatorPanel();
+		panel = new LightEmulatorPanel();
 		panel.updateStatus();
 		panel.refreshFlashButtionStatus();
 		
@@ -308,25 +308,25 @@ public class Blub extends AbstractThingEmulator implements IBlub {
 
 	@Override
 	protected void doPowerOn() {
-		if (switchState == SwitchState.ON || blubState == BlubState.ON)
-			lightBlub();
+		if (switchState == SwitchState.ON || lightState == LightState.ON)
+			light();
 		
 		panel.refreshFlashButtionStatus();
 	}
 
-	private void lightBlub() {
-		blubState = BlubState.ON;
-		panel.blubImage.setIcon(panel.getBlubImageIcon(blubState));
+	private void light() {
+		lightState = LightState.ON;
+		panel.lightImage.setIcon(panel.getLightImageIcon(lightState));
 	}
 
-	private void unlightBlub() {
-		blubState = BlubState.OFF;
-		panel.blubImage.setIcon(panel.getBlubImageIcon(blubState));
+	private void unlight() {
+		lightState = LightState.OFF;
+		panel.lightImage.setIcon(panel.getLightImageIcon(lightState));
 	}
 
 	@Override
 	protected void doPowerOff() {		
-		unlightBlub();
+		unlight();
 		
 		panel.refreshFlashButtionStatus();
 	}
@@ -347,6 +347,11 @@ public class Blub extends AbstractThingEmulator implements IBlub {
 	@Override
 	public String getLanId() {
 		return lanId;
+	}
+
+	@Override
+	public String getThingName() {
+		return THING_NAME;
 	}
 	
 }

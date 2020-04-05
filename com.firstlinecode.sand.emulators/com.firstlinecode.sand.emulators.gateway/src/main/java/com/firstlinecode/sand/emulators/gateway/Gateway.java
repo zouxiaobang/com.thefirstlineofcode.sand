@@ -93,7 +93,6 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 		ComponentListener, WindowListener, IGateway, IConnectionListener, IConcentrator.Listener {
 	private static final String DEFAULT_GATEWAY_LAN_ID = "00";
 	private static final int ALWAYS_FULL_POWER = 100;
-	private static final String DEVICE_TYPE = "GE";
 	private static final String DEVICE_MODE = "GE01";
 	
 	private static final int DEFAULT_NOTIFICATION_DELAY_TIME = 1000 * 2;
@@ -177,7 +176,7 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 	private DynamicAddressConfigurator addressConfigurator;
 	
 	public Gateway(ILoraNetwork network, IDualLoraChipsCommunicator gatewayCommunicator) {
-		super("Unregistered Gateway");
+		super("Unregistered Gateway Emulator");
 		
 		this.network = network;
 		this.gatewayCommunicator = gatewayCommunicator;
@@ -750,9 +749,9 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 
 	protected void updateTitle() {
 		if (deviceIdentity == null) {
-			setTitle("Unregistered Gateway");
+			setTitle("Unregistered Gateway Emulator");
 		} else {
-			setTitle("Registered Gateway");
+			setTitle("Registered Gateway Emulator");
 		}
 	}
 
@@ -1278,12 +1277,7 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 	public String getDeviceId() {
 		return deviceId;
 	}
-
-	@Override
-	public String getDeviceType() {
-		return DEVICE_TYPE;
-	}
-
+	
 	@Override
 	public String getDeviceMode() {
 		return DEVICE_MODE;

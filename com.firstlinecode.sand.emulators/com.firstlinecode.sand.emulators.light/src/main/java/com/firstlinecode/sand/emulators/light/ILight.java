@@ -1,20 +1,21 @@
-package com.firstlinecode.sand.emulators.blub;
+package com.firstlinecode.sand.emulators.light;
 
-public interface IBlub {
+public interface ILight {
 	public enum SwitchState {
 		ON,
 		OFF,
 		CONTROL
 	}
 	
-	public enum BlubState {
+	public enum LightState {
 		ON,
 		OFF
 	}
 	
 	SwitchState getSwitchState();
-	BlubState getBlubState();
+	LightState getLightState();
 	void turnOn() throws NotRemoteControlStateException;
 	void turnOff() throws NotRemoteControlStateException;
 	void flash() throws NotRemoteControlStateException, NotTurnOffStateException;
+	String getThingName();
 }

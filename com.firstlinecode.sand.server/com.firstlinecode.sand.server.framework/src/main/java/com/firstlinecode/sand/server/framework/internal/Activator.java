@@ -3,9 +3,9 @@ package com.firstlinecode.sand.server.framework.internal;
 import org.eclipse.osgi.framework.console.CommandProvider;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceReference;
 import org.osgi.framework.ServiceRegistration;
 
+import com.firstlinecode.granite.framework.core.commons.osgi.OsgiUtils;
 import com.firstlinecode.granite.framework.core.supports.IApplicationComponentService;
 import com.firstlinecode.sand.server.framework.platform.SandCommandProvider;
 
@@ -19,13 +19,9 @@ public class Activator implements BundleActivator {
 	}
 
 	private CommandProvider createSandCommandProvider(BundleContext bundleContext) {
-		ServiceReference<IApplicationComponentService> srAppComponentService =
-				bundleContext.getServiceReference(IApplicationComponentService.class);
-		if (srAppComponentService == null)
-			throw new IllegalStateException("Can't get application component service.");
-		
-		IApplicationComponentService appComponentService = bundleContext.getService(srAppComponentService);
 		CommandProvider commandProvider = new SandCommandProvider();
+		
+		IApplicationComponentService appComponentService = OsgiUtils.getService(bundleContext, IApplicationComponentService.class);
 		appComponentService.inject(commandProvider, bundleContext);
 		
 		return commandProvider;
