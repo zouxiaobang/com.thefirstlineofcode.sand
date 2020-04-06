@@ -6,7 +6,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.firstlinecode.granite.framework.core.auth.IAuthenticator;
-import com.firstlinecode.sand.server.framework.things.Device;
+import com.firstlinecode.sand.server.device.Device;
 
 @Transactional
 @Component

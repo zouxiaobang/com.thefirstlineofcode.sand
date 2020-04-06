@@ -399,7 +399,7 @@
 
 			<dependency>
 				<groupId>com.firstlinecode.sand.emulators</groupId>
-				<artifactId>com.firstlinecode.sand.emulators.blub</artifactId>
+				<artifactId>com.firstlinecode.sand.emulators.light</artifactId>
 				<version>${sand.version}</version>
 			</dependency>
 
@@ -497,7 +497,47 @@
 
 			<dependency>
 				<groupId>com.firstlinecode.sand.server</groupId>
-				<artifactId>com.firstlinecode.sand.server.framework</artifactId>
+				<artifactId>com.firstlinecode.sand.server.device</artifactId>
+				<version>${sand.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>com.firstlinecode.sand.server</groupId>
+				<artifactId>com.firstlinecode.sand.server.platform</artifactId>
+				<version>${sand.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>com.firstlinecode.sand.server.lite</groupId>
+				<artifactId>com.firstlinecode.sand.server.lite.auth</artifactId>
+				<version>${sand.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.firstlinecode.sand.server</groupId>
+				<artifactId>com.firstlinecode.sand.server.concentrator</artifactId>
+				<version>${sand.version}</version>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+	
+	<distributionManagement>
+                <repository>
+                        <id>com.firstlinecode.releases</id>
+                        <name>CloudEggTech Repository - Releases</name>
+                        <url>http://47.115.36.99/repository/maven-releases/</url>
+                </repository>
+
+                <snapshotRepository>
+                        <id>com.firstlinecode.snapshots</id>
+                        <name>CloudEggTech Repository - Snapshots</name>
+                        <url>http://47.115.36.99/repository/maven-snapshots/</url>
+                </snapshotRepository>
+        </distributionManagement>
+
+</project>
+			<dependency>
+				<groupId>com.firstlinecode.sand.server</groupId>
+				<artifactId>com.firstlinecode.sand.server.platform</artifactId>
 				<version>${sand.version}</version>
 			</dependency>
 

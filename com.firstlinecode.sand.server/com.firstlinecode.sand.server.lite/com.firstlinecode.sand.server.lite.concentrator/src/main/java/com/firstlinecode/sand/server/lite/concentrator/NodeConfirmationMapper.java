@@ -1,6 +1,6 @@
 package com.firstlinecode.sand.server.lite.concentrator;
 
-import com.firstlinecode.sand.server.framework.things.concentrator.NodeConfirmationRequest;
+import com.firstlinecode.sand.server.concentrator.NodeConfirmationRequest;
 
 public interface NodeConfirmationMapper {
 	void insert(NodeConfirmationRequest request);

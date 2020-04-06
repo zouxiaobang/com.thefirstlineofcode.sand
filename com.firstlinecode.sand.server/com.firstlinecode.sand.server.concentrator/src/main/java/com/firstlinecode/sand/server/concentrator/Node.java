@@ -1,4 +1,4 @@
-package com.firstlinecode.sand.server.framework.things.concentrator;
+package com.firstlinecode.sand.server.concentrator;
 
 import com.firstlinecode.sand.protocols.core.CommunicationNet;
 

@@ -1,6 +1,6 @@
 package com.firstlinecode.sand.server.lite.device;
 
-import com.firstlinecode.sand.server.framework.things.DeviceAuthorization;
+import com.firstlinecode.sand.server.device.DeviceAuthorization;
 
 public interface DeviceAuthorizationMapper {
 	void insert(DeviceAuthorization authorization);

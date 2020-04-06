@@ -1,4 +1,4 @@
-package com.firstlinecode.sand.server.framework.things.concentrator;
+package com.firstlinecode.sand.server.concentrator;
 
 import java.util.Date;
 

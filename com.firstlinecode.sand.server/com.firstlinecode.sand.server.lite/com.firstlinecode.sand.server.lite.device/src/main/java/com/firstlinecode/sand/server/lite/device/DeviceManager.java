@@ -17,10 +17,10 @@ import com.firstlinecode.basalt.protocol.core.stanza.error.Conflict;
 import com.firstlinecode.basalt.protocol.core.stanza.error.NotAuthorized;
 import com.firstlinecode.sand.protocols.core.DeviceIdentity;
 import com.firstlinecode.sand.protocols.core.ModeDescriptor;
-import com.firstlinecode.sand.server.framework.things.Device;
-import com.firstlinecode.sand.server.framework.things.DeviceAuthorization;
-import com.firstlinecode.sand.server.framework.things.IDeviceIdRuler;
-import com.firstlinecode.sand.server.framework.things.IDeviceManager;
+import com.firstlinecode.sand.server.device.Device;
+import com.firstlinecode.sand.server.device.DeviceAuthorization;
+import com.firstlinecode.sand.server.device.IDeviceIdRuler;
+import com.firstlinecode.sand.server.device.IDeviceManager;
 
 @Transactional
 @Component
@@ -275,5 +275,4 @@ public class DeviceManager implements IDeviceManager {
 		
 		return modeDescriptor.getSupportedEvents().get(eventName);
 	}
-
 }

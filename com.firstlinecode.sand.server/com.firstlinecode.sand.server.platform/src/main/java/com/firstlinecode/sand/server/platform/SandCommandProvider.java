@@ -1,10 +1,10 @@
-package com.firstlinecode.sand.server.framework.platform;
+package com.firstlinecode.sand.server.platform;
 
 import org.eclipse.osgi.framework.console.CommandInterpreter;
 import org.eclipse.osgi.framework.console.CommandProvider;
 
 import com.firstlinecode.granite.framework.core.annotations.Dependency;
-import com.firstlinecode.sand.server.framework.things.IDeviceManager;
+import com.firstlinecode.sand.server.device.IDeviceManager;
 
 public class SandCommandProvider implements CommandProvider {
 	private static final String COMMAND_SAND = "sand";

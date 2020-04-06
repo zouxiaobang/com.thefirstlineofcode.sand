@@ -15,12 +15,8 @@ import com.firstlinecode.granite.framework.processing.IProcessingContext;
 import com.firstlinecode.granite.framework.processing.IXepProcessor;
 import com.firstlinecode.sand.protocols.concentrator.CreateNode;
 import com.firstlinecode.sand.protocols.core.CommunicationNet;
-import com.firstlinecode.sand.server.framework.things.Device;
-import com.firstlinecode.sand.server.framework.things.IDeviceManager;
-import com.firstlinecode.sand.server.framework.things.concentrator.IConcentrator;
-import com.firstlinecode.sand.server.framework.things.concentrator.IConcentratorFactory;
-import com.firstlinecode.sand.server.framework.things.concentrator.Node;
-import com.firstlinecode.sand.server.framework.things.concentrator.NodeConfirmationRequest;
+import com.firstlinecode.sand.server.device.Device;
+import com.firstlinecode.sand.server.device.IDeviceManager;
 
 public class CreateNodeProcessor implements IXepProcessor<Iq, CreateNode>, IConfigurationAware {
 	private static final String CONFIGURATION_KEY_NODE_CONFIRMATION_VALIDITY_TIME = "node.confirmation.validity.time";

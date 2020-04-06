@@ -1,4 +1,4 @@
-package com.firstlinecode.sand.server.framework.things;
+package com.firstlinecode.sand.server.device;
 
 import java.util.Date;
 

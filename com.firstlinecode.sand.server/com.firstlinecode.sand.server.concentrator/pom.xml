@@ -32,7 +32,7 @@
 		</dependency>
 		<dependency>
 			<groupId>com.firstlinecode.sand.server</groupId>
-			<artifactId>com.firstlinecode.sand.server.framework</artifactId>
+			<artifactId>com.firstlinecode.sand.server.device</artifactId>
 		</dependency>
 	</dependencies>
 </project>

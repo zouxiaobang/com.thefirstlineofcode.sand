@@ -1,4 +1,4 @@
-package com.firstlinecode.sand.server.framework.things;
+package com.firstlinecode.sand.server.device;
 
 import com.firstlinecode.basalt.protocol.core.JabberId;
 import com.firstlinecode.sand.protocols.core.DeviceIdentity;

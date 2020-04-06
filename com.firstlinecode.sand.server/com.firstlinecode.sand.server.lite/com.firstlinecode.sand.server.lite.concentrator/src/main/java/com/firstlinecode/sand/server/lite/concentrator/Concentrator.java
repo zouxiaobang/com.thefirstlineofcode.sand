@@ -2,9 +2,9 @@ package com.firstlinecode.sand.server.lite.concentrator;
 
 import org.apache.ibatis.session.SqlSession;
 
-import com.firstlinecode.sand.server.framework.things.concentrator.IConcentrator;
-import com.firstlinecode.sand.server.framework.things.concentrator.Node;
-import com.firstlinecode.sand.server.framework.things.concentrator.NodeConfirmationRequest;
+import com.firstlinecode.sand.server.concentrator.IConcentrator;
+import com.firstlinecode.sand.server.concentrator.Node;
+import com.firstlinecode.sand.server.concentrator.NodeConfirmationRequest;
 
 public class Concentrator implements IConcentrator {
 	private String deviceId;

@@ -1,4 +1,4 @@
-package com.firstlinecode.sand.server.framework.internal;
+package com.firstlinecode.sand.server.platform.internal;
 
 import org.eclipse.osgi.framework.console.CommandProvider;
 import org.osgi.framework.BundleActivator;
@@ -7,7 +7,7 @@ import org.osgi.framework.ServiceRegistration;
 
 import com.firstlinecode.granite.framework.core.commons.osgi.OsgiUtils;
 import com.firstlinecode.granite.framework.core.supports.IApplicationComponentService;
-import com.firstlinecode.sand.server.framework.platform.SandCommandProvider;
+import com.firstlinecode.sand.server.platform.SandCommandProvider;
 
 public class Activator implements BundleActivator {
 	private ServiceRegistration<CommandProvider> srCommandProvider;

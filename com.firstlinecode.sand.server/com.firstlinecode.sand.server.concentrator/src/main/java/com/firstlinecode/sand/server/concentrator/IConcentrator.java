@@ -1,4 +1,4 @@
-package com.firstlinecode.sand.server.framework.things.concentrator;
+package com.firstlinecode.sand.server.concentrator;
 
 public interface IConcentrator {
 	boolean containsNode(String deviceId);

@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
+
 <project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xmlns="http://maven.apache.org/POM/4.0.0"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-
 	<modelVersion>4.0.0</modelVersion>
 
 	<parent>
@@ -11,31 +11,16 @@
 		<version>0.1.0.RELEASE</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
-	
-	<properties>
-		<bundle.symbolicName>com.firstlinecode.sand.server.framework</bundle.symbolicName>
-		<bundle.namespace>com.firstlinecode.sand.server.framework</bundle.namespace>
-	</properties>
 
 	<groupId>com.firstlinecode.sand.server</groupId>
-	<artifactId>com.firstlinecode.sand.server.framework</artifactId>
-	<name>com.firstlinecode.sand.server.framework</name>
+	<artifactId>com.firstlinecode.sand.server.device</artifactId>
+	<name>com.firstlinecode.sand.server.device</name>
 	<packaging>bundle</packaging>
 	
 	<dependencies>
-		<dependency>
-			<groupId>org.eclipse.platform</groupId>
-			<artifactId>org.eclipse.osgi</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>com.firstlinecode.granite.framework</groupId>
-			<artifactId>com.firstlinecode.granite.framework.core</artifactId>
-		</dependency>
-		<dependency>
+			<dependency>
 			<groupId>com.firstlinecode.sand.protocols</groupId>
-			<artifactId>com.firstlinecode.sand.protocols.core</artifactId>
+			<artifactId>com.firstlinecode.sand.protocols.ibdr</artifactId>
 		</dependency>
 	</dependencies>
-	
 </project>
-
