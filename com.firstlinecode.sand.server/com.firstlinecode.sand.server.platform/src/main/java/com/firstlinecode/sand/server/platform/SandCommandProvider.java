@@ -18,6 +18,7 @@ public class SandCommandProvider implements CommandProvider {
 	
 	private static final String MSG_DETAIL_HELP =
 			"\tsand authorize <device_id> - Authorize a device to register.\r\n" +
+			"\tsand confirm <concentrator_device_id> <node_device_id> - Confirm to add a node to concentrator.\r\n" +
 			"\tsand devices [start_index] - Display registered devices. Twenty items each page.\r\n" +
 			"\tsand help - Display help information.\r\n";
 	

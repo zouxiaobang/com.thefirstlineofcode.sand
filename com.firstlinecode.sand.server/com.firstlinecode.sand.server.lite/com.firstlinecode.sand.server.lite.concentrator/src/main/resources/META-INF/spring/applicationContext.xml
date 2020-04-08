@@ -13,7 +13,7 @@
 				http://www.springframework.org/schema/osgi http://www.springframework.org/schema/osgi/spring-osgi-1.2.xsd
 				http://www.firstlinecode.com/granite/schema/granite http://www.firstlinecode.com/granite/schema/granite-osgi-1.0.xsd">
 				
-		<context:component-scan  base-package="com.firstlinecode.sand.server.lite.device"/>
+		<context:component-scan  base-package="com.firstlinecode.sand.server.lite.concentrator"/>
 		<tx:annotation-driven transaction-manager="txManager"/>
 		
 		<bean id="sqlSession" class="org.mybatis.spring.SqlSessionTemplate">
@@ -21,19 +21,14 @@
 		</bean>
 		
 		<jdbc:initialize-database data-source="dataSource" ignore-failures="ALL">
-			<jdbc:script location="osgibundlejar:/META-INF/spring/device.sql"/>
+			<jdbc:script location="osgibundlejar:/META-INF/spring/concentrator.sql"/>
 		</jdbc:initialize-database>
-		
-		<osgi:service ref="deviceManager" interface="com.firstlinecode.sand.server.device.IDeviceManager" ranking="1"/>
 		
 		<osgi:reference id="dataSource" interface="javax.sql.DataSource"/>
 		<osgi:reference id="sqlSessionFactory" interface="org.apache.ibatis.session.SqlSessionFactory"/>
 		<osgi:reference id="txManager" interface="org.springframework.jdbc.datasource.DataSourceTransactionManager"/>
 		
-		<granite:component component-id="lite.device.authenticator" ref="deviceAuthenticator"/>
-		<granite:component component-id="device.authenticator" ref="deviceAuthenticator"/>
+		<osgi:reference id="deviceManager" interface="com.firstlinecode.sand.server.device.IDeviceManager"/>
 		
-		<granite:component component-id="lite.device.manager" ref="deviceManager"/>
-		<granite:component component-id="device.manager" ref="deviceManager"/>
-		
+		<granite:component component-id="concentrator.factory" ref="concentratorFactory"/>		
 </beans>

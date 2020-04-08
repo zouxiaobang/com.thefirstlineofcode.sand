@@ -1,28 +1,26 @@
 package com.firstlinecode.sand.server.concentrator;
 
-import com.firstlinecode.sand.protocols.core.CommunicationNet;
-
 public class Node {
-	private String parent;
-	private String deviceId;
+	private String concentrator;
+	private String node;
 	private String lanId;
-	private CommunicationNet type;
+	private String communicationNet;
 	private String address;
 	
-	public String getParent() {
-		return parent;
+	public String getConcentrator() {
+		return concentrator;
 	}
 	
-	public void setParent(String parent) {
-		this.parent = parent;
+	public void setConcentrator(String concentrator) {
+		this.concentrator = concentrator;
 	}
 	
-	public String getDeviceId() {
-		return deviceId;
+	public String getNode() {
+		return node;
 	}
 	
-	public void setDeviceId(String deviceId) {
-		this.deviceId = deviceId;
+	public void setNode(String node) {
+		this.node = node;
 	}
 	
 	public String getLanId() {
@@ -33,12 +31,12 @@ public class Node {
 		this.lanId = lanId;
 	}
 
-	public CommunicationNet getType() {
-		return type;
+	public String getCommunicationNet() {
+		return communicationNet;
 	}
 	
-	public void setType(CommunicationNet type) {
-		this.type = type;
+	public void setCommunicationNet(String communicationNet) {
+		this.communicationNet = communicationNet;
 	}
 	
 	public String getAddress() {

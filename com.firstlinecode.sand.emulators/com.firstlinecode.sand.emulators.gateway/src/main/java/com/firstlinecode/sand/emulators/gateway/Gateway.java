@@ -1,12 +1,10 @@
 package com.firstlinecode.sand.emulators.gateway;
 
 import java.awt.BorderLayout;
-import java.awt.Dialog.ModalityType;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Rectangle;
 import java.awt.Toolkit;
-import java.awt.Window;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.StringSelection;
 import java.awt.event.ActionEvent;
@@ -29,8 +27,6 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Timer;
-import java.util.TimerTask;
 
 import javax.swing.JButton;
 import javax.swing.JDesktopPane;
@@ -86,18 +82,17 @@ import com.firstlinecode.sand.emulators.thing.AbstractThingEmulatorPanel;
 import com.firstlinecode.sand.emulators.thing.Constants;
 import com.firstlinecode.sand.emulators.thing.IThingEmulator;
 import com.firstlinecode.sand.emulators.thing.IThingEmulatorFactory;
+import com.firstlinecode.sand.emulators.thing.UiUtils;
 import com.firstlinecode.sand.protocols.core.DeviceIdentity;
 import com.firstlinecode.sand.protocols.lora.LoraAddress;
 
 public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionListener, InternalFrameListener,
 		ComponentListener, WindowListener, IGateway, IConnectionListener, IConcentrator.Listener {
+	private static final long serialVersionUID = -7894418812878036627L;
+	
 	private static final String DEFAULT_GATEWAY_LAN_ID = "00";
 	private static final int ALWAYS_FULL_POWER = 100;
 	private static final String DEVICE_MODE = "GE01";
-	
-	private static final int DEFAULT_NOTIFICATION_DELAY_TIME = 1000 * 2;
-
-	private static final long serialVersionUID = -7894418812878036627L;
 	
 	// File Menu
 	private static final String MENU_TEXT_FILE = "File";
@@ -149,7 +144,7 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 	private static final String MENU_ITEM_TEXT_ABOUT = "About";
 	private static final String MENU_ITEM_NAME_ABOUT = "about";
 	
-	private static final String RESOURCE_NAME_GATEWAY = "gateway";
+	private static final String RESOURCE_NAME_GATEWAY = "00";
 	
 	private String deviceId;
 	private DeviceIdentity deviceIdentity;
@@ -286,9 +281,9 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 			}
 		}
 		
-		sb.append("Device ID: ").append(deviceId).append(", ");
+		sb.append("Device ID: ").append(deviceId);
 		
-		return sb.toString().substring(0, sb.length() - 2);
+		return sb.toString();
 	}
 	
 	private class GatewayStatusBar extends JPanel {		
@@ -312,7 +307,7 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 				public void actionPerformed(ActionEvent e) {
 					Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
 					clipboard.setContents(new StringSelection(deviceId), null);
-					Gateway.this.showNotification(Gateway.this, "Message", "Device ID has copied to clipboard.", DEFAULT_NOTIFICATION_DELAY_TIME);
+					UiUtils.showNotification(Gateway.this, "Message", "Device ID has copied to clipboard.");
 				}
 			});
 			statusBarPanel.add(copy);
@@ -324,34 +319,6 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 		public void setText(String status) {
 			text.setText(status);
 		}
-	}
-	
-	private void showNotification(Window parent, String title, String message, int millis) {
-		final JDialog dialog = new JDialog(this, title, ModalityType.MODELESS);
-		dialog.setBounds(getParentCenterBounds(400, 160));
-		dialog.add(new JLabel(message));
-		dialog.setVisible(true);
-		
-		Timer timer = new Timer();
-		timer.schedule(new TimerTask() {
-			@Override
-			public void run() {
-				dialog.setVisible(false);
-				dialog.dispose();
-			}
-		}, millis);
-	}
-	
-	private Rectangle getParentCenterBounds(int width, int height) {
-		int parentX = Gateway.this.getX();
-		int parentY = Gateway.this.getY();
-		int parentWidth = Gateway.this.getWidth();
-		int parentHeight = Gateway.this.getHeight();
-		
-		if (width > parentWidth || height > parentHeight)
-			return new Rectangle(parentX, parentY, width, height);
-		
-		return new Rectangle((parentX + (parentWidth - width) / 2), (parentY + (parentHeight - height) / 2), width, height);
 	}
 
 	@Override
@@ -417,7 +384,7 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 		setDirty(true);
 		refreshConnectionStateRelativatedMenus();
 		updateStatus();
-		showNotification(this, "Message", "Gateway has disconnected.", DEFAULT_NOTIFICATION_DELAY_TIME);
+		UiUtils.showNotification(this, "Message", "Gateway has disconnected.");
 	}
 
 	private void doDisconnect() {
@@ -443,7 +410,7 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 		try {
 			doConnect();
 			setDirty(dirty);
-			showNotification(this, "Message", "Gateway has connected.", DEFAULT_NOTIFICATION_DELAY_TIME);
+			UiUtils.showNotification(this, "Message", "Gateway has connected.");
 		} catch (ConnectionException e) {
 			if (chatClient != null) {
 				chatClient.close();
@@ -489,10 +456,19 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 		if (deviceIdentity == null)
 			throw new IllegalStateException("Device identity is null. Please register your gateway.");
 		
-		IChatClient chatClient = new StandardChatClient(streamConfig);
+		StandardStreamConfig streamConfigWithResource = createStreamConfigWithResource();
+		IChatClient chatClient = new StandardChatClient(streamConfigWithResource);
 		chatClient.register(ConcentratorPlugin.class);
 		
 		return chatClient;
+	}
+
+	private StandardStreamConfig createStreamConfigWithResource() {
+		StandardStreamConfig cloned = new StandardStreamConfig(streamConfig.getHost(), streamConfig.getPort());
+		cloned.setTlsPreferred(streamConfig.isTlsPreferred());
+		cloned.setResource(RESOURCE_NAME_GATEWAY);
+		
+		return cloned;
 	}
 
 	private void showLogConsoleDialog() {
@@ -516,12 +492,11 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 		}
 		
 		if (streamConfig != null) {
-			streamConfig.setResource(RESOURCE_NAME_GATEWAY);
 			doRegister();	
 		}
 		
 		if (deviceIdentity != null)
-			showNotification(this, "Message", "Gateway has registered.", DEFAULT_NOTIFICATION_DELAY_TIME);
+			UiUtils.showNotification(this, "Message", "Gateway has registered.");
 	}
 	
 	private void doRegister() {
@@ -870,7 +845,6 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 	private StandardStreamConfig createStreamConfig(StreamConfigInfo streamConfigInfo) {
 		StandardStreamConfig streamConfig = new StandardStreamConfig(streamConfigInfo.host, streamConfigInfo.port);
 		streamConfig.setTlsPreferred(streamConfigInfo.tlsPreferred);
-		streamConfig.setResource(RESOURCE_NAME_GATEWAY);
 		
 		return streamConfig;
 	}
@@ -1307,7 +1281,7 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 			
 			refreshConnectionStateRelativatedMenus();
 			updateStatus();
-			showNotification(this, "Message", "Gateway has disconnected.", DEFAULT_NOTIFICATION_DELAY_TIME);
+			UiUtils.showNotification(this, "Message", "Gateway has disconnected.");
 		}
 	}
 

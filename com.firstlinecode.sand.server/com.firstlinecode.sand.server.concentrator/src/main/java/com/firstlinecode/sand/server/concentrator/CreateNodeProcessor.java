@@ -11,14 +11,15 @@ import com.firstlinecode.basalt.protocol.core.stanza.error.NotAcceptable;
 import com.firstlinecode.granite.framework.core.annotations.Dependency;
 import com.firstlinecode.granite.framework.core.config.IConfiguration;
 import com.firstlinecode.granite.framework.core.config.IConfigurationAware;
+import com.firstlinecode.granite.framework.core.supports.data.IDataObjectFactory;
+import com.firstlinecode.granite.framework.core.supports.data.IDataObjectFactoryAware;
 import com.firstlinecode.granite.framework.processing.IProcessingContext;
 import com.firstlinecode.granite.framework.processing.IXepProcessor;
 import com.firstlinecode.sand.protocols.concentrator.CreateNode;
-import com.firstlinecode.sand.protocols.core.CommunicationNet;
 import com.firstlinecode.sand.server.device.Device;
 import com.firstlinecode.sand.server.device.IDeviceManager;
 
-public class CreateNodeProcessor implements IXepProcessor<Iq, CreateNode>, IConfigurationAware {
+public class CreateNodeProcessor implements IXepProcessor<Iq, CreateNode>, IConfigurationAware, IDataObjectFactoryAware {
 	private static final String CONFIGURATION_KEY_NODE_CONFIRMATION_VALIDITY_TIME = "node.confirmation.validity.time";
 	private static final int DEFAULT_VALIDITY_TIME = 1000 * 60 * 60 * 5;
 	
@@ -28,45 +29,49 @@ public class CreateNodeProcessor implements IXepProcessor<Iq, CreateNode>, IConf
 	@Dependency("concentrator.factory")
 	private IConcentratorFactory concentratorFactory;
 	
+	private IDataObjectFactory dataObjectFactory;
+	
 	private int validityTime;
 	
 	@Override
 	public void process(IProcessingContext context, Iq stanza, CreateNode xep) {
-		Device parent = deviceManager.getByDeviceName(context.getJid().getName());
-		if (parent == null)
+		Device device = deviceManager.getByDeviceName(context.getJid().getName());
+		if (device == null)
 			throw new ProtocolException(new ItemNotFound(String.format("Device which's device name is %s not be found.",
 					context.getJid().getName())));
 		
-		if (!deviceManager.isConcentrator(parent.getMode()))
+		if (!deviceManager.isConcentrator(device.getMode()))
 			throw new ProtocolException(new NotAcceptable("Device which's device name is %s isn't a concentrator.",
 					context.getJid().getName()));
 		
-		IConcentrator concentrator = concentratorFactory.getConcentrator(parent);
+		IConcentrator concentrator = concentratorFactory.getConcentrator(device);
 		if (concentrator == null)
-			throw new RuntimeException("Can't fetch the concentrator.");
+			throw new RuntimeException("Can't get the concentrator.");
 		
 		Node node = new Node();
-		node.setParent(parent.getDeviceId());
-		node.setDeviceId(xep.getDeviceId());
+		node.setConcentrator(device.getDeviceId());
+		node.setNode(xep.getDeviceId());
 		node.setLanId(xep.getLanId());
-		node.setType(CommunicationNet.valueOf(xep.getCommunicationNet()));
+		node.setCommunicationNet(xep.getCommunicationNet());
 		node.setAddress(xep.getAddress().toString());
 
-		if (concentrator.containsNode(node.getDeviceId())) {
+		if (concentrator.containsNode(node.getNode())) {
 			throw new ProtocolException(new Conflict());
 		}
 		
-		NodeConfirmationRequest request = new NodeConfirmationRequest();
-		request.setNode(node);
-		request.setExpiredTime(getExpiredTime());
+		NodeConfirmation confirmation = dataObjectFactory.create(NodeConfirmation.class);
+		confirmation.setNode(node);
+		Date currentTime = Calendar.getInstance().getTime();
+		confirmation.setRequestedTime(currentTime);
+		confirmation.setExpiredTime(getExpiredTime(currentTime.getTime(), validityTime));
 		
-		concentrator.requestConfirmation(request);
+		concentrator.requestConfirmation(confirmation);
 		context.write(new Iq(Iq.Type.RESULT, stanza.getId()));
 	}
 
-	private Date getExpiredTime() {
+	private Date getExpiredTime(long currentTime, long validityTime) {
 		Calendar expiredTime = Calendar.getInstance();
-		expiredTime.setTimeInMillis(expiredTime.getTimeInMillis() + validityTime);
+		expiredTime.setTimeInMillis(currentTime + validityTime);
 		
 		return expiredTime.getTime();
 	}
@@ -74,6 +79,11 @@ public class CreateNodeProcessor implements IXepProcessor<Iq, CreateNode>, IConf
 	@Override
 	public void setConfiguration(IConfiguration configuration) {
 		validityTime = configuration.getInteger(CONFIGURATION_KEY_NODE_CONFIRMATION_VALIDITY_TIME, DEFAULT_VALIDITY_TIME);
+	}
+
+	@Override
+	public void setDataObjectFactory(IDataObjectFactory dataObjectFactory) {
+		this.dataObjectFactory = dataObjectFactory;
 	}
 
 }

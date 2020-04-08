@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.firstlinecode.sand.server.lite.concentrator.NodeConfirmationMapper">
+    <insert id="insert" parameterType="com.firstlinecode.sand.server.lite.concentrator.D_NodeConfirmation">
+        INSERT INTO NODE_CONFIRMATION(id, concentrator, node, lan_id, communication_net, address, confirmer, requested_time, confirmed_time, expired_time, canceled) VALUES(#{id}, #{node.concentrator}, #{node.node}, #{node.lanId}, #{node.communicationNet}, #{node.address},  #{confirmer}, #{requestedTime}, #{confirmedTime}, #{expiredTime}, FALSE)
+    </insert>
+    
+    <update id="updateCanceled">
+		UPDATE NODE_CONFIRMATION SET canceled=#{1} WHERE parent = #{0} AND device_id=#{1}
+    </update>
+    
+	<select id="selectByConcentratorAndNode" resultMap="nodeConfirmationResultMap">
+		SELECT * FROM NODE_CONFIRMATION WHERE concentrator = #{0} AND node = #{1}
+	</select>
+	
+	<resultMap id="nodeConfirmationResultMap" type="NodeConfirmation">
+		<result property="node.concentrator" column="concentrator"/>
+		<result property="node.node" column="node"/>
+		<result property="node.lanId" column="lan_id"/>
+		<result property="node.communcationNet" column="communcation_net"/>
+		<result property="node.address" column="address"/>
+		<result property="confirmer" column="comfirmer"/>
+		<result property="requestedTime" column="requested_time"/>
+		<result property="expiredTime" column="expired_time"/>
+		<result property="confirmedTime" column="comfirmed_time"/>
+		<result property="canceled" column="canceled"/>
+	</resultMap>
+</mapper>

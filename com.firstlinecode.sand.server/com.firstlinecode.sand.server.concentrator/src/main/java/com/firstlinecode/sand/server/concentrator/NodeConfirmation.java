@@ -2,9 +2,10 @@ package com.firstlinecode.sand.server.concentrator;
 
 import java.util.Date;
 
-public class NodeConfirmationRequest {
+public class NodeConfirmation {
 	private Node node;
 	private String confirmer;
+	private Date requestedTime;
 	private Date confirmedTime;
 	private Date expiredTime;
 	private boolean canceled;
@@ -25,6 +26,14 @@ public class NodeConfirmationRequest {
 		this.confirmer = confirmer;
 	}
 	
+	public Date getRequestedTime() {
+		return requestedTime;
+	}
+
+	public void setRequestedTime(Date requestedTime) {
+		this.requestedTime = requestedTime;
+	}
+
 	public Date getConfirmedTime() {
 		return confirmedTime;
 	}

@@ -7,11 +7,11 @@
     </insert>
     
     <update id="updateCanceled">
-		UPDATE DEVICE_IDENTITY SET canceled=#{1} WHERE device_id=#{0}
+		UPDATE DEVICE_IDENTITY SET canceled = #{1} WHERE device_id = #{0}
     </update>
     
 	<select id="selectByDeviceId" resultMap="deviceAuthorizationResultMap">
-		SELECT * FROM DEVICE_AUTHORIZATION WHERE device_id=#{0}
+		SELECT * FROM DEVICE_AUTHORIZATION WHERE device_id = #{0}
 	</select>
 	
 	<resultMap id="deviceAuthorizationResultMap" type="DeviceAuthorization">
