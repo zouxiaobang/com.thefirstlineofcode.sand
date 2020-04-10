@@ -2,12 +2,8 @@ package com.firstlinecode.sand.server.device;
 
 import java.util.Date;
 
-import com.firstlinecode.sand.protocols.core.DeviceIdentity;
-
 public class Device {
 	private String deviceId;
-	private String authorizationId;
-	private DeviceIdentity identity;
 	private String mode;
 	private String softwareVersion;
 	private Date registrationTime;
@@ -18,14 +14,6 @@ public class Device {
 
 	public void setDeviceId(String deviceId) {
 		this.deviceId = deviceId;
-	}
-
-	public DeviceIdentity getIdentity() {
-		return identity;
-	}
-	
-	public void setIdentity(DeviceIdentity identity) {
-		this.identity = identity;
 	}
 
 	public String getMode() {
@@ -50,14 +38,6 @@ public class Device {
 	
 	public void setRegistrationTime(Date registrationTime) {
 		this.registrationTime = registrationTime;
-	}
-
-	public String getAuthorizationId() {
-		return authorizationId;
-	}
-
-	public void setAuthorizationId(String authorization) {
-		this.authorizationId = authorization;
 	}
 	
 }

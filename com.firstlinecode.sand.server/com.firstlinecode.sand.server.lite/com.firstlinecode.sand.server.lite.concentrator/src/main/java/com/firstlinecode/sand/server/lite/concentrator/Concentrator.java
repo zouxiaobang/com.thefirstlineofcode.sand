@@ -27,6 +27,7 @@ public class Concentrator implements IConcentrator {
 	@Override
 	public void confirm(String node) {
 		// TODO Auto-generated method stub
+		
 	}
 
 	@Override

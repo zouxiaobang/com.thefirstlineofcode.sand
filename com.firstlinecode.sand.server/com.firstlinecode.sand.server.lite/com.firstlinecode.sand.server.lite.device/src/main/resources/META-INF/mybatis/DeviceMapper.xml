@@ -3,7 +3,7 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.firstlinecode.sand.server.lite.device.DeviceMapper">
     <insert id="insert" parameterType="com.firstlinecode.sand.server.lite.device.D_Device">
-        INSERT INTO DEVICE(id, device_id, device_name, credentials, mode, authorization_id, registration_time) VALUES(#{id}, #{deviceId}, #{identity.deviceName}, #{identity.credentials}, #{mode}, #{authorizationId}, #{registrationTime})
+        INSERT INTO DEVICE(id, device_id, mode, registration_time) VALUES(#{id}, #{deviceId}, #{mode}, #{registrationTime})
     </insert>
     
    <update id="delete">
@@ -15,25 +15,14 @@
     </select>
     
 	<resultMap id="deviceResultMap" type="Device">
-	    <id property="id" column="id"/>
-	    <result property="deviceId" column="device_id"/>
-	    <result property="authorizationId" column="authorization_id"/>
-	    <result property="identity.deviceName" column="device_name"/>
-	    <result property="identity.credentials" column="credentials"/>
-	    <result property="mode" column="mode"/>
+		<id property="id" column="id"/>
+		<result property="deviceId" column="device_id"/>
+		<result property="mode" column="mode"/>
 	    <result property="softwareVersion" column="software_version"/>
-	    <result property="registrationTime" column="registration_time"/>
+		<result property="registrationTime" column="registration_time"/>
 	</resultMap>
-    
-	<select id="selectByDeviceName" resultMap="deviceResultMap">
-		SELECT * FROM DEVICE WHERE device_name=#{0}
-    </select>
     
 	<select id="selectCountByDeviceId" resultType="int">
 		SELECT COUNT(*) FROM DEVICE WHERE device_id=#{0}
-    </select>
-    
-	<select id="selectCountByDeviceName" resultType="int">
-		SELECT COUNT(*) FROM DEVICE WHERE device_name=#{0}
     </select>
 </mapper>

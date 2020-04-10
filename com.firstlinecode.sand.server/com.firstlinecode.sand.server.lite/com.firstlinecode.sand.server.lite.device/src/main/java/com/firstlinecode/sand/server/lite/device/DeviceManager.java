@@ -83,21 +83,19 @@ public class DeviceManager implements IDeviceManager {
 		
 		D_Device device = new D_Device();
 		device.setId(UUID.randomUUID().toString());
-		device.setDeviceId(deviceId);
-		
-		DeviceIdentity identity = new DeviceIdentity();
-		identity.setDeviceName(createDeviceName(deviceId));
-		identity.setCredentials(createCredentials());
-		device.setIdentity(identity);
-		
+		device.setDeviceId(deviceId);		
 		device.setMode(guessMode(deviceId));
-		
 		device.setRegistrationTime(Calendar.getInstance().getTime());
-		device.setAuthorizationId(authorization.getId());
-		
 		getDeviceMapper().insert(device);
 		
-		return device.getIdentity();
+		D_DeviceIdentity identity = new D_DeviceIdentity();
+		identity.setId(UUID.randomUUID().toString());
+		identity.setDeviceId(deviceId);
+		identity.setDeviceName(createDeviceName(deviceId));
+		identity.setCredentials(createCredentials());
+		getDeviceIdentityMapper().insert(identity);
+		
+		return new DeviceIdentity(identity.getDeviceName(), identity.getCredentials());
 	}
 
 	protected String createCredentials() {
@@ -150,6 +148,10 @@ public class DeviceManager implements IDeviceManager {
 	
 	private DeviceMapper getDeviceMapper() {
 		return (DeviceMapper)sqlSession.getMapper(DeviceMapper.class);
+	}
+	
+	private DeviceIdentityMapper getDeviceIdentityMapper() {
+		return (DeviceIdentityMapper)sqlSession.getMapper(DeviceIdentityMapper.class);
 	}
 	
 	private String generateRandomCredentials(int length) {

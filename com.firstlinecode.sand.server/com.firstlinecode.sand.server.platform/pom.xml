@@ -39,6 +39,10 @@
 			<groupId>com.firstlinecode.sand.server</groupId>
 			<artifactId>com.firstlinecode.sand.server.device</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>com.firstlinecode.sand.server</groupId>
+			<artifactId>com.firstlinecode.sand.server.concentrator</artifactId>
+		</dependency>
 	</dependencies>
 	
 </project>

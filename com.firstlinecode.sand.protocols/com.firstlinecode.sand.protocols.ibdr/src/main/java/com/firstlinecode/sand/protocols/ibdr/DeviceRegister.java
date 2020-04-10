@@ -14,7 +14,7 @@ public class DeviceRegister {
 	
 	public DeviceRegister(Object register) {
 		if (!(register instanceof String) && !(register instanceof DeviceIdentity))
-			throw new IllegalArgumentException("Register object must be String or JabberId.");
+			throw new IllegalArgumentException("Register object must be a string or a device identity.");
 		
 		this.register = register;
 	}

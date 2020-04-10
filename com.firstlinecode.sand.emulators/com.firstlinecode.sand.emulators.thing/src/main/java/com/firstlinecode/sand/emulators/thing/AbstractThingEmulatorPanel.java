@@ -39,7 +39,7 @@ public abstract class AbstractThingEmulatorPanel extends JPanel implements IThin
 		
 		statusBar = new JLabel();
 		statusBar.setHorizontalAlignment(SwingConstants.RIGHT);
-		statusBarPanel.add(statusBar);
+		statusBarPanel.add(statusBar, BorderLayout.CENTER);
 		
 		JButton copy = new JButton("Copy Device ID");
 		copy.setToolTipText("Copy thing device ID to clipboard.");
@@ -53,7 +53,7 @@ public abstract class AbstractThingEmulatorPanel extends JPanel implements IThin
 		});
 		statusBarPanel.add(copy, BorderLayout.EAST);
 		
-		statusBarPanel.setPreferredSize(new Dimension(800, 48));
+		statusBarPanel.setPreferredSize(new Dimension(800, 32));
 		
 		return statusBarPanel;
 	}
@@ -74,7 +74,7 @@ public abstract class AbstractThingEmulatorPanel extends JPanel implements IThin
 	}
 
 	public void updateStatus(String status) {
-		statusBar.setText(status + " ");
+		statusBar.setText(status);
 	}
 	
 	@Override

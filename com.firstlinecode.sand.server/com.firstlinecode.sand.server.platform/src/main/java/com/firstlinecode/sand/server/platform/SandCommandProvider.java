@@ -4,12 +4,15 @@ import org.eclipse.osgi.framework.console.CommandInterpreter;
 import org.eclipse.osgi.framework.console.CommandProvider;
 
 import com.firstlinecode.granite.framework.core.annotations.Dependency;
+import com.firstlinecode.sand.server.concentrator.IConcentratorFactory;
+import com.firstlinecode.sand.server.device.Device;
 import com.firstlinecode.sand.server.device.IDeviceManager;
 
 public class SandCommandProvider implements CommandProvider {
 	private static final String COMMAND_SAND = "sand";
 	private static final String PARAM_DEVICES = "devices";
 	private static final String PARAM_AUTHORIZE = "authorize";
+	private static final String PARAM_CONFIRM = "confirm";
 	private static final String PARAM_HELP = "help";
 	private static final String SYSTEM_CONSOLE_AUTHORIZER = "System.Console";
 	private static final int DEFAULT_VALIDITY_TIME = 1000 * 60 * 30;
@@ -24,6 +27,9 @@ public class SandCommandProvider implements CommandProvider {
 	
 	@Dependency("device.manager")
 	private IDeviceManager deviceManager;
+	
+	@Dependency("concentrator.factory")
+	private IConcentratorFactory concentratorFactory;
 	
 	@Override
 	public String getHelp() {
@@ -50,11 +56,35 @@ public class SandCommandProvider implements CommandProvider {
 		} else if (PARAM_AUTHORIZE.equals(nextArg)) {
 			String deviceId = interpreter.nextArgument();
 			if (deviceId == null) {
-				interpreter.print(String.format("Error: You must provide a device ID.\n"));	
+				interpreter.print("Error: You must provide a device ID.\n");	
 				return;
 			}
 			
 			authorize(interpreter, deviceId);
+		} else if (PARAM_CONFIRM.equals(nextArg)) {
+			String concentratorDeviceId = interpreter.nextArgument();
+			String nodeDeviceId = null;
+			if (concentratorDeviceId != null) {
+				nodeDeviceId = interpreter.nextArgument();				
+			}
+			
+			if (nodeDeviceId == null) {
+				interpreter.print("Error: You must provide a concentrator device ID and a node device ID.\n");	
+				return;
+			}
+			
+			Device device = deviceManager.getByDeviceId(concentratorDeviceId);
+			if (device == null) {
+				interpreter.print(String.format("Error: Concentrator which's device ID is %s not existed.\n", concentratorDeviceId));	
+				return;
+			}
+			
+			if (!concentratorFactory.isConcentrator(device)) {				
+				interpreter.print(String.format("Error: Device which's device ID is %s isn't a concentrator.", concentratorDeviceId));	
+				return;
+			}
+			
+			concentratorFactory.getConcentrator(device).confirm(nodeDeviceId);
 		} else if (PARAM_DEVICES.equals(nextArg)) {
 			String sStartIndex = interpreter.nextArgument();
 			
@@ -63,7 +93,7 @@ public class SandCommandProvider implements CommandProvider {
 				try {					
 					startIndex = Integer.parseInt(sStartIndex);
 				} catch (NumberFormatException e) {
-					interpreter.print(String.format("Invalid start index. Start index must be a number.\n"));
+					interpreter.print("Invalid start index. Start index must be a number.\n");
 					return;
 				}
 			}
