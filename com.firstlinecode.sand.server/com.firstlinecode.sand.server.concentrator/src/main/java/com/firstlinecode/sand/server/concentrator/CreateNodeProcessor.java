@@ -49,17 +49,17 @@ public class CreateNodeProcessor implements IXepProcessor<Iq, CreateNode>, IConf
 			throw new RuntimeException("Can't get the concentrator.");
 		
 		Node node = new Node();
-		node.setConcentrator(device.getDeviceId());
-		node.setNode(xep.getDeviceId());
+		node.setDeviceId(xep.getDeviceId());
 		node.setLanId(xep.getLanId());
 		node.setCommunicationNet(xep.getCommunicationNet());
 		node.setAddress(xep.getAddress().toString());
 
-		if (concentrator.containsNode(node.getNode())) {
-			throw new ProtocolException(new Conflict());
+		if (concentrator.containsNode(node.getDeviceId())) {
+			throw new ProtocolException(new Conflict(String.format("Duplicated node which's ID is %s.", xep.getDeviceId())));
 		}
 		
 		NodeConfirmation confirmation = dataObjectFactory.create(NodeConfirmation.class);
+		confirmation.setConcentrator(device.getDeviceId());
 		confirmation.setNode(node);
 		Date currentTime = Calendar.getInstance().getTime();
 		confirmation.setRequestedTime(currentTime);

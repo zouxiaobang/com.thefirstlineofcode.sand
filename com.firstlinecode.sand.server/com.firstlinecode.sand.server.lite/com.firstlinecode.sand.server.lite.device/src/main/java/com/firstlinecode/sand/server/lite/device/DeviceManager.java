@@ -76,7 +76,7 @@ public class DeviceManager implements IDeviceManager {
 			throw new ProtocolException(new Conflict());
 		}
 		
-		D_DeviceAuthorization authorization = getDeviceAuthorization(deviceId);
+		DeviceAuthorization authorization = getDeviceAuthorization(deviceId);
 		if (authorization == null) {
 			throw new ProtocolException(new NotAuthorized());
 		}
@@ -84,9 +84,9 @@ public class DeviceManager implements IDeviceManager {
 		D_Device device = new D_Device();
 		device.setId(UUID.randomUUID().toString());
 		device.setDeviceId(deviceId);		
-		device.setMode(guessMode(deviceId));
+		device.setMode(getMode(deviceId));
 		device.setRegistrationTime(Calendar.getInstance().getTime());
-		getDeviceMapper().insert(device);
+		create(device);
 		
 		D_DeviceIdentity identity = new D_DeviceIdentity();
 		identity.setId(UUID.randomUUID().toString());
@@ -97,6 +97,11 @@ public class DeviceManager implements IDeviceManager {
 		
 		return new DeviceIdentity(identity.getDeviceName(), identity.getCredentials());
 	}
+	
+	@Override
+	public void create(Device device) {
+		getDeviceMapper().insert(device);
+	}
 
 	protected String createCredentials() {
 		return generateRandomCredentials(8);
@@ -106,7 +111,7 @@ public class DeviceManager implements IDeviceManager {
 		return deviceId;
 	}
 
-	private D_DeviceAuthorization getDeviceAuthorization(String deviceId) {
+	private DeviceAuthorization getDeviceAuthorization(String deviceId) {
 		DeviceAuthorization[] authroizations = getDeviceAuthorizationMapper().selectByDeviceId(deviceId);
 		if (authroizations == null || authroizations.length == 0)
 			return null;
@@ -115,7 +120,7 @@ public class DeviceManager implements IDeviceManager {
 		for (DeviceAuthorization authorization : authroizations) {
 			if (authorization.getExpiredTime().after(currentTime) &&
 					!authorization.isCanceled()) {
-				return (D_DeviceAuthorization)authorization;
+				return authorization;
 			}
 		}
 		
@@ -209,7 +214,11 @@ public class DeviceManager implements IDeviceManager {
 
 	@Override
 	public Device getByDeviceName(String deviceName) {
-		return getDeviceMapper().selectByDeviceName(deviceName);
+		D_DeviceIdentity identity = (D_DeviceIdentity)getDeviceIdentityMapper().selectByDeviceName(deviceName);
+		if (identity == null)
+			return null;
+		
+		return getDeviceMapper().selectByDeviceId(identity.getDeviceId());
 	}
 
 	@Override
@@ -221,7 +230,7 @@ public class DeviceManager implements IDeviceManager {
 	}
 
 	@Override
-	public String guessMode(String deviceId) {
+	public String getMode(String deviceId) {
 		if (deviceIdRuler != null)
 			return deviceIdRuler.guessMode(deviceId);
 		

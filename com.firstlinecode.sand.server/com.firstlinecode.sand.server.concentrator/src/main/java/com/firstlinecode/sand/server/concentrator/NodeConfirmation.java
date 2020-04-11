@@ -3,6 +3,7 @@ package com.firstlinecode.sand.server.concentrator;
 import java.util.Date;
 
 public class NodeConfirmation {
+	private String concentrator;
 	private Node node;
 	private String confirmer;
 	private Date requestedTime;
@@ -10,6 +11,14 @@ public class NodeConfirmation {
 	private Date expiredTime;
 	private boolean canceled;
 	
+	public String getConcentrator() {
+		return concentrator;
+	}
+
+	public void setConcentrator(String concentrator) {
+		this.concentrator = concentrator;
+	}
+
 	public Node getNode() {
 		return node;
 	}

@@ -84,7 +84,8 @@ public class SandCommandProvider implements CommandProvider {
 				return;
 			}
 			
-			concentratorFactory.getConcentrator(device).confirm(nodeDeviceId);
+			concentratorFactory.getConcentrator(device).confirm(SYSTEM_CONSOLE_AUTHORIZER, nodeDeviceId);
+			interpreter.print(String.format("Node %s has already been confirmed to add to concentrator %s.\n", device.getDeviceId(), nodeDeviceId));
 		} else if (PARAM_DEVICES.equals(nextArg)) {
 			String sStartIndex = interpreter.nextArgument();
 			

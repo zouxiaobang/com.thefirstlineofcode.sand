@@ -1,26 +1,17 @@
 package com.firstlinecode.sand.server.concentrator;
 
 public class Node {
-	private String concentrator;
-	private String node;
+	private String deviceId;
 	private String lanId;
 	private String communicationNet;
 	private String address;
 	
-	public String getConcentrator() {
-		return concentrator;
+	public String getDeviceId() {
+		return deviceId;
 	}
 	
-	public void setConcentrator(String concentrator) {
-		this.concentrator = concentrator;
-	}
-	
-	public String getNode() {
-		return node;
-	}
-	
-	public void setNode(String node) {
-		this.node = node;
+	public void setDeviceId(String node) {
+		this.deviceId = node;
 	}
 	
 	public String getLanId() {

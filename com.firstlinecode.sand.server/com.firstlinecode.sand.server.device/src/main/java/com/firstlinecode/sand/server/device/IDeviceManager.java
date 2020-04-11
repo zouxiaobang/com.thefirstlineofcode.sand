@@ -8,6 +8,7 @@ public interface IDeviceManager {
 	void authorize(String deviceId, String authorizer, long validityTime);
 	void cancelAuthorization(String deviceId);
 	DeviceIdentity register(String deviceId);
+	void create(Device device);
 	void remove(JabberId jid);
 	Device getByDeviceId(String deviceId);
 	Device getByDeviceName(String deviceName);
@@ -24,5 +25,5 @@ public interface IDeviceManager {
 	Class<?> getActionType(String mode, String actionName);
 	Class<?> getEventType(String mode, String eventName);
 	boolean isValid(String deviceId);
-	String guessMode(String deviceId);
+	String getMode(String deviceId);
 }

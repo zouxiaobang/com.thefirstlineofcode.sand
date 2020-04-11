@@ -57,7 +57,7 @@ public class DynamicAddressConfigurator implements IAddressConfigurator<IDualLor
 		
 		try {
 			if (state != State.WORKING || communicator.getAddress().equals(ADDRESS_CONFIGURATION_MODE_DUAL_LORA_ADDRESS)) {				
-				throw new IllegalStateException("It seemed that device is being in address configuration mode.");
+				return;
 			}
 			
 			workingAddress = communicator.getAddress();

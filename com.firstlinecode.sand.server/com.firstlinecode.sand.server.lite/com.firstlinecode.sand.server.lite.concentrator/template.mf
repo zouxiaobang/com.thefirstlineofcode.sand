@@ -9,4 +9,5 @@ Import-Package: org.springframework.core;version="[4.3.9,5)",
  org.springframework.aop.framework;version="[4.3.9,5)",
  org.aopalliance.aop;version="[1.0.0,2)"
 Granite-MyBatis-Mapper-Locations: /META-INF/mybatis;pattern=**/*Mapper.xml
-Granite-MyBatis-Data-Objects: com.firstlinecode.sand.server.lite.concentrator.D_NodeConfirmation
+Granite-MyBatis-Data-Objects: com.firstlinecode.sand.server.lite.concentrator.D_NodeConfirmation,
+ com.firstlinecode.sand.server.lite.concentrator.Concentration
