@@ -345,11 +345,6 @@ public class Light extends AbstractThingEmulator implements ILight {
 	}
 
 	@Override
-	public String getLanId() {
-		return lanId;
-	}
-
-	@Override
 	public String getThingName() {
 		return THING_NAME;
 	}

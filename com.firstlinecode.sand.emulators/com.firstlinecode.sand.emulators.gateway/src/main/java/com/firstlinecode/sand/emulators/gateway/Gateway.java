@@ -61,6 +61,7 @@ import com.firstlinecode.chalk.network.ConnectionException;
 import com.firstlinecode.chalk.network.IConnectionListener;
 import com.firstlinecode.sand.client.concentrator.ConcentratorPlugin;
 import com.firstlinecode.sand.client.concentrator.IConcentrator;
+import com.firstlinecode.sand.client.concentrator.IConcentrator.LanError;
 import com.firstlinecode.sand.client.concentrator.Node;
 import com.firstlinecode.sand.client.ibdr.IRegistration;
 import com.firstlinecode.sand.client.ibdr.IbdrPlugin;
@@ -134,6 +135,8 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 	private static final String MENU_ITEM_TEXT_ADDRESS_CONFIGURATION_MODE = "Address Configuration Mode";
 	private static final String MENU_ITEM_NAME_WORKING_MODE = "working_mode";
 	private static final String MENU_ITEM_TEXT_WORKING_MODE = "Working Mode";
+	private static final String MENU_ITEM_NAME_RECONFIGURE_ADDRESS = "reconfigure_address";
+	private static final String MENU_ITEM_TEXT_RECONFIGURE_ADDRESS = "Reconfigure Address";
 	
 	private static final String MENU_ITEM_TEXT_SHOW_LOG_CONSOLE = "Show Log Console";
 	private static final String MENU_ITEM_NAME_SHOW_LOG_CONSOLE = "show_log_console";
@@ -353,7 +356,9 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 			setToAddressConfigurationMode();
 		} else if (MENU_ITEM_NAME_WORKING_MODE.equals(actionCommand)) {
 			setToWorkingMode();
-		}  else if (MENU_ITEM_NAME_SHOW_LOG_CONSOLE.equals(actionCommand)) {
+		} else if (MENU_ITEM_NAME_RECONFIGURE_ADDRESS.equals(actionCommand)) {
+			reconfigureAddress();
+		} else if (MENU_ITEM_NAME_SHOW_LOG_CONSOLE.equals(actionCommand)) {
 			showLogConsoleDialog();
 		} else if (MENU_ITEM_NAME_ABOUT.equals(actionCommand)) {
 			showAboutDialog();
@@ -362,11 +367,19 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 		}
 	}
 	
+	private void reconfigureAddress() {
+		getSelectedFrame().getThing().powerOff();
+		setToWorkingMode();
+		setToAddressConfigurationMode();
+		getSelectedFrame().getThing().powerOn();
+	}
+
 	private synchronized void setToWorkingMode() {
 		addressConfigurator.stop();
 		
 		getMenuItem(MENU_NAME_TOOLS, MENU_ITEM_NAME_WORKING_MODE).setEnabled(false);
 		getMenuItem(MENU_NAME_TOOLS, MENU_ITEM_NAME_ADDRESS_CONFIGURATION_MODE).setEnabled(true);	
+		getMenuItem(MENU_NAME_TOOLS, MENU_ITEM_NAME_RECONFIGURE_ADDRESS).setEnabled(false);	
 	}
 
 	private synchronized void setToAddressConfigurationMode() {
@@ -374,6 +387,11 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 		
 		getMenuItem(MENU_NAME_TOOLS, MENU_ITEM_NAME_ADDRESS_CONFIGURATION_MODE).setEnabled(false);
 		getMenuItem(MENU_NAME_TOOLS, MENU_ITEM_NAME_WORKING_MODE).setEnabled(true);
+		
+		ThingInternalFrame thingInternalFrame = getSelectedFrame();
+		if (thingInternalFrame != null && !thingInternalFrame.getThing().isAddressConfigured()) {
+			getMenuItem(MENU_NAME_TOOLS, MENU_ITEM_NAME_RECONFIGURE_ADDRESS).setEnabled(true);
+		}
 	}
 	
 	private synchronized void disconnect() {
@@ -941,7 +959,6 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 		@Override
 		public void run() {
 			setDirty(dirty);
-			refreshThingSelectionRelativedMenuItems();
 			refreshPowerRelativedMenuItems();
 		}
 	}
@@ -1026,6 +1043,8 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 				MENU_ITEM_TEXT_WORKING_MODE, -1, null, false));
 		toolsMenu.add(createMenuItem(MENU_ITEM_NAME_ADDRESS_CONFIGURATION_MODE,
 				MENU_ITEM_TEXT_ADDRESS_CONFIGURATION_MODE, -1, null, false));
+		toolsMenu.add(createMenuItem(MENU_ITEM_NAME_RECONFIGURE_ADDRESS,
+				MENU_ITEM_TEXT_RECONFIGURE_ADDRESS, -1, null, false));
 		
 		toolsMenu.addSeparator();
 		
@@ -1166,14 +1185,22 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 	public void internalFrameActivated(InternalFrameEvent e) {
 		setDirty(true);
 		refreshPowerRelativedMenuItems();
+		refreshThingSelectionRelativedMenuItems();
 	}
 	
 	private void refreshThingSelectionRelativedMenuItems() {
 		ThingInternalFrame thingFrame = getSelectedFrame();
-		if (thingFrame == null)
+		if (thingFrame == null) {
+			getMenuItem(MENU_NAME_EDIT, MENU_ITEM_NAME_RESET).setEnabled(false);
+			getMenuItem(MENU_NAME_TOOLS, MENU_ITEM_NAME_RECONFIGURE_ADDRESS).setEnabled(false);
+			
 			return;
+		}
 		
 		getMenuItem(MENU_NAME_EDIT, MENU_ITEM_NAME_RESET).setEnabled(true);
+		
+		if (getMenuItem(MENU_NAME_TOOLS, MENU_ITEM_NAME_ADDRESS_CONFIGURATION_MODE).isEnabled())
+			getMenuItem(MENU_NAME_TOOLS, MENU_ITEM_NAME_RECONFIGURE_ADDRESS).setEnabled(true);
 	}
 
 	private void refreshPowerRelativedMenuItems() {
@@ -1193,6 +1220,8 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 	@Override
 	public void internalFrameDeactivated(InternalFrameEvent e) {
 		setDirty(true);
+		refreshThingSelectionRelativedMenuItems();
+		refreshPowerRelativedMenuItems();
 	}
 	
 	private void setDirty(boolean dirty) {
@@ -1286,31 +1315,35 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 	}
 
 	@Override
-	public void received(String message) {}
-
-	@Override
-	public void sent(String message) {}
-
-	@Override
-	public void created(String lanId, Node node) {
-		// TODO Auto-generated method stub
-		
+	public void received(String message) {
+		// NO-OP
 	}
 
 	@Override
-	public void removed(String lanId, Node node) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void occurred(IConcentrator.Listener.LanError error, Node source) {
-		// TODO Auto-generated method stub
-		
+	public void sent(String message) {
+		// NO-OP
 	}
 
 	@Override
 	public void occurred(IError error, Node source) {
+		// TODO Auto-generated method stub
+		
+	}
+	
+	@Override
+	public void occurred(LanError error, Node source) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void nodeAdded(String lanId, Node node) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void nodeRemoved(String lanId, Node node) {
 		// TODO Auto-generated method stub
 		
 	}

@@ -40,8 +40,8 @@ public class Concentrator implements IConcentrator, IDataObjectFactoryAware {
 
 	@Override
 	public void confirm(String confirmer, String nodeDeviceId) {
-		if (!deviceManager.isValid(deviceId))
-			throw new RuntimeException(String.format("Invalid node device ID '%s'.", deviceId));
+		if (!deviceManager.isValid(nodeDeviceId))
+			throw new RuntimeException(String.format("Invalid node device ID '%s'.", nodeDeviceId));
 		
 		if (containsNode(nodeDeviceId))
 			throw new ProtocolException(new Conflict(String.format("Duplicated node which's ID is '%s'.", nodeDeviceId)));
@@ -98,14 +98,17 @@ public class Concentrator implements IConcentrator, IDataObjectFactoryAware {
 		}
 		
 		if (containsNode(confirmation.getNode().getDeviceId())) {
-			throw new ProtocolException(new Conflict());
+			throw new ProtocolException(new Conflict(String.format("Duplicated node which's ID is '%s'.", confirmation.getNode().getDeviceId())));
 		}
+		
+		if (containsLanId(confirmation.getNode().getLanId()))
+			throw new ProtocolException(new Conflict(String.format("Duplicated land ID '%s'.", confirmation.getNode().getLanId())));
 		
 		getNodeComfirmationMapper().insert(confirmation);
 	}
 	
 	@Override
-	public void cancelAuthorization(String nodeDeviceId) {
+	public void cancelConfirmation(String nodeDeviceId) {
 		// TODO Auto-generated method stub
 		
 	}
@@ -121,6 +124,12 @@ public class Concentrator implements IConcentrator, IDataObjectFactoryAware {
 	@Override
 	public void setDataObjectFactory(IDataObjectFactory dataObjectFactory) {
 		this.dataObjectFactory = dataObjectFactory;
+	}
+
+	@Override
+	public boolean containsLanId(String lanId) {
+		// TODO Auto-generated method stub
+		return false;
 	}
 	
 }

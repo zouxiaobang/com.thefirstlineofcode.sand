@@ -272,7 +272,7 @@ public class DeviceManager implements IDeviceManager {
 		ModeDescriptor modeDescriptor = getModeDescriptor(mode);
 		
 		if (!modeDescriptor.isActuator())
-			throw new RuntimeException(String.format("Device which's mode is %s isn't an actuator", mode));
+			throw new RuntimeException(String.format("Device which's mode is '%s' isn't an actuator.", mode));
 		
 		return modeDescriptor.getSupportedActions().get(actionName);
 	}
@@ -282,7 +282,7 @@ public class DeviceManager implements IDeviceManager {
 		ModeDescriptor modeDescriptor = getModeDescriptor(mode);
 		
 		if (!modeDescriptor.isSensor())
-			throw new RuntimeException(String.format("Device which's mode is %s isn't a sensor", mode));
+			throw new RuntimeException(String.format("Device which's mode is '%s' isn't a sensor.", mode));
 		
 		return modeDescriptor.getSupportedEvents().get(eventName);
 	}

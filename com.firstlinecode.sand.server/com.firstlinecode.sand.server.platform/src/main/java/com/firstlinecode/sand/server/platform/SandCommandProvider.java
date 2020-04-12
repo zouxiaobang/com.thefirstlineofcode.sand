@@ -75,17 +75,17 @@ public class SandCommandProvider implements CommandProvider {
 			
 			Device device = deviceManager.getByDeviceId(concentratorDeviceId);
 			if (device == null) {
-				interpreter.print(String.format("Error: Concentrator which's device ID is %s not existed.\n", concentratorDeviceId));	
+				interpreter.print(String.format("Error: Concentrator which's device ID is '%s' not existed.\n", concentratorDeviceId));	
 				return;
 			}
 			
 			if (!concentratorFactory.isConcentrator(device)) {				
-				interpreter.print(String.format("Error: Device which's device ID is %s isn't a concentrator.", concentratorDeviceId));	
+				interpreter.print(String.format("Error: Device which's device ID is '%s' isn't a concentrator.", concentratorDeviceId));	
 				return;
 			}
 			
 			concentratorFactory.getConcentrator(device).confirm(SYSTEM_CONSOLE_AUTHORIZER, nodeDeviceId);
-			interpreter.print(String.format("Node %s has already been confirmed to add to concentrator %s.\n", device.getDeviceId(), nodeDeviceId));
+			interpreter.print(String.format("Node '%s' has already been confirmed to add to concentrator '%s'.\n", device.getDeviceId(), nodeDeviceId));
 		} else if (PARAM_DEVICES.equals(nextArg)) {
 			String sStartIndex = interpreter.nextArgument();
 			

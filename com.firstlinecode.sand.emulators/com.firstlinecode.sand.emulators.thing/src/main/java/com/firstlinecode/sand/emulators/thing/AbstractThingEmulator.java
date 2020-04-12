@@ -16,12 +16,13 @@ import com.firstlinecode.sand.emulators.lora.LoraCommunicator;
 import com.firstlinecode.sand.protocols.lora.LoraAddress;
 
 public abstract class AbstractThingEmulator implements IThingEmulator {
+	private static final String PATTERN_LAN_ID = "%02d";
+	
 	protected String thingName;
 	protected ICommunicator<?, ?, ?> communicator;
 	protected DynamicAddressConfigurator addressConfigurator;
 	
 	protected String deviceId;
-	protected String lanId;
 	protected String deviceMode;
 	protected int batteryPower;
 	protected boolean powered;
@@ -29,6 +30,7 @@ public abstract class AbstractThingEmulator implements IThingEmulator {
 	
 	protected LoraAddress gatewayUplinkAddress;
 	protected LoraAddress gatewayDownlinkAddress;
+	protected LoraAddress thingAddress;
 	
 	public AbstractThingEmulator(String mode, LoraCommunicator communicator) {
 		if (mode == null)
@@ -41,8 +43,6 @@ public abstract class AbstractThingEmulator implements IThingEmulator {
 		deviceId = generateDeviceId();
 		batteryPower = 100;
 		powered = true;
-		
-		addressConfigurator = new DynamicAddressConfigurator(deviceId, (LoraCommunicator)communicator);
 		
 		thingListeners = new ArrayList<>();
 		
@@ -62,10 +62,10 @@ public abstract class AbstractThingEmulator implements IThingEmulator {
 			sb.append("Power Off, ");
 		}
 		
-		if (lanId == null) {
+		if (!isAddressConfigured()) {
 			sb.append("Uncontrolled").append(", ");
 		} else {
-			sb.append("Controlled: ").append(lanId).append(", ");
+			sb.append("Controlled: ").append(String.format(PATTERN_LAN_ID, thingAddress.getAddress())).append(", ");
 		}
 		
 		sb.append("Battery: ").append(batteryPower).append("%, ");
@@ -138,7 +138,9 @@ public abstract class AbstractThingEmulator implements IThingEmulator {
 	public void writeExternal(ObjectOutput out) throws IOException {
 		out.writeObject(deviceMode);
 		out.writeObject(deviceId);
-		out.writeObject(lanId);
+		out.writeObject(gatewayUplinkAddress);
+		out.writeObject(gatewayDownlinkAddress);
+		out.writeObject(thingAddress);
 		out.writeInt(batteryPower);
 		out.writeBoolean(powered);
 		
@@ -149,7 +151,9 @@ public abstract class AbstractThingEmulator implements IThingEmulator {
 	public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
 		deviceMode = (String)in.readObject();
 		deviceId = (String)in.readObject();
-		lanId = (String)in.readObject();
+		gatewayUplinkAddress = (LoraAddress)in.readObject();
+		gatewayDownlinkAddress = (LoraAddress)in.readObject();
+		thingAddress = (LoraAddress)in.readObject();
 		batteryPower = in.readInt();
 		powered = in.readBoolean();
 		
@@ -159,7 +163,13 @@ public abstract class AbstractThingEmulator implements IThingEmulator {
 	@Override
 	public void powerOn() {
 		this.powered = true;
-		addressConfigurator.introduce();
+		if (!isAddressConfigured()) {
+			if (addressConfigurator == null) {
+				addressConfigurator = new DynamicAddressConfigurator(this, (LoraCommunicator)communicator);
+			}
+			
+			addressConfigurator.introduce();
+		}
 		
 		doPowerOn();
 		
@@ -182,7 +192,9 @@ public abstract class AbstractThingEmulator implements IThingEmulator {
 	@Override
 	public void powerOff() {
 		this.powered = false;
-		addressConfigurator.stop();
+		if (!isAddressConfigured() && addressConfigurator != null) {
+			addressConfigurator.stop();
+		}
 		
 		doPowerOff();
 		
@@ -199,7 +211,9 @@ public abstract class AbstractThingEmulator implements IThingEmulator {
 	@Override
 	public void reset() {
 		deviceId = generateDeviceId();
-		lanId = null;
+		gatewayUplinkAddress = null;
+		gatewayDownlinkAddress = null;
+		thingAddress = null;
 		
 		doReset();
 	}
@@ -228,9 +242,21 @@ public abstract class AbstractThingEmulator implements IThingEmulator {
 	}
 	
 	@Override
-	public void addressConfigured(LoraAddress gatewayUplinkAddress, LoraAddress gatewayDownlinkAddress) {
+	public void addressConfigured(LoraAddress gatewayUplinkAddress, LoraAddress gatewayDownlinkAddress,
+			LoraAddress thingAddress) {
 		this.gatewayUplinkAddress = gatewayUplinkAddress;
 		this.gatewayDownlinkAddress = gatewayDownlinkAddress;
+		this.thingAddress = thingAddress;
+		
+		addressConfigurator.stop();
+		addressConfigurator = null;
+		
+		getPanel().updateStatus(getThingStatus());
+	}
+	
+	@Override
+	public boolean isAddressConfigured() {
+		return gatewayUplinkAddress != null && gatewayDownlinkAddress != null && thingAddress != null;
 	}
 	
 	protected abstract void doWriteExternal(ObjectOutput out) throws IOException;

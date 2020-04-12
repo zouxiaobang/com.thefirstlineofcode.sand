@@ -3,9 +3,12 @@ package com.firstlinecode.sand.client.lora;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.firstlinecode.basalt.protocol.core.IError;
 import com.firstlinecode.basalt.protocol.core.ProtocolException;
 import com.firstlinecode.basalt.protocol.core.stanza.error.Conflict;
 import com.firstlinecode.sand.client.concentrator.IConcentrator;
+import com.firstlinecode.sand.client.concentrator.IConcentrator.LanError;
+import com.firstlinecode.sand.client.concentrator.Node;
 import com.firstlinecode.sand.client.things.commuication.CommunicationException;
 import com.firstlinecode.sand.client.things.commuication.IAddressConfigurator;
 import com.firstlinecode.sand.client.things.obm.IObmFactory;
@@ -14,11 +17,12 @@ import com.firstlinecode.sand.protocols.concentrator.NodeAddress;
 import com.firstlinecode.sand.protocols.core.CommunicationNet;
 import com.firstlinecode.sand.protocols.lora.DualLoraAddress;
 import com.firstlinecode.sand.protocols.lora.LoraAddress;
+import com.firstlinecode.sand.protocols.lora.dac.Allocated;
 import com.firstlinecode.sand.protocols.lora.dac.Allocation;
-import com.firstlinecode.sand.protocols.lora.dac.Confirmation;
 import com.firstlinecode.sand.protocols.lora.dac.Introduction;
 
-public class DynamicAddressConfigurator implements IAddressConfigurator<IDualLoraChipsCommunicator, LoraAddress, byte[]> {
+public class DynamicAddressConfigurator implements IAddressConfigurator<IDualLoraChipsCommunicator,
+			LoraAddress, byte[]>, IConcentrator.Listener {
 	private static final Logger logger = LoggerFactory.getLogger(DynamicAddressConfigurator.class);
 	
 	private static final DualLoraAddress ADDRESS_CONFIGURATION_MODE_DUAL_LORA_ADDRESS = new DualLoraAddress(
@@ -28,7 +32,7 @@ public class DynamicAddressConfigurator implements IAddressConfigurator<IDualLor
 		WORKING,
 		WAITING,
 		ALLOCATING,
-		CONFIRMING
+		CONFIRMATION_REQUESTING
 	}
 	
 	private IDualLoraChipsCommunicator communicator;
@@ -44,6 +48,7 @@ public class DynamicAddressConfigurator implements IAddressConfigurator<IDualLor
 	public DynamicAddressConfigurator(IDualLoraChipsCommunicator communicator, IConcentrator concentrator) {
 		this.communicator = communicator;
 		this.concentrator =  concentrator;
+		concentrator.addListener(this);
 		
 		obmFactory = new ObmFactory();
 		workingAddress = communicator.getAddress();
@@ -151,10 +156,8 @@ public class DynamicAddressConfigurator implements IAddressConfigurator<IDualLor
 				allocation.setGatewayAddress(workingAddress.getSlaveChipAddress().getAddress());
 				allocation.setGatewayChannel(workingAddress.getChannel());
 				
-				int nodesSize = concentrator.getNodes().size();
-				int iNodeLanId = nodesSize + 1;
-				String nodeLanId = Integer.toString(iNodeLanId);
-				nodeAddress = new LoraAddress(iNodeLanId, LoraAddress.DEFAULT_THING_COMMUNICATION_FREQUENCE_BAND);
+				String nodeLanId = concentrator.getBestSuitedNewLanId();
+				nodeAddress = new LoraAddress(Long.parseLong(nodeLanId), LoraAddress.DEFAULT_THING_COMMUNICATION_FREQUENCE_BAND);
 				allocation.setAllocatedAddress(nodeAddress.getAddress());
 				allocation.setAllocatedFrequencyBand(nodeAddress.getFrequencyBand());
 				
@@ -176,14 +179,14 @@ public class DynamicAddressConfigurator implements IAddressConfigurator<IDualLor
 			}
 			
 			if (state == State.ALLOCATING) {
-				Confirmation confirmation = (Confirmation)obmFactory.toObject(Confirmation.class, data);
+				Allocated allocated = (Allocated)obmFactory.toObject(Allocated.class, data);
 				
-				if (!nodeDeviceId.equals(confirmation.getDeviceId())) {
+				if (!nodeDeviceId.equals(allocated.getDeviceId())) {
 					processParallelAddressConfigurationRequest(peerAddress);
 				}
 				
 				confirm();
-				state = State.CONFIRMING;
+				state = State.CONFIRMATION_REQUESTING;
 			}
 		} catch (ProtocolException pe) {
 			// TODO: handle exception
@@ -212,11 +215,37 @@ public class DynamicAddressConfigurator implements IAddressConfigurator<IDualLor
 	
 	@Override
 	public void confirm() {
-		concentrator.createNode(nodeDeviceId, new NodeAddress<LoraAddress>(CommunicationNet.LORA,
+		concentrator.addNode(nodeDeviceId, new NodeAddress<LoraAddress>(CommunicationNet.LORA,
 				nodeAddress.toString()));
 	}
 	
 	public State getState() {
 		return state;
 	}
+
+	@Override
+	public void nodeAdded(String lanId, Node node) {
+		// An address has been configured. Reset the states..
+		state = State.WAITING;
+		nodeDeviceId = null;
+		nodeAddress = null;
+	}
+
+	@Override
+	public void nodeRemoved(String lanId, Node node) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void occurred(IError error, Node source) {
+		// NO-OP
+		
+	}
+
+	@Override
+	public void occurred(LanError error, Node source) {
+		// NO-OP
+	}
+
 }

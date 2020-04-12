@@ -7,7 +7,9 @@ import com.firstlinecode.sand.client.things.commuication.ICommunicator;
 import com.firstlinecode.sand.protocols.lora.LoraAddress;
 
 public interface IThingEmulator extends IThing, Externalizable {
-	void addressConfigured(LoraAddress gatewayUplinkAddress, LoraAddress gatewayDownloadLinkAddress);
+	boolean isAddressConfigured();
+	void addressConfigured(LoraAddress gatewayUplinkAddress, LoraAddress gatewayDownloadLinkAddress,
+			LoraAddress thingAddress);
 	void setDeviceId(String deviceId);
 	void setBatteryPower(int batteryPower) ;
 	void powerChanged(PowerEvent event);

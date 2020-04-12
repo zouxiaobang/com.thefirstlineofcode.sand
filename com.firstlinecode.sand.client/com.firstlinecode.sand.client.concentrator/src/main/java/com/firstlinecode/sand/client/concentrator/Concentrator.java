@@ -14,7 +14,6 @@ import com.firstlinecode.basalt.protocol.core.stanza.error.StanzaError;
 import com.firstlinecode.chalk.IChatServices;
 import com.firstlinecode.chalk.ITask;
 import com.firstlinecode.chalk.IUnidirectionalStream;
-import com.firstlinecode.sand.client.concentrator.IConcentrator.Listener.LanError;
 import com.firstlinecode.sand.protocols.concentrator.CreateNode;
 import com.firstlinecode.sand.protocols.concentrator.NodeAddress;
 import com.firstlinecode.sand.protocols.core.CommunicationNet;
@@ -49,7 +48,7 @@ public class Concentrator implements IConcentrator {
 	}
 
 	@Override
-	public void createNode(final String deviceId, final NodeAddress<?> nodeAddress) {
+	public void addNode(final String deviceId, final NodeAddress<?> nodeAddress) {
 		synchronized (nodesLock) {
 			Node node = new Node();
 			node.setDeviceId(deviceId);
@@ -63,8 +62,6 @@ public class Concentrator implements IConcentrator {
 				return;
 			}
 			
-			int i = 1;
-			String lanId = null;
 			for (Entry<String, Node> entry : nodes.entrySet()) {
 				if (entry.getValue().getDeviceId().equals(node.getDeviceId())) {
 					for (Listener listener : listeners) {
@@ -81,20 +78,9 @@ public class Concentrator implements IConcentrator {
 					
 					return;
 				}
-				
-				String currentLanId = entry.getKey();
-				if (lanId == null && Integer.parseInt(currentLanId) != i) {
-					lanId = String.format(PATTERN_LAN_ID, i);
-				}
-				
-				i++;
 			}
 			
-			if (lanId == null) {
-				lanId = String.format(PATTERN_LAN_ID, i);
-			}
-			
-			chatServices.getTaskService().execute(new NodeCreationTask(lanId, nodeAddress.getCommunicationNet(), node));
+			chatServices.getTaskService().execute(new NodeCreationTask(getBestSuitedNewLanId(), nodeAddress.getCommunicationNet(), node));
 		}
 	}
 	
@@ -128,7 +114,7 @@ public class Concentrator implements IConcentrator {
 			nodes.put(lanId, node);
 			
 			for (Listener listener : listeners) {
-				listener.created(lanId, node);
+				listener.nodeAdded(lanId, node);
 			}
 		}
 
@@ -186,6 +172,31 @@ public class Concentrator implements IConcentrator {
 	@Override
 	public Node getNode(String lanId) {
 		return nodes.get(lanId);
+	}
+
+	@Override
+	public Node[] pullNodes() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public String getBestSuitedNewLanId() {
+		int i = 1;
+		String lanId = null;
+		for (String currentLanId : nodes.keySet()) {
+			if (lanId == null && Integer.parseInt(currentLanId) != i) {
+				lanId = String.format(PATTERN_LAN_ID, i);
+			}
+			
+			i++;
+		}
+		
+		if (lanId == null) {
+			lanId = String.format(PATTERN_LAN_ID, i);
+		}
+		
+		return lanId;
 	}
 
 }

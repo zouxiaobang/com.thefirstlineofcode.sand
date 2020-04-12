@@ -1,8 +1,5 @@
 package com.firstlinecode.sand.emulators.thing;
 
-import java.util.Timer;
-import java.util.TimerTask;
-
 import com.firstlinecode.sand.client.lora.LoraData;
 import com.firstlinecode.sand.client.things.commuication.CommunicationException;
 import com.firstlinecode.sand.client.things.commuication.IAddressConfigurator;
@@ -14,23 +11,20 @@ import com.firstlinecode.sand.emulators.lora.LoraCommunicator;
 import com.firstlinecode.sand.protocols.lora.DualLoraAddress;
 import com.firstlinecode.sand.protocols.lora.LoraAddress;
 import com.firstlinecode.sand.protocols.lora.dac.Allocation;
-import com.firstlinecode.sand.protocols.lora.dac.Confirmation;
+import com.firstlinecode.sand.protocols.lora.dac.Allocated;
 import com.firstlinecode.sand.protocols.lora.dac.Introduction;
 
 public class DynamicAddressConfigurator implements IAddressConfigurator<ICommunicator<LoraAddress, LoraAddress, byte[]>,
 		LoraAddress, byte[]>, ICommunicationListener<LoraAddress, LoraAddress, byte[]> {
 	private static final int DEFAULT_ADDRESS_CONFIGURATION_DATA_RETRIVE_INTERVAL = 1000;
-	private static final int DEFAULT_ADDRESS_CONFIGURATION_NEGOTIATION_TIMEOUT = 1000 * 30;
-	private static final int DEFAULT_ADDRESS_CONFIGURATION_CONFIRMATION_TIMEOUT = 1000 * 60 * 2;
 	
 	private enum State {
 		INITIAL,
 		INTRUDUCED,
-		ALLOCATED,
-		CONFIRMED
+		ALLOCATED
 	}
 	
-	private String deviceId;
+	private IThingEmulator thing;
 	private LoraCommunicator communicator;
 	private IObmFactory obmFactory;
 	
@@ -39,11 +33,10 @@ public class DynamicAddressConfigurator implements IAddressConfigurator<ICommuni
 	
 	private State state;
 	
-	private Timer timeoutTimer;
 	private DataReceiver dataReceiver = new DataReceiver();
 	
-	public DynamicAddressConfigurator(String deviceId, LoraCommunicator communicator) {
-		this.deviceId = deviceId;
+	public DynamicAddressConfigurator(IThingEmulator thing, LoraCommunicator communicator) {
+		this.thing = thing;
 		this.communicator = communicator;
 		obmFactory = new ObmFactory();
 		
@@ -59,26 +52,13 @@ public class DynamicAddressConfigurator implements IAddressConfigurator<ICommuni
 	@Override
 	public void introduce() {
 		doIntroduce();
-		
-		timeoutTimer = new Timer();
-		timeoutTimer.schedule(new TimerTask() {
-
-			@Override
-			public void run() {
-				if (state != State.ALLOCATED && state != State.CONFIRMED) {
-					doIntroduce();
-				}
-			}
-			
-		}, DEFAULT_ADDRESS_CONFIGURATION_NEGOTIATION_TIMEOUT,
-			DEFAULT_ADDRESS_CONFIGURATION_NEGOTIATION_TIMEOUT);
 	}
 	
 	private synchronized void doIntroduce() {
 		resetToInitialState();
 		
 		Introduction introduction = new Introduction();
-		introduction.setDeviceId(deviceId);
+		introduction.setDeviceId(thing.getDeviceId());
 		introduction.setAddress(communicator.getAddress().getAddress());
 		introduction.setFrequencyBand(communicator.getAddress().getFrequencyBand());
 		communicator.send(LoraAddress.DEFAULT_DYNAMIC_ADDRESS_CONFIGURATOR_NEGOTIATION_LORAADDRESS,
@@ -86,9 +66,6 @@ public class DynamicAddressConfigurator implements IAddressConfigurator<ICommuni
 	}
 	
 	public void stop() {
-		timeoutTimer.cancel();
-		timeoutTimer = null;
-		
 		resetToInitialState();
 	}
 
@@ -115,24 +92,19 @@ public class DynamicAddressConfigurator implements IAddressConfigurator<ICommuni
 				
 				communicator.changeAddress(allocatedAddress);
 				
-				Confirmation confirmation = new Confirmation();
-				confirmation.setDeviceId(deviceId);
+				Allocated allocated = new Allocated();
+				allocated.setDeviceId(thing.getDeviceId());
 				
-				byte[] response = obmFactory.toBinary(confirmation);
+				byte[] response = obmFactory.toBinary(allocated);
 				communicator.send(LoraAddress.DEFAULT_DYNAMIC_ADDRESS_CONFIGURATOR_NEGOTIATION_LORAADDRESS, response);
+				done(gatewayAddress, communicator.getAddress());
 				
 				state = State.ALLOCATED;
-			} else if (state == State.ALLOCATED) {
-				Confirmation confirmation = (Confirmation)obmFactory.toObject(Confirmation.class, data);
-				if (!deviceId.equals(confirmation.getDeviceId())) {
-					throw new IllegalStateException("Device ID doesn't match.");
-				}
-				
-				done(gatewayAddress, communicator.getAddress());
-			} else { // state == State.CONFIRMED
-				// It's impossible the code goes to here.
+			} else { // state == State.ALLOCATED
+				// Code shouldn't go to here.
+				throw new IllegalStateException("Thing address has allocated.");
 			}
-		} catch (Exception e) {
+		} catch (ClassCastException e) {
 			// ignore
 		}
 	}
@@ -143,7 +115,7 @@ public class DynamicAddressConfigurator implements IAddressConfigurator<ICommuni
 		@Override
 		public void run() {
 			stop = false;
-			while (!stop && state != State.CONFIRMED) {
+			while (!stop && state != State.ALLOCATED) {
 				LoraData data = communicator.receive();
 				
 				if (data != null) {
@@ -182,29 +154,19 @@ public class DynamicAddressConfigurator implements IAddressConfigurator<ICommuni
 		
 	}
 	
-	public void done(DualLoraAddress gatewayAddress, LoraAddress address) {
-		System.out.println(String.format("Address configuration done. Gateway address is %s. Device address is %s ",
-				gatewayAddress, address));		
+	public void done(DualLoraAddress gatewayAddress, LoraAddress thingAddress) {
+		thing.addressConfigured(gatewayAddress.getMasterChipAddress(), gatewayAddress.getSlaveChipAddress(),
+				thingAddress);
 	}
 
 	@Override
 	public void addressChanged(LoraAddress newAddress, LoraAddress oldAddress) {
-		// No-Op
+		// NO-OP
 	}
 
 	@Override
 	public synchronized void confirm() {
-		timeoutTimer.cancel();
-		timeoutTimer.schedule(new TimerTask() {
-
-			@Override
-			public void run() {
-				if (state != State.CONFIRMED) {
-					doIntroduce();
-				}
-			}
-			
-		}, DEFAULT_ADDRESS_CONFIGURATION_CONFIRMATION_TIMEOUT, 0);
+		// No-OP
 	}
 	
 }

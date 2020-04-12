@@ -37,26 +37,31 @@ public class CreateNodeProcessor implements IXepProcessor<Iq, CreateNode>, IConf
 	public void process(IProcessingContext context, Iq stanza, CreateNode xep) {
 		Device device = deviceManager.getByDeviceName(context.getJid().getName());
 		if (device == null)
-			throw new ProtocolException(new ItemNotFound(String.format("Device which's device name is %s not be found.",
+			throw new ProtocolException(new ItemNotFound(String.format("Device which's device name is '%s' not be found.",
 					context.getJid().getName())));
 		
 		if (!deviceManager.isConcentrator(device.getMode()))
-			throw new ProtocolException(new NotAcceptable("Device which's device name is %s isn't a concentrator.",
+			throw new ProtocolException(new NotAcceptable("Device which's device name is '%s' isn't a concentrator.",
 					context.getJid().getName()));
 		
 		IConcentrator concentrator = concentratorFactory.getConcentrator(device);
 		if (concentrator == null)
 			throw new RuntimeException("Can't get the concentrator.");
 		
+		if (concentrator.containsNode(xep.getDeviceId())) {
+			throw new ProtocolException(new Conflict(String.format("Duplicated node which's ID is '%s'.", xep.getDeviceId())));
+		}
+		
+		if (concentrator.containsLanId(xep.getLanId())) {
+			throw new ProtocolException(new Conflict(String.format("Duplicated lan id: '%s'.", xep.getLanId())));
+			
+		}
+		
 		Node node = new Node();
 		node.setDeviceId(xep.getDeviceId());
 		node.setLanId(xep.getLanId());
 		node.setCommunicationNet(xep.getCommunicationNet());
 		node.setAddress(xep.getAddress().toString());
-
-		if (concentrator.containsNode(node.getDeviceId())) {
-			throw new ProtocolException(new Conflict(String.format("Duplicated node which's ID is %s.", xep.getDeviceId())));
-		}
 		
 		NodeConfirmation confirmation = dataObjectFactory.create(NodeConfirmation.class);
 		confirmation.setConcentrator(device.getDeviceId());
