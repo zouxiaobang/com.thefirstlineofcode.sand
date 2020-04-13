@@ -915,7 +915,7 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 	}
 
 	private void showThing(IThingEmulator thing, String title, int layer, int x, int y) {
-		this.showThing(thing, title, layer, x, y, true);
+		showThing(thing, title, layer, x, y, true);
 	}
 
 	private void showThing(IThingEmulator thing, String title, int layer, int x, int y, boolean selected) {
@@ -932,6 +932,9 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 				internalFrame.setLayer(layer);
 			}
 			internalFrame.setSelected(selected);
+			// Only deactivated event is fired when calling internalFrame.setSelected(true).
+			// So we need to call internalFrameActivated() method manually.
+			internalFrameActivated(null);
 		} catch (PropertyVetoException e) {
 			e.printStackTrace();
 		}
@@ -1188,6 +1191,9 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 		refreshThingSelectionRelativedMenuItems();
 	}
 	
+	@Override
+	public void internalFrameDeactivated(InternalFrameEvent e) {}
+	
 	private void refreshThingSelectionRelativedMenuItems() {
 		ThingInternalFrame thingFrame = getSelectedFrame();
 		if (thingFrame == null) {
@@ -1199,7 +1205,7 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 		
 		getMenuItem(MENU_NAME_EDIT, MENU_ITEM_NAME_RESET).setEnabled(true);
 		
-		if (getMenuItem(MENU_NAME_TOOLS, MENU_ITEM_NAME_ADDRESS_CONFIGURATION_MODE).isEnabled())
+		if (!getMenuItem(MENU_NAME_TOOLS, MENU_ITEM_NAME_ADDRESS_CONFIGURATION_MODE).isEnabled())
 			getMenuItem(MENU_NAME_TOOLS, MENU_ITEM_NAME_RECONFIGURE_ADDRESS).setEnabled(true);
 	}
 
@@ -1215,13 +1221,6 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 			getMenuItem(MENU_NAME_EDIT, MENU_ITEM_NAME_POWER_OFF).setEnabled(false);			
 			getMenuItem(MENU_NAME_EDIT, MENU_ITEM_NAME_POWER_ON).setEnabled(true);
 		}
-	}
-	
-	@Override
-	public void internalFrameDeactivated(InternalFrameEvent e) {
-		setDirty(true);
-		refreshThingSelectionRelativedMenuItems();
-		refreshPowerRelativedMenuItems();
 	}
 	
 	private void setDirty(boolean dirty) {
