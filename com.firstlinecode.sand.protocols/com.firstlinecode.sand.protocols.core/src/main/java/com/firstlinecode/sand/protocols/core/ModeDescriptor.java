@@ -3,24 +3,28 @@ package com.firstlinecode.sand.protocols.core;
 import java.util.Map;
 
 public class ModeDescriptor {
+	private String name;
 	private boolean actuator;
 	private boolean concentrator;
 	private boolean sensor;
 	
-	private Map<String, Class<?>> supportedActions;
-	private Map<String, Class<?>> supportedEvents;
+	private Map<String, Class<? extends IAction>> supportedActions;
+	private Map<String, Class<? extends IEvent>> supportedEvents;
 	
-	public ModeDescriptor() {}
-	
-	public ModeDescriptor(boolean concentrator) {
-		this(true, null, null);
+	public ModeDescriptor(String name) {
+		this(name, false);
 	}
 	
-	public ModeDescriptor(Map<String, Class<?>> suppportedActions, Map<String, Class<?>> supportedEvents) {
-		this(false, suppportedActions, supportedEvents);
+	public ModeDescriptor(String name, boolean concentrator) {
+		this(name, concentrator, null, null);
 	}
 	
-	public ModeDescriptor(boolean concentrator, Map<String, Class<?>> suppportedActions, Map<String, Class<?>> supportedEvents) {
+	public ModeDescriptor(String name, Map<String, Class<? extends IAction>> suppportedActions, Map<String, Class<? extends IEvent>> supportedEvents) {
+		this(name, false, suppportedActions, supportedEvents);
+	}
+	
+	public ModeDescriptor(String name, boolean concentrator, Map<String, Class<? extends IAction>> suppportedActions, Map<String, Class<? extends IEvent>> supportedEvents) {
+		this.name = name;
 		this.concentrator = concentrator;
 		this.supportedActions = suppportedActions;
 		this.supportedEvents = supportedEvents;
@@ -34,35 +38,27 @@ public class ModeDescriptor {
 		}
 	}
 	
-	public boolean isActuator() {
-		return actuator;
+	public String getName() {
+		return name;
 	}
 	
-	public void setActuator(boolean actuator) {
-		this.actuator = actuator;
+	public boolean isActuator() {
+		return actuator;
 	}
 	
 	public boolean isConcentrator() {
 		return concentrator;
 	}
 	
-	public void setConcentrator(boolean concentrator) {
-		this.concentrator = concentrator;
-	}
-	
 	public boolean isSensor() {
 		return sensor;
 	}
 	
-	public void setSensor(boolean sensor) {
-		this.sensor = sensor;
-	}
-	
-	public Map<String, Class<?>> getSupportedActions() {
+	public Map<String, Class<? extends IAction>> getSupportedActions() {
 		return supportedActions;
 	}
 	
-	public Map<String, Class<?>> getSupportedEvents() {
+	public Map<String, Class<? extends IEvent>> getSupportedEvents() {
 		return supportedEvents;
 	}
 }

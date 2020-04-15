@@ -21,6 +21,7 @@
 		<module>com.firstlinecode.sand.emulators.thing</module>
 		<module>com.firstlinecode.sand.emulators.gateway</module>
 		<module>com.firstlinecode.sand.emulators.light</module>
+		<module>com.firstlinecode.sand.emulators.modes</module>
 	</modules>
 
 </project>

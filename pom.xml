@@ -404,6 +404,12 @@
 			</dependency>
 
 			<dependency>
+				<groupId>com.firstlinecode.sand.emulators</groupId>
+				<artifactId>com.firstlinecode.sand.emulators.modes</artifactId>
+				<version>${sand.version}</version>
+			</dependency>
+
+			<dependency>
 				<groupId>com.firstlinecode.sand.protocols</groupId>
 				<artifactId>com.firstlinecode.sand.protocols.core</artifactId>
 				<version>${sand.version}</version>
@@ -426,10 +432,10 @@
 				<artifactId>com.firstlinecode.sand.protocols.concentrator</artifactId>
 				<version>${sand.version}</version>
 			</dependency>
-			
+
 			<dependency>
-				<groupId>com.firstlinecode.sand.emulators</groupId>
-				<artifactId>com.firstlinecode.sand.emulators.blub</artifactId>
+				<groupId>com.firstlinecode.sand.protocols</groupId>
+				<artifactId>com.firstlinecode.sand.protocols.actuator</artifactId>
 				<version>${sand.version}</version>
 			</dependency>
 			
@@ -469,11 +475,6 @@
 				<version>${sand.version}</version>
 			</dependency>
 
-			<dependency>
-				<groupId>com.firstlinecode.sand.server.lite</groupId>
-				<artifactId>com.firstlinecode.sand.server.lite.auth</artifactId>
-				<version>${sand.version}</version>
-			</dependency>
 			<dependency>
 				<groupId>com.firstlinecode.sand.server</groupId>
 				<artifactId>com.firstlinecode.sand.server.concentrator</artifactId>

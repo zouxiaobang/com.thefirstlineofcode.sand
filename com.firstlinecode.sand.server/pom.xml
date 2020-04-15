@@ -22,6 +22,7 @@
 		<module>com.firstlinecode.sand.server.device</module>
 		<module>com.firstlinecode.sand.server.ibdr</module>
 		<module>com.firstlinecode.sand.server.concentrator</module>
+		<module>com.firstlinecode.sand.server.actuator</module>
 		<module>com.firstlinecode.sand.server.lite</module>
 		<module>com.firstlinecode.sand.server.emulator.modes</module>
 	</modules>

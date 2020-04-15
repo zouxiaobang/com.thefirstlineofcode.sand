@@ -21,6 +21,7 @@
 		<module>com.firstlinecode.sand.protocols.ibdr</module>
 		<module>com.firstlinecode.sand.protocols.lora</module>
 		<module>com.firstlinecode.sand.protocols.concentrator</module>
+		<module>com.firstlinecode.sand.protocols.actuator</module>
 	</modules>
 
 </project>

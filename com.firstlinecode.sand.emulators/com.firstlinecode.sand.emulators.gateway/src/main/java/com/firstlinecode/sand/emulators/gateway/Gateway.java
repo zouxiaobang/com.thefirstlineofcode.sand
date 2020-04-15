@@ -920,7 +920,7 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 
 	private void showThing(IThingEmulator thing, String title, int layer, int x, int y, boolean selected) {
 		AbstractThingEmulatorPanel thingPanel = thing.getPanel();
-		ThingInternalFrame internalFrame = new ThingInternalFrame(thing, title);		
+		ThingInternalFrame internalFrame = new ThingInternalFrame(thing, title);
 		internalFrame.addComponentListener(this);
 		internalFrame.setBounds(x, y, thingPanel.getPreferredSize().width, thingPanel.getPreferredSize().height);
 		internalFrame.setVisible(true);
@@ -928,7 +928,7 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 		desktop.add(internalFrame);
 		
 		try {
-			if (layer != -1 ) {					
+			if (layer != -1 ) {
 				internalFrame.setLayer(layer);
 			}
 			internalFrame.setSelected(selected);
@@ -938,7 +938,6 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 		} catch (PropertyVetoException e) {
 			e.printStackTrace();
 		}
-		
 		
 		if (thing instanceof AbstractThingEmulator)
 			thingPanel.updateStatus(((AbstractThingEmulator)thing).getThingStatus());
@@ -976,6 +975,7 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 			things = new ArrayList<>();
 			allThings.put(factory.getThingName(), things);
 		}
+		
 		return things;
 	}
 

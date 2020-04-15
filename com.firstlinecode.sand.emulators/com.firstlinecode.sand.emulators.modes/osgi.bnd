@@ -2,4 +2,5 @@
 # Use this file to add customized Bnd instructions for the bundle
 #-----------------------------------------------------------------
 
-Export-Package: com.firstlinecode.sand.protocols.core.*
+Export-Package: com.firstlinecode.sand.emulators.modes.*
+

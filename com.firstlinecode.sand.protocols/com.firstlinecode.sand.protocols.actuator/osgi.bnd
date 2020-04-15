@@ -1,0 +1,11 @@
+#-----------------------------------------------------------------
+# Use this file to add customized Bnd instructions for the bundle
+#-----------------------------------------------------------------
+
+Basalt-Parsers: protocol-chain=iq|null->execute|urn:leps:iot:actuator;\
+ class=com.firstlinecode.sand.protocols.actuator.Execute;\
+ type=naming-convention
+ 
+Basalt-Translators: class=com.firstlinecode.sand.protocols.actuator.Execute;\
+ type=naming-convention
+ 

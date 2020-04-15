@@ -11,29 +11,24 @@
 		<version>0.1.0.RELEASE</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
-	
-	<properties>
-		<bundle.symbolicName>com.firstlinecode.sand.server.emulator.modes</bundle.symbolicName>
-		<bundle.namespace>com.firstlinecode.sand.server.emulator.modes</bundle.namespace>
-	</properties>
 
 	<groupId>com.firstlinecode.sand.server</groupId>
-	<artifactId>com.firstlinecode.sand.server.emulator.modes</artifactId>
-	<name>com.firstlinecode.sand.server.emulator.modes</name>
+	<artifactId>com.firstlinecode.sand.server.actuator</artifactId>
+	<name>com.firstlinecode.sand.server.actuator</name>
 	<packaging>bundle</packaging>
 
 	<dependencies>
 		<dependency>
 			<groupId>com.firstlinecode.granite.framework</groupId>
-			<artifactId>com.firstlinecode.granite.framework.core</artifactId>
-		</dependency>
+			<artifactId>com.firstlinecode.granite.framework.processing</artifactId>
+		</dependency>	
 		<dependency>
 			<groupId>com.firstlinecode.sand.server</groupId>
 			<artifactId>com.firstlinecode.sand.server.device</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>com.firstlinecode.sand.emulators</groupId>
-			<artifactId>com.firstlinecode.sand.emulators.modes</artifactId>
+			<groupId>com.firstlinecode.sand.protocols</groupId>
+			<artifactId>com.firstlinecode.sand.protocols.actuator</artifactId>
 		</dependency>
 	</dependencies>
 </project>
