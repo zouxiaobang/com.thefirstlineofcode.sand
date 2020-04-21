@@ -1,5 +1,6 @@
 package com.firstlinecode.sand.server.emulators.modes.internal;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import org.osgi.framework.BundleActivator;
@@ -24,7 +25,7 @@ public class Activator implements BundleActivator {
 	}
 	
 	private class DeviceModesProvider implements IDeviceModesProvider {
-		private Map<String, ModeDescriptor> modes;
+		private Map<String, ModeDescriptor> modes = new HashMap<>();
 		
 		public DeviceModesProvider() {
 			Ge01ModeDescriptor ge01 = new Ge01ModeDescriptor();
