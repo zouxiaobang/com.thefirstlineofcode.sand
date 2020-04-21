@@ -5,6 +5,7 @@ import java.util.Map;
 
 import com.firstlinecode.sand.protocols.core.IAction;
 import com.firstlinecode.sand.protocols.core.ModeDescriptor;
+import com.firstlinecode.sand.protocols.emulators.light.Flash;
 
 public class Ge01ModeDescriptor extends ModeDescriptor {
 	private static final String MODE_NAME = "GE-1";

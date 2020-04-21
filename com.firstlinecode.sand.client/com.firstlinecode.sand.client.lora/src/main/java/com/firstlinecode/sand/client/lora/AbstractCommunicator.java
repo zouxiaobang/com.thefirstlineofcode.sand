@@ -15,24 +15,28 @@ public abstract class AbstractCommunicator<OA, PA, D> implements ICommunicator<O
 	}
 	
 	@Override
-	public void changeAddress(OA address) {
+	public void changeAddress(OA address) throws CommunicationException {
 		try {
 			doChangeAddress(address);
 		} catch (CommunicationException e) {
 			for (ICommunicationListener<OA, PA, D> listener : listeners) {
 				listener.occurred(e);
 			}
+			
+			throw e;
 		}
 	}
 	
 	@Override
-	public void send(PA to, D data) {
+	public void send(PA to, D data) throws CommunicationException {
 		try {
 			doSend(to, data);
 		} catch (CommunicationException e) {
 			for (ICommunicationListener<OA, PA, D> listener : listeners) {
 				listener.occurred(e);
 			}
+			
+			throw e;
 		}
 		
 		for (ICommunicationListener<OA, PA, D> listener : listeners) {

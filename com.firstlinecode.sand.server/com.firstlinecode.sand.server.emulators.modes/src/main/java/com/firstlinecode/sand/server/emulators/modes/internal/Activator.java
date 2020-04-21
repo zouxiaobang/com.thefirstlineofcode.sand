@@ -1,4 +1,4 @@
-package com.firstlinecode.sand.server.emulator.modes.internal;
+package com.firstlinecode.sand.server.emulators.modes.internal;
 
 import java.util.Map;
 

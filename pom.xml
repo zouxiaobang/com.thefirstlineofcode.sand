@@ -440,6 +440,11 @@
 			</dependency>
 			
 			<dependency>
+				<groupId>com.firstlinecode.sand.protocols.emulators</groupId>
+				<artifactId>com.firstlinecode.sand.protocols.emulators.light</artifactId>
+				<version>${sand.version}</version>
+			</dependency>
+			<dependency>
 				<groupId>com.firstlinecode.sand.client</groupId>
 				<artifactId>com.firstlinecode.sand.client.things</artifactId>
 				<version>${sand.version}</version>
@@ -478,6 +483,12 @@
 			<dependency>
 				<groupId>com.firstlinecode.sand.server</groupId>
 				<artifactId>com.firstlinecode.sand.server.concentrator</artifactId>
+				<version>${sand.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>com.firstlinecode.sand.server</groupId>
+				<artifactId>com.firstlinecode.sand.server.actuator</artifactId>
 				<version>${sand.version}</version>
 			</dependency>
 		</dependencies>

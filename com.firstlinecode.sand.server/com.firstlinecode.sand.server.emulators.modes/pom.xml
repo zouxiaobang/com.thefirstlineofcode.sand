@@ -13,13 +13,13 @@
 	</parent>
 	
 	<properties>
-		<bundle.symbolicName>com.firstlinecode.sand.server.emulator.modes</bundle.symbolicName>
-		<bundle.namespace>com.firstlinecode.sand.server.emulator.modes</bundle.namespace>
+		<bundle.symbolicName>com.firstlinecode.sand.server.emulators.modes</bundle.symbolicName>
+		<bundle.namespace>com.firstlinecode.sand.server.emulators.modes</bundle.namespace>
 	</properties>
 
 	<groupId>com.firstlinecode.sand.server</groupId>
-	<artifactId>com.firstlinecode.sand.server.emulator.modes</artifactId>
-	<name>com.firstlinecode.sand.server.emulator.modes</name>
+	<artifactId>com.firstlinecode.sand.server.emulators.modes</artifactId>
+	<name>com.firstlinecode.sand.server.emulators.modes</name>
 	<packaging>bundle</packaging>
 
 	<dependencies>

@@ -166,7 +166,7 @@ public class DynamicAddressConfigurator implements IAddressConfigurator<ICommuni
 
 	@Override
 	public synchronized void confirm() {
-		// No-OP
+		// NO-OP
 	}
 	
 }

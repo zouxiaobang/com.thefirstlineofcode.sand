@@ -10,6 +10,13 @@ public class Execute {
 	private String actionName;
 	private Object action;
 	
+	public Execute() {}
+	
+	public Execute(String actionName, Object action) {
+		this.actionName = actionName;
+		this.action = action;
+	}
+	
 	public String getActionName() {
 		return actionName;
 	}
