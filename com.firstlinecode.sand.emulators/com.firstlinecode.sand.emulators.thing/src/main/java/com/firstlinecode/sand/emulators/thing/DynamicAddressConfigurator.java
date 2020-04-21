@@ -61,8 +61,13 @@ public class DynamicAddressConfigurator implements IAddressConfigurator<ICommuni
 		introduction.setDeviceId(thing.getDeviceId());
 		introduction.setAddress(communicator.getAddress().getAddress());
 		introduction.setFrequencyBand(communicator.getAddress().getFrequencyBand());
-		communicator.send(LoraAddress.DEFAULT_DYNAMIC_ADDRESS_CONFIGURATOR_NEGOTIATION_LORAADDRESS,
-				obmFactory.toBinary(introduction));
+		try {
+			communicator.send(LoraAddress.DEFAULT_DYNAMIC_ADDRESS_CONFIGURATOR_NEGOTIATION_LORAADDRESS,
+					obmFactory.toBinary(introduction));
+		} catch (CommunicationException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 	
 	public void stop() {
@@ -106,6 +111,9 @@ public class DynamicAddressConfigurator implements IAddressConfigurator<ICommuni
 			}
 		} catch (ClassCastException e) {
 			// ignore
+		} catch (CommunicationException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 	}
 	
