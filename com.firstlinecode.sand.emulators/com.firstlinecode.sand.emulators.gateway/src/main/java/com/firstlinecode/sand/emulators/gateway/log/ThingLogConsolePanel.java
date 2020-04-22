@@ -11,9 +11,11 @@ import com.firstlinecode.sand.protocols.lora.LoraAddress;
 
 public class ThingLogConsolePanel extends AbstractLogConsolePanel implements ICommunicationListener<LoraAddress, LoraAddress, byte[]> {
 	private static final long serialVersionUID = 506009089461387655L;
+	private IThingEmulator thing;
 
 	@SuppressWarnings("unchecked")
 	public ThingLogConsolePanel(IThingEmulator thing) {
+		this.thing = thing;
 		((ICommunicator<LoraAddress, LoraAddress, byte[]>)thing.getCommunicator()).addCommunicationListener(this);
 	}
 
@@ -25,12 +27,12 @@ public class ThingLogConsolePanel extends AbstractLogConsolePanel implements ICo
 
 	@Override
 	public void sent(LoraAddress to, byte[] data) {
-		log(String.format("-->%s: %s", to, ThingsUtils.getHexString(data)));
+		log(String.format("%s-->%s: %s", thing.getDeviceId(), to, ThingsUtils.getHexString(data)));
 	}
 
 	@Override
 	public void received(LoraAddress from, byte[] data) {
-		
+		log(String.format("%s<--%s: %s", thing.getDeviceId(), from, ThingsUtils.getHexString(data)));
 	}
 
 	@Override

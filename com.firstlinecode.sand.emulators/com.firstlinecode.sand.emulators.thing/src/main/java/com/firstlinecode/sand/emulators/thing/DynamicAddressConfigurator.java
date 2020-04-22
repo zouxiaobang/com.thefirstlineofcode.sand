@@ -127,6 +127,7 @@ public class DynamicAddressConfigurator implements IAddressConfigurator<ICommuni
 				LoraData data = communicator.receive();
 				
 				if (data != null) {
+					communicator.received(data.getAddress(), data.getData());
 					if (state != State.ALLOCATED) {						
 						negotiate(data.getAddress(), data.getData());
 					} else {
