@@ -8,9 +8,13 @@ import com.firstlinecode.sand.client.things.commuication.ICommunicationListener;
 import com.firstlinecode.sand.protocols.lora.DualLoraAddress;
 import com.firstlinecode.sand.protocols.lora.LoraAddress;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class DualLoraChipsCommunicator implements IDualLoraChipsCommunicator {
 	private ILoraChip masterChip;
 	private ILoraChip slaveChip;
+	private List<ICommunicationListener<DualLoraAddress, LoraAddress, byte[]>> listeners;
 	
 	private DualLoraChipsCommunicator(ILoraNetwork network, LoraAddress masterChipAddress,
 			LoraAddress slaveChipAddress, LoraChipCreationParams params) {
@@ -18,6 +22,7 @@ public class DualLoraChipsCommunicator implements IDualLoraChipsCommunicator {
 	}
 	
 	private DualLoraChipsCommunicator(ILoraChip masterChip, ILoraChip slaveChip) {
+		this.listeners = new ArrayList<>();
 		this.masterChip = masterChip;
 		this.slaveChip = slaveChip;
 	}
@@ -47,7 +52,17 @@ public class DualLoraChipsCommunicator implements IDualLoraChipsCommunicator {
 	
 	@Override
 	public void send(LoraAddress to, byte[] data) throws CommunicationException {
-		masterChip.send(to, data);
+		try {
+			masterChip.send(to, data);
+		} catch (CommunicationException e) {
+			for (ICommunicationListener<DualLoraAddress, LoraAddress, byte[]> listener : listeners) {
+				listener.occurred(e);
+			}
+			throw e;
+		}
+		for (ICommunicationListener<DualLoraAddress, LoraAddress, byte[]> listener : listeners) {
+			listener.sent(to, data);
+		}
 	}
 	
 	public LoraAddress getMasterAddress() {
@@ -68,13 +83,32 @@ public class DualLoraChipsCommunicator implements IDualLoraChipsCommunicator {
 	
 	@Override
 	public LoraData receive() {
-		return (LoraData)slaveChip.receive();
+		LoraData data = (LoraData) slaveChip.receive();
+		if (data != null) {
+			for (ICommunicationListener<DualLoraAddress, LoraAddress, byte[]> listener : listeners) {
+				listener.received(data.getAddress(), data.getData());
+			}
+		}
+
+		return data;
 	}
 
 	@Override
 	public void changeAddress(DualLoraAddress address) throws CommunicationException {
-		masterChip.changeAddress(address.getMasterChipAddress());
-		slaveChip.changeAddress(address.getSlaveChipAddress());
+		DualLoraAddress oldAddress = this.getAddress();
+		try {
+			masterChip.changeAddress(address.getMasterChipAddress());
+			slaveChip.changeAddress(address.getSlaveChipAddress());
+		} catch (CommunicationException e) {
+			for (ICommunicationListener<DualLoraAddress, LoraAddress, byte[]> listener : listeners) {
+				listener.occurred(e);
+			}
+			throw e;
+		}
+
+		for (ICommunicationListener<DualLoraAddress, LoraAddress, byte[]> listener : listeners) {
+			listener.addressChanged(address, oldAddress);
+		}
 	}
 	
 	@Override
@@ -91,14 +125,12 @@ public class DualLoraChipsCommunicator implements IDualLoraChipsCommunicator {
 
 	@Override
 	public void addCommunicationListener(ICommunicationListener<DualLoraAddress, LoraAddress, byte[]> listener) {
-		// TODO Auto-generated method stub
-		
+		listeners.add(listener);
 	}
 
 	@Override
 	public void removeCommunicationListener(ICommunicationListener<DualLoraAddress, LoraAddress, byte[]> listener) {
-		// TODO Auto-generated method stub
-		
+		listeners.remove(listener);
 	}
 	
 }

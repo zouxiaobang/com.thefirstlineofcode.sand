@@ -14,13 +14,10 @@ public class GatewayLogConsolePanel extends AbstractLogConsolePanel {
 	
 	private IDualLoraChipsCommunicator communicator;
 	private ICommunicationListener<DualLoraAddress, LoraAddress, byte[]> communicationListener;
-	
-	public GatewayLogConsolePanel() {
-		communicationListener = new DualLoraChipCommunicationListener();
-	}
 
 	public GatewayLogConsolePanel(IDualLoraChipsCommunicator communicator) {
 		this.communicator = communicator;
+		communicationListener = new DualLoraChipCommunicationListener();
 		communicator.addCommunicationListener(communicationListener);
 	}
 
@@ -47,8 +44,8 @@ public class GatewayLogConsolePanel extends AbstractLogConsolePanel {
 
 		@Override
 		public void addressChanged(DualLoraAddress newAddress, DualLoraAddress oldAddress) {
-			log(String.format("G.M(%s)<=N, G.M(%s)=>N", "M" , oldAddress.getMasterChipAddress(), newAddress.getMasterChipAddress()));
-			log(String.format("G.%s(%s)<=N, G.%s(%s)=>N", "S", oldAddress.getSlaveChipAddress(), newAddress.getSlaveChipAddress()));
+			log(String.format("G.M(%s)<=N, G.M(%s)=>N", oldAddress.getMasterChipAddress(), newAddress.getMasterChipAddress()));
+			log(String.format("G.S(%s)<=N, G.S(%s)=>N", oldAddress.getSlaveChipAddress(), newAddress.getSlaveChipAddress()));
 		}
 		
 	}
