@@ -19,6 +19,10 @@
 	<dependencies>
 		<dependency>
 			<groupId>com.firstlinecode.sand.protocols.emulators</groupId>
+			<artifactId>com.firstlinecode.sand.protocols.emulators.gateway</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.firstlinecode.sand.protocols.emulators</groupId>
 			<artifactId>com.firstlinecode.sand.protocols.emulators.light</artifactId>
 		</dependency>
 	</dependencies>

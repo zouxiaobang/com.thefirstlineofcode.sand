@@ -10,7 +10,7 @@
         DELETE FROM DEVICE WHERE device_Name=#{0}
     </update>
     
-	<select id="selectByDeviceId" resultMap="deviceResultMap">
+	<select id="selectByDeviceId" resultType="com.firstlinecode.sand.server.lite.device.D_Device">
 		SELECT * FROM DEVICE WHERE device_id=#{0}
     </select>
     

@@ -10,17 +10,11 @@
 		SELECT COUNT(*) FROM CONCENTRATION WHERE concentrator = #{0} AND node = #{1}
 	</select>
 	
-	<select id="selectByConcentratorAndNode" resultMap="concentrationResultMap">
+	<select id="selectByConcentratorAndNode" resultType="com.firstlinecode.sand.server.lite.concentrator.Concentration">
 		SELECT * FROM CONCENTRATION WHERE concentrator = #{0} AND node = #{1}
 	</select>
 	
-	<resultMap id="concentrationResultMap" type="Concentration">
-		<result property="id" column="id"/>
-		<result property="concentrator" column="concentrator"/>
-		<result property="node" column="node"/>
-		<result property="lanId" column="lan_id"/>
-		<result property="communcationNet" column="communcation_net"/>
-		<result property="address" column="address"/>
-		<result property="comfirmationTime" column="comfirmation_time"/>
-	</resultMap>
+	<select id="selectByLanId" resultType="com.firstlinecode.sand.server.concentrator.Node">
+		SELECT node AS device_id, lan_id, communication_net, address FROM CONCENTRATION WHERE concentrator = #{0} AND lan_id = #{1}
+	</select>
 </mapper>

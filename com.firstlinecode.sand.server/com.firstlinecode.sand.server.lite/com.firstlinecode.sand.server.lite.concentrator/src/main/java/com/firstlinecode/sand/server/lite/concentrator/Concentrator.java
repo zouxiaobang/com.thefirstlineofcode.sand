@@ -31,6 +31,11 @@ public class Concentrator implements IConcentrator, IDataObjectFactoryAware {
 		this.deviceId = deviceId;
 		this.sqlSession = sqlSession;
 	}
+	
+	@Override
+	public Node getNode(String lanId) {
+		return getConcentrationMapper().selectByLanId(deviceId, lanId);
+	}
 
 	@Override
 	public Node[] getNodes() {

@@ -8,6 +8,7 @@ import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
 
 import com.firstlinecode.sand.emulators.modes.Ge01ModeDescriptor;
+import com.firstlinecode.sand.emulators.modes.Le01ModeDescriptor;
 import com.firstlinecode.sand.protocols.core.ModeDescriptor;
 import com.firstlinecode.sand.server.device.IDeviceModesProvider;
 
@@ -30,6 +31,9 @@ public class Activator implements BundleActivator {
 		public DeviceModesProvider() {
 			Ge01ModeDescriptor ge01 = new Ge01ModeDescriptor();
 			modes.put(ge01.getName(), ge01);
+			
+			Le01ModeDescriptor le01 = new Le01ModeDescriptor();
+			modes.put(le01.getName(), le01);
 		}
 		
 		@Override

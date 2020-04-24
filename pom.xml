@@ -441,9 +441,16 @@
 			
 			<dependency>
 				<groupId>com.firstlinecode.sand.protocols.emulators</groupId>
+				<artifactId>com.firstlinecode.sand.protocols.emulators.gateway</artifactId>
+				<version>${sand.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>com.firstlinecode.sand.protocols.emulators</groupId>
 				<artifactId>com.firstlinecode.sand.protocols.emulators.light</artifactId>
 				<version>${sand.version}</version>
 			</dependency>
+				
 			<dependency>
 				<groupId>com.firstlinecode.sand.client</groupId>
 				<artifactId>com.firstlinecode.sand.client.things</artifactId>
