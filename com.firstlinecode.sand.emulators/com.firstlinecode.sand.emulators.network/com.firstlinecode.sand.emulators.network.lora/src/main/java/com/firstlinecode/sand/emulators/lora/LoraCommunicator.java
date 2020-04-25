@@ -29,6 +29,10 @@ public class LoraCommunicator extends AbstractCommunicator<LoraAddress, LoraAddr
 	}
 	
 	public LoraData receive() {
-		return (LoraData)chip.receive();
+		LoraData data = (LoraData) chip.receive();
+		if (data != null) {
+			received(data.getAddress(), data.getData());
+		}
+		return data;
 	}
 }

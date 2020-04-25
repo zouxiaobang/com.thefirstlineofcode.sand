@@ -85,9 +85,7 @@ public class DualLoraChipsCommunicator implements IDualLoraChipsCommunicator {
 	public LoraData receive() {
 		LoraData data = (LoraData) slaveChip.receive();
 		if (data != null) {
-			for (ICommunicationListener<DualLoraAddress, LoraAddress, byte[]> listener : listeners) {
-				listener.received(data.getAddress(), data.getData());
-			}
+			received(data.getAddress(), data.getData());
 		}
 
 		return data;
@@ -119,8 +117,9 @@ public class DualLoraChipsCommunicator implements IDualLoraChipsCommunicator {
 
 	@Override
 	public void received(LoraAddress from, byte[] data) {
-		// TODO Auto-generated method stub
-		
+		for (ICommunicationListener<DualLoraAddress, LoraAddress, byte[]> listener : listeners) {
+			listener.received(from, data);
+		}
 	}
 
 	@Override
