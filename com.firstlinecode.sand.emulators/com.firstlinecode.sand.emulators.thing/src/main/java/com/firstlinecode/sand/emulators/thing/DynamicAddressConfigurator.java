@@ -124,17 +124,8 @@ public class DynamicAddressConfigurator implements IAddressConfigurator<ICommuni
 		public void run() {
 			stop = false;
 			while (!stop && state != State.ALLOCATED) {
-				LoraData data = communicator.receive();
-				
-				if (data != null) {
-					communicator.received(data.getAddress(), data.getData());
-					if (state != State.ALLOCATED) {						
-						negotiate(data.getAddress(), data.getData());
-					} else {
-						confirm();
-					}
-				}
-				
+				communicator.receive();
+
 				try {
 					Thread.sleep(DEFAULT_ADDRESS_CONFIGURATION_DATA_RETRIVE_INTERVAL);
 				} catch (InterruptedException e) {
@@ -154,7 +145,11 @@ public class DynamicAddressConfigurator implements IAddressConfigurator<ICommuni
 
 	@Override
 	public void received(LoraAddress from, byte[] data) {
-		negotiate(from, data);
+		if (state != State.ALLOCATED) {
+			negotiate(from, data);
+		} else {
+			confirm();
+		}
 	}
 
 	@Override

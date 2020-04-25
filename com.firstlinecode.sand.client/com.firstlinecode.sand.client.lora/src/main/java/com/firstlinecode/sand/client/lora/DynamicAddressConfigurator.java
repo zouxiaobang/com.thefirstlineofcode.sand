@@ -1,5 +1,6 @@
 package com.firstlinecode.sand.client.lora;
 
+import com.firstlinecode.sand.client.things.commuication.ICommunicationListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,12 +23,12 @@ import com.firstlinecode.sand.protocols.lora.dac.Allocation;
 import com.firstlinecode.sand.protocols.lora.dac.Introduction;
 
 public class DynamicAddressConfigurator implements IAddressConfigurator<IDualLoraChipsCommunicator,
-			LoraAddress, byte[]>, IConcentrator.Listener {
+			LoraAddress, byte[]>, IConcentrator.Listener, ICommunicationListener<DualLoraAddress, LoraAddress, byte[]> {
 	private static final Logger logger = LoggerFactory.getLogger(DynamicAddressConfigurator.class);
 	
 	private static final DualLoraAddress ADDRESS_CONFIGURATION_MODE_DUAL_LORA_ADDRESS = new DualLoraAddress(
 			LoraAddress.MAX_TWO_BYTES_ADDRESS, DualLoraAddress.MAX_CHANNEL);
-	
+
 	public enum State {
 		WORKING,
 		WAITING,
@@ -49,6 +50,7 @@ public class DynamicAddressConfigurator implements IAddressConfigurator<IDualLor
 		this.communicator = communicator;
 		this.concentrator =  concentrator;
 		concentrator.addListener(this);
+		communicator.addCommunicationListener(this);
 		
 		obmFactory = new ObmFactory();
 		workingAddress = communicator.getAddress();
@@ -116,11 +118,7 @@ public class DynamicAddressConfigurator implements IAddressConfigurator<IDualLor
 		@Override
 		public void run() {
 			while (state != State.WORKING) {
-				LoraData data = communicator.receive();
-				
-				if (data != null) {
-					negotiate(data.getAddress(), data.getData());
-				}
+				communicator.receive();
 				
 				try {
 					Thread.sleep(200);
@@ -245,6 +243,26 @@ public class DynamicAddressConfigurator implements IAddressConfigurator<IDualLor
 
 	@Override
 	public void occurred(LanError error, Node source) {
+		// NO-OP
+	}
+
+	@Override
+	public void sent(LoraAddress to, byte[] data) {
+		// NO-OP
+	}
+
+	@Override
+	public void received(LoraAddress from, byte[] data) {
+		negotiate(from, data);
+	}
+
+	@Override
+	public void occurred(CommunicationException e) {
+		// NO-OP
+	}
+
+	@Override
+	public void addressChanged(DualLoraAddress newAddress, DualLoraAddress oldAddress) {
 		// NO-OP
 	}
 
