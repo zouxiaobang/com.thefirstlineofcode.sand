@@ -10,8 +10,16 @@
 		SELECT COUNT(*) FROM CONCENTRATION WHERE concentrator = #{0} AND node = #{1}
 	</select>
 	
+	<select id="selectCountByConcentratorAndLanId" resultType="int">
+		SELECT COUNT(*) FROM CONCENTRATION WHERE concentrator = #{0} AND lan_id = #{1}
+	</select>
+	
 	<select id="selectByConcentratorAndNode" resultType="com.firstlinecode.sand.server.lite.concentrator.Concentration">
 		SELECT * FROM CONCENTRATION WHERE concentrator = #{0} AND node = #{1}
+	</select>
+	
+	<select id="selectByConcentratorAndLanId" resultType="com.firstlinecode.sand.server.lite.concentrator.Concentration">
+		SELECT * FROM CONCENTRATION WHERE concentrator = #{0} AND lan_id = #{1}
 	</select>
 	
 	<select id="selectByLanId" resultType="com.firstlinecode.sand.server.concentrator.Node">

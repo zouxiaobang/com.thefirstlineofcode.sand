@@ -19,6 +19,10 @@
 	
 	<dependencies>
 		<dependency>
+			<groupId>com.firstlinecode.basalt</groupId>
+			<artifactId>com.firstlinecode.basalt.oxm</artifactId>
+		</dependency>
+		<dependency>
 			<groupId>com.firstlinecode.sand.protocols</groupId>
 			<artifactId>com.firstlinecode.sand.protocols.core</artifactId>
 		</dependency>

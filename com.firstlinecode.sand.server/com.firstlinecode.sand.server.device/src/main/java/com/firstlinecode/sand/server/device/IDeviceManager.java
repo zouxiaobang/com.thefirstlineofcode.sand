@@ -14,6 +14,7 @@ public interface IDeviceManager {
 	Device getByDeviceName(String deviceName);
 	boolean deviceIdExists(String deviceId);
 	boolean deviceNameExists(String deviceName);
+	String getDeviceNameByDeviceId(String deviceId);
 	void registerMode(String mode, ModeDescriptor modeDescriptor);
 	ModeDescriptor unregisterMode(String mode);
 	boolean isRegistered(String deviceId);

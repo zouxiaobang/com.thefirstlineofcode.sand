@@ -4,8 +4,10 @@
 
 Basalt-Parsers: protocol-chain=iq|null->execute|urn:leps:iot:actuator;\
  class=com.firstlinecode.sand.protocols.actuator.Execute;\
- type=naming-convention
+ type=custom;\
+ parser-factory=com.firstlinecode.sand.protocols.actuator.oxm.ExecutionParserFactory
  
 Basalt-Translators: class=com.firstlinecode.sand.protocols.actuator.Execute;\
- type=naming-convention
+ type=custom;\
+ translator-factory=com.firstlinecode.sand.protocols.actuator.oxm.ExecutionTranslatorFactory
  

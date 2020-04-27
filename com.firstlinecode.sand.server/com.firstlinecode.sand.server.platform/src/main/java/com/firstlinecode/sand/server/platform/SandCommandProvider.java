@@ -211,7 +211,7 @@ public class SandCommandProvider implements CommandProvider, IEventProducerAware
 			return;
 		
 		Object actionObject = createActionObject(interpreter, device.getMode(), actionName, params);
-		eventProducer.fire(new ExecutionEvent(device.getDeviceId(), new Execute(actionName, actionObject)));
+		eventProducer.fire(new ExecutionEvent(device, null, new Execute(actionName, actionObject)));
 	}
 	
 	private void executeOnNode(CommandInterpreter interpreter, Device concentratorDevice, String lanId, String actionName, Map<String, String> params) {
@@ -223,7 +223,7 @@ public class SandCommandProvider implements CommandProvider, IEventProducerAware
 			return;
 		
 		Object actionObject = createActionObject(interpreter, nodeDevice.getMode(), actionName, params);
-		eventProducer.fire(new ExecutionEvent(concentratorDevice.getDeviceId() + '/' + lanId, new Execute(actionName, actionObject)));
+		eventProducer.fire(new ExecutionEvent(concentratorDevice, lanId, new Execute(actionName, actionObject)));
 	}
 	
 	private Device getNodeDevice(CommandInterpreter interpreter, Device concentratorDevice, String lanId) {

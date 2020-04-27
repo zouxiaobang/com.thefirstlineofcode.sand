@@ -1,8 +1,9 @@
 package com.firstlinecode.sand.protocols.emulators.light;
 
-import com.firstlinecode.sand.protocols.core.IAction;
+import com.firstlinecode.basalt.oxm.convention.annotations.ProtocolObject;
 
-public class Flash implements IAction {
+@ProtocolObject(namespace="urn:leps:iot:actuator:light", localName="flash")
+public class Flash {
 	private int repeat;
 	
 	public Flash() {

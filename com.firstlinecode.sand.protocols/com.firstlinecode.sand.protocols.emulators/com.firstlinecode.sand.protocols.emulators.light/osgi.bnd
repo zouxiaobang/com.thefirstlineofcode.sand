@@ -2,4 +2,9 @@
 # Use this file to add customized Bnd instructions for the bundle
 #-----------------------------------------------------------------
 
+ Basalt-Parsers: protocol-chain=iq|null->execute|urn:leps:iot:actuator->flash|urn:leps:iot:actuator:light;\
+ class=com.firstlinecode.sand.protocols.emulators.light.Flash;\
+ type=naming-convention
  
+Basalt-Translators: class=com.firstlinecode.sand.protocols.emulators.light.Flash;\
+ type=naming-convention

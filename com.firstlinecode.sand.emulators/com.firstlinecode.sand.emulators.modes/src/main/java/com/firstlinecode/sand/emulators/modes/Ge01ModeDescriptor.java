@@ -3,7 +3,6 @@ package com.firstlinecode.sand.emulators.modes;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.firstlinecode.sand.protocols.core.IAction;
 import com.firstlinecode.sand.protocols.core.ModeDescriptor;
 import com.firstlinecode.sand.protocols.emulators.gateway.Restart;
 
@@ -15,8 +14,8 @@ public class Ge01ModeDescriptor extends ModeDescriptor {
 		super(MODE_NAME, true, createSupportedActions(), null);
 	}
 
-	private static Map<String, Class<? extends IAction>> createSupportedActions() {
-		Map<String, Class<? extends IAction>> supportedActions = new HashMap<>();
+	private static Map<String, Class<?>> createSupportedActions() {
+		Map<String, Class<?>> supportedActions = new HashMap<>();
 		supportedActions.put(ACTION_NAME_RESTART, Restart.class);
 		
 		return supportedActions;

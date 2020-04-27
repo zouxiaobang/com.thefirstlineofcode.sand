@@ -286,4 +286,13 @@ public class DeviceManager implements IDeviceManager {
 		
 		return modeDescriptor.getSupportedEvents().get(eventName);
 	}
+
+	@Override
+	public String getDeviceNameByDeviceId(String deviceId) {
+		DeviceIdentity deviceIdentity = getDeviceIdentityMapper().selectByDeviceId(deviceId);
+		if (deviceIdentity != null)
+			return deviceIdentity.getDeviceName();
+		
+		return null;
+	}
 }

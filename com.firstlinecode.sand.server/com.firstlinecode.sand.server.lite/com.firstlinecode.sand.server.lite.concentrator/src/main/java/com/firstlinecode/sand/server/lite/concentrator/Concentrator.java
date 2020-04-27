@@ -133,8 +133,7 @@ public class Concentrator implements IConcentrator, IDataObjectFactoryAware {
 
 	@Override
 	public boolean containsLanId(String lanId) {
-		// TODO Auto-generated method stub
-		return false;
+		return getConcentrationMapper().selectCountByConcentratorAndLanId(deviceId, lanId) != 0;
 	}
 	
 }

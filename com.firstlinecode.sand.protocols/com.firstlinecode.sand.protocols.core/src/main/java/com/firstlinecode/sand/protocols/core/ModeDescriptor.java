@@ -8,8 +8,8 @@ public class ModeDescriptor {
 	private boolean concentrator;
 	private boolean sensor;
 	
-	private Map<String, Class<? extends IAction>> supportedActions;
-	private Map<String, Class<? extends IEvent>> supportedEvents;
+	private Map<String, Class<?>> supportedActions;
+	private Map<String, Class<?>> supportedEvents;
 	
 	public ModeDescriptor(String name) {
 		this(name, false);
@@ -19,11 +19,11 @@ public class ModeDescriptor {
 		this(name, concentrator, null, null);
 	}
 	
-	public ModeDescriptor(String name, Map<String, Class<? extends IAction>> suppportedActions, Map<String, Class<? extends IEvent>> supportedEvents) {
+	public ModeDescriptor(String name, Map<String, Class<?>> suppportedActions, Map<String, Class<?>> supportedEvents) {
 		this(name, false, suppportedActions, supportedEvents);
 	}
 	
-	public ModeDescriptor(String name, boolean concentrator, Map<String, Class<? extends IAction>> suppportedActions, Map<String, Class<? extends IEvent>> supportedEvents) {
+	public ModeDescriptor(String name, boolean concentrator, Map<String, Class<?>> suppportedActions, Map<String, Class<?>> supportedEvents) {
 		this.name = name;
 		this.concentrator = concentrator;
 		this.supportedActions = suppportedActions;
@@ -54,11 +54,11 @@ public class ModeDescriptor {
 		return sensor;
 	}
 	
-	public Map<String, Class<? extends IAction>> getSupportedActions() {
+	public Map<String, Class<?>> getSupportedActions() {
 		return supportedActions;
 	}
 	
-	public Map<String, Class<? extends IEvent>> getSupportedEvents() {
+	public Map<String, Class<?>> getSupportedEvents() {
 		return supportedEvents;
 	}
 }

@@ -13,8 +13,12 @@
 	    <result property="credentials" column="credentials"/>
 	</resultMap>
     
-	<select id="selectByDeviceName" resultMap="deviceIdentityResultMap">
+	<select id="selectByDeviceName" resultType="com.firstlinecode.sand.server.lite.device.D_DeviceIdentity">
 		SELECT * FROM DEVICE_IDENTITY WHERE device_name = #{0}
+    </select>
+    
+	<select id="selectByDeviceId" resultType="com.firstlinecode.sand.server.lite.device.D_DeviceIdentity">
+		SELECT * FROM DEVICE_IDENTITY WHERE device_id = #{0}
     </select>
     
 	<select id="selectCountByDeviceName" resultType="int">

@@ -14,7 +14,7 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<basalt.version>1.1.0.RELEASE</basalt.version>
 		<chalk.version>0.2.0.RELEASE</chalk.version>
-		<granite.framework.version>0.2.1.RELEASE</granite.framework.version>
+		<granite.version>0.2.1.RELEASE</granite.version>
 		<sand.version>0.1.0.RELEASE</sand.version>
 		<gem.version>0.2.0.RELEASE</gem.version>
 	</properties>
@@ -333,7 +333,7 @@
 				<version>3.12.0</version>
 			</dependency>
 			
-			<!-- basalt xmpp libraries -->
+			<!-- basalt libraries -->
 			<dependency>
 				<groupId>com.firstlinecode.basalt</groupId>
 				<artifactId>com.firstlinecode.basalt.protocol</artifactId>
@@ -345,36 +345,42 @@
 				<version>${basalt.version}</version>
 			</dependency>
 			
-			<!-- chalk xmpp libraries -->
+			<!-- chalk libraries -->
 			<dependency>
 				<groupId>com.firstlinecode.chalk</groupId>
 				<artifactId>com.firstlinecode.chalk</artifactId>
 				<version>${chalk.version}</version>
 			</dependency>
 
-			<!-- granite framework libraries -->
+			<!-- granite libraries -->
 			<dependency>
         			<groupId>com.firstlinecode.granite.framework</groupId>
         			<artifactId>com.firstlinecode.granite.framework.core</artifactId>
-        			<version>${granite.framework.version}</version>
+        			<version>${granite.version}</version>
+			</dependency>
+
+			<dependency>
+        			<groupId>com.firstlinecode.granite.framework</groupId>
+        			<artifactId>com.firstlinecode.granite.framework.im</artifactId>
+        			<version>${granite.version}</version>
 			</dependency>
 
 			<dependency>
         			<groupId>com.firstlinecode.granite.stream</groupId>
         			<artifactId>com.firstlinecode.granite.stream.standard</artifactId>
-        			<version>${granite.framework.version}</version>
+        			<version>${granite.version}</version>
 			</dependency>
 
 			<dependency>
 				<groupId>com.firstlinecode.granite.framework.supports</groupId>
         			<artifactId>com.firstlinecode.granite.framework.supports.mybatis</artifactId>
-        			<version>${granite.framework.version}</version>
+        			<version>${granite.version}</version>
 			</dependency>
 
 			<dependency>
 				<groupId>com.firstlinecode.granite.framework</groupId>
         			<artifactId>com.firstlinecode.granite.framework.processing</artifactId>
-        			<version>${granite.framework.version}</version>
+        			<version>${granite.version}</version>
 			</dependency>
 
 			<!-- gem libraries -->
@@ -384,7 +390,7 @@
         			<version>${gem.version}</version>
 			</dependency>
 
-			<!-- sand xmpp libraries -->
+			<!-- sand libraries -->
 			<dependency>
 				<groupId>com.firstlinecode.sand.emulators.network</groupId>
 				<artifactId>com.firstlinecode.sand.emulators.network.lora</artifactId>
