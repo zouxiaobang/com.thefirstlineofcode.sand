@@ -30,7 +30,6 @@ public class ExecutionListener implements IEventListener<ExecutionEvent>, IAppli
 	
 	@Override
 	public void process(IEventContext context, ExecutionEvent event) {
-		// TODO Auto-generated method stub
 		Device actuator = event.getDevice();
 		if (event.getNodeLanId() != null) {
 			IConcentrator concentrator = concentratorFactory.getConcentrator(event.getDevice());

@@ -2,6 +2,7 @@
 # Use this file to add customized Bnd instructions for the bundle
 #-----------------------------------------------------------------
 
+Eclipse-BuddyPolicy: registered
 Export-Package: com.firstlinecode.sand.server.actuator.*
 Granite-Xep-Processors: xep=iq->execute|urn:leps:iot:actuator;\
  class=com.firstlinecode.sand.server.actuator.ExecutionProcessor
