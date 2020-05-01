@@ -20,7 +20,9 @@
 		<module>com.firstlinecode.sand.client.things</module>
 		<module>com.firstlinecode.sand.client.ibdr</module>
 		<module>com.firstlinecode.sand.client.lora</module>
+		<module>com.firstlinecode.sand.client.dmr</module>
 		<module>com.firstlinecode.sand.client.concentrator</module>
+		<module>com.firstlinecode.sand.client.actuator</module>
 	</modules>
 
 </project>

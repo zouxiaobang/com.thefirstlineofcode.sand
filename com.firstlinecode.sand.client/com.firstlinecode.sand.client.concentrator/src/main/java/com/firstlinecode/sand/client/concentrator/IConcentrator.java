@@ -8,10 +8,14 @@ import com.firstlinecode.sand.protocols.concentrator.NodeAddress;
 public interface IConcentrator {
 	enum LanError {
 		SIZE_OVERFLOW,
-		DEREPULICATED_DEVICE_ID,
-		DEREPULICATED_DEVICE_ADDRESS
+		REDUPLICATE_DEVICE_ID,
+		REDUPLICATE_DEVICE_ADDRESS,
+		BAD_RESPONSE,
+		CONFIRMED_NODE_NOT_FOUND,
+		SERVER_ASSIGNED_A_EXISTED_LAN_ID
 	}
-	void init(Map<String, Node> nodes);
+	
+	void init(String deviceId, Map<String, Node> nodes);
 	String getBestSuitedNewLanId();
 	void addNode(String deviceId, NodeAddress<?> address);
 	void removeNode(String lanId);

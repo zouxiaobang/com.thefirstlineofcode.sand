@@ -12,6 +12,8 @@ import com.firstlinecode.basalt.protocol.core.stanza.error.NotAcceptable;
 import com.firstlinecode.granite.framework.core.annotations.Dependency;
 import com.firstlinecode.granite.framework.core.supports.data.IDataObjectFactory;
 import com.firstlinecode.granite.framework.core.supports.data.IDataObjectFactoryAware;
+import com.firstlinecode.sand.protocols.concentrator.NodeCreated;
+import com.firstlinecode.sand.server.concentrator.Confirmed;
 import com.firstlinecode.sand.server.concentrator.IConcentrator;
 import com.firstlinecode.sand.server.concentrator.Node;
 import com.firstlinecode.sand.server.concentrator.NodeConfirmation;
@@ -44,16 +46,21 @@ public class Concentrator implements IConcentrator, IDataObjectFactoryAware {
 	}
 
 	@Override
-	public void confirm(String confirmer, String nodeDeviceId) {
+	public Confirmed confirm(String confirmer, String nodeDeviceId) {
 		if (!deviceManager.isValid(nodeDeviceId))
 			throw new RuntimeException(String.format("Invalid node device ID '%s'.", nodeDeviceId));
 		
 		if (containsNode(nodeDeviceId))
 			throw new ProtocolException(new Conflict(String.format("Duplicated node which's ID is '%s'.", nodeDeviceId)));
 		
-		D_NodeConfirmation confirmation = getNodeConfirmationRequest(deviceId, nodeDeviceId);
+		D_NodeConfirmation confirmation = getNodeConfirmation(deviceId, nodeDeviceId);
 		if (confirmation == null) {
-			throw new ProtocolException(new NotAcceptable());
+			throw new ProtocolException(new NotAcceptable("No node confirmation found."));
+		}
+		
+		String mode = deviceManager.getMode(nodeDeviceId);
+		if (mode == null) {
+			throw new ProtocolException(new NotAcceptable(String.format("Unsupported mode '%s'", mode)));
 		}
 		
 		Device device = dataObjectFactory.create(Device.class);
@@ -73,9 +80,12 @@ public class Concentrator implements IConcentrator, IDataObjectFactoryAware {
 		getConcentrationMapper().insert(concentration);
 		
 		getNodeComfirmationMapper().updateConfirmed(confirmation.getId(), confirmer, concentration.getConfirmationTime());
+		
+		return new Confirmed(confirmation.getRequestId(), new NodeCreated(deviceId, nodeDeviceId,
+				confirmation.getNode().getLanId(), mode));
 	}
 	
-	private D_NodeConfirmation getNodeConfirmationRequest(String concentrator, String node) {
+	private D_NodeConfirmation getNodeConfirmation(String concentrator, String node) {
 		NodeConfirmation[] confirmations = getNodeComfirmationMapper().selectByConcentratorAndNode(concentrator, node);
 		if (confirmations == null || confirmations.length == 0)
 			return null;

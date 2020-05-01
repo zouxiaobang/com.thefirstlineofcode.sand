@@ -477,6 +477,12 @@
 
 			<dependency>
 				<groupId>com.firstlinecode.sand.client</groupId>
+				<artifactId>com.firstlinecode.sand.client.dmr</artifactId>
+				<version>${sand.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>com.firstlinecode.sand.client</groupId>
 				<artifactId>com.firstlinecode.sand.client.concentrator</artifactId>
 				<version>${sand.version}</version>
 			</dependency>

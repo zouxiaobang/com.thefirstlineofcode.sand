@@ -1,6 +1,5 @@
 package com.firstlinecode.sand.client.lora;
 
-import com.firstlinecode.sand.client.things.commuication.ICommunicationListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -12,6 +11,7 @@ import com.firstlinecode.sand.client.concentrator.IConcentrator.LanError;
 import com.firstlinecode.sand.client.concentrator.Node;
 import com.firstlinecode.sand.client.things.commuication.CommunicationException;
 import com.firstlinecode.sand.client.things.commuication.IAddressConfigurator;
+import com.firstlinecode.sand.client.things.commuication.ICommunicationListener;
 import com.firstlinecode.sand.client.things.obm.IObmFactory;
 import com.firstlinecode.sand.client.things.obm.ObmFactory;
 import com.firstlinecode.sand.protocols.concentrator.NodeAddress;
@@ -179,6 +179,10 @@ public class DynamicAddressConfigurator implements IAddressConfigurator<IDualLor
 			if (state == State.ALLOCATING) {
 				Allocated allocated = (Allocated)obmFactory.toObject(Allocated.class, data);
 				
+				if (logger.isDebugEnabled()) {
+					logger.debug(String.format("Node which's device ID is '%s' has allocated:", allocated.getDeviceId()));
+				}
+				
 				if (!nodeDeviceId.equals(allocated.getDeviceId())) {
 					processParallelAddressConfigurationRequest(peerAddress);
 				}
@@ -215,6 +219,10 @@ public class DynamicAddressConfigurator implements IAddressConfigurator<IDualLor
 	public void confirm() {
 		concentrator.addNode(nodeDeviceId, new NodeAddress<LoraAddress>(CommunicationNet.LORA,
 				nodeAddress.toString()));
+		
+		if (logger.isDebugEnabled()) {
+			logger.debug(String.format("Confirmation request for Node which's deviceID is '%s' has sent", nodeDeviceId));
+		}
 	}
 	
 	public State getState() {
@@ -223,7 +231,7 @@ public class DynamicAddressConfigurator implements IAddressConfigurator<IDualLor
 
 	@Override
 	public void nodeAdded(String lanId, Node node) {
-		// An address has been configured. Reset the states..
+		// An address has been configured. Reset the states.
 		state = State.WAITING;
 		nodeDeviceId = null;
 		nodeAddress = null;

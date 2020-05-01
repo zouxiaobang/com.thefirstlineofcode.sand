@@ -29,6 +29,7 @@ import com.firstlinecode.sand.emulators.thing.PowerEvent;
 public class Light extends AbstractThingEmulator implements ILight {
 	public static final String THING_NAME = "Light Emulator";
 	public static final String THING_MODE = "LE01";
+	public static final String SOFTWARE_VERSION = "0.1.0.RELEASE";
 	
 	private static final SwitchState DEFAULT_SWITCH_STATE = SwitchState.OFF;
 	private static final LightState DEFAULT_LIGHT_STATE = LightState.OFF;
@@ -67,7 +68,7 @@ public class Light extends AbstractThingEmulator implements ILight {
 	
 	@Override
 	public String getSoftwareVersion() {
-		return "0.1.0.RELEASE";
+		return SOFTWARE_VERSION;
 	}
 
 	private class LightEmulatorPanel extends AbstractThingEmulatorPanel implements ActionListener {

@@ -231,10 +231,15 @@ public class DeviceManager implements IDeviceManager {
 
 	@Override
 	public String getMode(String deviceId) {
+		String mode = null;
 		if (deviceIdRuler != null)
-			return deviceIdRuler.guessMode(deviceId);
+			mode = deviceIdRuler.guessMode(deviceId);
 		
-		return deviceId.substring(0, 4);
+		mode = deviceId.substring(0, 4);
+		if (getModeDescriptor(mode) != null)
+			return mode;
+		
+		return null;
 	}
 
 	@Override

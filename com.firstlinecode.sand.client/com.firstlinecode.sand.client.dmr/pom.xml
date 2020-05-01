@@ -13,18 +13,14 @@
 	</parent>
 
 	<groupId>com.firstlinecode.sand.client</groupId>
-	<artifactId>com.firstlinecode.sand.client.actuator</artifactId>
-	<name>com.firstlinecode.sand.client.actuator</name>
+	<artifactId>com.firstlinecode.sand.client.dmr</artifactId>
+	<name>com.firstlinecode.sand.client.</name>
 	<packaging>jar</packaging>
 	
 	<dependencies>
 		<dependency>
 			<groupId>com.firstlinecode.sand.protocols</groupId>
-			<artifactId>com.firstlinecode.sand.protocols.actuator</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>com.firstlinecode.sand.client</groupId>
-			<artifactId>com.firstlinecode.sand.client.dmr</artifactId>
+			<artifactId>com.firstlinecode.sand.protocols.core</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>com.firstlinecode.chalk</groupId>

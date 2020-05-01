@@ -34,7 +34,7 @@ public class ExecutionListener implements IEventListener<ExecutionEvent>, IAppli
 		if (event.getNodeLanId() != null) {
 			IConcentrator concentrator = concentratorFactory.getConcentrator(event.getDevice());
 			if (!concentrator.containsLanId(event.getNodeLanId())) {
-				throw new IllegalArgumentException(String.format("Concentrator '%s' doesn't contain a node which's lan ID is '%s'.",
+				throw new IllegalArgumentException(String.format("Concentrator '%s' doesn't contain a node which's LAN ID is '%s'.",
 						event.getDevice().getDeviceId(), event.getNodeLanId()));
 			}
 			

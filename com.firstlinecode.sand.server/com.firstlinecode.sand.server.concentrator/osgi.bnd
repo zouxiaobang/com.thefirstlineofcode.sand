@@ -5,3 +5,5 @@
 Export-Package: com.firstlinecode.sand.server.concentrator.*
 Granite-Xep-Processors: xep=iq->create-node|urn:leps:iot:concentrator;\
  class=com.firstlinecode.sand.server.concentrator.CreateNodeProcessor
+Granite-Event-Listeners: event=com.firstlinecode.sand.server.concentrator.ConfirmedEvent;\
+ event-listener=com.firstlinecode.sand.server.concentrator.ConfirmedListener

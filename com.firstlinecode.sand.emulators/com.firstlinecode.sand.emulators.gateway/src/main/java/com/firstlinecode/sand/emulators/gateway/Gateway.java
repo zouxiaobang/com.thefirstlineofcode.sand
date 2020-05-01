@@ -63,6 +63,7 @@ import com.firstlinecode.sand.client.concentrator.ConcentratorPlugin;
 import com.firstlinecode.sand.client.concentrator.IConcentrator;
 import com.firstlinecode.sand.client.concentrator.IConcentrator.LanError;
 import com.firstlinecode.sand.client.concentrator.Node;
+import com.firstlinecode.sand.client.dmr.IModeRegistrar;
 import com.firstlinecode.sand.client.ibdr.IRegistration;
 import com.firstlinecode.sand.client.ibdr.IbdrPlugin;
 import com.firstlinecode.sand.client.ibdr.RegistrationException;
@@ -78,6 +79,8 @@ import com.firstlinecode.sand.emulators.gateway.xmpp.StreamConfigDialog;
 import com.firstlinecode.sand.emulators.gateway.xmpp.StreamConfigInfo;
 import com.firstlinecode.sand.emulators.lora.ILoraNetwork;
 import com.firstlinecode.sand.emulators.lora.LoraCommunicator;
+import com.firstlinecode.sand.emulators.modes.Ge01ModeDescriptor;
+import com.firstlinecode.sand.emulators.modes.Le01ModeDescriptor;
 import com.firstlinecode.sand.emulators.thing.AbstractThingEmulator;
 import com.firstlinecode.sand.emulators.thing.AbstractThingEmulatorPanel;
 import com.firstlinecode.sand.emulators.thing.Constants;
@@ -193,7 +196,7 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 	}
 
 	protected String generateDeviceId() {
-		return getDeviceMode() + ThingsUtils.generateRandomId(8);
+		return getMode() + ThingsUtils.generateRandomId(8);
 	}
 	
 	private class AutoReconnectThread implements Runnable {
@@ -464,7 +467,7 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 
 	private IConcentrator createConcentrator() {
 		IConcentrator concentrator = chatClient.createApi(IConcentrator.class);
-		concentrator.init(nodes);
+		concentrator.init(deviceId, nodes);
 		concentrator.addListener(this);
 		
 		return concentrator;
@@ -477,6 +480,10 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 		StandardStreamConfig streamConfigWithResource = createStreamConfigWithResource();
 		IChatClient chatClient = new StandardChatClient(streamConfigWithResource);
 		chatClient.register(ConcentratorPlugin.class);
+		
+		IModeRegistrar modeRegistrar = chatClient.createApi(IModeRegistrar.class);
+		modeRegistrar.registerModeDescriptor(new Ge01ModeDescriptor());
+		modeRegistrar.registerModeDescriptor(new Le01ModeDescriptor());
 		
 		return chatClient;
 	}
@@ -564,7 +571,14 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 	}
 
 	private void reset() {
-		JOptionPane.showMessageDialog(this, "Not implemented yet.");
+		ThingInternalFrame selectedFrame = getSelectedFrame();
+		if (selectedFrame == null) {
+			refreshThingSelectionRelativedMenuItems();
+			return;
+		}
+		
+		selectedFrame.getThing().powerOff();
+		selectedFrame.getThing().reset();
 	}
 	
 	@Override
@@ -660,6 +674,16 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 							thingFrame.isSelected(), thingFrame.getThing(), thingFrame.getTitle()));
 				}
 			}
+			
+			output.writeInt(nodes.size());
+			if (nodes.isEmpty()) {
+				return;
+			}
+			
+			for (Node node : nodes.values()) {
+				output.writeObject(node);
+			}
+			
 		} catch (FileNotFoundException e) {
 			throw new RuntimeException(String.format("Gateway info file %s doesn't exist.", file.getPath()));
 		} catch (IOException e) {
@@ -837,6 +861,15 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 					gatewayInfo.thingInfos.add(thingInfo);
 				}
 			}
+			
+			size = input.readInt();
+			if (size != 0) {
+				gatewayInfo.nodes = new HashMap<>();
+				for (int i = 0; i < size; i++) {
+					Node node = (Node)input.readObject();
+					gatewayInfo.nodes.put(node.getLanId(), node);
+				}
+			}
 		} catch (FileNotFoundException e) {
 			throw new RuntimeException(String.format("Gateway info file %s doesn't exist.", file.getPath()));
 		} catch (IOException e) {
@@ -873,6 +906,7 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 		private DeviceIdentity deviceIdentity;
 		private boolean autoReconnect;
 		private List<ThingInfo> thingInfos;
+		private Map<String, Node> nodes;
 	}
 
 	private void createNewThing() {
@@ -1281,7 +1315,7 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 	}
 	
 	@Override
-	public String getDeviceMode() {
+	public String getMode() {
 		return DEVICE_MODE;
 	}
 
@@ -1337,8 +1371,8 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 
 	@Override
 	public void nodeAdded(String lanId, Node node) {
-		// TODO Auto-generated method stub
-		
+		nodes.put(lanId, node);
+		setDirty(dirty);
 	}
 
 	@Override

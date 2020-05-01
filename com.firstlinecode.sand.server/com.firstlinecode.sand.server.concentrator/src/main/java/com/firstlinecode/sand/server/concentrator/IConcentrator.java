@@ -5,7 +5,7 @@ public interface IConcentrator {
 	boolean containsLanId(String lanId);
 	void requestConfirmation(NodeConfirmation confirmation);
 	void cancelConfirmation(String nodeDeviceId);
-	void confirm(String nodeDeviceId, String confirmer);
+	Confirmed confirm(String nodeDeviceId, String confirmer);
 	Node getNode(String lanId);
 	Node[] getNodes();
 }

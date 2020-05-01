@@ -8,7 +8,7 @@ public class ParamsMap {
 	
 	public ParamsMap addParams(String name, Object value) {
 		if (params.containsKey(name))
-			throw new IllegalArgumentException(String.format("Reduplicated param. Parameter name %s has ready existed."));
+			throw new IllegalArgumentException(String.format("Reduplicate param. Parameter name %s has ready existed."));
 		
 		if (value == null)
 			throw new IllegalArgumentException("Null parameter value.");

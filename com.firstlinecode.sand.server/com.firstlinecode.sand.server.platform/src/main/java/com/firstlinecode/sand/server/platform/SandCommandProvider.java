@@ -15,6 +15,8 @@ import com.firstlinecode.granite.framework.core.event.IEventProducer;
 import com.firstlinecode.granite.framework.core.event.IEventProducerAware;
 import com.firstlinecode.sand.protocols.actuator.Execute;
 import com.firstlinecode.sand.server.actuator.ExecutionEvent;
+import com.firstlinecode.sand.server.concentrator.Confirmed;
+import com.firstlinecode.sand.server.concentrator.ConfirmedEvent;
 import com.firstlinecode.sand.server.concentrator.IConcentrator;
 import com.firstlinecode.sand.server.concentrator.IConcentratorFactory;
 import com.firstlinecode.sand.server.concentrator.Node;
@@ -117,7 +119,9 @@ public class SandCommandProvider implements CommandProvider, IEventProducerAware
 				return;
 			}
 			
-			concentratorFactory.getConcentrator(device).confirm(SYSTEM_CONSOLE_AUTHORIZER, nodeDeviceId);
+			Confirmed confirmed = concentratorFactory.getConcentrator(device).confirm(SYSTEM_CONSOLE_AUTHORIZER, nodeDeviceId);
+			eventProducer.fire(new ConfirmedEvent(confirmed.getRequestId(), confirmed.getNodeCreated()));
+			
 			interpreter.print(String.format("Device '%s' has already been confirmed to be a node of concentrator '%s'.\n", device.getDeviceId(), nodeDeviceId));
 		} else if (PARAM_EXECUTE.equals(nextArg)) {
 			String deviceLocation = interpreter.nextArgument();

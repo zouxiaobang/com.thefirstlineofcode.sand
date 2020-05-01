@@ -5,7 +5,10 @@
 Basalt-Parsers: protocol-chain=iq|null->create-node|urn:leps:iot:concentrator;\
  class=com.firstlinecode.sand.protocols.concentrator.CreateNode;\
  type=naming-convention
- 
+
 Basalt-Translators: class=com.firstlinecode.sand.protocols.concentrator.CreateNode;\
+ type=naming-convention,\
+ class=com.firstlinecode.sand.protocols.concentrator.NodeCreated;\
  type=naming-convention
+
  

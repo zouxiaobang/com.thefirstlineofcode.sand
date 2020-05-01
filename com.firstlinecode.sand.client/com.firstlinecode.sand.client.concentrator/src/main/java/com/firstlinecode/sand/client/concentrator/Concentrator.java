@@ -1,6 +1,7 @@
 package com.firstlinecode.sand.client.concentrator;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -10,23 +11,27 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.firstlinecode.basalt.protocol.core.stanza.Iq;
+import com.firstlinecode.basalt.protocol.core.stanza.error.RemoteServerTimeout;
 import com.firstlinecode.basalt.protocol.core.stanza.error.StanzaError;
 import com.firstlinecode.chalk.IChatServices;
 import com.firstlinecode.chalk.ITask;
 import com.firstlinecode.chalk.IUnidirectionalStream;
 import com.firstlinecode.sand.protocols.concentrator.CreateNode;
 import com.firstlinecode.sand.protocols.concentrator.NodeAddress;
-import com.firstlinecode.sand.protocols.core.CommunicationNet;
+import com.firstlinecode.sand.protocols.concentrator.NodeCreated;
 
 public class Concentrator implements IConcentrator {
 	private static final String PATTERN_LAN_ID = "%02d";
 
 	private static final Logger logger = LoggerFactory.getLogger(Concentrator.class);
 	
-	private static final int DEFAULT_ADDRESS_CONFIGURATION_NODE_CREATION_TIMEOUT = 1000 * 60 * 2;
+	private static final int DEFAULT_ADDRESS_CONFIGURATION_NODE_CREATION_TIMEOUT = 1000 * 60 * 5;
 	
 	private List<IConcentrator.Listener> listeners;
+	
+	private String deviceId;
 	private Map<String, Node> nodes;
+	private Map<String, Node> confirmingNodes;
 	private Object nodesLock;
 	
 	private IChatServices chatServices;
@@ -34,11 +39,14 @@ public class Concentrator implements IConcentrator {
 	public Concentrator() {
 		listeners = new ArrayList<>();
 		nodes = new LinkedHashMap<>();
+		confirmingNodes = new HashMap<>();
 		nodesLock = new Object();
 	}
 
 	@Override
-	public void init(Map<String, Node> nodes) {
+	public void init(String deviceId, Map<String, Node> nodes) {
+		this.deviceId = deviceId;
+		
 		if (nodes == null || nodes.size() == 0)
 			return;
 		
@@ -52,9 +60,15 @@ public class Concentrator implements IConcentrator {
 		synchronized (nodesLock) {
 			Node node = new Node();
 			node.setDeviceId(deviceId);
+			node.setLanId(getBestSuitedNewLanId());
+			node.setCommunicationNet(nodeAddress.getCommunicationNet());
 			node.setAddress(nodeAddress.getAddress());
 			
-			if (nodes.size() > 99) {	
+			if (nodes.size() > 99) {
+				if (logger.isErrorEnabled()) {
+					logger.error("Node size overflow.");
+				}
+				
 				for (Listener listener : listeners) {
 					listener.occurred(LanError.SIZE_OVERFLOW, node);
 				}
@@ -64,34 +78,38 @@ public class Concentrator implements IConcentrator {
 			
 			for (Entry<String, Node> entry : nodes.entrySet()) {
 				if (entry.getValue().getDeviceId().equals(node.getDeviceId())) {
+					if (logger.isErrorEnabled()) {
+						logger.error(String.format("Reduplicate device ID: %s.", node.getDeviceId()));
+					}
+					
 					for (Listener listener : listeners) {
-						listener.occurred(LanError.DEREPULICATED_DEVICE_ID, node);
+						listener.occurred(LanError.REDUPLICATE_DEVICE_ID, node);
 					}
 					
 					return;
 				}
 				
 				if (entry.getValue().getAddress().equals(node.getAddress())) {
+					if (logger.isErrorEnabled()) {
+						logger.error(String.format("Reduplicate device address: %s.", node.getAddress()));
+					}
+					
 					for (Listener listener : listeners) {
-						listener.occurred(LanError.DEREPULICATED_DEVICE_ADDRESS, node);
+						listener.occurred(LanError.REDUPLICATE_DEVICE_ADDRESS, node);
 					}
 					
 					return;
 				}
 			}
 			
-			chatServices.getTaskService().execute(new NodeCreationTask(getBestSuitedNewLanId(), nodeAddress.getCommunicationNet(), node));
+			chatServices.getTaskService().execute(new NodeCreationTask(node));
 		}
 	}
 	
 	private class NodeCreationTask implements ITask<Iq> {
-		private String lanId;
-		private CommunicationNet communicationNet;
 		private Node node;
 		
-		public NodeCreationTask(String lanId, CommunicationNet communicationNet, Node node) {
-			this.lanId = lanId;
-			this.communicationNet = communicationNet;
+		public NodeCreationTask(Node node) {
 			this.node = node;
 		}
 
@@ -99,23 +117,103 @@ public class Concentrator implements IConcentrator {
 		public void trigger(IUnidirectionalStream<Iq> stream) {
 			CreateNode createNode = new CreateNode();
 			createNode.setDeviceId(node.getDeviceId());
-			createNode.setCommunicationNet(communicationNet.toString());
+			createNode.setLanId(node.getLanId());
+			createNode.setCommunicationNet(node.getCommunicationNet().toString());
 			createNode.setAddress(node.getAddress());
-			createNode.setLanId(lanId);
 			
-			Iq iq = new Iq(Iq.Type.SET, "cn-" + lanId);
-			iq.setObject(createNode);
-			
+			Iq iq = new Iq(createNode, Iq.Type.SET);
 			stream.send(iq, DEFAULT_ADDRESS_CONFIGURATION_NODE_CREATION_TIMEOUT);
+			
+			synchronized (nodesLock) {				
+				confirmingNodes.put(iq.getId(), node);
+			}
 		}
 
 		@Override
-		public void processResponse(IUnidirectionalStream<Iq> stream, Iq stanza) {
-			nodes.put(lanId, node);
-			
-			for (Listener listener : listeners) {
-				listener.nodeAdded(lanId, node);
+		public void processResponse(IUnidirectionalStream<Iq> stream, Iq iq) {
+			if (iq.getType() != Iq.Type.RESULT || iq.getObject() == null) {
+				if (logger.isErrorEnabled()) {
+					logger.error(String.format("Server returns an bad response. Result is %s.", iq));
+				}
+				
+				for (IConcentrator.Listener listener : listeners) {
+					listener.occurred(IConcentrator.LanError.BAD_RESPONSE, node);
+				}
+				
+				return;
 			}
+			
+			Node confirmingNode = null;
+			synchronized (nodesLock) {
+				confirmingNode = confirmingNodes.get(iq.getId());
+			}
+			
+			if (confirmingNode == null) {
+				if (logger.isErrorEnabled()) {
+					logger.error(String.format("Confirming node which's request ID is '%s' not found.", iq.getId()));
+				}
+				
+				for (IConcentrator.Listener listener : listeners) {
+					listener.occurred(IConcentrator.LanError.CONFIRMED_NODE_NOT_FOUND, node);
+				}
+				
+				return;
+			}
+			
+			NodeCreated nodeCreated = iq.getObject();
+			if (!deviceId.equals(nodeCreated.getConcentrator()) ||
+					!confirmingNode.getDeviceId().equals(nodeCreated.getNode()) ||
+					nodeCreated.getLanId() == null ||
+					nodeCreated.getMode() == null) {
+				if (logger.isErrorEnabled()) {
+					logger.error(String.format("Bad node created response. Confirming node is %s and created node is %s.",
+							getConfirmingNodeInfo(confirmingNode), getNodeCreatedInfo(nodeCreated)));
+				}
+				
+				for (IConcentrator.Listener listener : listeners) {
+					listener.occurred(IConcentrator.LanError.BAD_RESPONSE, node);
+				}
+				
+				return;
+			}
+			
+			if (!nodeCreated.getLanId().equals(confirmingNode.getLanId())) {
+				for (String existedLanId : nodes.keySet()) {
+					if (existedLanId.equals(nodeCreated.getLanId())) {
+						if (logger.isErrorEnabled()) {
+							logger.error(String.format("Server assigned a reduplicate LAN ID: %s.", nodeCreated.getLanId()));
+						}
+						
+						for (IConcentrator.Listener listener : listeners) {
+							listener.occurred(IConcentrator.LanError.SERVER_ASSIGNED_A_EXISTED_LAN_ID, node);
+						}
+						
+						return;
+					}
+				}
+				
+				confirmingNode.setLanId(nodeCreated.getLanId());
+			}
+			
+			confirmingNode.setMode(nodeCreated.getMode());
+			
+			synchronized (nodesLock) {
+				confirmingNodes.remove(iq.getId());
+				nodes.put(confirmingNode.getLanId(), confirmingNode);			
+			}
+			for (Listener listener : listeners) {
+				listener.nodeAdded(confirmingNode.getLanId(), node);
+			}
+		}
+
+		private Object getNodeCreatedInfo(NodeCreated nodeCreated) {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		private Object getConfirmingNodeInfo(Node confirmingNode) {
+			// TODO Auto-generated method stub
+			return null;
 		}
 
 		@Override
@@ -125,14 +223,24 @@ public class Concentrator implements IConcentrator {
 						error.getDefinedCondition()));
 			}
 			
+			for (IConcentrator.Listener listener : listeners) {
+				listener.occurred(error, node);
+			}
+			
 			return true;
 		}
 
 		@Override
-		public boolean processTimeout(IUnidirectionalStream<Iq> stream, Iq stanza) {
+		public boolean processTimeout(IUnidirectionalStream<Iq> stream, Iq iq) {
 			if (logger.isErrorEnabled()) {
 				logger.error(String.format("Timeout on node[%s, %s] creation.",
-						node.getAddress(), lanId));
+						node.getDeviceId(), node.getLanId()));
+			}
+			
+			confirmingNodes.remove(iq.getId());
+			
+			for (IConcentrator.Listener listener : listeners) {
+				listener.occurred(new RemoteServerTimeout(), node);
 			}
 			
 			return true;
@@ -140,7 +248,7 @@ public class Concentrator implements IConcentrator {
 
 		@Override
 		public void interrupted() {
-			// No-Op
+			// NO-OP
 		}
 		
 	}

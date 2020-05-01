@@ -34,7 +34,7 @@ public class CreateNodeProcessor implements IXepProcessor<Iq, CreateNode>, IConf
 	private int validityTime;
 	
 	@Override
-	public void process(IProcessingContext context, Iq stanza, CreateNode xep) {
+	public void process(IProcessingContext context, Iq iq, CreateNode xep) {
 		Device device = deviceManager.getByDeviceName(context.getJid().getName());
 		if (device == null)
 			throw new ProtocolException(new ItemNotFound(String.format("Device which's device name is '%s' not be found.",
@@ -53,7 +53,7 @@ public class CreateNodeProcessor implements IXepProcessor<Iq, CreateNode>, IConf
 		}
 		
 		if (concentrator.containsLanId(xep.getLanId())) {
-			throw new ProtocolException(new Conflict(String.format("Duplicated lan id: '%s'.", xep.getLanId())));
+			throw new ProtocolException(new Conflict(String.format("Duplicated LAN ID: '%s'.", xep.getLanId())));
 			
 		}
 		
@@ -64,6 +64,7 @@ public class CreateNodeProcessor implements IXepProcessor<Iq, CreateNode>, IConf
 		node.setAddress(xep.getAddress().toString());
 		
 		NodeConfirmation confirmation = dataObjectFactory.create(NodeConfirmation.class);
+		confirmation.setRequestId(iq.getId());
 		confirmation.setConcentrator(device.getDeviceId());
 		confirmation.setNode(node);
 		Date currentTime = Calendar.getInstance().getTime();
@@ -71,7 +72,6 @@ public class CreateNodeProcessor implements IXepProcessor<Iq, CreateNode>, IConf
 		confirmation.setExpiredTime(getExpiredTime(currentTime.getTime(), validityTime));
 		
 		concentrator.requestConfirmation(confirmation);
-		context.write(new Iq(Iq.Type.RESULT, stanza.getId()));
 	}
 
 	private Date getExpiredTime(long currentTime, long validityTime) {

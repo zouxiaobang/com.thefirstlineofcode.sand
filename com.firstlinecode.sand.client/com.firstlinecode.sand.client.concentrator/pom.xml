@@ -23,6 +23,10 @@
 			<artifactId>com.firstlinecode.sand.protocols.concentrator</artifactId>
 		</dependency>
 		<dependency>
+			<groupId>com.firstlinecode.sand.client</groupId>
+			<artifactId>com.firstlinecode.sand.client.dmr</artifactId>
+		</dependency>
+		<dependency>
 			<groupId>com.firstlinecode.chalk</groupId>
 			<artifactId>com.firstlinecode.chalk</artifactId>
 		</dependency>
