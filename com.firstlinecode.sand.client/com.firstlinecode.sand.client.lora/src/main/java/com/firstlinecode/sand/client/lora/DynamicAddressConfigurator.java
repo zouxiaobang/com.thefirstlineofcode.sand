@@ -1,6 +1,8 @@
 package com.firstlinecode.sand.client.lora;
 
+import com.firstlinecode.chalk.IOrder;
 import com.firstlinecode.sand.client.things.commuication.ICommunicationListener;
+import com.firstlinecode.sand.client.things.obm.ObmData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,7 +25,7 @@ import com.firstlinecode.sand.protocols.lora.dac.Allocation;
 import com.firstlinecode.sand.protocols.lora.dac.Introduction;
 
 public class DynamicAddressConfigurator implements IAddressConfigurator<IDualLoraChipsCommunicator,
-			LoraAddress, byte[]>, IConcentrator.Listener, ICommunicationListener<DualLoraAddress, LoraAddress, byte[]> {
+			LoraAddress, ObmData>, IConcentrator.Listener {
 	private static final Logger logger = LoggerFactory.getLogger(DynamicAddressConfigurator.class);
 	
 	private static final DualLoraAddress ADDRESS_CONFIGURATION_MODE_DUAL_LORA_ADDRESS = new DualLoraAddress(
@@ -50,8 +52,9 @@ public class DynamicAddressConfigurator implements IAddressConfigurator<IDualLor
 		this.communicator = communicator;
 		this.concentrator =  concentrator;
 		concentrator.addListener(this);
-		communicator.addCommunicationListener(this);
-		
+		communicator.addCommunicationListener(new ParsingProcessor());
+		communicator.addCommunicationListener(new NegotiationProcessor());
+
 		obmFactory = new ObmFactory();
 		workingAddress = communicator.getAddress();
 		state = State.WORKING;
@@ -127,69 +130,29 @@ public class DynamicAddressConfigurator implements IAddressConfigurator<IDualLor
 				}
 			}
 		}
-		
 	}
 
-	@Override
-	public synchronized void negotiate(LoraAddress peerAddress, byte[] data) {
+	public synchronized void parse(LoraAddress peerAddress, ObmData data) {
 		if (state == State.WORKING) {
 			if (logger.isDebugEnabled()) {
 				logger.debug(String.format("Receiving address configuration request from %s in working state.", peerAddress));
 			}
-			
+
 			return;
 		}
-		
-		try {			
+
+		try {
 			if (state == State.WAITING) {
-				Introduction introduction = (Introduction)obmFactory.toObject(Introduction.class, data);
-				nodeDeviceId = introduction.getDeviceId();
-				LoraAddress introductedAddress = new LoraAddress(introduction.getAddress(), introduction.getFrequencyBand());
-				
-				if (logger.isDebugEnabled()) {
-					logger.debug(String.format("Receving an intrduction request from %s, %s.", introduction.getAddress(), introduction.getFrequencyBand()));
-				}
-				
-				Allocation allocation = new Allocation();
-				allocation.setGatewayAddress(workingAddress.getSlaveChipAddress().getAddress());
-				allocation.setGatewayChannel(workingAddress.getChannel());
-				
-				String nodeLanId = concentrator.getBestSuitedNewLanId();
-				nodeAddress = new LoraAddress(Long.parseLong(nodeLanId), LoraAddress.DEFAULT_THING_COMMUNICATION_FREQUENCE_BAND);
-				allocation.setAllocatedAddress(nodeAddress.getAddress());
-				allocation.setAllocatedFrequencyBand(nodeAddress.getFrequencyBand());
-				
-				if (logger.isDebugEnabled()) {
-					logger.debug(String.format("Node allocation: %s, %s => %s, %s.",
-								nodeDeviceId, peerAddress, nodeLanId, new LoraAddress(allocation.getAllocatedAddress(),
-										allocation.getAllocatedFrequencyBand())));
-				}
-				
-				byte[] response = obmFactory.toBinary(allocation);
-				communicator.send(introductedAddress, response);
-				
-				state = State.ALLOCATING;
-				return;
-			}
-			
-			if (!nodeAddress.equals(peerAddress)) {
-				processParallelAddressConfigurationRequest(peerAddress);
-			}
-			
-			if (state == State.ALLOCATING) {
-				Allocated allocated = (Allocated)obmFactory.toObject(Allocated.class, data);
-				
-				if (!nodeDeviceId.equals(allocated.getDeviceId())) {
-					processParallelAddressConfigurationRequest(peerAddress);
-				}
-				
-				confirm();
-				state = State.CONFIRMATION_REQUESTING;
+				Introduction introduction = (Introduction)obmFactory.toObject(Introduction.class, data.getBinary());
+				data.setProtocolObject(introduction);
+			} else if (state == State.ALLOCATING) {
+				Allocated allocated = (Allocated)obmFactory.toObject(Allocated.class, data.getBinary());
+				data.setProtocolObject(allocated);
 			}
 		} catch (ProtocolException pe) {
 			// TODO: handle exception
 			System.out.println(pe);
-		} catch (ClassCastException cce) {			
+		} catch (ClassCastException cce) {
 			// TODO: handle exception
 			System.out.println(cce);
 		} catch (Exception e) {
@@ -197,6 +160,85 @@ public class DynamicAddressConfigurator implements IAddressConfigurator<IDualLor
 			System.out.println(e);
 		}
 	}
+
+	@Override
+	public synchronized void negotiate(LoraAddress peerAddress, ObmData data) {
+		if (state == State.WORKING) {
+			if (logger.isDebugEnabled()) {
+				logger.debug(String.format("Receiving address configuration request from %s in working state.", peerAddress));
+			}
+
+			return;
+		}
+
+		try {
+			if (state == State.WAITING) {
+				Introduction introduction = (Introduction) data.getProtocolObject();
+				if (introduction == null) {
+					if (logger.isDebugEnabled()) {
+						logger.debug("Please parse the binary data of introduction first.");
+					}
+					return;
+				}
+
+				nodeDeviceId = introduction.getDeviceId();
+				LoraAddress introductedAddress = new LoraAddress(introduction.getAddress(), introduction.getFrequencyBand());
+
+				if (logger.isDebugEnabled()) {
+					logger.debug(String.format("Receving an intrduction request from %s, %s.", introduction.getAddress(), introduction.getFrequencyBand()));
+				}
+
+				Allocation allocation = new Allocation();
+				allocation.setGatewayAddress(workingAddress.getSlaveChipAddress().getAddress());
+				allocation.setGatewayChannel(workingAddress.getChannel());
+
+				String nodeLanId = concentrator.getBestSuitedNewLanId();
+				nodeAddress = new LoraAddress(Long.parseLong(nodeLanId), LoraAddress.DEFAULT_THING_COMMUNICATION_FREQUENCE_BAND);
+				allocation.setAllocatedAddress(nodeAddress.getAddress());
+				allocation.setAllocatedFrequencyBand(nodeAddress.getFrequencyBand());
+
+				if (logger.isDebugEnabled()) {
+					logger.debug(String.format("Node allocation: %s, %s => %s, %s.",
+							nodeDeviceId, peerAddress, nodeLanId, new LoraAddress(allocation.getAllocatedAddress(),
+									allocation.getAllocatedFrequencyBand())));
+				}
+
+				byte[] response = obmFactory.toBinary(allocation);
+				communicator.send(introductedAddress, new ObmData(allocation, response));
+
+				state = State.ALLOCATING;
+				return;
+			}
+
+			if (!nodeAddress.equals(peerAddress)) {
+				processParallelAddressConfigurationRequest(peerAddress);
+			}
+
+			if (state == State.ALLOCATING) {
+				Allocated allocated = (Allocated) data.getProtocolObject();
+				if (allocated == null) {
+					if (logger.isDebugEnabled()) {
+						logger.debug("Please parse the binary data of allocated first.");
+					}
+					return;
+				}
+
+				if (!nodeDeviceId.equals(allocated.getDeviceId())) {
+					processParallelAddressConfigurationRequest(peerAddress);
+				}
+				confirm();
+				state = State.CONFIRMATION_REQUESTING;
+			}
+
+		} catch (CommunicationException e) {
+			// TODO: handle exception
+			System.out.println(e);
+		} catch (ClassCastException e) {
+			// TODO: handle exception
+			System.out.println(e);
+		}
+	}
+
 
 	private void processParallelAddressConfigurationRequest(LoraAddress peerAddress) {
 		if (logger.isDebugEnabled()) {
@@ -246,24 +288,64 @@ public class DynamicAddressConfigurator implements IAddressConfigurator<IDualLor
 		// NO-OP
 	}
 
-	@Override
-	public void sent(LoraAddress to, byte[] data) {
-		// NO-OP
+	/**
+	 * use to parse the binary data, translate to protocol object
+	 */
+	private class ParsingProcessor implements ICommunicationListener<DualLoraAddress, LoraAddress, ObmData>, IOrder {
+		@Override
+		public void sent(LoraAddress to, ObmData data) {
+			// NO-OP
+		}
+
+		@Override
+		public void received(LoraAddress from, ObmData data) {
+			parse(from, data);
+		}
+
+		@Override
+		public void occurred(CommunicationException e) {
+			// NO-OP
+		}
+
+		@Override
+		public void addressChanged(DualLoraAddress newAddress, DualLoraAddress oldAddress) {
+			// NO-OP
+		}
+
+		@Override
+		public int getOrder() {
+			return ORDER_MAX;
+		}
 	}
 
-	@Override
-	public void received(LoraAddress from, byte[] data) {
-		negotiate(from, data);
-	}
+	/**
+	 * use to negotiate the binary data, translate to protocol object
+	 */
+	private class NegotiationProcessor implements ICommunicationListener<DualLoraAddress, LoraAddress, ObmData>, IOrder {
+		@Override
+		public void sent(LoraAddress to, ObmData data) {
+			// NO-OP
+		}
 
-	@Override
-	public void occurred(CommunicationException e) {
-		// NO-OP
-	}
+		@Override
+		public void received(LoraAddress from, ObmData data) {
+			negotiate(from, data);
+		}
 
-	@Override
-	public void addressChanged(DualLoraAddress newAddress, DualLoraAddress oldAddress) {
-		// NO-OP
+		@Override
+		public void occurred(CommunicationException e) {
+			// NO-OP
+		}
+
+		@Override
+		public void addressChanged(DualLoraAddress newAddress, DualLoraAddress oldAddress) {
+			// NO-OP
+		}
+
+		@Override
+		public int getOrder() {
+			return ORDER_MIN;
+		}
 	}
 
 }
