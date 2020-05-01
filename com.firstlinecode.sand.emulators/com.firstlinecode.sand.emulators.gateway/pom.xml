@@ -42,6 +42,10 @@
 			<artifactId>com.firstlinecode.sand.client.concentrator</artifactId>
 		</dependency>
 		<dependency>
+			<groupId>com.firstlinecode.sand.client</groupId>
+			<artifactId>com.firstlinecode.sand.client.actuator</artifactId>
+		</dependency>
+		<dependency>
 			<groupId>com.firstlinecode.sand.emulators</groupId>
 			<artifactId>com.firstlinecode.sand.emulators.light</artifactId>
 		</dependency>

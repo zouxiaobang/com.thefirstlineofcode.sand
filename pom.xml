@@ -488,6 +488,12 @@
 			</dependency>
 
 			<dependency>
+				<groupId>com.firstlinecode.sand.client</groupId>
+				<artifactId>com.firstlinecode.sand.client.actuator</artifactId>
+				<version>${sand.version}</version>
+			</dependency>
+
+			<dependency>
 				<groupId>com.firstlinecode.sand.server</groupId>
 				<artifactId>com.firstlinecode.sand.server.device</artifactId>
 				<version>${sand.version}</version>

@@ -1,7 +1,6 @@
 package com.firstlinecode.sand.client.concentrator;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -31,7 +30,6 @@ public class Concentrator implements IConcentrator {
 	
 	private String deviceId;
 	private Map<String, Node> nodes;
-	private Map<String, Node> confirmingNodes;
 	private Object nodesLock;
 	
 	private IChatServices chatServices;
@@ -39,7 +37,6 @@ public class Concentrator implements IConcentrator {
 	public Concentrator() {
 		listeners = new ArrayList<>();
 		nodes = new LinkedHashMap<>();
-		confirmingNodes = new HashMap<>();
 		nodesLock = new Object();
 	}
 
@@ -63,6 +60,7 @@ public class Concentrator implements IConcentrator {
 			node.setLanId(getBestSuitedNewLanId());
 			node.setCommunicationNet(nodeAddress.getCommunicationNet());
 			node.setAddress(nodeAddress.getAddress());
+			node.setConfirmed(false);
 			
 			if (nodes.size() > 99) {
 				if (logger.isErrorEnabled()) {
@@ -125,7 +123,7 @@ public class Concentrator implements IConcentrator {
 			stream.send(iq, DEFAULT_ADDRESS_CONFIGURATION_NODE_CREATION_TIMEOUT);
 			
 			synchronized (nodesLock) {				
-				confirmingNodes.put(iq.getId(), node);
+				nodes.put(iq.getId(), node);
 			}
 		}
 
@@ -143,14 +141,21 @@ public class Concentrator implements IConcentrator {
 				return;
 			}
 			
+			NodeCreated nodeCreated = iq.getObject();
+			
 			Node confirmingNode = null;
 			synchronized (nodesLock) {
-				confirmingNode = confirmingNodes.get(iq.getId());
+				for (Node node : nodes.values()) {
+					if (node.getDeviceId().equals(nodeCreated.getNode())) {
+						confirmingNode = node;
+						break;						
+					}
+				}
 			}
 			
 			if (confirmingNode == null) {
 				if (logger.isErrorEnabled()) {
-					logger.error(String.format("Confirming node which's request ID is '%s' not found.", iq.getId()));
+					logger.error(String.format("Confirming node which's device ID is '%s' not found.", nodeCreated.getNode()));
 				}
 				
 				for (IConcentrator.Listener listener : listeners) {
@@ -160,9 +165,7 @@ public class Concentrator implements IConcentrator {
 				return;
 			}
 			
-			NodeCreated nodeCreated = iq.getObject();
 			if (!deviceId.equals(nodeCreated.getConcentrator()) ||
-					!confirmingNode.getDeviceId().equals(nodeCreated.getNode()) ||
 					nodeCreated.getLanId() == null ||
 					nodeCreated.getMode() == null) {
 				if (logger.isErrorEnabled()) {
@@ -192,15 +195,21 @@ public class Concentrator implements IConcentrator {
 					}
 				}
 				
-				confirmingNode.setLanId(nodeCreated.getLanId());
 			}
 			
 			confirmingNode.setMode(nodeCreated.getMode());
 			
 			synchronized (nodesLock) {
-				confirmingNodes.remove(iq.getId());
-				nodes.put(confirmingNode.getLanId(), confirmingNode);			
+				nodes.remove(confirmingNode.getLanId());
+				
+				if (!confirmingNode.getLanId().equals(nodeCreated.getLanId())) {
+					confirmingNode.setLanId(nodeCreated.getLanId());
+				}
+				
+				confirmingNode.setConfirmed(true);
+				nodes.put(confirmingNode.getLanId(), confirmingNode);
 			}
+			
 			for (Listener listener : listeners) {
 				listener.nodeAdded(confirmingNode.getLanId(), node);
 			}
@@ -237,7 +246,7 @@ public class Concentrator implements IConcentrator {
 						node.getDeviceId(), node.getLanId()));
 			}
 			
-			confirmingNodes.remove(iq.getId());
+			nodes.remove(node.getLanId());
 			
 			for (IConcentrator.Listener listener : listeners) {
 				listener.occurred(new RemoteServerTimeout(), node);

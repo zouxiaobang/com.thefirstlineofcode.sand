@@ -59,6 +59,7 @@ import com.firstlinecode.chalk.core.stream.StandardStreamConfig;
 import com.firstlinecode.chalk.core.stream.UsernamePasswordToken;
 import com.firstlinecode.chalk.network.ConnectionException;
 import com.firstlinecode.chalk.network.IConnectionListener;
+import com.firstlinecode.sand.client.actuator.ActuatorPlugin;
 import com.firstlinecode.sand.client.concentrator.ConcentratorPlugin;
 import com.firstlinecode.sand.client.concentrator.IConcentrator;
 import com.firstlinecode.sand.client.concentrator.IConcentrator.LanError;
@@ -480,6 +481,7 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 		StandardStreamConfig streamConfigWithResource = createStreamConfigWithResource();
 		IChatClient chatClient = new StandardChatClient(streamConfigWithResource);
 		chatClient.register(ConcentratorPlugin.class);
+		chatClient.register(ActuatorPlugin.class);
 		
 		IModeRegistrar modeRegistrar = chatClient.createApi(IModeRegistrar.class);
 		modeRegistrar.registerModeDescriptor(new Ge01ModeDescriptor());

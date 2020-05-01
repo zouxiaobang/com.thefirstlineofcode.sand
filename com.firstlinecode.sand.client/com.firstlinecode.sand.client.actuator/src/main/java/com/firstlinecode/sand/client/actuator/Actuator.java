@@ -33,7 +33,7 @@ public class Actuator implements IActuator, IIqListener {
 	@Override
 	public void received(Iq iq) {
 		// TODO Auto-generated method stub
-		
+		System.out.println("Iq: " + iq);
 	}
 
 	@Override
