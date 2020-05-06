@@ -60,6 +60,7 @@ import com.firstlinecode.chalk.core.stream.UsernamePasswordToken;
 import com.firstlinecode.chalk.network.ConnectionException;
 import com.firstlinecode.chalk.network.IConnectionListener;
 import com.firstlinecode.sand.client.actuator.ActuatorPlugin;
+import com.firstlinecode.sand.client.actuator.IActuator;
 import com.firstlinecode.sand.client.concentrator.ConcentratorPlugin;
 import com.firstlinecode.sand.client.concentrator.IConcentrator;
 import com.firstlinecode.sand.client.concentrator.IConcentrator.LanError;
@@ -480,14 +481,28 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 		
 		StandardStreamConfig streamConfigWithResource = createStreamConfigWithResource();
 		IChatClient chatClient = new StandardChatClient(streamConfigWithResource);
-		chatClient.register(ConcentratorPlugin.class);
-		chatClient.register(ActuatorPlugin.class);
 		
+		registerPlugins(chatClient);
+		registerModes(chatClient);
+		startActuator(chatClient);
+		
+		return chatClient;
+	}
+
+	private void startActuator(IChatClient chatClient) {
+		IActuator actuator = chatClient.createApi(IActuator.class);
+		actuator.start();
+	}
+
+	private void registerModes(IChatClient chatClient) {
 		IModeRegistrar modeRegistrar = chatClient.createApi(IModeRegistrar.class);
 		modeRegistrar.registerModeDescriptor(new Ge01ModeDescriptor());
 		modeRegistrar.registerModeDescriptor(new Le01ModeDescriptor());
-		
-		return chatClient;
+	}
+
+	private void registerPlugins(IChatClient chatClient) {
+		chatClient.register(ConcentratorPlugin.class);
+		chatClient.register(ActuatorPlugin.class);
 	}
 
 	private StandardStreamConfig createStreamConfigWithResource() {

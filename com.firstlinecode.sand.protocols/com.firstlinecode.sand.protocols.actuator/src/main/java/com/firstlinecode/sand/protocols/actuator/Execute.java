@@ -1,13 +1,16 @@
 package com.firstlinecode.sand.protocols.actuator;
 
 import com.firstlinecode.basalt.oxm.convention.annotations.ProtocolObject;
+import com.firstlinecode.basalt.oxm.convention.validation.annotations.NotNull;
 import com.firstlinecode.basalt.protocol.core.Protocol;
 
 @ProtocolObject(namespace="urn:leps:iot:actuator", localName="execute")
 public class Execute {
 	public static final Protocol PROTOCOL = new Protocol("urn:leps:iot:actuator", "execute");
 	
+	@NotNull
 	private String actionName;
+	@NotNull
 	private Object action;
 	
 	public Execute() {}

@@ -1,15 +1,20 @@
 package com.firstlinecode.sand.protocols.actuator.oxm;
 
+import java.util.List;
+
+import com.firstlinecode.basalt.oxm.Attribute;
+import com.firstlinecode.basalt.oxm.parsing.ElementParserAdaptor;
 import com.firstlinecode.basalt.oxm.parsing.IElementParser;
 import com.firstlinecode.basalt.oxm.parsing.IParser;
 import com.firstlinecode.basalt.oxm.parsing.IParserFactory;
 import com.firstlinecode.basalt.oxm.parsing.IParsingContext;
 import com.firstlinecode.basalt.oxm.parsing.IParsingPath;
 import com.firstlinecode.basalt.protocol.core.Protocol;
+import com.firstlinecode.basalt.protocol.core.ProtocolException;
+import com.firstlinecode.basalt.protocol.core.stanza.error.BadRequest;
 import com.firstlinecode.sand.protocols.actuator.Execute;
 
 public class ExecutionParserFactory implements IParserFactory<Execute> {
-
 	@Override
 	public Protocol getProtocol() {
 		return Execute.PROTOCOL;
@@ -17,8 +22,7 @@ public class ExecutionParserFactory implements IParserFactory<Execute> {
 
 	@Override
 	public IParser<Execute> create() {
-		// TODO Auto-generated method stub
-		return null;
+		return new ExecutionParser();
 	}
 	
 	private class ExecutionParser implements IParser<Execute> {
@@ -30,8 +34,18 @@ public class ExecutionParserFactory implements IParserFactory<Execute> {
 
 		@Override
 		public IElementParser<Execute> getElementParser(IParsingPath parsingPath) {
-			// TODO Auto-generated method stub
-			return null;
+			if (parsingPath.match("/")) {
+				return new ElementParserAdaptor<Execute>() {
+					@Override
+					public void processAttributes(IParsingContext<Execute> context, List<Attribute> attributes) {
+						if (attributes.size() != 1 || !"action-name".equals(attributes.get(0).getName())) {
+							throw new ProtocolException(new BadRequest(""));
+						}
+					}
+				};
+			} else {
+				throw new ProtocolException(new BadRequest(String.format("An invalid element found: '%s'.", parsingPath.toString())));
+			}
 		}
 
 		@Override
