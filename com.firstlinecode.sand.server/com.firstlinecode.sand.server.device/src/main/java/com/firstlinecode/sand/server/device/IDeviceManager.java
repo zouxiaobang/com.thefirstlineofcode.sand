@@ -1,6 +1,7 @@
 package com.firstlinecode.sand.server.device;
 
 import com.firstlinecode.basalt.protocol.core.JabberId;
+import com.firstlinecode.basalt.protocol.core.Protocol;
 import com.firstlinecode.sand.protocols.core.DeviceIdentity;
 import com.firstlinecode.sand.protocols.core.ModeDescriptor;
 
@@ -21,10 +22,12 @@ public interface IDeviceManager {
 	boolean isConcentrator(String mode);
 	boolean isActuator(String mode);
 	boolean isSensor(String mode);
-	boolean isActionSupported(String mode, String actionName);
-	boolean isEventSupported(String mode, String eventName);
-	Class<?> getActionType(String mode, String actionName);
-	Class<?> getEventType(String mode, String eventName);
+	boolean isActionSupported(String mode, Protocol protocol);
+	boolean isEventSupported(String mode, Protocol protocol);
+	boolean isActionSupported(String mode, Class<?> actionType);
+	boolean isEventSupported(String mode, Class<?> eventType);
+	Class<?> getActionType(String mode, Protocol protocol);
+	Class<?> getEventType(String mode, Protocol protocol);
 	boolean isValid(String deviceId);
 	String getMode(String deviceId);
 }

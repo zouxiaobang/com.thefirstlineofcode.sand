@@ -10,10 +10,12 @@ import java.util.StringTokenizer;
 import org.eclipse.osgi.framework.console.CommandInterpreter;
 import org.eclipse.osgi.framework.console.CommandProvider;
 
+import com.firstlinecode.basalt.protocol.core.Protocol;
 import com.firstlinecode.granite.framework.core.annotations.Dependency;
 import com.firstlinecode.granite.framework.core.event.IEventProducer;
 import com.firstlinecode.granite.framework.core.event.IEventProducerAware;
 import com.firstlinecode.sand.protocols.actuator.Execute;
+import com.firstlinecode.sand.protocols.emulators.light.Flash;
 import com.firstlinecode.sand.server.actuator.ExecutionEvent;
 import com.firstlinecode.sand.server.concentrator.Confirmed;
 import com.firstlinecode.sand.server.concentrator.ConfirmedEvent;
@@ -44,6 +46,8 @@ public class SandCommandProvider implements CommandProvider, IEventProducerAware
 			"\tsand execute <device_location> <ACTION_NAME> [PARAMS...] - Execute an action on the specified device.\r\n" +
 			"\tsand help - Display help information.\r\n";
 	
+	private static final String ACTION_NAME_FLASH = "flash";
+	
 	@Dependency("device.manager")
 	private IDeviceManager deviceManager;
 	
@@ -52,6 +56,19 @@ public class SandCommandProvider implements CommandProvider, IEventProducerAware
 	
 	private IEventProducer eventProducer;
 	
+	private Map<String, Protocol> actionNameAndProtocols;
+	
+	public SandCommandProvider() {
+		actionNameAndProtocols = createActionNameAndProtocols();
+	}
+	
+	private Map<String, Protocol> createActionNameAndProtocols() {
+		Map<String, Protocol> actionNameAndProtocols = new HashMap<>();
+		actionNameAndProtocols.put(ACTION_NAME_FLASH, Flash.PROTOCOL);
+		
+		return actionNameAndProtocols;
+	}
+
 	@Override
 	public String getHelp() {
 		return MSG_HELP;
@@ -191,18 +208,23 @@ public class SandCommandProvider implements CommandProvider, IEventProducerAware
 		}
 		
 		Device device = deviceManager.getByDeviceId(deviceId);
+		Protocol protocol = actionNameAndProtocols.get(actionName);
+		if (protocol == null) {			
+			interpreter.print("Error: Unsupported action name '%s'.\n");	
+		}
+		
 		if (!concentratorFactory.isConcentrator(device) || lanId == null || LAN_ID_CONCENTRATOR.equals(lanId)) {
-			executeOnDevice(interpreter, device, actionName, params);
+			executeOnDevice(interpreter, device, protocol, params);
 		} else {
-			executeOnNode(interpreter, device, lanId, actionName, params);			
+			executeOnNode(interpreter, device, lanId, protocol, params);			
 		}
 	}
 	
-	private boolean isActionSupported(CommandInterpreter interpreter, Device device, String actionName) {
+	private boolean isActionSupported(CommandInterpreter interpreter, Device device, Protocol protocol) {
 		String mode = deviceManager.getMode(device.getDeviceId());
-		if (!deviceManager.isActionSupported(mode, actionName)) {
-			interpreter.print(String.format("Error: Action '%s' isn't supported by device which's device ID is '%s'.\n",
-					actionName, device.getDeviceId()));
+		if (!deviceManager.isActionSupported(mode, protocol)) {
+			interpreter.print(String.format("Error: Action which's protocol is '%s' isn't supported by device which's device ID is '%s'.\n",
+					protocol, device.getDeviceId()));
 			
 			return false;
 		}
@@ -210,24 +232,24 @@ public class SandCommandProvider implements CommandProvider, IEventProducerAware
 		return true;
 	}
 	
-	private void executeOnDevice(CommandInterpreter interpreter, Device device, String actionName, Map<String, String> params) {
-		if (!isActionSupported(interpreter, device, actionName))
+	private void executeOnDevice(CommandInterpreter interpreter, Device device, Protocol protocol, Map<String, String> params) {
+		if (!isActionSupported(interpreter, device, protocol))
 			return;
 		
-		Object actionObject = createActionObject(interpreter, device.getMode(), actionName, params);
-		eventProducer.fire(new ExecutionEvent(device, null, new Execute(actionName, actionObject)));
+		Object actionObject = createActionObject(interpreter, device.getMode(), protocol, params);
+		eventProducer.fire(new ExecutionEvent(device, null, new Execute(actionObject)));
 	}
 	
-	private void executeOnNode(CommandInterpreter interpreter, Device concentratorDevice, String lanId, String actionName, Map<String, String> params) {
+	private void executeOnNode(CommandInterpreter interpreter, Device concentratorDevice, String lanId, Protocol protocol, Map<String, String> params) {
 		Device nodeDevice = getNodeDevice(interpreter, concentratorDevice, lanId);
 		if (nodeDevice == null)
 			return;
 		
-		if (!isActionSupported(interpreter, nodeDevice, actionName))
+		if (!isActionSupported(interpreter, nodeDevice, protocol))
 			return;
 		
-		Object actionObject = createActionObject(interpreter, nodeDevice.getMode(), actionName, params);
-		eventProducer.fire(new ExecutionEvent(concentratorDevice, lanId, new Execute(actionName, actionObject)));
+		Object actionObject = createActionObject(interpreter, nodeDevice.getMode(), protocol, params);
+		eventProducer.fire(new ExecutionEvent(concentratorDevice, lanId, new Execute(actionObject)));
 	}
 	
 	private Device getNodeDevice(CommandInterpreter interpreter, Device concentratorDevice, String lanId) {
@@ -244,8 +266,8 @@ public class SandCommandProvider implements CommandProvider, IEventProducerAware
 		return null;
 	}
 
-	private Object createActionObject(CommandInterpreter interpreter, String mode, String actionName, Map<String, String> params) {		
-		Class<?> actionType = deviceManager.getActionType(mode, actionName);
+	private Object createActionObject(CommandInterpreter interpreter, String mode, Protocol protocol, Map<String, String> params) {		
+		Class<?> actionType = deviceManager.getActionType(mode, protocol);
 		try {
 			Object action = actionType.newInstance();
 			if (params != null && !params.isEmpty()) {				

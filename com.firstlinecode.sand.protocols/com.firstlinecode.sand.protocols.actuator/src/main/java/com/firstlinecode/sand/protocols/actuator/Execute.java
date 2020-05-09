@@ -9,23 +9,12 @@ public class Execute {
 	public static final Protocol PROTOCOL = new Protocol("urn:leps:iot:actuator", "execute");
 	
 	@NotNull
-	private String actionName;
-	@NotNull
 	private Object action;
 	
 	public Execute() {}
 	
-	public Execute(String actionName, Object action) {
-		this.actionName = actionName;
+	public Execute(Object action) {
 		this.action = action;
-	}
-	
-	public String getActionName() {
-		return actionName;
-	}
-	
-	public void setActionName(String actionName) {
-		this.actionName = actionName;
 	}
 	
 	public Object getAction() {

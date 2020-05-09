@@ -17,5 +17,17 @@
 	<name>com.firstlinecode.sand.protocols.core</name>
 	<packaging>bundle</packaging>
 	
+	<dependencies>
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+		</dependency>
+		
+		<dependency>
+			<groupId>com.firstlinecode.basalt</groupId>
+			<artifactId>com.firstlinecode.basalt.protocol</artifactId>
+		</dependency>
+	</dependencies>
+	
 </project>
 

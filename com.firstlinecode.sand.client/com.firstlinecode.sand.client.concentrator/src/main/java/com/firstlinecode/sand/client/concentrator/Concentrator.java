@@ -49,7 +49,7 @@ public class Concentrator implements IConcentrator {
 		
 		for (String lanId : nodes.keySet()) {
 			this.nodes.put(lanId, nodes.get(lanId));
-		}
+		}		
 	}
 
 	@Override

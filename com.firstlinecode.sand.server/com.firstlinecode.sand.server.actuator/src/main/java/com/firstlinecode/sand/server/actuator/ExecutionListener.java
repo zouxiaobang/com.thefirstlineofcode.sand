@@ -43,8 +43,8 @@ public class ExecutionListener implements IEventListener<ExecutionEvent>, IAppli
 		}
 		
 		String mode = deviceManager.getMode(actuator.getDeviceId());
-		if (!deviceManager.isActionSupported(mode, event.getExecute().getActionName())) {
-			throw new IllegalArgumentException(String.format("Unsupported action name: '%s'.", event.getExecute().getActionName()));
+		if (!deviceManager.isActionSupported(mode, event.getExecute().getAction().getClass())) {
+			throw new IllegalArgumentException(String.format("Unsupported action type: '%s'.", event.getExecute().getAction().getClass().getName()));
 		}
 		
 		String deviceName = deviceManager.getDeviceNameByDeviceId(event.getDevice().getDeviceId());

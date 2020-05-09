@@ -1,6 +1,5 @@
 package com.firstlinecode.sand.protocols.actuator.oxm;
 
-import com.firstlinecode.basalt.oxm.Attributes;
 import com.firstlinecode.basalt.oxm.convention.NamingConventionTranslatorFactory;
 import com.firstlinecode.basalt.oxm.translating.IProtocolWriter;
 import com.firstlinecode.basalt.oxm.translating.ITranslatingFactory;
@@ -33,24 +32,39 @@ public class ExecutionTranslatorFactory implements ITranslatorFactory<Execute> {
 
 		@Override
 		public String translate(Execute execute, IProtocolWriter writer, ITranslatingFactory translatingFactory) {
-			if (execute.getActionName() == null || execute.getAction() == null) {
-				throw new ProtocolException(new BadRequest("Null action or action name."));
+			if (execute.getAction() == null) {
+				throw new ProtocolException(new BadRequest("Null action."));
 			}
 			
 			writer.writeProtocolBegin(Execute.PROTOCOL);
-			writer.writeAttributes(new Attributes().add("action-name", execute.getActionName()).get());
-			translate(execute.getActionName(), execute.getAction(), writer, translatingFactory);
+			translate(execute.getAction(), writer, translatingFactory);
 			writer.writeProtocolEnd();
 			
 			return writer.getDocument();
 		}
 
 		@SuppressWarnings("unchecked")
-		private <T> void translate(String actionName, Object action, IProtocolWriter writer, ITranslatingFactory translatingFactory) {
+		private <T> void translate(Object action, IProtocolWriter writer, ITranslatingFactory translatingFactory) {
 			Class<T> actionType = (Class<T>)action.getClass();
-			NamingConventionTranslatorFactory<T> actionTranslatorFactory = new NamingConventionTranslatorFactory<>(actionType);
+			ITranslatorFactory<T> actionTranslatorFactory = createCustomActionTranslatorFactory(actionType);
+			if (actionTranslatorFactory == null) {				
+				actionTranslatorFactory = new NamingConventionTranslatorFactory<>(actionType);
+			}
 			
 			actionTranslatorFactory.create().translate((T)action, writer, translatingFactory);
+		}
+
+		@SuppressWarnings("unchecked")
+		private <T> ITranslatorFactory<T> createCustomActionTranslatorFactory(Class<T> actionType) {
+			String customActionTranslatorFactoryName = actionType.getPackage().getName() + actionType.getSimpleName() + "TranslatorFactory";
+			try {				
+				Class<ITranslatorFactory<T>> customActionTranslatorFactoryType = (Class<ITranslatorFactory<T>>)Class.forName(customActionTranslatorFactoryName);
+				return customActionTranslatorFactoryType.newInstance();
+			} catch (Exception e) {
+				// Ignore
+			}
+			
+			return null;
 		}
 	}
 

@@ -5,7 +5,11 @@ public class ExecutionException extends Exception {
 	
 	public enum Reason {
 		UNSUPPORTED_ACTION_TYPE,
-		INTERNAL_ERROR
+		FAILED_TO_CREATE_INSTANCE,
+		FAILED_TO_EXECUTE,
+		NOT_A_CONCENTRATOR,
+		INVALID_NODE_LAN_ID,
+		UNKNOWN_ERROR
 	}
 	
 	private Reason reason;
@@ -16,7 +20,12 @@ public class ExecutionException extends Exception {
 	}
 	
 	public ExecutionException(Throwable cause) {
-		this.reason = Reason.INTERNAL_ERROR;
+		this.reason = Reason.UNKNOWN_ERROR;
+		this.cause = cause;
+	}
+	
+	public ExecutionException(Reason reason, Throwable cause) {
+		this.reason = reason;
 		this.cause = cause;
 	}
 	

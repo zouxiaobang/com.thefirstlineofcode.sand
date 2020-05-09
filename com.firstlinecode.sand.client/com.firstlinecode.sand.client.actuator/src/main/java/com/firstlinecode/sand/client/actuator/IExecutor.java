@@ -1,5 +1,7 @@
 package com.firstlinecode.sand.client.actuator;
 
+import com.firstlinecode.basalt.protocol.core.stanza.Iq;
+
 public interface IExecutor<T> {
-	void execute(T action) throws ExecutionException;
+	void execute(Iq iq, T action) throws ExecutionException;
 }

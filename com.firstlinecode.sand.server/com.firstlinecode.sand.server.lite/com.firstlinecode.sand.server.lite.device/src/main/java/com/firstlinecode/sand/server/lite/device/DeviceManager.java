@@ -12,6 +12,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.firstlinecode.basalt.protocol.core.JabberId;
+import com.firstlinecode.basalt.protocol.core.Protocol;
 import com.firstlinecode.basalt.protocol.core.ProtocolException;
 import com.firstlinecode.basalt.protocol.core.stanza.error.Conflict;
 import com.firstlinecode.basalt.protocol.core.stanza.error.NotAuthorized;
@@ -243,14 +244,14 @@ public class DeviceManager implements IDeviceManager {
 	}
 
 	@Override
-	public boolean isActionSupported(String mode, String actionName) {
+	public boolean isActionSupported(String mode, Protocol protocol) {
 		ModeDescriptor modeDescriptor = getModeDescriptor(mode);
 		
 		if (!modeDescriptor.isActuator())
 			return false;
 		
-		for (String supportedActionName : modeDescriptor.getSupportedActions().keySet()) {
-			if (actionName.equals(supportedActionName))
+		for (Protocol supportedActionProtocol : modeDescriptor.getSupportedActions().keySet()) {
+			if (protocol.equals(supportedActionProtocol))
 				return true;
 		}
 		
@@ -258,14 +259,14 @@ public class DeviceManager implements IDeviceManager {
 	}
 
 	@Override
-	public boolean isEventSupported(String mode, String eventName) {
+	public boolean isEventSupported(String mode, Protocol protocol) {
 		ModeDescriptor modeDescriptor = getModeDescriptor(mode);
 		
 		if (!modeDescriptor.isSensor())
 			return false;
 		
-		for (String supportedEventName : modeDescriptor.getSupportedEvents().keySet()) {
-			if (eventName.equals(supportedEventName))
+		for (Protocol supportedEventProtocol : modeDescriptor.getSupportedEvents().keySet()) {
+			if (protocol.equals(supportedEventProtocol))
 				return true;
 		}
 		
@@ -273,23 +274,23 @@ public class DeviceManager implements IDeviceManager {
 	}
 
 	@Override
-	public Class<?> getActionType(String mode, String actionName) {
+	public Class<?> getActionType(String mode, Protocol protocol) {
 		ModeDescriptor modeDescriptor = getModeDescriptor(mode);
 		
 		if (!modeDescriptor.isActuator())
 			throw new RuntimeException(String.format("Device which's mode is '%s' isn't an actuator.", mode));
 		
-		return modeDescriptor.getSupportedActions().get(actionName);
+		return modeDescriptor.getSupportedActions().get(protocol);
 	}
 
 	@Override
-	public Class<?> getEventType(String mode, String eventName) {
+	public Class<?> getEventType(String mode, Protocol protocol) {
 		ModeDescriptor modeDescriptor = getModeDescriptor(mode);
 		
 		if (!modeDescriptor.isSensor())
 			throw new RuntimeException(String.format("Device which's mode is '%s' isn't a sensor.", mode));
 		
-		return modeDescriptor.getSupportedEvents().get(eventName);
+		return modeDescriptor.getSupportedEvents().get(protocol);
 	}
 
 	@Override
@@ -299,5 +300,25 @@ public class DeviceManager implements IDeviceManager {
 			return deviceIdentity.getDeviceName();
 		
 		return null;
+	}
+
+	@Override
+	public boolean isActionSupported(String mode, Class<?> actionType) {
+		ModeDescriptor modeDescriptor = getModeDescriptor(mode);
+		
+		if (!modeDescriptor.isActuator())
+			throw new RuntimeException(String.format("Device which's mode is '%s' isn't an actuator.", mode));
+		
+		return modeDescriptor.getSupportedActions().containsValue(actionType);
+	}
+
+	@Override
+	public boolean isEventSupported(String mode, Class<?> eventType) {
+		ModeDescriptor modeDescriptor = getModeDescriptor(mode);
+		
+		if (!modeDescriptor.isSensor())
+			throw new RuntimeException(String.format("Device which's mode is '%s' isn't a sensor.", mode));
+		
+		return modeDescriptor.getSupportedEvents().containsValue(eventType);
 	}
 }

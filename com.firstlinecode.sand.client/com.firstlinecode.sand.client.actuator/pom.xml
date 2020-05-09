@@ -24,7 +24,7 @@
 		</dependency>
 		<dependency>
 			<groupId>com.firstlinecode.sand.client</groupId>
-			<artifactId>com.firstlinecode.sand.client.dmr</artifactId>
+			<artifactId>com.firstlinecode.sand.client.concentrator</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>com.firstlinecode.chalk</groupId>
