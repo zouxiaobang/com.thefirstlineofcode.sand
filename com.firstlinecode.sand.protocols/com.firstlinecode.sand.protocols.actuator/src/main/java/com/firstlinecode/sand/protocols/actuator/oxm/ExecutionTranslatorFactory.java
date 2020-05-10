@@ -56,8 +56,9 @@ public class ExecutionTranslatorFactory implements ITranslatorFactory<Execute> {
 
 		@SuppressWarnings("unchecked")
 		private <T> ITranslatorFactory<T> createCustomActionTranslatorFactory(Class<T> actionType) {
-			String customActionTranslatorFactoryName = actionType.getPackage().getName() + actionType.getSimpleName() + "TranslatorFactory";
-			try {				
+			String customActionTranslatorFactoryName = String.format("%s.%s.%s", actionType.getPackage().getName(),
+					actionType.getSimpleName(), "TranslatorFactory");
+			try {
 				Class<ITranslatorFactory<T>> customActionTranslatorFactoryType = (Class<ITranslatorFactory<T>>)Class.forName(customActionTranslatorFactoryName);
 				return customActionTranslatorFactoryType.newInstance();
 			} catch (Exception e) {

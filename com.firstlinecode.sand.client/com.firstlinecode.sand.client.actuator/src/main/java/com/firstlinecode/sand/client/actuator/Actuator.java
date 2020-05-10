@@ -5,28 +5,51 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.firstlinecode.basalt.oxm.convention.NamingConventionParserFactory;
+import com.firstlinecode.basalt.oxm.parsing.IParserFactory;
+import com.firstlinecode.basalt.protocol.core.Protocol;
+import com.firstlinecode.basalt.protocol.core.ProtocolChain;
 import com.firstlinecode.basalt.protocol.core.stanza.Iq;
 import com.firstlinecode.chalk.IChatServices;
 import com.firstlinecode.chalk.core.stanza.IIqListener;
 import com.firstlinecode.sand.client.actuator.ExecutionException.Reason;
 import com.firstlinecode.sand.client.concentrator.IActionDeliverer;
 import com.firstlinecode.sand.client.concentrator.IConcentrator;
+import com.firstlinecode.sand.client.concentrator.Node;
+import com.firstlinecode.sand.client.dmr.IModeRegistrar;
+import com.firstlinecode.sand.client.things.commuication.CommunicationException;
+import com.firstlinecode.sand.client.things.commuication.ICommunicator;
 import com.firstlinecode.sand.protocols.actuator.Execute;
+import com.firstlinecode.sand.protocols.core.BadAddressException;
+import com.firstlinecode.sand.protocols.core.CommunicationNet;
+import com.firstlinecode.sand.protocols.core.ModeDescriptor;
 
 public class Actuator implements IActuator, IIqListener {
-	private static final String LAN_ID_CONCENTRATOR = "00";
-	private IChatServices chatServices;
+	private static final Logger logger = LoggerFactory.getLogger(Actuator.class);
 	
+	private IChatServices chatServices;
 	private Map<Class<?>, IExecutorFactory<?>> executorFactories;
+	private ConcurrentMap<CommunicationNet, IActionDeliverer<?, ?>> actionDeliverers;
 	
 	public Actuator() {
 		executorFactories = new HashMap<>();
+		actionDeliverers = new ConcurrentHashMap<>();
 	}
 	
 	@Override
 	public void received(Iq iq) {
 		Execute execute = iq.getObject();
+		
+		if (logger.isInfoEnabled()) {
+			logger.info("Received a execute message. Action object is {}.", execute.getAction());
+		}
+		
 		try {
 			execute(iq, execute.getAction());
 			
@@ -38,19 +61,39 @@ public class Actuator implements IActuator, IIqListener {
 		}
 	}
 
-	@SuppressWarnings("unchecked")
 	private <T> void execute(Iq iq, T action) throws ExecutionException {
-		IExecutorFactory<T> executorFactory = (IExecutorFactory<T>)executorFactories.get(action.getClass());
-		IExecutor<T> executor = executorFactory.create();
-		
-		if (executor != null) {
-			executor.execute(iq, action);
-		} else if (iq.getTo() != null && iq.getTo().getResource() != null &&
-				!LAN_ID_CONCENTRATOR.equals(iq.getTo().getResource())) {
-			deliverAction(iq, action);
-		} else {
-			throw new ExecutionException(Reason.UNSUPPORTED_ACTION_TYPE);
+		try {
+			IExecutor<T> executor = createExecutor(action);
+			
+			if (executor != null) {
+				if (logger.isDebugEnabled()) {
+					logger.debug("Try to execute the action {}.", action);
+				}
+				
+				executor.execute(iq, action);
+			} else if (iq.getTo() != null && iq.getTo().getResource() != null &&
+					!IConcentrator.LAN_ID_CONCENTRATOR.equals(iq.getTo().getResource())) {
+				if (logger.isDebugEnabled()) {
+					logger.debug("Try to deliver the action {} to node {}.", action, iq.getTo().getResource());
+				}
+				
+				deliverAction(iq, action);
+			} else {
+				throw new ExecutionException(Reason.UNSUPPORTED_ACTION_TYPE);
+			}
+		} catch (RuntimeException e) {
+			// TODO: handle exception
+			throw new ExecutionException(Reason.UNKNOWN_ERROR);
 		}
+	}
+
+	@SuppressWarnings("unchecked")
+	private <T> IExecutor<T> createExecutor(T action) throws ExecutionException {
+		IExecutorFactory<T> executorFactory = (IExecutorFactory<T>)executorFactories.get(action.getClass());
+		if (executorFactory != null)
+			return executorFactory.create();
+		
+		return null;
 	}
 
 	@SuppressWarnings("unchecked")
@@ -59,7 +102,7 @@ public class Actuator implements IActuator, IIqListener {
 		try {
 			constructor = (Constructor<T>)executorType.getConstructor(IChatServices.class);
 		} catch (SecurityException | NoSuchMethodException e) {
-			throw new ExecutionException(Reason.FAILED_TO_CREATE_INSTANCE);
+			throw new ExecutionException(Reason.FAILED_TO_CREATE_EXECUTOR_INSTANCE);
 		}
 		
 		if (constructor != null) {
@@ -68,7 +111,7 @@ public class Actuator implements IActuator, IIqListener {
 				executor = (IExecutor<T>)constructor.newInstance(chatServices);
 			} catch (InstantiationException | IllegalAccessException | IllegalArgumentException
 					| InvocationTargetException e) {
-				throw new ExecutionException(Reason.FAILED_TO_CREATE_INSTANCE);
+				throw new ExecutionException(Reason.FAILED_TO_CREATE_EXECUTOR_INSTANCE);
 			}
 			
 			for (Field field : executorType.getFields()) {
@@ -78,7 +121,7 @@ public class Actuator implements IActuator, IIqListener {
 						field.setAccessible(true);
 						field.set(executor, chatServices);
 					} catch (IllegalAccessException | IllegalArgumentException e) {
-						throw new ExecutionException(Reason.FAILED_TO_CREATE_INSTANCE, e);
+						throw new ExecutionException(Reason.FAILED_TO_CREATE_EXECUTOR_INSTANCE, e);
 					} finally {
 						field.setAccessible(oldAccesssiable);
 					}
@@ -93,7 +136,7 @@ public class Actuator implements IActuator, IIqListener {
 		try {
 			return executorType.newInstance();
 		} catch (InstantiationException | IllegalAccessException e) {
-			throw new ExecutionException(Reason.FAILED_TO_CREATE_INSTANCE);
+			throw new ExecutionException(Reason.FAILED_TO_CREATE_EXECUTOR_INSTANCE);
 		}
 	}
 
@@ -104,12 +147,42 @@ public class Actuator implements IActuator, IIqListener {
 
 	@Override
 	public void start() {
+		IModeRegistrar modeRegistrar = chatServices.createApi(IModeRegistrar.class);
+		ModeDescriptor[] modeDescriptors = modeRegistrar.getModeDescriptors();
+		for (ModeDescriptor modeDescriptor : modeDescriptors) {
+			for (Protocol protocol : modeDescriptor.getSupportedActions().keySet()) {
+				Class<?> actionType = modeDescriptor.getSupportedActions().get(protocol);
+				IParserFactory<?> actionParserFactory = createCustomActionParserFactory(actionType);
+				
+				if (actionParserFactory == null)
+					actionParserFactory = new NamingConventionParserFactory<>(actionType);
+				
+					chatServices.getStream().getOxmFactory().register(
+							ProtocolChain.first(Iq.PROTOCOL).next(Execute.PROTOCOL).next(protocol),
+							actionParserFactory);
+			}
+		}
+		
 		chatServices.getIqService().addListener(Execute.PROTOCOL, this);
+	}
+	
+	@SuppressWarnings("unchecked")
+	private <T> IParserFactory<T> createCustomActionParserFactory(Class<T> actionType) {
+		String customActionParserFactoryName = String.format("%s.%s.%s", actionType.getPackage().getName(),
+				actionType.getSimpleName(), "ParserFactory");
+		try {
+			Class<IParserFactory<T>> customActionTranslatorFactoryType = (Class<IParserFactory<T>>)Class.forName(customActionParserFactoryName);
+			return customActionTranslatorFactoryType.newInstance();
+		} catch (Exception e) {
+			// Ignore
+		}
+		
+		return null;
 	}
 
 	@Override
 	public void stop() {
-		chatServices.getIqService().removeListener(this);
+		chatServices.getIqService().removeListener(Execute.PROTOCOL);
 	}
 	
 	@Override
@@ -143,16 +216,67 @@ public class Actuator implements IActuator, IIqListener {
 		executorFactories.put(actionType, executorFactory);
 	}
 	
-	private void deliverAction(Iq iq, Object action) throws ExecutionException {
+	@SuppressWarnings("unchecked")
+	private <PA> void deliverAction(Iq iq, Object action) throws ExecutionException {
 		IConcentrator concentrator = chatServices.createApi(IConcentrator.class);
 		if (concentrator == null)
 			throw new ExecutionException(Reason.NOT_A_CONCENTRATOR);
 		
-		if (concentrator.getNode(iq.getTo().getResource()) == null)
+		Node node = concentrator.getNode(iq.getTo().getResource());
+		if (node == null)
 			throw new ExecutionException(Reason.INVALID_NODE_LAN_ID);
 		
-		IActionDeliverer actionDeliverer = chatServices.createApi(IActionDeliverer.class);
-		actionDeliverer.deliver(iq.getTo().getResource(), action);
+		IActionDeliverer<PA, ?> actionDeliverer = getActionDeliverer(concentrator, node);
+		if (actionDeliverer == null) {
+			throw new ExecutionException(Reason.UNSUPPORTED_COMMUNICATION_NET);
+		}
+		
+		try {
+			actionDeliverer.deliver((PA)getNodeAddress(node.getCommunicationNet(), node.getAddress()), action);
+		} catch (BadAddressException e) {
+			throw new ExecutionException(Reason.UNKNOWN_ERROR, e);
+		} catch (CommunicationException e) {
+			throw new ExecutionException(Reason.FAILED_TO_DELIVER_ACTION_TO_NODE, e);
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	private <PA> IActionDeliverer<PA, ?> getActionDeliverer(IConcentrator concentrator, Node node) throws ExecutionException {
+		return (IActionDeliverer<PA, ?>)getActionDeliverer(
+				node.getCommunicationNet(), concentrator.getCommunicator(node.getCommunicationNet()));
+	}
+
+	private Object getNodeAddress(CommunicationNet communicationNet, String address) throws BadAddressException {
+		return communicationNet.parse(address);
+	}
+
+	private IActionDeliverer<?, ?> getActionDeliverer(CommunicationNet communicationNet,
+			ICommunicator<?, ?, ?> communicator) throws ExecutionException {
+		IActionDeliverer<?, ?> actionDeliverer = actionDeliverers.get(communicationNet);
+		if (actionDeliverer == null) {
+			actionDeliverer = createActionDeliverer(communicationNet, communicator);
+			IActionDeliverer<?, ?> existed = actionDeliverers.putIfAbsent(communicationNet, actionDeliverer);
+			if (existed != null) {
+				actionDeliverer = existed;
+			}
+		}
+		
+		return actionDeliverer;
+	}
+
+	@SuppressWarnings("unchecked")
+	private <PA, D> IActionDeliverer<PA, D> createActionDeliverer(CommunicationNet communicationNet,
+			ICommunicator<?, PA, D> communicator) throws ExecutionException {
+		String actionDelivererTypeName = String.format("com.firstlinecode.sand.client.%s.ActionDeliverer",
+				communicationNet.toString().toLowerCase());
+		try {
+			Class<?> actionDelivererType = Class.forName(actionDelivererTypeName);
+			IActionDeliverer<PA, D> actionDeliverer = (IActionDeliverer<PA, D>)actionDelivererType.newInstance();
+			actionDeliverer.setCommunicator(communicator);
+			return actionDeliverer;
+		} catch (Exception e) {
+			throw new ExecutionException(Reason.FAILED_TO_CREATE_ACTION_DELIVERER_INSTANCE, e);
+		}
 	}
 
 }

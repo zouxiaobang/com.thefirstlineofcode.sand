@@ -35,7 +35,6 @@ public class SandCommandProvider implements CommandProvider, IEventProducerAware
 	
 	private static final String SYSTEM_CONSOLE_AUTHORIZER = "System.Console";
 	private static final int DEFAULT_VALIDITY_TIME = 1000 * 60 * 30;
-	private static final String LAN_ID_CONCENTRATOR = "00";
 
 	private static final String MSG_HELP = "sand - Monitoring and managing sand application.\r\n";
 	
@@ -213,7 +212,8 @@ public class SandCommandProvider implements CommandProvider, IEventProducerAware
 			interpreter.print("Error: Unsupported action name '%s'.\n");	
 		}
 		
-		if (!concentratorFactory.isConcentrator(device) || lanId == null || LAN_ID_CONCENTRATOR.equals(lanId)) {
+		if (!concentratorFactory.isConcentrator(device) || lanId == null ||
+				IConcentrator.LAN_ID_CONCENTRATOR.equals(lanId)) {
 			executeOnDevice(interpreter, device, protocol, params);
 		} else {
 			executeOnNode(interpreter, device, lanId, protocol, params);			

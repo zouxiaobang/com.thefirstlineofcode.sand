@@ -8,8 +8,11 @@ import com.firstlinecode.sand.protocols.lora.LoraAddress;
 
 public interface IThingEmulator extends IThing, Externalizable {
 	boolean isAddressConfigured();
+	void startToReceiveData();
+	void stopDataReceving();
 	void addressConfigured(LoraAddress gatewayUplinkAddress, LoraAddress gatewayDownloadLinkAddress,
 			LoraAddress thingAddress);
+	void nodeAdded(String lanId);
 	void setDeviceId(String deviceId);
 	void setBatteryPower(int batteryPower) ;
 	void powerChanged(PowerEvent event);

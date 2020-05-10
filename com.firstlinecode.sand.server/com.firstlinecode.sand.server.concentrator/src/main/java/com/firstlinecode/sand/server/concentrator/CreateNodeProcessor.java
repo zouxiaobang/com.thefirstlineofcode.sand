@@ -61,7 +61,7 @@ public class CreateNodeProcessor implements IXepProcessor<Iq, CreateNode>, IConf
 		node.setDeviceId(xep.getDeviceId());
 		node.setLanId(xep.getLanId());
 		node.setCommunicationNet(xep.getCommunicationNet());
-		node.setAddress(xep.getAddress().toString());
+		node.setAddress(xep.getAddress());
 		
 		NodeConfirmation confirmation = dataObjectFactory.create(NodeConfirmation.class);
 		confirmation.setRequestId(iq.getId());

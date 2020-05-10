@@ -23,6 +23,8 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
@@ -89,6 +91,7 @@ import com.firstlinecode.sand.emulators.thing.Constants;
 import com.firstlinecode.sand.emulators.thing.IThingEmulator;
 import com.firstlinecode.sand.emulators.thing.IThingEmulatorFactory;
 import com.firstlinecode.sand.emulators.thing.UiUtils;
+import com.firstlinecode.sand.protocols.core.CommunicationNet;
 import com.firstlinecode.sand.protocols.core.DeviceIdentity;
 import com.firstlinecode.sand.protocols.lora.LoraAddress;
 
@@ -381,6 +384,7 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 
 	private synchronized void setToWorkingMode() {
 		addressConfigurator.stop();
+		startWorking(chatClient);
 		
 		getMenuItem(MENU_NAME_TOOLS, MENU_ITEM_NAME_WORKING_MODE).setEnabled(false);
 		getMenuItem(MENU_NAME_TOOLS, MENU_ITEM_NAME_ADDRESS_CONFIGURATION_MODE).setEnabled(true);	
@@ -389,6 +393,7 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 
 	private synchronized void setToAddressConfigurationMode() {
 		addressConfigurator.start();
+		stopWorking(chatClient);
 		
 		getMenuItem(MENU_NAME_TOOLS, MENU_ITEM_NAME_ADDRESS_CONFIGURATION_MODE).setEnabled(false);
 		getMenuItem(MENU_NAME_TOOLS, MENU_ITEM_NAME_WORKING_MODE).setEnabled(true);
@@ -424,6 +429,9 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 	
 	private void connect() {
 		connect(true);
+		
+		// Don't start actuator before the time that chat client has connected to server.
+		startActuator(chatClient);
 	}
 	
 	private void connect(boolean dirty) {
@@ -469,7 +477,7 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 
 	private IConcentrator createConcentrator() {
 		IConcentrator concentrator = chatClient.createApi(IConcentrator.class);
-		concentrator.init(deviceId, nodes);
+		concentrator.init(deviceId, nodes, Collections.singletonMap(CommunicationNet.LORA, gatewayCommunicator));
 		concentrator.addListener(this);
 		
 		return concentrator;
@@ -484,14 +492,41 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 		
 		registerPlugins(chatClient);
 		registerModes(chatClient);
-		startActuator(chatClient);
 		
 		return chatClient;
 	}
+	
+	private void startWorking(IChatClient chatClient) {
+		startActuator(chatClient);
+		startSensor(chatClient);
+	}
+
+	private void startSensor(IChatClient chatClient2) {
+		// TODO Auto-generated method stub
+		
+	}
 
 	private void startActuator(IChatClient chatClient) {
+		if (addressConfigurator.getState() != DynamicAddressConfigurator.State.WORKING)
+			return;
+		
 		IActuator actuator = chatClient.createApi(IActuator.class);
 		actuator.start();
+	}
+	
+	private void stopWorking(IChatClient chatClient) {
+		stopSensor(chatClient);
+		stopActuator(chatClient);
+	}
+	
+	private void stopSensor(IChatClient chatClient2) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	private void stopActuator(IChatClient chatClient) {
+		IActuator actuator = chatClient.createApi(IActuator.class);
+		actuator.stop();
 	}
 
 	private void registerModes(IChatClient chatClient) {
@@ -991,7 +1026,7 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 		}
 		
 		if (thing instanceof AbstractThingEmulator)
-			thingPanel.updateStatus(((AbstractThingEmulator)thing).getThingStatus());
+			thingPanel.updateStatus(((AbstractThingEmulator<?, ?, ?>)thing).getThingStatus());
 	}
 	
 	private void changeGatewayStatusAndRefreshUiThread(boolean dirty) {
@@ -1389,6 +1424,21 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 	@Override
 	public void nodeAdded(String lanId, Node node) {
 		nodes.put(lanId, node);
+		
+		boolean found = false;
+		for (Collection<IThingEmulator> things : allThings.values()) {
+			for (IThingEmulator thing : things) {
+				if (thing.getDeviceId().equals(node.getDeviceId())) {
+					found = true;
+					thing.nodeAdded(lanId);
+					break;
+				}
+			}
+			
+			if (found)
+				break;
+		}
+		
 		setDirty(dirty);
 	}
 

@@ -15,9 +15,11 @@ import com.firstlinecode.basalt.protocol.core.stanza.error.StanzaError;
 import com.firstlinecode.chalk.IChatServices;
 import com.firstlinecode.chalk.ITask;
 import com.firstlinecode.chalk.IUnidirectionalStream;
+import com.firstlinecode.sand.client.things.commuication.ICommunicator;
 import com.firstlinecode.sand.protocols.concentrator.CreateNode;
 import com.firstlinecode.sand.protocols.concentrator.NodeAddress;
 import com.firstlinecode.sand.protocols.concentrator.NodeCreated;
+import com.firstlinecode.sand.protocols.core.CommunicationNet;
 
 public class Concentrator implements IConcentrator {
 	private static final String PATTERN_LAN_ID = "%02d";
@@ -32,6 +34,8 @@ public class Concentrator implements IConcentrator {
 	private Map<String, Node> nodes;
 	private Object nodesLock;
 	
+	private Map<CommunicationNet, ? extends ICommunicator<?, ?, ?>> communicators; 
+	
 	private IChatServices chatServices;
 	
 	public Concentrator() {
@@ -41,15 +45,17 @@ public class Concentrator implements IConcentrator {
 	}
 
 	@Override
-	public void init(String deviceId, Map<String, Node> nodes) {
+	public void init(String deviceId, Map<String, Node> nodes, Map<CommunicationNet, ? extends ICommunicator<?, ?, ?>> communicators) {
 		this.deviceId = deviceId;
+		this.communicators = communicators;
 		
 		if (nodes == null || nodes.size() == 0)
 			return;
 		
 		for (String lanId : nodes.keySet()) {
 			this.nodes.put(lanId, nodes.get(lanId));
-		}		
+		}
+		
 	}
 
 	@Override
@@ -314,6 +320,11 @@ public class Concentrator implements IConcentrator {
 		}
 		
 		return lanId;
+	}
+
+	@Override
+	public ICommunicator<?, ?, ?> getCommunicator(CommunicationNet communicationNet) {
+		return communicators.get(communicationNet);
 	}
 
 }

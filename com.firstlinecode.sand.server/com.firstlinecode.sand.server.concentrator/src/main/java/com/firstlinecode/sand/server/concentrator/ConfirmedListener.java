@@ -10,8 +10,6 @@ import com.firstlinecode.granite.framework.core.event.IEventListener;
 import com.firstlinecode.sand.server.device.IDeviceManager;
 
 public class ConfirmedListener implements IEventListener<ConfirmedEvent>, IApplicationConfigurationAware {
-	private static final String LAN_ID_CONCENTRATOR = "00";
-
 	@Dependency("device.manager")
 	private IDeviceManager deviceManager;
 	
@@ -34,7 +32,7 @@ public class ConfirmedListener implements IEventListener<ConfirmedEvent>, IAppli
 		JabberId jid = new JabberId();
 		jid.setName(event.getNodeCreated().getConcentrator());
 		jid.setDomain(domainName);
-		jid.setResource(LAN_ID_CONCENTRATOR);
+		jid.setResource(IConcentrator.LAN_ID_CONCENTRATOR);
 		return jid;
 	}
 

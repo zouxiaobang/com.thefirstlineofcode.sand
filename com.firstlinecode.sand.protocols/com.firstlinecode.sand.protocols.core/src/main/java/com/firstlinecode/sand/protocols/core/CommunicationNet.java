@@ -19,10 +19,10 @@ public enum CommunicationNet {
 		
 		String name = name();
 		String className = String.format("%s.%s.%s%s%s",
-				"com.sand.protocols",
-				name,
+				"com.firstlinecode.sand.protocols",
+				name.toLowerCase(),
 				name.substring(0, 1).toUpperCase(),
-				name.substring(1, name.length()),
+				name.substring(1, name.length()).toLowerCase(),
 				"Address"
 		);
 		
@@ -33,6 +33,10 @@ public enum CommunicationNet {
 					name(), className), e);
 		}
 		
-		return instances.putIfAbsent(name, address);
+		Address existed = instances.putIfAbsent(name, address);
+		if (existed != null)
+			address = existed;
+		
+		return address;
 	}
 }

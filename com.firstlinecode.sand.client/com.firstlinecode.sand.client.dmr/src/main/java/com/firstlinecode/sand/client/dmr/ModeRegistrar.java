@@ -74,4 +74,9 @@ public class ModeRegistrar implements IModeRegistrar {
 		return modeDescriptors.get(mode).getSupportedEvents().containsValue(eventType);
 	}
 
+	@Override
+	public ModeDescriptor[] getModeDescriptors() {
+		return modeDescriptors.values().toArray(new ModeDescriptor[modeDescriptors.size()]);
+	}
+
 }

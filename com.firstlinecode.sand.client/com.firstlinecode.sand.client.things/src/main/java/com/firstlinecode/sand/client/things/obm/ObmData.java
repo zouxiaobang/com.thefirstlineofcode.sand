@@ -1,6 +1,7 @@
 package com.firstlinecode.sand.client.things.obm;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.List;
@@ -65,6 +66,9 @@ public class ObmData {
 		try {
 			sb.append("[");
 			for (Field field : fields) {
+				if (Modifier.isStatic(field.getModifiers()))
+					continue;
+				
 				boolean oldAccessible = field.isAccessible();
 
 				try {

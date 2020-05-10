@@ -1,5 +1,7 @@
 package com.firstlinecode.sand.emulators.thing;
 
+import java.util.ConcurrentModificationException;
+
 import com.firstlinecode.chalk.IOrder;
 import com.firstlinecode.sand.client.things.commuication.CommunicationException;
 import com.firstlinecode.sand.client.things.commuication.IAddressConfigurator;
@@ -34,23 +36,28 @@ public class DynamicAddressConfigurator implements IAddressConfigurator<ICommuni
 	
 	private State state;
 	
+	private ParsingProcessor parsingProcessor = new ParsingProcessor();
+	private NegotiationProcessor negotiationProcessor = new NegotiationProcessor();
+	
 	private DataReceiver dataReceiver = new DataReceiver();
 	
 	public DynamicAddressConfigurator(IThingEmulator thing, LoraCommunicator communicator) {
 		this.thing = thing;
-		this.communicator = communicator;
-		obmFactory = new ObmFactory();
+		obmFactory = ObmFactory.createInstance();
 
-		communicator.addCommunicationListener(new ParsingProcessor());
-		communicator.addCommunicationListener(new NegotiationProcessor());
+		this.communicator = communicator;
+		communicator.addCommunicationListener(parsingProcessor);
+		communicator.addCommunicationListener(negotiationProcessor);
 	}
 
 	@Override
 	public void setCommunicator(ICommunicator<LoraAddress, LoraAddress, ObmData> communicator) {
+		this.communicator.removeCommunicationListener(parsingProcessor);
+		this.communicator.removeCommunicationListener(negotiationProcessor);
+		
 		this.communicator = (LoraCommunicator)communicator;
-
-		communicator.addCommunicationListener(new ParsingProcessor());
-		communicator.addCommunicationListener(new NegotiationProcessor());
+		communicator.addCommunicationListener(parsingProcessor);
+		communicator.addCommunicationListener(negotiationProcessor);
 	}
 	
 	@Override
@@ -60,6 +67,9 @@ public class DynamicAddressConfigurator implements IAddressConfigurator<ICommuni
 	
 	private synchronized void doIntroduce() {
 		resetToInitialState();
+		
+		dataReceiver = new DataReceiver();
+		new Thread(dataReceiver).start();
 		
 		Introduction introduction = new Introduction();
 		introduction.setDeviceId(thing.getDeviceId());
@@ -75,22 +85,20 @@ public class DynamicAddressConfigurator implements IAddressConfigurator<ICommuni
 	}
 	
 	public void stop() {
-		resetToInitialState();
+		if (dataReceiver != null) {
+			dataReceiver.stop();
+			dataReceiver = null;
+		}
 	}
 
 	private void resetToInitialState() {
-		if (dataReceiver != null) {
-			dataReceiver.stop();
-		}
-		
-		dataReceiver = new DataReceiver();
-		new Thread(dataReceiver).start();
+		stop();
 		
 		gatewayAddress = null;
 		allocatedAddress = null;
 		state = State.INITIAL;
 	}
-
+	
 	public synchronized void parse(LoraAddress peerAddress, ObmData data) {
 		if (state == State.INITIAL) {
 			Allocation allocation = (Allocation)obmFactory.toObject(Allocation.class, data.getBinary());
@@ -114,9 +122,16 @@ public class DynamicAddressConfigurator implements IAddressConfigurator<ICommuni
 				
 				byte[] response = obmFactory.toBinary(allocated);
 				communicator.send(LoraAddress.DEFAULT_DYNAMIC_ADDRESS_CONFIGURATOR_NEGOTIATION_LORAADDRESS, new ObmData(allocated, response));
-				done(gatewayAddress, communicator.getAddress());
-				
 				state = State.ALLOCATED;
+				
+				// Waiting for data receiver to stop.
+				try {
+					Thread.sleep(DEFAULT_ADDRESS_CONFIGURATION_DATA_RETRIVE_INTERVAL);
+				} catch (InterruptedException e) {
+					// Ignore
+				}
+				
+				done(gatewayAddress, communicator.getAddress());				
 			} else { // state == State.ALLOCATED
 				// Code shouldn't go to here.
 				throw new IllegalStateException("Thing address has allocated.");
@@ -144,6 +159,10 @@ public class DynamicAddressConfigurator implements IAddressConfigurator<ICommuni
 					// ignore
 				}
 			}
+			
+			// Remove communication listeners here to avoid ConcurrentModificationException.
+			communicator.removeCommunicationListener(parsingProcessor);
+			communicator.removeCommunicationListener(negotiationProcessor);
 		}
 		
 		public void stop() {

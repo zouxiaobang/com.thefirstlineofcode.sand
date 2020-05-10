@@ -15,8 +15,6 @@ import com.firstlinecode.sand.server.device.Device;
 import com.firstlinecode.sand.server.device.IDeviceManager;
 
 public class ExecutionListener implements IEventListener<ExecutionEvent>, IApplicationConfigurationAware {
-	private static final String LAN_ID_CONCENTRATOR = "00";
-
 	@Dependency("concentrator.factory")
 	private IConcentratorFactory concentratorFactory;
 	
@@ -73,7 +71,7 @@ public class ExecutionListener implements IEventListener<ExecutionEvent>, IAppli
 		target.setDomain(domain);
 		
 		if (event.getNodeLanId() != null) {
-			target.setResource(LAN_ID_CONCENTRATOR);
+			target.setResource(IConcentrator.LAN_ID_CONCENTRATOR);
 		}
 		
 		return target;

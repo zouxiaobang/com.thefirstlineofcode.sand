@@ -2,4 +2,4 @@
 # Use this file to add customized Bnd instructions for the bundle
 #-----------------------------------------------------------------
 Bundle-Activator: ${bundle.namespace}.internal.Activator
-Export-Package: com.firstlinecode.sand.server.framework.*
+Export-Package: com.firstlinecode.sand.server.platform.*

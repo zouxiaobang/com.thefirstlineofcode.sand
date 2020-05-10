@@ -3,15 +3,15 @@ package com.firstlinecode.sand.client.things.obm;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.firstlinecode.basalt.protocol.core.Protocol;
-import com.firstlinecode.basalt.protocol.core.ProtocolChain;
-import com.firstlinecode.basalt.protocol.im.stanza.Message;
 import com.firstlinecode.basalt.oxm.IOxmFactory;
 import com.firstlinecode.basalt.oxm.OxmService;
 import com.firstlinecode.basalt.oxm.binary.IBinaryXmppProtocolConverter;
 import com.firstlinecode.basalt.oxm.convention.NamingConventionParserFactory;
 import com.firstlinecode.basalt.oxm.convention.NamingConventionTranslatorFactory;
 import com.firstlinecode.basalt.oxm.convention.annotations.ProtocolObject;
+import com.firstlinecode.basalt.protocol.core.Protocol;
+import com.firstlinecode.basalt.protocol.core.ProtocolChain;
+import com.firstlinecode.basalt.protocol.im.stanza.Message;
 import com.firstlinecode.gem.client.bxmpp.BinaryXmppProtocolFactory;
 
 public class ObmFactory implements IObmFactory {
@@ -21,10 +21,20 @@ public class ObmFactory implements IObmFactory {
 	private IBinaryXmppProtocolConverter binaryXmppProtocolConverter;
 	private List<Object> registeredObjects;
 	
-	public ObmFactory() {
+	private static IObmFactory instance;
+	
+	private ObmFactory() {
 		oxmFactory = OxmService.createStandardOxmFactory();
 		binaryXmppProtocolConverter = new BinaryXmppProtocolFactory().createConverter();
 		registeredObjects = new ArrayList<>();
+	}
+	
+	public static IObmFactory createInstance() {
+		if (instance == null) {
+			instance = new ObmFactory();
+		}
+		
+		return instance;
 	}
 
 	

@@ -21,12 +21,14 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 
+import com.firstlinecode.sand.client.things.obm.ObmData;
 import com.firstlinecode.sand.emulators.lora.LoraCommunicator;
 import com.firstlinecode.sand.emulators.thing.AbstractThingEmulator;
 import com.firstlinecode.sand.emulators.thing.AbstractThingEmulatorPanel;
 import com.firstlinecode.sand.emulators.thing.PowerEvent;
+import com.firstlinecode.sand.protocols.lora.LoraAddress;
 
-public class Light extends AbstractThingEmulator implements ILight {
+public class Light extends AbstractThingEmulator<LoraAddress, LoraAddress, ObmData> implements ILight {
 	public static final String THING_NAME = "Light Emulator";
 	public static final String THING_MODE = "LE01";
 	public static final String SOFTWARE_VERSION = "0.1.0.RELEASE";
@@ -34,11 +36,15 @@ public class Light extends AbstractThingEmulator implements ILight {
 	private static final SwitchState DEFAULT_SWITCH_STATE = SwitchState.OFF;
 	private static final LightState DEFAULT_LIGHT_STATE = LightState.OFF;
 	
+	private static final int DATA_RECEIVING_INTERVAL = 1000;
+	
 	private SwitchState switchState = DEFAULT_SWITCH_STATE;
 	private LightState lightState = DEFAULT_LIGHT_STATE;
 	
 	private JPanel switchsPanel;
 	private LightEmulatorPanel panel;
+	
+	private Timer dataReceivingTimer;
 	
 	public Light(LoraCommunicator communicator) {
 		this(communicator, DEFAULT_SWITCH_STATE, DEFAULT_LIGHT_STATE);
@@ -348,6 +354,26 @@ public class Light extends AbstractThingEmulator implements ILight {
 	@Override
 	public String getThingName() {
 		return THING_NAME;
+	}
+
+	@Override
+	protected void doStartToReceiveData() {
+		dataReceivingTimer = new Timer();
+		dataReceivingTimer.schedule(new TimerTask() {
+			
+			@Override
+			public void run() {
+				((LoraCommunicator)communicator).receive();
+			}
+		}, 100, DATA_RECEIVING_INTERVAL);
+	}
+
+	@Override
+	protected void doStopDataReceiving() {
+		if (dataReceivingTimer != null) {
+			dataReceivingTimer.cancel();
+			dataReceivingTimer = null;
+		}
 	}
 	
 }

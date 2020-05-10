@@ -38,8 +38,8 @@ public class ExecutionParserFactory implements IParserFactory<Execute> {
 				return new ElementParserAdaptor<Execute>() {
 					@Override
 					public void processAttributes(IParsingContext<Execute> context, List<Attribute> attributes) {
-						if (attributes.size() != 1 || !"action-name".equals(attributes.get(0).getName())) {
-							throw new ProtocolException(new BadRequest(""));
+						if (attributes.size() != 0) {
+							throw new ProtocolException(new BadRequest("Execute object mustn't has any attributes."));
 						}
 					}
 				};

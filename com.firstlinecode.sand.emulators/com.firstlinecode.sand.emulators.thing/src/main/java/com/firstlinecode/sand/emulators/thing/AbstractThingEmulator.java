@@ -11,15 +11,20 @@ import java.util.TimerTask;
 import com.firstlinecode.sand.client.things.BatteryPowerEvent;
 import com.firstlinecode.sand.client.things.IThingListener;
 import com.firstlinecode.sand.client.things.ThingsUtils;
+import com.firstlinecode.sand.client.things.commuication.CommunicationException;
+import com.firstlinecode.sand.client.things.commuication.ICommunicationListener;
 import com.firstlinecode.sand.client.things.commuication.ICommunicator;
+import com.firstlinecode.sand.client.things.obm.IObmFactory;
+import com.firstlinecode.sand.client.things.obm.ObmFactory;
 import com.firstlinecode.sand.emulators.lora.LoraCommunicator;
 import com.firstlinecode.sand.protocols.lora.LoraAddress;
 
-public abstract class AbstractThingEmulator implements IThingEmulator {
+public abstract class AbstractThingEmulator<OA, PA, D> implements IThingEmulator,
+		ICommunicationListener<OA, PA, D> {
 	private static final String PATTERN_LAN_ID = "%02d";
 	
 	protected String thingName;
-	protected ICommunicator<?, ?, ?> communicator;
+	protected ICommunicator<OA, PA, D> communicator;
 	protected DynamicAddressConfigurator addressConfigurator;
 	
 	protected String deviceId;
@@ -32,17 +37,22 @@ public abstract class AbstractThingEmulator implements IThingEmulator {
 	protected LoraAddress gatewayDownlinkAddress;
 	protected LoraAddress thingAddress;
 	
-	public AbstractThingEmulator(String mode, LoraCommunicator communicator) {
+	protected String lanId;
+	
+	protected IObmFactory obmFactory = ObmFactory.createInstance();
+	
+	@SuppressWarnings("unchecked")
+	public AbstractThingEmulator(String mode, ICommunicator<?, ?, ?> communicator) {
 		if (mode == null)
 			throw new IllegalArgumentException("Null device mode.");
 		
 		this.mode = mode;
 		this.thingName = getThingName() + " - " + mode;
-		this.communicator = communicator;
+		this.communicator = (ICommunicator<OA, PA, D>)communicator;
 
 		deviceId = generateDeviceId();
 		batteryPower = 100;
-		powered = true;
+		powered = false;
 		
 		thingListeners = new ArrayList<>();
 		
@@ -162,13 +172,21 @@ public abstract class AbstractThingEmulator implements IThingEmulator {
 	
 	@Override
 	public void powerOn() {
+		if (powered)
+			return;
+		
 		this.powered = true;
-		if (!isAddressConfigured()) {
-			if (addressConfigurator == null) {
-				addressConfigurator = new DynamicAddressConfigurator(this, (LoraCommunicator)communicator);
+		if (lanId != null) {
+			// Node has added to concentrator. Start to receive data from concentrator.
+			startToReceiveData();			
+		} else {			
+			if (!isAddressConfigured()) {
+				if (addressConfigurator == null) {
+					addressConfigurator = new DynamicAddressConfigurator(this, (LoraCommunicator)communicator);
+				}
+				
+				addressConfigurator.introduce();
 			}
-			
-			addressConfigurator.introduce();
 		}
 		
 		doPowerOn();
@@ -178,6 +196,30 @@ public abstract class AbstractThingEmulator implements IThingEmulator {
 		}
 	}
 	
+	@Override
+	public void nodeAdded(String lanId) {
+		this.lanId = lanId;
+		
+		if (isPowered()) {
+			startToReceiveData();
+		}
+	}
+	
+	@Override
+	public void startToReceiveData() {
+		communicator.addCommunicationListener(this);
+		doStartToReceiveData();
+	}
+	
+	@Override
+	public void stopDataReceving() {
+		doStopDataReceiving();
+		communicator.removeCommunicationListener(this);
+	}
+	
+	protected abstract void doStartToReceiveData();
+	protected abstract void doStopDataReceiving();
+
 	private List<IThingEmulatorListener> getThingEmulatorListeners() {
 		List<IThingEmulatorListener> thingEmulatorListeners = new ArrayList<>();
 		for (IThingListener listener : thingListeners) {
@@ -191,18 +233,24 @@ public abstract class AbstractThingEmulator implements IThingEmulator {
 
 	@Override
 	public void powerOff() {
-		this.powered = false;
-		if (!isAddressConfigured() && addressConfigurator != null) {
+		if (powered == false)
+			return;
+		
+		if (isAddressConfigured() && addressConfigurator != null) {
 			addressConfigurator.stop();
+			addressConfigurator = null;
+		} else {
+			stopDataReceving();
 		}
 		
+		this.powered = false;
 		doPowerOff();
 		
 		for (IThingEmulatorListener thingEmulatorListener : getThingEmulatorListeners()) {
 			thingEmulatorListener.powerChanged(new PowerEvent(this, PowerEvent.Type.POWER_OFF));
 		}
 	}
-	
+
 	@Override
 	public boolean isPowered() {
 		return powered;
@@ -248,9 +296,6 @@ public abstract class AbstractThingEmulator implements IThingEmulator {
 		this.gatewayDownlinkAddress = gatewayDownlinkAddress;
 		this.thingAddress = thingAddress;
 		
-		addressConfigurator.stop();
-		addressConfigurator = null;
-		
 		getPanel().updateStatus(getThingStatus());
 	}
 	
@@ -258,6 +303,21 @@ public abstract class AbstractThingEmulator implements IThingEmulator {
 	public boolean isAddressConfigured() {
 		return gatewayUplinkAddress != null && gatewayDownlinkAddress != null && thingAddress != null;
 	}
+	
+	@Override
+	public void sent(PA to, D data) {}
+	
+	@Override
+	public void received(PA from, D data) {
+		// TODO
+		System.out.println("Received data: " + data);
+	}
+	
+	@Override
+	public void occurred(CommunicationException e) {}
+	
+	@Override
+	public void addressChanged(OA newAddress, OA oldAddress) {}
 	
 	protected abstract void doWriteExternal(ObjectOutput out) throws IOException;
 	protected abstract void doReadExternal(ObjectInput in) throws IOException, ClassNotFoundException;

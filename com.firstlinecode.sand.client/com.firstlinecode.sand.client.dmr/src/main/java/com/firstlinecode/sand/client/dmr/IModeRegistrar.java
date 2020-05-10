@@ -5,6 +5,7 @@ import com.firstlinecode.sand.protocols.core.ModeDescriptor;
 
 public interface IModeRegistrar {
 	void registerModeDescriptor(ModeDescriptor modeDescriptor);
+	ModeDescriptor[] getModeDescriptors();
 	boolean isActionSupported(String mode, Protocol protocol);
 	boolean isActionSupported(String mode, Class<?> actionType);
 	Class<?> getActionType(String mode, Protocol protocol);

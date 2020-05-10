@@ -44,6 +44,9 @@ public class DynamicAddressConfigurator implements IAddressConfigurator<IDualLor
 	private String nodeDeviceId;
 	private LoraAddress nodeAddress;
 	
+	private ParsingProcessor parsingProcessor = new ParsingProcessor();
+	private NegotiationProcessor negotiationProcessor = new NegotiationProcessor();
+	
 	private IObmFactory obmFactory;
 	
 	private State state;
@@ -51,11 +54,8 @@ public class DynamicAddressConfigurator implements IAddressConfigurator<IDualLor
 	public DynamicAddressConfigurator(IDualLoraChipsCommunicator communicator, IConcentrator concentrator) {
 		this.communicator = communicator;
 		this.concentrator =  concentrator;
-		concentrator.addListener(this);
-		communicator.addCommunicationListener(new ParsingProcessor());
-		communicator.addCommunicationListener(new NegotiationProcessor());
 
-		obmFactory = new ObmFactory();
+		obmFactory = ObmFactory.createInstance();
 		workingAddress = communicator.getAddress();
 		state = State.WORKING;
 	}
@@ -72,6 +72,10 @@ public class DynamicAddressConfigurator implements IAddressConfigurator<IDualLor
 			
 			workingAddress = communicator.getAddress();
 			communicator.changeAddress(ADDRESS_CONFIGURATION_MODE_DUAL_LORA_ADDRESS);
+			
+			concentrator.addListener(this);
+			communicator.addCommunicationListener(parsingProcessor);
+			communicator.addCommunicationListener(negotiationProcessor);
 			
 			if (logger.isDebugEnabled()) {
 				logger.debug("Change to address configuration mode. Current address is " + communicator.getAddress());
@@ -93,6 +97,10 @@ public class DynamicAddressConfigurator implements IAddressConfigurator<IDualLor
 			logger.warn("It seemed that device has already is being in working mode.");
 			return;
 		}
+		
+		concentrator.removeListener(this);
+		communicator.removeCommunicationListener(parsingProcessor);
+		communicator.removeCommunicationListener(negotiationProcessor);
 		
 		state = State.WORKING;
 		if (communicator.getAddress().equals(ADDRESS_CONFIGURATION_MODE_DUAL_LORA_ADDRESS)) {
