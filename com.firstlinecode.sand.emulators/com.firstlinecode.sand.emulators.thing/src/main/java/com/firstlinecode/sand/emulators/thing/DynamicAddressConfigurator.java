@@ -1,7 +1,5 @@
 package com.firstlinecode.sand.emulators.thing;
 
-import java.util.ConcurrentModificationException;
-
 import com.firstlinecode.chalk.IOrder;
 import com.firstlinecode.sand.client.things.commuication.CommunicationException;
 import com.firstlinecode.sand.client.things.commuication.IAddressConfigurator;

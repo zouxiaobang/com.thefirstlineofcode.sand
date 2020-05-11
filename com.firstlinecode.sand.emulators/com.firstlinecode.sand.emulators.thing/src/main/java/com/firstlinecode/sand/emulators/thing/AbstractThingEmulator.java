@@ -5,9 +5,12 @@ import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import com.firstlinecode.gem.protocols.bxmpp.BinaryDataTypeReader;
+import com.firstlinecode.gem.protocols.bxmpp.IdentifyBytes;
 import com.firstlinecode.sand.client.things.BatteryPowerEvent;
 import com.firstlinecode.sand.client.things.IThingListener;
 import com.firstlinecode.sand.client.things.ThingsUtils;
@@ -15,16 +18,17 @@ import com.firstlinecode.sand.client.things.commuication.CommunicationException;
 import com.firstlinecode.sand.client.things.commuication.ICommunicationListener;
 import com.firstlinecode.sand.client.things.commuication.ICommunicator;
 import com.firstlinecode.sand.client.things.obm.IObmFactory;
+import com.firstlinecode.sand.client.things.obm.ObmData;
 import com.firstlinecode.sand.client.things.obm.ObmFactory;
 import com.firstlinecode.sand.emulators.lora.LoraCommunicator;
 import com.firstlinecode.sand.protocols.lora.LoraAddress;
 
-public abstract class AbstractThingEmulator<OA, PA, D> implements IThingEmulator,
-		ICommunicationListener<OA, PA, D> {
+public abstract class AbstractThingEmulator implements IThingEmulator,
+		ICommunicationListener<LoraAddress, LoraAddress, ObmData> {
 	private static final String PATTERN_LAN_ID = "%02d";
 	
 	protected String thingName;
-	protected ICommunicator<OA, PA, D> communicator;
+	protected ICommunicator<LoraAddress, LoraAddress, ObmData> communicator;
 	protected DynamicAddressConfigurator addressConfigurator;
 	
 	protected String deviceId;
@@ -41,6 +45,8 @@ public abstract class AbstractThingEmulator<OA, PA, D> implements IThingEmulator
 	
 	protected IObmFactory obmFactory = ObmFactory.createInstance();
 	
+	protected BinaryDataTypeReader bDataTypeReader;
+	
 	@SuppressWarnings("unchecked")
 	public AbstractThingEmulator(String mode, ICommunicator<?, ?, ?> communicator) {
 		if (mode == null)
@@ -48,12 +54,13 @@ public abstract class AbstractThingEmulator<OA, PA, D> implements IThingEmulator
 		
 		this.mode = mode;
 		this.thingName = getThingName() + " - " + mode;
-		this.communicator = (ICommunicator<OA, PA, D>)communicator;
+		this.communicator = (ICommunicator<LoraAddress, LoraAddress, ObmData>)communicator;
 
 		deviceId = generateDeviceId();
 		batteryPower = 100;
 		powered = false;
 		
+		bDataTypeReader = new BinaryDataTypeReader(getIdentifyBytesToActionTypes());		
 		thingListeners = new ArrayList<>();
 		
 		BatteryTimer timer = new BatteryTimer();
@@ -305,23 +312,31 @@ public abstract class AbstractThingEmulator<OA, PA, D> implements IThingEmulator
 	}
 	
 	@Override
-	public void sent(PA to, D data) {}
+	public void sent(LoraAddress to, ObmData data) {}
 	
 	@Override
-	public void received(PA from, D data) {
-		// TODO
-		System.out.println("Received data: " + data);
+	public void received(LoraAddress from, ObmData data) {
+		processReceived(from, data.getBinary());
 	}
 	
+	private void processReceived(LoraAddress from, byte[] data) {
+		// TODO Auto-generated method stub
+		Class<?> type = bDataTypeReader.readType(data);
+		Object action = obmFactory.toObject(type, data);
+		
+		System.out.println(action);
+	}
+
 	@Override
 	public void occurred(CommunicationException e) {}
 	
 	@Override
-	public void addressChanged(OA newAddress, OA oldAddress) {}
+	public void addressChanged(LoraAddress newAddress, LoraAddress oldAddress) {}
 	
 	protected abstract void doWriteExternal(ObjectOutput out) throws IOException;
 	protected abstract void doReadExternal(ObjectInput in) throws IOException, ClassNotFoundException;
 	protected abstract void doPowerOn();
 	protected abstract void doPowerOff();
 	protected abstract void doReset();
+	protected abstract Map<IdentifyBytes, Class<?>> getIdentifyBytesToActionTypes();
 }

@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -21,14 +22,15 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 
-import com.firstlinecode.sand.client.things.obm.ObmData;
+import com.firstlinecode.gem.protocols.bxmpp.IdentifyBytes;
+import com.firstlinecode.gem.protocols.bxmpp.ReplacementBytes;
 import com.firstlinecode.sand.emulators.lora.LoraCommunicator;
 import com.firstlinecode.sand.emulators.thing.AbstractThingEmulator;
 import com.firstlinecode.sand.emulators.thing.AbstractThingEmulatorPanel;
 import com.firstlinecode.sand.emulators.thing.PowerEvent;
-import com.firstlinecode.sand.protocols.lora.LoraAddress;
+import com.firstlinecode.sand.protocols.emulators.light.Flash;
 
-public class Light extends AbstractThingEmulator<LoraAddress, LoraAddress, ObmData> implements ILight {
+public class Light extends AbstractThingEmulator implements ILight {
 	public static final String THING_NAME = "Light Emulator";
 	public static final String THING_MODE = "LE01";
 	public static final String SOFTWARE_VERSION = "0.1.0.RELEASE";
@@ -374,6 +376,17 @@ public class Light extends AbstractThingEmulator<LoraAddress, LoraAddress, ObmDa
 			dataReceivingTimer.cancel();
 			dataReceivingTimer = null;
 		}
+	}
+
+	@Override
+	protected Map<IdentifyBytes, Class<?>> getIdentifyBytesToActionTypes() {
+		Map<IdentifyBytes, Class<?>> identifyBytesToTypes = new HashMap<>();
+		
+		IdentifyBytes flashIdentifierBytes = new IdentifyBytes(new ReplacementBytes((byte)0x95),
+				new ReplacementBytes((byte)0x96));
+		identifyBytesToTypes.put(flashIdentifierBytes, Flash.class);
+		
+		return identifyBytesToTypes;
 	}
 	
 }

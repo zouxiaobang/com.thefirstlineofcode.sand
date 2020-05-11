@@ -55,17 +55,17 @@ public class SandCommandProvider implements CommandProvider, IEventProducerAware
 	
 	private IEventProducer eventProducer;
 	
-	private Map<String, Protocol> actionNameAndProtocols;
+	private Map<String, Protocol> actionNameToProtocols;
 	
 	public SandCommandProvider() {
-		actionNameAndProtocols = createActionNameAndProtocols();
+		actionNameToProtocols = createActionNameToProtocols();
 	}
 	
-	private Map<String, Protocol> createActionNameAndProtocols() {
-		Map<String, Protocol> actionNameAndProtocols = new HashMap<>();
-		actionNameAndProtocols.put(ACTION_NAME_FLASH, Flash.PROTOCOL);
+	private Map<String, Protocol> createActionNameToProtocols() {
+		Map<String, Protocol> actionNameToProtocols = new HashMap<>();
+		actionNameToProtocols.put(ACTION_NAME_FLASH, Flash.PROTOCOL);
 		
-		return actionNameAndProtocols;
+		return actionNameToProtocols;
 	}
 
 	@Override
@@ -207,7 +207,7 @@ public class SandCommandProvider implements CommandProvider, IEventProducerAware
 		}
 		
 		Device device = deviceManager.getByDeviceId(deviceId);
-		Protocol protocol = actionNameAndProtocols.get(actionName);
+		Protocol protocol = actionNameToProtocols.get(actionName);
 		if (protocol == null) {			
 			interpreter.print("Error: Unsupported action name '%s'.\n");	
 		}

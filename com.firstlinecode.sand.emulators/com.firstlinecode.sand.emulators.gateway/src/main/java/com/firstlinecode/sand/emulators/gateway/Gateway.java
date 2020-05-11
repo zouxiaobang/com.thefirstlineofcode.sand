@@ -1026,7 +1026,7 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 		}
 		
 		if (thing instanceof AbstractThingEmulator)
-			thingPanel.updateStatus(((AbstractThingEmulator<?, ?, ?>)thing).getThingStatus());
+			thingPanel.updateStatus(((AbstractThingEmulator)thing).getThingStatus());
 	}
 	
 	private void changeGatewayStatusAndRefreshUiThread(boolean dirty) {

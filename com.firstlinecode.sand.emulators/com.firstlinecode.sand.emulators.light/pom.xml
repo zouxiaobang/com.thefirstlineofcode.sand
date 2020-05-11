@@ -18,6 +18,10 @@
 	
 	<dependencies>
 		<dependency>
+			<groupId>com.firstlinecode.sand.protocols.emulators</groupId>
+			<artifactId>com.firstlinecode.sand.protocols.emulators.light</artifactId>
+		</dependency>
+		<dependency>
 			<groupId>com.firstlinecode.sand.emulators</groupId>
 			<artifactId>com.firstlinecode.sand.emulators.thing</artifactId>
 		</dependency>
