@@ -329,4 +329,9 @@ public class Concentrator implements IConcentrator {
 		return communicators.get(communicationNet);
 	}
 
+	@Override
+	public String getDeviceId() {
+		return deviceId;
+	}
+
 }

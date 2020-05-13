@@ -99,7 +99,7 @@ public abstract class AbstractThingEmulator implements IThingEmulator,
 	}
 	
 	private class BatteryTimer {
-		private Timer timer = new Timer();
+		private Timer timer = new Timer(String.format("Thing '%s' Battery Timer", deviceId));
 		
 		public void start() {
 			timer.schedule(new BatteryPowerTimerTask(), 1000 * 10, 1000 * 10);

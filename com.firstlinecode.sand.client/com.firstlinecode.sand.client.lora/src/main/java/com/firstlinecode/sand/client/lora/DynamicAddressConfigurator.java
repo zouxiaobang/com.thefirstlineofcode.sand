@@ -121,7 +121,9 @@ public class DynamicAddressConfigurator implements IAddressConfigurator<IDualLor
 		if (state == State.WORKING)
 			return;
 		
-		new Thread(new DataReceiver()).start();
+		new Thread(new DataReceiver(), String.format("Data Receiver Thread for %s of %s '%s'",
+				this.getClass().getSimpleName(), concentrator.getClass().getSimpleName(),
+				concentrator.getDeviceId())).start();
 	}
 	
 	private class DataReceiver implements Runnable {

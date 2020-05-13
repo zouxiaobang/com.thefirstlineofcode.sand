@@ -27,6 +27,7 @@ public interface IConcentrator {
 	Node getNode(String lanId);
 	Node[] pullNodes();
 	ICommunicator<?, ?, ?> getCommunicator(CommunicationNet communicationNet);
+	String getDeviceId();
 	void addListener(IConcentrator.Listener listener);
 	IConcentrator.Listener removeListener(IConcentrator.Listener listener);
 	

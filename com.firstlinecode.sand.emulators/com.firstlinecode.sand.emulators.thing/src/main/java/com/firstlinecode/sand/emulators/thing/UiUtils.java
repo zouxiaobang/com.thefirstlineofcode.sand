@@ -18,12 +18,14 @@ public class UiUtils {
 		dialog.add(new JLabel(message));
 		dialog.setVisible(true);
 		
-		Timer timer = new Timer();
+		final Timer timer = new Timer();
 		timer.schedule(new TimerTask() {
 			@Override
 			public void run() {
 				dialog.setVisible(false);
 				dialog.dispose();
+				
+				timer.cancel();
 			}
 		}, DEFAULT_NOTIFICATION_DELAY_TIME);
 	}

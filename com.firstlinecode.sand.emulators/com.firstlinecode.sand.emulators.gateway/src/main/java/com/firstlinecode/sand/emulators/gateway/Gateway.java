@@ -195,7 +195,7 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 		dirty = false;
 		autoReconnect = false;
 		
-		new Thread(new AutoReconnectThread()).start();
+		new Thread(new AutoReconnectThread(), "Gateway Auto Reconnect Thread").start();
 		
 		setupUi();
 	}

@@ -37,14 +37,14 @@ public class ExecutionTranslatorFactory implements ITranslatorFactory<Execute> {
 			}
 			
 			writer.writeProtocolBegin(Execute.PROTOCOL);
-			translate(execute.getAction(), writer, translatingFactory);
+			translateAction(execute.getAction(), writer, translatingFactory);
 			writer.writeProtocolEnd();
 			
 			return writer.getDocument();
 		}
 
 		@SuppressWarnings("unchecked")
-		private <T> void translate(Object action, IProtocolWriter writer, ITranslatingFactory translatingFactory) {
+		private <T> void translateAction(Object action, IProtocolWriter writer, ITranslatingFactory translatingFactory) {
 			Class<T> actionType = (Class<T>)action.getClass();
 			ITranslatorFactory<T> actionTranslatorFactory = createCustomActionTranslatorFactory(actionType);
 			if (actionTranslatorFactory == null) {				

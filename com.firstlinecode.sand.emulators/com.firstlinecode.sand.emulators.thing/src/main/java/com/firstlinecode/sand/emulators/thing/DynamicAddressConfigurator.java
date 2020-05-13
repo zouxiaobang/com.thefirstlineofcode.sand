@@ -73,7 +73,8 @@ public class DynamicAddressConfigurator implements IAddressConfigurator<ICommuni
 		working = true;
 		
 		dataReceiver = new DataReceiver();
-		new Thread(dataReceiver).start();
+		new Thread(dataReceiver, String.format("Data Receiver Thread for %s of %s '%s'",
+				this.getClass().getSimpleName(), thing.getThingName(), thing.getDeviceId())).start();
 		
 		Introduction introduction = new Introduction();
 		introduction.setDeviceId(thing.getDeviceId());
