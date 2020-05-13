@@ -39,6 +39,8 @@ public class DynamicAddressConfigurator implements IAddressConfigurator<ICommuni
 	
 	private DataReceiver dataReceiver = new DataReceiver();
 	
+	private boolean working;
+	
 	public DynamicAddressConfigurator(IThingEmulator thing, LoraCommunicator communicator) {
 		this.thing = thing;
 		obmFactory = ObmFactory.createInstance();
@@ -46,6 +48,8 @@ public class DynamicAddressConfigurator implements IAddressConfigurator<ICommuni
 		this.communicator = communicator;
 		communicator.addCommunicationListener(parsingProcessor);
 		communicator.addCommunicationListener(negotiationProcessor);
+		
+		working = false;
 	}
 
 	@Override
@@ -66,6 +70,8 @@ public class DynamicAddressConfigurator implements IAddressConfigurator<ICommuni
 	private synchronized void doIntroduce() {
 		resetToInitialState();
 		
+		working = true;
+		
 		dataReceiver = new DataReceiver();
 		new Thread(dataReceiver).start();
 		
@@ -83,10 +89,8 @@ public class DynamicAddressConfigurator implements IAddressConfigurator<ICommuni
 	}
 	
 	public void stop() {
-		if (dataReceiver != null) {
-			dataReceiver.stop();
-			dataReceiver = null;
-		}
+		working = false;
+		dataReceiver = null;
 	}
 
 	private void resetToInitialState() {
@@ -143,12 +147,9 @@ public class DynamicAddressConfigurator implements IAddressConfigurator<ICommuni
 	}
 	
 	private class DataReceiver implements Runnable {
-		private boolean stop = false;
-
 		@Override
 		public void run() {
-			stop = false;
-			while (!stop && state != State.ALLOCATED) {
+			while (working && state != State.ALLOCATED) {
 				communicator.receive();
 
 				try {
@@ -157,16 +158,7 @@ public class DynamicAddressConfigurator implements IAddressConfigurator<ICommuni
 					// ignore
 				}
 			}
-			
-			// Remove communication listeners here to avoid ConcurrentModificationException.
-			communicator.removeCommunicationListener(parsingProcessor);
-			communicator.removeCommunicationListener(negotiationProcessor);
-		}
-		
-		public void stop() {
-			this.stop = true;
-		}
-		
+		}		
 	}
 
 	
@@ -192,7 +184,9 @@ public class DynamicAddressConfigurator implements IAddressConfigurator<ICommuni
 
 		@Override
 		public void received(LoraAddress from, ObmData data) {
-			parse(from, data);
+			if (working) {
+				parse(from, data);
+			}
 		}
 
 		@Override
@@ -222,7 +216,9 @@ public class DynamicAddressConfigurator implements IAddressConfigurator<ICommuni
 
 		@Override
 		public void received(LoraAddress from, ObmData data) {
-			negotiate(from, data);
+			if (working) {
+				negotiate(from, data);
+			}
 		}
 
 		@Override

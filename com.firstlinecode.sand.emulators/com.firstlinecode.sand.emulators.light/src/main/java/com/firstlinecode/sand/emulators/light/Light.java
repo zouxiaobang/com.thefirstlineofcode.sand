@@ -14,6 +14,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.ExecutionException;
 
 import javax.swing.ButtonGroup;
 import javax.swing.ImageIcon;
@@ -21,6 +22,7 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
+import javax.swing.SwingUtilities;
 
 import com.firstlinecode.gem.protocols.bxmpp.IdentifyBytes;
 import com.firstlinecode.gem.protocols.bxmpp.ReplacementBytes;
@@ -88,11 +90,31 @@ public class Light extends AbstractThingEmulator implements ILight {
 		private JLabel lightImage;
 		private JButton flash;
 		
+		private ImageIcon lightOn;
+		private ImageIcon lightOff;
+		
 		public LightEmulatorPanel() {
 			super(Light.this);
+			
 			addThingListener(this);
 		}
 		
+		private void createLightIcons() {
+			lightOn = createLightIcon(LightState.ON);
+			lightOff = createLightIcon(LightState.OFF);
+
+		}
+
+		private ImageIcon createLightIcon(LightState lightState) {
+			String path = lightState == LightState.ON ? "/images/" + FILE_NAME_LIGHT_ON : "/images/" + FILE_NAME_LIGHT_OFF;
+			java.net.URL imgURL = getClass().getResource(path);
+			if (imgURL != null) {
+				return new ImageIcon(imgURL);
+			} else {
+				throw new RuntimeException("Couldn't find file: " + path);
+			}
+		}
+
 		@Override
 		protected JPanel createThingCustomizedUi() {			
 			JPanel customizedUi = new JPanel(new BorderLayout());
@@ -187,36 +209,59 @@ public class Light extends AbstractThingEmulator implements ILight {
 			if (!powered)
 				return;
 			
-			switchsPanel.setEnabled(false);
-			flash.setEnabled(false);
-			
-			lightImage.setIcon(getLightImageIcon(LightState.ON));
-			
-			Timer timer = new Timer();
-			timer.schedule(new TimerTask() {
-
+			SwingUtilities.invokeLater(new Runnable() {
+				
 				@Override
 				public void run() {
-					lightImage.setIcon(getLightImageIcon(LightState.OFF));
-
-					flash.setEnabled(true);
-					switchsPanel.setEnabled(true);
+					switchsPanel.setEnabled(false);
+					flash.setEnabled(false);
+					lightImage.setIcon(getLightImageIcon(LightState.ON));
+					
+					switchsPanel.repaint();
+					flash.repaint();
+					lightImage.repaint();
 				}
-
-			}, 50);
+			});
+			
+			new Thread(new Runnable() {		
+				@Override
+				public void run() {
+					try {
+						Thread.sleep(200);
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+					
+					SwingUtilities.invokeLater(new Runnable() {
+						
+						@Override
+						public void run() {
+							switchsPanel.setEnabled(true);
+							flash.setEnabled(true);
+							lightImage.setIcon(getLightImageIcon(LightState.OFF));
+							
+							switchsPanel.repaint();
+							flash.repaint();
+							lightImage.repaint();
+						}
+					});
+				}
+			}).start();
 		}
-
+		
 		protected ImageIcon getLightImageIcon(LightState lightState) {
 			if (lightState == null) {
 				throw new IllegalArgumentException("Null light state.");
 			}
 			
-			String path = lightState == LightState.ON ? "/images/" + FILE_NAME_LIGHT_ON : "/images/" + FILE_NAME_LIGHT_OFF;
-			java.net.URL imgURL = getClass().getResource(path);
-			if (imgURL != null) {
-				return new ImageIcon(imgURL);
+			if (lightOn == null || lightOff == null)
+				createLightIcons();
+			
+			if (LightState.ON == lightState) {
+				return lightOn;
 			} else {
-				throw new RuntimeException("Couldn't find file: " + path);
+				return lightOff;
 			}
 		}
 		
@@ -303,9 +348,11 @@ public class Light extends AbstractThingEmulator implements ILight {
 
 	@Override
 	public AbstractThingEmulatorPanel getPanel() {
-		panel = new LightEmulatorPanel();
-		panel.updateStatus();
-		panel.refreshFlashButtionStatus();
+		if (panel == null) {
+			panel = new LightEmulatorPanel();
+			panel.updateStatus();
+			panel.refreshFlashButtionStatus();
+		}
 		
 		return panel;
 	}
@@ -387,6 +434,52 @@ public class Light extends AbstractThingEmulator implements ILight {
 		identifyBytesToTypes.put(flashIdentifierBytes, Flash.class);
 		
 		return identifyBytesToTypes;
+	}
+
+	@Override
+	protected void processAction(Object action) throws ExecutionException {
+		if (action instanceof Flash) {
+			Flash flash = (Flash)action;
+			
+			int repeat = flash.getRepeat();
+			if (repeat == 0)
+				repeat = 1;
+			
+			if (repeat == 1) {
+				executeFlashAction();
+			} else {
+				for (int i = 0; i < repeat; i++) {
+					executeFlashAction();
+					
+					try {
+						Thread.sleep(2000);
+					} catch (InterruptedException e) {
+						// Ignore
+					}
+				}
+			}
+		} else {
+			throw new ExecutionException(new IllegalArgumentException(String.format("Unsupported action type: %s", action.getClass())));
+		}
+	}
+
+	private void executeFlashAction() {
+		new Thread(new Runnable() {
+			
+			@Override
+			public void run() {
+				// TODO Auto-generated method stub					
+				try {
+					flash();
+				} catch (NotRemoteControlStateException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (NotTurnOffStateException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+		}).start();
 	}
 	
 }

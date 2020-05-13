@@ -307,8 +307,10 @@ public class Concentrator implements IConcentrator {
 	public String getBestSuitedNewLanId() {
 		int i = 1;
 		String lanId = null;
-		for (String currentLanId : nodes.keySet()) {
-			if (lanId == null && Integer.parseInt(currentLanId) != i) {
+		for (String nodeId : nodes.keySet()) {
+			Node node = nodes.get(nodeId);
+			String nodeLanId = node.getLanId();
+			if (nodeLanId == null && Integer.parseInt(nodeLanId) != i) {
 				lanId = String.format(PATTERN_LAN_ID, i);
 			}
 			

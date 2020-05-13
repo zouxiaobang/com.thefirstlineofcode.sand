@@ -8,8 +8,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.ExecutionException;
 
-import com.firstlinecode.gem.protocols.bxmpp.BinaryDataTypeReader;
+import com.firstlinecode.gem.protocols.bxmpp.BinaryMessageTypeReader;
 import com.firstlinecode.gem.protocols.bxmpp.IdentifyBytes;
 import com.firstlinecode.sand.client.things.BatteryPowerEvent;
 import com.firstlinecode.sand.client.things.IThingListener;
@@ -45,7 +46,9 @@ public abstract class AbstractThingEmulator implements IThingEmulator,
 	
 	protected IObmFactory obmFactory = ObmFactory.createInstance();
 	
-	protected BinaryDataTypeReader bDataTypeReader;
+	protected BinaryMessageTypeReader bMessageTypeReader;
+	
+	protected boolean isDataReceiving;
 	
 	@SuppressWarnings("unchecked")
 	public AbstractThingEmulator(String mode, ICommunicator<?, ?, ?> communicator) {
@@ -60,7 +63,9 @@ public abstract class AbstractThingEmulator implements IThingEmulator,
 		batteryPower = 100;
 		powered = false;
 		
-		bDataTypeReader = new BinaryDataTypeReader(getIdentifyBytesToActionTypes());		
+		isDataReceiving = false;
+		
+		bMessageTypeReader = new BinaryMessageTypeReader(getIdentifyBytesToActionTypes());		
 		thingListeners = new ArrayList<>();
 		
 		BatteryTimer timer = new BatteryTimer();
@@ -214,14 +219,23 @@ public abstract class AbstractThingEmulator implements IThingEmulator,
 	
 	@Override
 	public void startToReceiveData() {
+		if (isDataReceiving)
+			return;
+		
 		communicator.addCommunicationListener(this);
 		doStartToReceiveData();
+		isDataReceiving = true;
 	}
 	
 	@Override
 	public void stopDataReceving() {
+		if (!isDataReceiving)
+			return;
+		
 		doStopDataReceiving();
 		communicator.removeCommunicationListener(this);
+		
+		isDataReceiving = false;
 	}
 	
 	protected abstract void doStartToReceiveData();
@@ -320,11 +334,19 @@ public abstract class AbstractThingEmulator implements IThingEmulator,
 	}
 	
 	private void processReceived(LoraAddress from, byte[] data) {
-		// TODO Auto-generated method stub
-		Class<?> type = bDataTypeReader.readType(data);
-		Object action = obmFactory.toObject(type, data);
+		Class<?> actionType = bMessageTypeReader.readType(data);
 		
-		System.out.println(action);
+		if (actionType == null) {
+			// TODO action not supported
+			throw new RuntimeException("Action not supported.");
+		}
+		
+		try {
+			processAction(obmFactory.toObject(actionType, data));
+		} catch (ExecutionException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	@Override
@@ -339,4 +361,5 @@ public abstract class AbstractThingEmulator implements IThingEmulator,
 	protected abstract void doPowerOff();
 	protected abstract void doReset();
 	protected abstract Map<IdentifyBytes, Class<?>> getIdentifyBytesToActionTypes();
+	protected abstract void processAction(Object action) throws ExecutionException;
 }
