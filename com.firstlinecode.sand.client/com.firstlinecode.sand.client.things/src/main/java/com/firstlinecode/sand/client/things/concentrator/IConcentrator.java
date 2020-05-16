@@ -1,4 +1,4 @@
-package com.firstlinecode.sand.client.concentrator;
+package com.firstlinecode.sand.client.things.concentrator;
 
 import java.util.Map;
 
@@ -14,14 +14,14 @@ public interface IConcentrator {
 		SIZE_OVERFLOW,
 		REDUPLICATE_DEVICE_ID,
 		REDUPLICATE_DEVICE_ADDRESS,
-		BAD_RESPONSE,
-		CONFIRMED_NODE_NOT_FOUND,
+		BAD_NODE_CREATED_RESPONSE,
+		CREATED_NODE_NOT_FOUND,
 		SERVER_ASSIGNED_A_EXISTED_LAN_ID
 	}
 	
 	void init(String deviceId, Map<String, Node> nodes, Map<CommunicationNet, ? extends ICommunicator<?, ?, ?>> communicators);
 	String getBestSuitedNewLanId();
-	void addNode(String deviceId, NodeAddress<?> address);
+	void createNode(String deviceId, String lanId, NodeAddress<?> address);
 	void removeNode(String lanId);
 	Map<String, Node> getNodes();
 	Node getNode(String lanId);
@@ -32,7 +32,7 @@ public interface IConcentrator {
 	IConcentrator.Listener removeListener(IConcentrator.Listener listener);
 	
 	public interface Listener {
-		void nodeAdded(String lanId, Node node);
+		void nodeCreated(String requestedLanId, String allocatedLanId, Node node);
 		void nodeRemoved(String lanId, Node node);
 		void occurred(IError error, Node source);
 		void occurred(LanError error, Node source);

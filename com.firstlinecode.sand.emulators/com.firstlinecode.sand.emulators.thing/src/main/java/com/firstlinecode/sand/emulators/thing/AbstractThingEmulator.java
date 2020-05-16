@@ -85,9 +85,11 @@ public abstract class AbstractThingEmulator implements IThingEmulator,
 		}
 		
 		if (!isAddressConfigured()) {
-			sb.append("Uncontrolled").append(", ");
+			sb.append("Unconfigured").append(", ");
+		} else if (lanId == null) {
+			sb.append("Configured: ").append(String.format(PATTERN_LAN_ID, thingAddress.getAddress())).append(", ");
 		} else {
-			sb.append("Controlled: ").append(String.format(PATTERN_LAN_ID, thingAddress.getAddress())).append(", ");
+			sb.append("Controlled: ").append(lanId).append(", ");			
 		}
 		
 		sb.append("Battery: ").append(batteryPower).append("%, ");
@@ -99,7 +101,7 @@ public abstract class AbstractThingEmulator implements IThingEmulator,
 	}
 	
 	private class BatteryTimer {
-		private Timer timer = new Timer(String.format("Thing '%s' Battery Timer", deviceId));
+		private Timer timer = new Timer(String.format("%s '%s' Battery Timer", getThingName(), deviceId));
 		
 		public void start() {
 			timer.schedule(new BatteryPowerTimerTask(), 1000 * 10, 1000 * 10);
@@ -285,6 +287,8 @@ public abstract class AbstractThingEmulator implements IThingEmulator,
 		thingAddress = null;
 		
 		doReset();
+		
+		getPanel().updateStatus(getThingStatus());
 	}
 	
 	@Override
@@ -316,6 +320,11 @@ public abstract class AbstractThingEmulator implements IThingEmulator,
 		this.gatewayUplinkAddress = gatewayUplinkAddress;
 		this.gatewayDownlinkAddress = gatewayDownlinkAddress;
 		this.thingAddress = thingAddress;
+		
+		if (addressConfigurator != null) {
+			addressConfigurator.stop();
+			addressConfigurator = null;
+		}
 		
 		getPanel().updateStatus(getThingStatus());
 	}

@@ -168,12 +168,6 @@ public class DynamicAddressConfigurator implements IAddressConfigurator<ICommuni
 				thingAddress);
 	}
 
-
-	@Override
-	public synchronized void confirm() {
-		// NO-OP
-	}
-
 	/**
 	 * use to parse the binary data, translate to protocol object
 	 */

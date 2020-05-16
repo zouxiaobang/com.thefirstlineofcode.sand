@@ -407,7 +407,7 @@ public class Light extends AbstractThingEmulator implements ILight {
 
 	@Override
 	protected void doStartToReceiveData() {
-		dataReceivingTimer = new Timer(String.format("%s '%s' data receiving timer", getThingName(), deviceId));
+		dataReceivingTimer = new Timer(String.format("%s '%s' Data Receiving Timer", getThingName(), deviceId));
 		dataReceivingTimer.schedule(new TimerTask() {
 			
 			@Override

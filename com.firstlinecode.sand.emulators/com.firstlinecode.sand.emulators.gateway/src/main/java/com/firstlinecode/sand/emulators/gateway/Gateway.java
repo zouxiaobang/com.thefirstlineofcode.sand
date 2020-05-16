@@ -62,11 +62,7 @@ import com.firstlinecode.chalk.core.stream.UsernamePasswordToken;
 import com.firstlinecode.chalk.network.ConnectionException;
 import com.firstlinecode.chalk.network.IConnectionListener;
 import com.firstlinecode.sand.client.actuator.ActuatorPlugin;
-import com.firstlinecode.sand.client.actuator.IActuator;
 import com.firstlinecode.sand.client.concentrator.ConcentratorPlugin;
-import com.firstlinecode.sand.client.concentrator.IConcentrator;
-import com.firstlinecode.sand.client.concentrator.IConcentrator.LanError;
-import com.firstlinecode.sand.client.concentrator.Node;
 import com.firstlinecode.sand.client.dmr.IModeRegistrar;
 import com.firstlinecode.sand.client.ibdr.IRegistration;
 import com.firstlinecode.sand.client.ibdr.IbdrPlugin;
@@ -74,7 +70,11 @@ import com.firstlinecode.sand.client.ibdr.RegistrationException;
 import com.firstlinecode.sand.client.lora.DynamicAddressConfigurator;
 import com.firstlinecode.sand.client.lora.IDualLoraChipsCommunicator;
 import com.firstlinecode.sand.client.things.ThingsUtils;
+import com.firstlinecode.sand.client.things.autuator.IActuator;
 import com.firstlinecode.sand.client.things.commuication.ParamsMap;
+import com.firstlinecode.sand.client.things.concentrator.IConcentrator;
+import com.firstlinecode.sand.client.things.concentrator.IConcentrator.LanError;
+import com.firstlinecode.sand.client.things.concentrator.Node;
 import com.firstlinecode.sand.emulators.gateway.log.LogConsolesDialog;
 import com.firstlinecode.sand.emulators.gateway.things.DeviceIdentityInfo;
 import com.firstlinecode.sand.emulators.gateway.things.ThingInfo;
@@ -91,12 +91,14 @@ import com.firstlinecode.sand.emulators.thing.Constants;
 import com.firstlinecode.sand.emulators.thing.IThingEmulator;
 import com.firstlinecode.sand.emulators.thing.IThingEmulatorFactory;
 import com.firstlinecode.sand.emulators.thing.UiUtils;
+import com.firstlinecode.sand.protocols.concentrator.NodeAddress;
 import com.firstlinecode.sand.protocols.core.CommunicationNet;
 import com.firstlinecode.sand.protocols.core.DeviceIdentity;
 import com.firstlinecode.sand.protocols.lora.LoraAddress;
 
 public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionListener, InternalFrameListener,
-		ComponentListener, WindowListener, IGateway, IConnectionListener, IConcentrator.Listener {
+		ComponentListener, WindowListener, IGateway, IConnectionListener, DynamicAddressConfigurator.Listener,
+		IConcentrator.Listener {
 	private static final long serialVersionUID = -7894418812878036627L;
 	
 	private static final String DEFAULT_GATEWAY_LAN_ID = "00";
@@ -180,6 +182,7 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 	private boolean autoReconnect;
 	
 	private DynamicAddressConfigurator addressConfigurator;
+	private IConcentrator concentrator;
 	
 	public Gateway(ILoraNetwork network, IDualLoraChipsCommunicator gatewayCommunicator) {
 		super("Unregistered Gateway Emulator");
@@ -469,7 +472,9 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 		chatClient.connect(new UsernamePasswordToken(deviceIdentity.getDeviceName().toString(), deviceIdentity.getCredentials()));
 		
 		autoReconnect = true;
-		addressConfigurator = new DynamicAddressConfigurator(gatewayCommunicator, createConcentrator());
+		concentrator = createConcentrator();
+		addressConfigurator = new DynamicAddressConfigurator(gatewayCommunicator, concentrator);
+		addressConfigurator.addListener(this);
 		
 		refreshConnectionStateRelativatedMenus();
 		updateStatus();
@@ -1420,17 +1425,20 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 		// TODO Auto-generated method stub
 		
 	}
-
+	
 	@Override
-	public void nodeAdded(String lanId, Node node) {
-		nodes.put(lanId, node);
+	public void nodeCreated(String requestedId, String allocatedLanId, Node node) {
+		if (!requestedId.equals(allocatedLanId))
+			nodes.remove(requestedId);
+		
+		nodes.put(allocatedLanId, node);
 		
 		boolean found = false;
 		for (Collection<IThingEmulator> things : allThings.values()) {
 			for (IThingEmulator thing : things) {
 				if (thing.getDeviceId().equals(node.getDeviceId())) {
 					found = true;
-					thing.nodeAdded(lanId);
+					thing.nodeAdded(allocatedLanId);
 					break;
 				}
 			}
@@ -1448,4 +1456,16 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 		
 	}
 
+	@Override
+	public void addressConfigured(String deviceId, LoraAddress address) {
+		Node node = new Node();
+		node.setDeviceId(deviceId);
+		node.setLanId(concentrator.getBestSuitedNewLanId());
+		node.setCommunicationNet(CommunicationNet.LORA);
+		node.setAddress(address.toString());
+		
+		nodes.put(node.getLanId(), node);
+		
+		concentrator.createNode(deviceId, node.getLanId(), new NodeAddress<LoraAddress>(CommunicationNet.LORA, address.toString()));
+	}
 }

@@ -9,6 +9,7 @@ import com.firstlinecode.basalt.protocol.core.stanza.Iq;
 import com.firstlinecode.chalk.IChatSystem;
 import com.firstlinecode.chalk.IPlugin;
 import com.firstlinecode.sand.client.dmr.DmrPlugin;
+import com.firstlinecode.sand.client.things.concentrator.IConcentrator;
 import com.firstlinecode.sand.protocols.concentrator.CreateNode;
 import com.firstlinecode.sand.protocols.concentrator.NodeCreated;
 

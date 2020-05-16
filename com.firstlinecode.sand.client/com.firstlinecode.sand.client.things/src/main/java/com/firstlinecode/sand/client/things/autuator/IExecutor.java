@@ -1,4 +1,4 @@
-package com.firstlinecode.sand.client.actuator;
+package com.firstlinecode.sand.client.things.autuator;
 
 import com.firstlinecode.basalt.protocol.core.stanza.Iq;
 

@@ -1,4 +1,4 @@
-package com.firstlinecode.sand.client.actuator;
+package com.firstlinecode.sand.client.things.autuator;
 
 public interface IActuator {
 	<T> void registerExecutor(Class<T> actionType, Class<IExecutor<T>> executorType);

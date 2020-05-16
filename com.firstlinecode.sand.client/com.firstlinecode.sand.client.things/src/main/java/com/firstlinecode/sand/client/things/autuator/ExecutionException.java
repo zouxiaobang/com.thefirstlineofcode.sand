@@ -1,4 +1,4 @@
-package com.firstlinecode.sand.client.actuator;
+package com.firstlinecode.sand.client.things.autuator;
 
 public class ExecutionException extends Exception {
 	private static final long serialVersionUID = 7996516370515700261L;

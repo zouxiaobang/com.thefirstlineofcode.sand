@@ -173,8 +173,8 @@ public class SandCommandProvider implements CommandProvider, IEventProducerAware
 						return;
 					}
 					
-					String paramName = param.substring(0, equalMarkIndex);
-					String paramValue = param.substring(equalMarkIndex + 1, param.length());
+					String paramName = param.substring(0, equalMarkIndex).trim();
+					String paramValue = param.substring(equalMarkIndex + 1, param.length()).trim();
 					params.put(paramName, paramValue);
 				}
 			}
@@ -200,6 +200,9 @@ public class SandCommandProvider implements CommandProvider, IEventProducerAware
 			deviceId = deviceLocation.substring(0, slashIndex);
 			lanId = deviceLocation.substring(slashIndex + 1, deviceLocation.length());
 		}
+		
+		deviceId = deviceId.trim();
+		lanId = lanId.trim();
 		
 		if (!deviceManager.deviceIdExists(deviceId)) {
 			interpreter.print("Error: Device which's device ID is '%s' not existed.\n");	

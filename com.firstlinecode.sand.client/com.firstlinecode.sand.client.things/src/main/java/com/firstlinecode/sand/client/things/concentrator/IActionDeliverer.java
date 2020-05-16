@@ -1,4 +1,4 @@
-package com.firstlinecode.sand.client.concentrator;
+package com.firstlinecode.sand.client.things.concentrator;
 
 import com.firstlinecode.sand.client.things.commuication.CommunicationException;
 import com.firstlinecode.sand.client.things.commuication.ICommunicator;

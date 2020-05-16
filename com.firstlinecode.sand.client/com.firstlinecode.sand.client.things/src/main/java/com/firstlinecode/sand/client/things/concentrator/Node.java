@@ -1,4 +1,4 @@
-package com.firstlinecode.sand.client.concentrator;
+package com.firstlinecode.sand.client.things.concentrator;
 
 import java.io.Externalizable;
 import java.io.IOException;

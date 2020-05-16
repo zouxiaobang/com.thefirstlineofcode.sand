@@ -23,6 +23,14 @@
 			<artifactId>com.firstlinecode.gem.client.bxmpp</artifactId>
 			<version>0.2.0.RELEASE</version>
 		</dependency>
+		<dependency>
+			<groupId>com.firstlinecode.sand.protocols</groupId>
+			<artifactId>com.firstlinecode.sand.protocols.concentrator</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.firstlinecode.sand.protocols</groupId>
+			<artifactId>com.firstlinecode.sand.protocols.actuator</artifactId>
+		</dependency>
 	</dependencies>
 </project>
 

@@ -7,6 +7,7 @@ import com.firstlinecode.basalt.protocol.core.stanza.Iq;
 import com.firstlinecode.chalk.IChatSystem;
 import com.firstlinecode.chalk.IPlugin;
 import com.firstlinecode.sand.client.dmr.DmrPlugin;
+import com.firstlinecode.sand.client.things.autuator.IActuator;
 import com.firstlinecode.sand.protocols.actuator.Execute;
 import com.firstlinecode.sand.protocols.actuator.oxm.ExecutionParserFactory;
 

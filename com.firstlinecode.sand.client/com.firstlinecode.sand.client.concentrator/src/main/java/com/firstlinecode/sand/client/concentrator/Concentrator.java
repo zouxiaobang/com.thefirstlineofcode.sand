@@ -1,6 +1,7 @@
 package com.firstlinecode.sand.client.concentrator;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -16,6 +17,8 @@ import com.firstlinecode.chalk.IChatServices;
 import com.firstlinecode.chalk.ITask;
 import com.firstlinecode.chalk.IUnidirectionalStream;
 import com.firstlinecode.sand.client.things.commuication.ICommunicator;
+import com.firstlinecode.sand.client.things.concentrator.IConcentrator;
+import com.firstlinecode.sand.client.things.concentrator.Node;
 import com.firstlinecode.sand.protocols.concentrator.CreateNode;
 import com.firstlinecode.sand.protocols.concentrator.NodeAddress;
 import com.firstlinecode.sand.protocols.concentrator.NodeCreated;
@@ -59,7 +62,7 @@ public class Concentrator implements IConcentrator {
 	}
 
 	@Override
-	public void addNode(final String deviceId, final NodeAddress<?> nodeAddress) {
+	public void createNode(final String deviceId, final String lanId, final NodeAddress<?> nodeAddress) {
 		synchronized (nodesLock) {
 			Node node = new Node();
 			node.setDeviceId(deviceId);
@@ -107,6 +110,11 @@ public class Concentrator implements IConcentrator {
 			}
 			
 			chatServices.getTaskService().execute(new NodeCreationTask(node));
+			
+			if (logger.isDebugEnabled()) {
+				logger.debug(String.format("Node creation request for node which's deviceID is '%s' and address is %s has sent.",
+						deviceId, nodeAddress));
+			}
 		}
 	}
 	
@@ -128,7 +136,7 @@ public class Concentrator implements IConcentrator {
 			Iq iq = new Iq(createNode, Iq.Type.SET);
 			stream.send(iq, DEFAULT_ADDRESS_CONFIGURATION_NODE_CREATION_TIMEOUT);
 			
-			synchronized (nodesLock) {				
+			synchronized (nodesLock) {
 				nodes.put(iq.getId(), node);
 			}
 		}
@@ -141,7 +149,7 @@ public class Concentrator implements IConcentrator {
 				}
 				
 				for (IConcentrator.Listener listener : listeners) {
-					listener.occurred(IConcentrator.LanError.BAD_RESPONSE, node);
+					listener.occurred(IConcentrator.LanError.BAD_NODE_CREATED_RESPONSE, node);
 				}
 				
 				return;
@@ -149,29 +157,21 @@ public class Concentrator implements IConcentrator {
 			
 			NodeCreated nodeCreated = iq.getObject();
 			
-			Node confirmingNode = null;
-			synchronized (nodesLock) {
-				for (Node node : nodes.values()) {
-					if (node.getDeviceId().equals(nodeCreated.getNode())) {
-						confirmingNode = node;
-						break;						
-					}
-				}
-			}
-			
+			Node confirmingNode = nodes.get(iq.getId());
 			if (confirmingNode == null) {
 				if (logger.isErrorEnabled()) {
 					logger.error(String.format("Confirming node which's device ID is '%s' not found.", nodeCreated.getNode()));
 				}
 				
 				for (IConcentrator.Listener listener : listeners) {
-					listener.occurred(IConcentrator.LanError.CONFIRMED_NODE_NOT_FOUND, node);
+					listener.occurred(IConcentrator.LanError.CREATED_NODE_NOT_FOUND, node);
 				}
 				
 				return;
 			}
 			
 			if (!deviceId.equals(nodeCreated.getConcentrator()) ||
+					!nodeCreated.getNode().equals(confirmingNode.getDeviceId()) ||
 					nodeCreated.getLanId() == null ||
 					nodeCreated.getMode() == null) {
 				if (logger.isErrorEnabled()) {
@@ -180,7 +180,7 @@ public class Concentrator implements IConcentrator {
 				}
 				
 				for (IConcentrator.Listener listener : listeners) {
-					listener.occurred(IConcentrator.LanError.BAD_RESPONSE, node);
+					listener.occurred(IConcentrator.LanError.BAD_NODE_CREATED_RESPONSE, node);
 				}
 				
 				return;
@@ -205,10 +205,11 @@ public class Concentrator implements IConcentrator {
 			
 			confirmingNode.setMode(nodeCreated.getMode());
 			
+			String requestedLanId = confirmingNode.getLanId();
 			synchronized (nodesLock) {
-				nodes.remove(confirmingNode.getLanId());
+				nodes.remove(iq.getId());
 				
-				if (!confirmingNode.getLanId().equals(nodeCreated.getLanId())) {
+				if (!requestedLanId.equals(nodeCreated.getLanId())) {
 					confirmingNode.setLanId(nodeCreated.getLanId());
 				}
 				
@@ -217,7 +218,7 @@ public class Concentrator implements IConcentrator {
 			}
 			
 			for (Listener listener : listeners) {
-				listener.nodeAdded(confirmingNode.getLanId(), node);
+				listener.nodeCreated(requestedLanId, nodeCreated.getLanId(), node);
 			}
 		}
 
@@ -305,23 +306,32 @@ public class Concentrator implements IConcentrator {
 
 	@Override
 	public String getBestSuitedNewLanId() {
-		int i = 1;
-		String lanId = null;
-		for (String nodeId : nodes.keySet()) {
-			Node node = nodes.get(nodeId);
-			String nodeLanId = node.getLanId();
-			if (nodeLanId == null && Integer.parseInt(nodeLanId) != i) {
+		synchronized (nodesLock) {
+			List<String > lanIds = new ArrayList<>();
+			for (Node node : nodes.values()) {
+				if (node.isConfirmed()) {
+					lanIds.add(node.getLanId());
+				}
+			}
+			
+			Collections.sort(lanIds);
+			
+			int i = 1;
+			String lanId = null;
+			for (String nodeLanId : lanIds) {
+				if (Integer.parseInt(nodeLanId) != i) {
+					lanId = String.format(PATTERN_LAN_ID, i);
+				}
+				
+				i++;
+			}
+			
+			if (lanId == null) {
 				lanId = String.format(PATTERN_LAN_ID, i);
 			}
 			
-			i++;
+			return lanId;
 		}
-		
-		if (lanId == null) {
-			lanId = String.format(PATTERN_LAN_ID, i);
-		}
-		
-		return lanId;
 	}
 
 	@Override

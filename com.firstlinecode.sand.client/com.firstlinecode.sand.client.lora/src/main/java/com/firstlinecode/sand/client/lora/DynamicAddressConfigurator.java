@@ -1,23 +1,21 @@
 package com.firstlinecode.sand.client.lora;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.firstlinecode.basalt.protocol.core.IError;
 import com.firstlinecode.basalt.protocol.core.ProtocolException;
 import com.firstlinecode.basalt.protocol.core.stanza.error.Conflict;
 import com.firstlinecode.chalk.IOrder;
-import com.firstlinecode.sand.client.concentrator.IConcentrator;
-import com.firstlinecode.sand.client.concentrator.IConcentrator.LanError;
-import com.firstlinecode.sand.client.concentrator.Node;
 import com.firstlinecode.sand.client.things.commuication.CommunicationException;
 import com.firstlinecode.sand.client.things.commuication.IAddressConfigurator;
 import com.firstlinecode.sand.client.things.commuication.ICommunicationListener;
+import com.firstlinecode.sand.client.things.concentrator.IConcentrator;
 import com.firstlinecode.sand.client.things.obm.IObmFactory;
 import com.firstlinecode.sand.client.things.obm.ObmData;
 import com.firstlinecode.sand.client.things.obm.ObmFactory;
-import com.firstlinecode.sand.protocols.concentrator.NodeAddress;
-import com.firstlinecode.sand.protocols.core.CommunicationNet;
 import com.firstlinecode.sand.protocols.lora.DualLoraAddress;
 import com.firstlinecode.sand.protocols.lora.LoraAddress;
 import com.firstlinecode.sand.protocols.lora.dac.Allocated;
@@ -25,7 +23,7 @@ import com.firstlinecode.sand.protocols.lora.dac.Allocation;
 import com.firstlinecode.sand.protocols.lora.dac.Introduction;
 
 public class DynamicAddressConfigurator implements IAddressConfigurator<IDualLoraChipsCommunicator,
-			LoraAddress, ObmData>, IConcentrator.Listener {
+			LoraAddress, ObmData> {
 	private static final Logger logger = LoggerFactory.getLogger(DynamicAddressConfigurator.class);
 	
 	private static final DualLoraAddress ADDRESS_CONFIGURATION_MODE_DUAL_LORA_ADDRESS = new DualLoraAddress(
@@ -35,7 +33,7 @@ public class DynamicAddressConfigurator implements IAddressConfigurator<IDualLor
 		WORKING,
 		WAITING,
 		ALLOCATING,
-		CONFIRMATION_REQUESTING
+		ALLOCATED
 	}
 	
 	private IDualLoraChipsCommunicator communicator;
@@ -51,6 +49,8 @@ public class DynamicAddressConfigurator implements IAddressConfigurator<IDualLor
 	
 	private State state;
 	
+	private List<Listener> listeners;
+	
 	public DynamicAddressConfigurator(IDualLoraChipsCommunicator communicator, IConcentrator concentrator) {
 		this.communicator = communicator;
 		this.concentrator =  concentrator;
@@ -58,6 +58,8 @@ public class DynamicAddressConfigurator implements IAddressConfigurator<IDualLor
 		obmFactory = ObmFactory.createInstance();
 		workingAddress = communicator.getAddress();
 		state = State.WORKING;
+		
+		listeners = new ArrayList<>();
 	}
 	
 	public void start() {
@@ -73,7 +75,6 @@ public class DynamicAddressConfigurator implements IAddressConfigurator<IDualLor
 			workingAddress = communicator.getAddress();
 			communicator.changeAddress(ADDRESS_CONFIGURATION_MODE_DUAL_LORA_ADDRESS);
 			
-			concentrator.addListener(this);
 			communicator.addCommunicationListener(parsingProcessor);
 			communicator.addCommunicationListener(negotiationProcessor);
 			
@@ -98,7 +99,6 @@ public class DynamicAddressConfigurator implements IAddressConfigurator<IDualLor
 			return;
 		}
 		
-		concentrator.removeListener(this);
 		communicator.removeCommunicationListener(parsingProcessor);
 		communicator.removeCommunicationListener(negotiationProcessor);
 		
@@ -202,8 +202,8 @@ public class DynamicAddressConfigurator implements IAddressConfigurator<IDualLor
 				allocation.setAllocatedFrequencyBand(nodeAddress.getFrequencyBand());
 
 				if (logger.isDebugEnabled()) {
-					logger.debug(String.format("Node allocation: %s, %s => %s, %s.",
-							nodeDeviceId, peerAddress, nodeLanId, new LoraAddress(allocation.getAllocatedAddress(),
+					logger.debug(String.format("Node allocation: %s: %s => %s.",
+							nodeDeviceId, peerAddress, new LoraAddress(allocation.getAllocatedAddress(),
 									allocation.getAllocatedFrequencyBand())));
 				}
 
@@ -222,14 +222,17 @@ public class DynamicAddressConfigurator implements IAddressConfigurator<IDualLor
 				Allocated allocated = data.getProtocolObject();
 				
 				if (logger.isDebugEnabled()) {
-					logger.debug(String.format("Node which's device ID is '%s' has allocated:", allocated.getDeviceId()));
+					logger.debug(String.format("Node which's device ID is '%s' has allocated.", allocated.getDeviceId()));
 				}
 				
 				if (!nodeDeviceId.equals(allocated.getDeviceId())) {
 					processParallelAddressConfigurationRequest(peerAddress);
 				}
-				confirm();
-				state = State.CONFIRMATION_REQUESTING;
+				state = State.ALLOCATED;
+				
+				for (Listener listener : listeners) {
+					listener.addressConfigured(nodeDeviceId, nodeAddress);
+				}
 			}
 
 		} catch (CommunicationException e) {
@@ -255,45 +258,10 @@ public class DynamicAddressConfigurator implements IAddressConfigurator<IDualLor
 		this.communicator = communicator;
 	}
 	
-	@Override
-	public void confirm() {
-		concentrator.addNode(nodeDeviceId, new NodeAddress<LoraAddress>(CommunicationNet.LORA,
-				nodeAddress.toString()));
-		
-		if (logger.isDebugEnabled()) {
-			logger.debug(String.format("Confirmation request for Node which's deviceID is '%s' has sent", nodeDeviceId));
-		}
-	}
-	
 	public State getState() {
 		return state;
 	}
-
-	@Override
-	public void nodeAdded(String lanId, Node node) {
-		// An address has been configured. Reset the states.
-		state = State.WAITING;
-		nodeDeviceId = null;
-		nodeAddress = null;
-	}
-
-	@Override
-	public void nodeRemoved(String lanId, Node node) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void occurred(IError error, Node source) {
-		// NO-OP
-		
-	}
-
-	@Override
-	public void occurred(LanError error, Node source) {
-		// NO-OP
-	}
-
+	
 	/**
 	 * use to parse the binary data, translate to protocol object
 	 */
@@ -352,6 +320,18 @@ public class DynamicAddressConfigurator implements IAddressConfigurator<IDualLor
 		public int getOrder() {
 			return ORDER_MIN;
 		}
+	}
+	
+	public void addListener(Listener listener) {
+		listeners.add(listener);
+	}
+	
+	public void removeListener(Listener listener) {
+		listeners.remove(listener);
+	}
+	
+	public interface Listener {
+		void addressConfigured(String deviceId, LoraAddress address);
 	}
 
 }
