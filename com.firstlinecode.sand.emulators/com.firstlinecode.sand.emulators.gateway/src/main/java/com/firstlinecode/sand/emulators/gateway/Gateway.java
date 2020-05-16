@@ -634,7 +634,7 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 			return;
 		}
 		
-		selectedFrame.getThing().powerOff();
+		powerOff();
 		selectedFrame.getThing().reset();
 	}
 	
