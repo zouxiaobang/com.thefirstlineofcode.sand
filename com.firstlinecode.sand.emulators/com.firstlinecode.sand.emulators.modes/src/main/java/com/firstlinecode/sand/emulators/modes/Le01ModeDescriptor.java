@@ -11,7 +11,7 @@ public class Le01ModeDescriptor extends ModeDescriptor {
 	private static final String MODE_NAME = "LE01";
 
 	public Le01ModeDescriptor() {
-		super(MODE_NAME, true, createSupportedActions(), null);
+		super(MODE_NAME, false, createSupportedActions(), null);
 	}
 
 	private static Map<Protocol, Class<?>> createSupportedActions() {

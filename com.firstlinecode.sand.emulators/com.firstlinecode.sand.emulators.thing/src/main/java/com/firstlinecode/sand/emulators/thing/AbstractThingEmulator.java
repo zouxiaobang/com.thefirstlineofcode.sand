@@ -10,7 +10,9 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.ExecutionException;
 
-import com.firstlinecode.gem.protocols.bxmpp.BinaryMessageTypeReader;
+import com.firstlinecode.basalt.oxm.binary.BinaryUtils;
+import com.firstlinecode.basalt.protocol.core.Protocol;
+import com.firstlinecode.gem.protocols.bxmpp.BinaryMessageProtocolReader;
 import com.firstlinecode.gem.protocols.bxmpp.IdentifyBytes;
 import com.firstlinecode.sand.client.things.BatteryPowerEvent;
 import com.firstlinecode.sand.client.things.IThingListener;
@@ -46,9 +48,11 @@ public abstract class AbstractThingEmulator implements IThingEmulator,
 	
 	protected IObmFactory obmFactory = ObmFactory.createInstance();
 	
-	protected BinaryMessageTypeReader bMessageTypeReader;
+	protected BinaryMessageProtocolReader bMessageProtocolReader;
 	
 	protected boolean isDataReceiving;
+	
+	protected Map<Protocol, Class<?>> supportedActions;
 	
 	@SuppressWarnings("unchecked")
 	public AbstractThingEmulator(String mode, ICommunicator<?, ?, ?> communicator) {
@@ -65,7 +69,10 @@ public abstract class AbstractThingEmulator implements IThingEmulator,
 		
 		isDataReceiving = false;
 		
-		bMessageTypeReader = new BinaryMessageTypeReader(getIdentifyBytesToActionTypes());		
+		supportedActions = createSupportedActions();
+		
+		ObmFactory obmFactory = (ObmFactory)ObmFactory.createInstance();
+		bMessageProtocolReader = new BinaryMessageProtocolReader(obmFactory.getBinaryXmppProtocolConverter());		
 		thingListeners = new ArrayList<>();
 		
 		BatteryTimer timer = new BatteryTimer();
@@ -343,11 +350,16 @@ public abstract class AbstractThingEmulator implements IThingEmulator,
 	}
 	
 	private void processReceived(LoraAddress from, byte[] data) {
-		Class<?> actionType = bMessageTypeReader.readType(data);
+		Protocol protocol = bMessageProtocolReader.readProtocol(data);
+		if (protocol == null) {
+			// TODO Unknown protocol.
+			throw new RuntimeException(String.format("Unknown protocol. Data is %s.", BinaryUtils.getHexStringFromBytes(data)));
+		}
 		
+		Class<?> actionType = supportedActions.get(protocol);
 		if (actionType == null) {
-			// TODO action not supported
-			throw new RuntimeException("Action not supported.");
+			// TODO Action not supported.
+			throw new RuntimeException(String.format("Action not supported. Protocol is %s.", protocol));
 		}
 		
 		try {
@@ -364,6 +376,7 @@ public abstract class AbstractThingEmulator implements IThingEmulator,
 	@Override
 	public void addressChanged(LoraAddress newAddress, LoraAddress oldAddress) {}
 	
+	protected abstract Map<Protocol, Class<?>> createSupportedActions();
 	protected abstract void doWriteExternal(ObjectOutput out) throws IOException;
 	protected abstract void doReadExternal(ObjectInput in) throws IOException, ClassNotFoundException;
 	protected abstract void doPowerOn();

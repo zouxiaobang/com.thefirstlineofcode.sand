@@ -25,6 +25,10 @@
 			<groupId>com.firstlinecode.sand.emulators</groupId>
 			<artifactId>com.firstlinecode.sand.emulators.thing</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>com.firstlinecode.sand.emulators</groupId>
+			<artifactId>com.firstlinecode.sand.emulators.modes</artifactId>
+		</dependency>
 	</dependencies>
 </project>
 

@@ -24,9 +24,11 @@ import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.SwingUtilities;
 
+import com.firstlinecode.basalt.protocol.core.Protocol;
 import com.firstlinecode.gem.protocols.bxmpp.IdentifyBytes;
 import com.firstlinecode.gem.protocols.bxmpp.ReplacementBytes;
 import com.firstlinecode.sand.emulators.lora.LoraCommunicator;
+import com.firstlinecode.sand.emulators.modes.Le01ModeDescriptor;
 import com.firstlinecode.sand.emulators.thing.AbstractThingEmulator;
 import com.firstlinecode.sand.emulators.thing.AbstractThingEmulatorPanel;
 import com.firstlinecode.sand.emulators.thing.PowerEvent;
@@ -480,6 +482,11 @@ public class Light extends AbstractThingEmulator implements ILight {
 				}
 			}
 		}).start();
+	}
+
+	@Override
+	protected Map<Protocol, Class<?>> createSupportedActions() {
+		return new Le01ModeDescriptor().getSupportedActions();
 	}
 	
 }
