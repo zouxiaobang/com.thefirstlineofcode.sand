@@ -13,6 +13,7 @@ import com.firstlinecode.basalt.protocol.core.Protocol;
 import com.firstlinecode.basalt.protocol.core.ProtocolChain;
 import com.firstlinecode.basalt.protocol.im.stanza.Message;
 import com.firstlinecode.gem.client.bxmpp.BinaryXmppProtocolFactory;
+import com.firstlinecode.gem.protocols.bxmpp.BinaryXmppProtocolConverter;
 
 public class ObmFactory implements IObmFactory {
 	private static final byte[] MESSAGE_WRAPPER_DATA = new byte[] {88, 0, 1, 0};
@@ -84,5 +85,9 @@ public class ObmFactory implements IObmFactory {
 		Message message = (Message)oxmFactory.getParsingFactory().parse(xml);
 		
 		return message.getObject();
+	}
+	
+	public BinaryXmppProtocolConverter getBinaryXmppProtocolConverter() {
+		return (BinaryXmppProtocolConverter)binaryXmppProtocolConverter;
 	}
 }
