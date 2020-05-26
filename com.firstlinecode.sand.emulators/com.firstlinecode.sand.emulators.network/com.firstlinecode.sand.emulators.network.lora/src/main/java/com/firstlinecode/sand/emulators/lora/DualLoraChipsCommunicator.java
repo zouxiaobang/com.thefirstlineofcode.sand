@@ -6,16 +6,18 @@ import com.firstlinecode.sand.client.lora.ILoraChip;
 import com.firstlinecode.sand.client.lora.LoraData;
 import com.firstlinecode.sand.client.things.commuication.CommunicationException;
 import com.firstlinecode.sand.client.things.commuication.ICommunicationListener;
-import com.firstlinecode.sand.client.things.obm.ObmData;
 import com.firstlinecode.sand.protocols.lora.DualLoraAddress;
 import com.firstlinecode.sand.protocols.lora.LoraAddress;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 
 public class DualLoraChipsCommunicator implements IDualLoraChipsCommunicator {
 	private ILoraChip masterChip;
 	private ILoraChip slaveChip;
-	private List<ICommunicationListener<DualLoraAddress, LoraAddress, ObmData>> listeners;
+	private List<ICommunicationListener<DualLoraAddress, LoraAddress, byte[]>> listeners;
 
 	private DualLoraChipsCommunicator(ILoraNetwork network, LoraAddress masterChipAddress,
 			LoraAddress slaveChipAddress, LoraChipCreationParams params) {
@@ -52,16 +54,16 @@ public class DualLoraChipsCommunicator implements IDualLoraChipsCommunicator {
 	}
 	
 	@Override
-	public void send(LoraAddress to, ObmData data) throws CommunicationException {
+	public void send(LoraAddress to, byte[] data) throws CommunicationException {
 		try {
-			masterChip.send(to, data.getBinary());
+			masterChip.send(to, data);
 		} catch (CommunicationException e) {
-			for (ICommunicationListener<DualLoraAddress, LoraAddress, ObmData> listener : listeners) {
+			for (ICommunicationListener<DualLoraAddress, LoraAddress, byte[]> listener : listeners) {
 				listener.occurred(e);
 			}
 			throw e;
 		}
-		for (ICommunicationListener<DualLoraAddress, LoraAddress, ObmData> listener : listeners) {
+		for (ICommunicationListener<DualLoraAddress, LoraAddress, byte[]> listener : listeners) {
 			listener.sent(to, data);
 		}
 	}
@@ -86,7 +88,7 @@ public class DualLoraChipsCommunicator implements IDualLoraChipsCommunicator {
 	public LoraData receive() {
 		LoraData data = (LoraData) slaveChip.receive();
 		if (data != null) {
-			received(data.getAddress(), new ObmData(data.getData()));
+			received(data.getAddress(), data.getData());
 		}
 
 		return data;
@@ -99,13 +101,13 @@ public class DualLoraChipsCommunicator implements IDualLoraChipsCommunicator {
 			masterChip.changeAddress(address.getMasterChipAddress());
 			slaveChip.changeAddress(address.getSlaveChipAddress());
 		} catch (CommunicationException e) {
-			for (ICommunicationListener<DualLoraAddress, LoraAddress, ObmData> listener : listeners) {
+			for (ICommunicationListener<DualLoraAddress, LoraAddress, byte[]> listener : listeners) {
 				listener.occurred(e);
 			}
 			throw e;
 		}
 
-		for (ICommunicationListener<DualLoraAddress, LoraAddress, ObmData> listener : listeners) {
+		for (ICommunicationListener<DualLoraAddress, LoraAddress, byte[]> listener : listeners) {
 			listener.addressChanged(address, oldAddress);
 		}
 	}
@@ -117,20 +119,20 @@ public class DualLoraChipsCommunicator implements IDualLoraChipsCommunicator {
 	}
 
 	@Override
-	public void received(LoraAddress from, ObmData data) {
-		for (ICommunicationListener<DualLoraAddress, LoraAddress, ObmData> listener : listeners) {
+	public void received(LoraAddress from, byte[] data) {
+		for (ICommunicationListener<DualLoraAddress, LoraAddress, byte[]> listener : listeners) {
 			listener.received(from, data);
 		}
 	}
 
 	@Override
-	public void addCommunicationListener(ICommunicationListener<DualLoraAddress, LoraAddress, ObmData> listener) {
+	public void addCommunicationListener(ICommunicationListener<DualLoraAddress, LoraAddress, byte[]> listener) {
 		listeners.add(listener);
 		Collections.sort(listeners, new OrderComparator<>());
 	}
 
 	@Override
-	public void removeCommunicationListener(ICommunicationListener<DualLoraAddress, LoraAddress, ObmData> listener) {
+	public void removeCommunicationListener(ICommunicationListener<DualLoraAddress, LoraAddress, byte[]> listener) {
 		listeners.remove(listener);
 	}
 

@@ -1,9 +1,12 @@
 package com.firstlinecode.sand.protocols.lora.dac;
 
 import com.firstlinecode.basalt.oxm.convention.annotations.ProtocolObject;
+import com.firstlinecode.basalt.protocol.core.Protocol;
 
 @ProtocolObject(namespace="urn:leps:iot:dac", localName="allocation")
 public class Allocation {
+	public static final Protocol PROTOCOL = new Protocol("urn:leps:iot:dac", "allocation");
+
 	private long gatewayAddress;
 	private int gatewayChannel;
 	private long allocatedAddress;

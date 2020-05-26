@@ -1,9 +1,12 @@
 package com.firstlinecode.sand.protocols.lora.dac;
 
 import com.firstlinecode.basalt.oxm.convention.annotations.ProtocolObject;
+import com.firstlinecode.basalt.protocol.core.Protocol;
 
 @ProtocolObject(namespace="urn:leps:iot:dac", localName="introduction")
 public class Introduction {
+	public static final Protocol PROTOCOL = new Protocol("urn:leps:iot:dac", "introduction");
+
 	private String deviceId;
 	private long address;
 	private int frequencyBand;

@@ -1,23 +1,26 @@
 package com.firstlinecode.sand.emulators.gateway.log;
 
-import java.awt.event.WindowEvent;
-
-import com.firstlinecode.chalk.IOrder;
-import com.firstlinecode.sand.client.things.ThingsUtils;
+import com.firstlinecode.basalt.protocol.core.Protocol;
 import com.firstlinecode.sand.client.things.commuication.CommunicationException;
 import com.firstlinecode.sand.client.things.commuication.ICommunicationListener;
 import com.firstlinecode.sand.client.things.commuication.ICommunicator;
 import com.firstlinecode.sand.client.things.obm.ObmData;
+import com.firstlinecode.sand.emulators.modes.Le01ModeDescriptor;
 import com.firstlinecode.sand.emulators.thing.IThingEmulator;
+import com.firstlinecode.sand.protocols.core.ModeDescriptor;
 import com.firstlinecode.sand.protocols.lora.LoraAddress;
 
+import java.awt.event.WindowEvent;
+import java.util.Map;
+
 public class ThingLogConsolePanel extends AbstractLogConsolePanel
-		implements ICommunicationListener<LoraAddress, LoraAddress, ObmData>, IOrder {
+		implements ICommunicationListener<LoraAddress, LoraAddress, byte[]> {
 	private static final long serialVersionUID = 506009089461387655L;
 
 	@SuppressWarnings("unchecked")
-	public ThingLogConsolePanel(IThingEmulator thing) {
-		((ICommunicator<LoraAddress, LoraAddress, ObmData>)thing.getCommunicator()).addCommunicationListener(this);
+	public ThingLogConsolePanel(IThingEmulator thing, ModeDescriptor modeDescriptor) {
+		((ICommunicator<LoraAddress, LoraAddress, byte[]>)thing.getCommunicator()).addCommunicationListener(this);
+		addProtocolToTypes(modeDescriptor);
 	}
 
 	@Override
@@ -27,19 +30,21 @@ public class ThingLogConsolePanel extends AbstractLogConsolePanel
 	}
 
 	@Override
-	public void sent(LoraAddress to, ObmData data) {
+	public void sent(LoraAddress to, byte[] data) {
+		ObmData obmData = new ObmData(parseProtocol(data), data);
 		log(String.format("-->%s:\n" +
 				"    O: %s\n" +
 				"    B: %s",
-				to, data.getProtocolObjectInfoString(), ThingsUtils.getHexString(data.getBinary())));
+				to, obmData.getProtocolObjectInfoString(), obmData.getHexString()));
 	}
 
 	@Override
-	public void received(LoraAddress from, ObmData data) {
+	public void received(LoraAddress from, byte[] data) {
+		ObmData obmData = new ObmData(parseProtocol(data), data);
 		log(String.format("<--%s:\n" +
 				"    O: %s\n" +
 				"    B: %s",
-				from, data.getProtocolObjectInfoString(), ThingsUtils.getHexString(data.getBinary())));
+				from, obmData.getProtocolObjectInfoString(), obmData.getHexString()));
 	}
 
 	@Override
@@ -49,7 +54,7 @@ public class ThingLogConsolePanel extends AbstractLogConsolePanel
 	
 	@SuppressWarnings("unchecked")
 	public void thingRemoved(IThingEmulator thing) {
-		((ICommunicator<LoraAddress, LoraAddress, ObmData>)thing.getCommunicator()).removeCommunicationListener(this);
+		((ICommunicator<LoraAddress, LoraAddress, byte[]>)thing.getCommunicator()).removeCommunicationListener(this);
 	}
 
 	@Override
@@ -57,8 +62,21 @@ public class ThingLogConsolePanel extends AbstractLogConsolePanel
 		log(String.format("D(%s)<=N, D(%s)=>N", oldAddress, newAddress));
 	}
 
-	@Override
-	public int getOrder() {
-		return IOrder.ORDER_NORMAL;
+	private void addProtocolToTypes(ModeDescriptor modeDescriptor) {
+		Map<Protocol, Class<?>> supportedActions = modeDescriptor.getSupportedActions();
+		for (Map.Entry<Protocol, Class<?>> entry : supportedActions.entrySet()) {
+			Protocol protocol = entry.getKey();
+			if (!protocolToTypes.containsKey(protocol)) {
+				protocolToTypes.put(protocol, entry.getValue());
+			}
+		}
+
+		Map<Protocol, Class<?>> supportedEvents = modeDescriptor.getSupportedEvents();
+		for (Map.Entry<Protocol, Class<?>> entry : supportedEvents.entrySet()) {
+			Protocol protocol = entry.getKey();
+			if (!protocolToTypes.containsKey(protocol)) {
+				protocolToTypes.put(protocol, entry.getValue());
+			}
+		}
 	}
 }

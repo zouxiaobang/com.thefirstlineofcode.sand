@@ -4,10 +4,9 @@ import com.firstlinecode.sand.client.lora.AbstractCommunicator;
 import com.firstlinecode.sand.client.lora.ILoraChip;
 import com.firstlinecode.sand.client.lora.LoraData;
 import com.firstlinecode.sand.client.things.commuication.CommunicationException;
-import com.firstlinecode.sand.client.things.obm.ObmData;
 import com.firstlinecode.sand.protocols.lora.LoraAddress;
 
-public class LoraCommunicator extends AbstractCommunicator<LoraAddress, LoraAddress, ObmData> {
+public class LoraCommunicator extends AbstractCommunicator<LoraAddress, LoraAddress, byte[]> {
 	protected ILoraChip chip;
 	
 	public LoraCommunicator(ILoraChip chip) {
@@ -25,14 +24,14 @@ public class LoraCommunicator extends AbstractCommunicator<LoraAddress, LoraAddr
 	}
 	
 	@Override
-	protected void doSend(LoraAddress to, ObmData data) throws CommunicationException {
-		chip.send(to, data.getBinary());
+	protected void doSend(LoraAddress to, byte[] data) throws CommunicationException {
+		chip.send(to, data);
 	}
 	
 	public LoraData receive() {
 		LoraData data = (LoraData) chip.receive();
 		if (data != null) {
-			received(data.getAddress(), new ObmData(data.getData()));
+			received(data.getAddress(), data.getData());
 		}
 		return data;
 	}

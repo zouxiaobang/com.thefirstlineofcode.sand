@@ -1,20 +1,18 @@
 package com.firstlinecode.sand.emulators.gateway.log;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import javax.swing.JDialog;
-import javax.swing.JFrame;
-import javax.swing.JTabbedPane;
-
 import com.firstlinecode.chalk.IChatClient;
 import com.firstlinecode.chalk.network.IConnectionListener;
 import com.firstlinecode.sand.client.lora.IDualLoraChipsCommunicator;
 import com.firstlinecode.sand.client.things.commuication.ICommunicationNetwork;
 import com.firstlinecode.sand.client.things.commuication.ICommunicationNetworkListener;
 import com.firstlinecode.sand.emulators.thing.IThingEmulator;
+import com.firstlinecode.sand.protocols.core.ModeDescriptor;
 import com.firstlinecode.sand.protocols.lora.LoraAddress;
+
+import javax.swing.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class LogConsolesDialog extends JDialog {
 	private static final long serialVersionUID = 5197344780011371803L;
@@ -25,16 +23,19 @@ public class LogConsolesDialog extends JDialog {
 	
 	private JTabbedPane tabbedPane;
 	private Map<String, AbstractLogConsolePanel> logConsoles;
+	private Map<String, ModeDescriptor> modes;
 	
-	public LogConsolesDialog(JFrame parent, IChatClient chatClient,
-			ICommunicationNetwork<LoraAddress, byte[], ?> network,
-			IDualLoraChipsCommunicator gatewayCommunicator,
-			Map<String, List<IThingEmulator>> allThings) {
+	public LogConsolesDialog(JFrame parent, Map<String, ModeDescriptor> modes, IChatClient chatClient,
+							 ICommunicationNetwork<LoraAddress, byte[], ?> network,
+							 IDualLoraChipsCommunicator gatewayCommunicator,
+							 Map<String, List<IThingEmulator>> allThings) {
 		super(parent, "Log Console");
+
+		this.modes = modes;
+		logConsoles = new HashMap<>();
 		
 		setUi();
-		
-		logConsoles = new HashMap<>();
+
 		createLogConsoles(chatClient, network, gatewayCommunicator, allThings);
 	}
 	
@@ -62,16 +63,16 @@ public class LogConsolesDialog extends JDialog {
 	}
 
 	public void createThingLogConsole(IThingEmulator thing) {
-		createLogConsole(thing.getDeviceId(), new ThingLogConsolePanel(thing));
+		createLogConsole(thing.getDeviceId(), new ThingLogConsolePanel(thing, modes.get(thing.getMode())));
 	}
 
 	private void createGatewayConsole(IDualLoraChipsCommunicator gatewayCommunicator) {
-		createLogConsole(NAME_GATEWAY, new GatewayLogConsolePanel(gatewayCommunicator));
+		createLogConsole(NAME_GATEWAY, new GatewayLogConsolePanel(gatewayCommunicator, modes));
 	}
 
 	@SuppressWarnings("unchecked")
 	private void createCommunicationNetworkLogConsole(ICommunicationNetwork<LoraAddress, byte[], ?> network) {
-		createLogConsole(NAME_COMMUNICATION_NETWORK, new CommunicationNetworkLogConsolePanel(network));
+		createLogConsole(NAME_COMMUNICATION_NETWORK, new CommunicationNetworkLogConsolePanel(network, modes));
 		network.addListener((ICommunicationNetworkListener<LoraAddress, byte[]>)logConsoles.get(NAME_COMMUNICATION_NETWORK));
 	}
 	
