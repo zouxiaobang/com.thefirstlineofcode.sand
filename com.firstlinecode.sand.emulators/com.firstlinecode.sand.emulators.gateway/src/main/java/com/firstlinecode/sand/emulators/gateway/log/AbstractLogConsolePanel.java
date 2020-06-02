@@ -1,11 +1,22 @@
 package com.firstlinecode.sand.emulators.gateway.log;
 
+import com.firstlinecode.basalt.oxm.binary.BinaryUtils;
+import com.firstlinecode.basalt.protocol.core.Protocol;
+import com.firstlinecode.gem.protocols.bxmpp.BinaryMessageProtocolReader;
+import com.firstlinecode.sand.client.things.obm.IObmFactory;
+import com.firstlinecode.sand.client.things.obm.ObmFactory;
+import com.firstlinecode.sand.protocols.lora.dac.Allocated;
+import com.firstlinecode.sand.protocols.lora.dac.Allocation;
+import com.firstlinecode.sand.protocols.lora.dac.Introduction;
+
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
@@ -18,11 +29,18 @@ public abstract class AbstractLogConsolePanel extends JPanel implements ILogger,
 	private static final long serialVersionUID = 2661118467157999059L;
 	
 	private static final String LINE_SEPARATOR = System.getProperty("line.separator");
+
+	protected final Map<Protocol, Class<?>> protocolToTypes = new HashMap<>();
 	
 	private JTextArea logConsole;
 	private JButton clear;
+	private final IObmFactory obmFactory = ObmFactory.createInstance();
+	private final BinaryMessageProtocolReader bMessageProtocolReader;
 	
 	public AbstractLogConsolePanel() {
+		bMessageProtocolReader = new BinaryMessageProtocolReader(((ObmFactory)ObmFactory.createInstance()).getBinaryXmppProtocolConverter());
+		registerAddressConfigurationProtocolTypes();
+
 		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 		setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 		
@@ -82,4 +100,24 @@ public abstract class AbstractLogConsolePanel extends JPanel implements ILogger,
 
 	@Override
 	public void windowDeactivated(WindowEvent e) {}
+
+	private void registerAddressConfigurationProtocolTypes() {
+		protocolToTypes.put(Allocated.PROTOCOL, Allocated.class);
+		protocolToTypes.put(Allocation.PROTOCOL, Allocation.class);
+		protocolToTypes.put(Introduction.PROTOCOL, Introduction.class);
+	}
+
+	protected Object parseProtocol(byte[] data) {
+		Protocol protocol = bMessageProtocolReader.readProtocol(data);
+		if (protocol == null) {
+			throw new RuntimeException(String.format("Unknown protocol. Data is %s.", BinaryUtils.getHexStringFromBytes(data)));
+		}
+
+		Class<?> actionType = protocolToTypes.get(protocol);
+		if (actionType == null) {
+			throw new RuntimeException(String.format("Action not supported. Protocol is %s.", protocol));
+		}
+
+		return obmFactory.toObject(actionType, data);
+	}
 }

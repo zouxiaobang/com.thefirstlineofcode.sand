@@ -91,6 +91,7 @@ import com.firstlinecode.sand.emulators.thing.UiUtils;
 import com.firstlinecode.sand.protocols.concentrator.NodeAddress;
 import com.firstlinecode.sand.protocols.core.CommunicationNet;
 import com.firstlinecode.sand.protocols.core.DeviceIdentity;
+import com.firstlinecode.sand.protocols.core.ModeDescriptor;
 import com.firstlinecode.sand.protocols.lora.LoraAddress;
 
 public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionListener, InternalFrameListener,
@@ -180,6 +181,7 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 	
 	private DynamicAddressConfigurator addressConfigurator;
 	private IConcentrator concentrator;
+	private Map<String, ModeDescriptor> registeredModes;
 	
 	public Gateway(ILoraNetwork network, IDualLoraChipsCommunicator gatewayCommunicator) {
 		super("Unregistered Gateway Emulator");
@@ -194,6 +196,7 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 		nodes = new HashMap<>();
 		dirty = false;
 		autoReconnect = false;
+		registerModes();
 		
 		new Thread(new AutoReconnectThread(), "Gateway Auto Reconnect Thread").start();
 		
@@ -526,6 +529,14 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 		modeRegistrar.registerModeDescriptor(new Le01ModeDescriptor());
 	}
 
+	private void registerModes() {
+		registeredModes = new HashMap<>();
+		Ge01ModeDescriptor ge01 = new Ge01ModeDescriptor();
+		registeredModes.put(ge01.getName(), ge01);
+		Le01ModeDescriptor le01 = new Le01ModeDescriptor();
+		registeredModes.put(le01.getName(), le01);
+	}
+
 	private void registerPlugins(IChatClient chatClient) {
 		chatClient.register(ConcentratorPlugin.class);
 		chatClient.register(ActuatorPlugin.class);
@@ -540,7 +551,7 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 	}
 
 	private void showLogConsoleDialog() {
-		logConsolesDialog = new LogConsolesDialog(this, chatClient, network, gatewayCommunicator, allThings);
+		logConsolesDialog = new LogConsolesDialog(this, registeredModes, chatClient, network, gatewayCommunicator, allThings);
 		logConsolesDialog.addWindowListener(this);
 		
 		logConsolesDialog.setVisible(true);

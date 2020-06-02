@@ -1,15 +1,5 @@
 package com.firstlinecode.sand.emulators.thing;
 
-import java.io.IOException;
-import java.io.ObjectInput;
-import java.io.ObjectOutput;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Timer;
-import java.util.TimerTask;
-import java.util.concurrent.ExecutionException;
-
 import com.firstlinecode.basalt.oxm.binary.BinaryUtils;
 import com.firstlinecode.basalt.protocol.core.Protocol;
 import com.firstlinecode.gem.protocols.bxmpp.BinaryMessageProtocolReader;
@@ -21,17 +11,22 @@ import com.firstlinecode.sand.client.things.commuication.CommunicationException;
 import com.firstlinecode.sand.client.things.commuication.ICommunicationListener;
 import com.firstlinecode.sand.client.things.commuication.ICommunicator;
 import com.firstlinecode.sand.client.things.obm.IObmFactory;
-import com.firstlinecode.sand.client.things.obm.ObmData;
 import com.firstlinecode.sand.client.things.obm.ObmFactory;
 import com.firstlinecode.sand.emulators.lora.LoraCommunicator;
 import com.firstlinecode.sand.protocols.lora.LoraAddress;
 
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
+import java.util.*;
+import java.util.concurrent.ExecutionException;
+
 public abstract class AbstractThingEmulator implements IThingEmulator,
-		ICommunicationListener<LoraAddress, LoraAddress, ObmData> {
+		ICommunicationListener<LoraAddress, LoraAddress, byte[]> {
 	private static final String PATTERN_LAN_ID = "%02d";
 	
 	protected String thingName;
-	protected ICommunicator<LoraAddress, LoraAddress, ObmData> communicator;
+	protected ICommunicator<LoraAddress, LoraAddress, byte[]> communicator;
 	protected DynamicAddressConfigurator addressConfigurator;
 	
 	protected String deviceId;
@@ -61,7 +56,7 @@ public abstract class AbstractThingEmulator implements IThingEmulator,
 		
 		this.mode = mode;
 		this.thingName = getThingName() + " - " + mode;
-		this.communicator = (ICommunicator<LoraAddress, LoraAddress, ObmData>)communicator;
+		this.communicator = (ICommunicator<LoraAddress, LoraAddress, byte[]>)communicator;
 
 		deviceId = generateDeviceId();
 		batteryPower = 100;
@@ -342,11 +337,11 @@ public abstract class AbstractThingEmulator implements IThingEmulator,
 	}
 	
 	@Override
-	public void sent(LoraAddress to, ObmData data) {}
+	public void sent(LoraAddress to, byte[] data) {}
 	
 	@Override
-	public void received(LoraAddress from, ObmData data) {
-		processReceived(from, data.getBinary());
+	public void received(LoraAddress from, byte[] data) {
+		processReceived(from, data);
 	}
 	
 	private void processReceived(LoraAddress from, byte[] data) {

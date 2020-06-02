@@ -1,5 +1,7 @@
 package com.firstlinecode.sand.client.things.obm;
 
+import com.firstlinecode.sand.client.things.ThingsUtils;
+
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.math.BigDecimal;
@@ -14,12 +16,9 @@ import java.util.Set;
  * @option the data of obm converted
  */
 public class ObmData {
+
 	private Object protocolObject;
 	private byte[] binary;
-
-	public ObmData(byte[] binary) {
-		this.binary = binary;
-	}
 
 	public ObmData(Object protocolObject, byte[] binary) {
 		this.protocolObject = protocolObject;
@@ -41,6 +40,13 @@ public class ObmData {
 
 	public void setBinary(byte[] binary) {
 		this.binary = binary;
+	}
+
+	public String getHexString() {
+		if (binary == null) {
+			return null;
+		}
+		return ThingsUtils.getHexString(binary);
 	}
 
 	public String getProtocolObjectInfoString() {
@@ -157,4 +163,5 @@ public class ObmData {
 				fieldType.equals(BigDecimal.class) ||
 				fieldType.isEnum();
 	}
+
 }
