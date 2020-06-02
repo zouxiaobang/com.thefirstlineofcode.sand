@@ -1,6 +1,7 @@
 package com.firstlinecode.sand.emulators.thing;
 
 import java.awt.Dialog.ModalityType;
+import java.awt.Dimension;
 import java.awt.Rectangle;
 import java.awt.Window;
 import java.util.Timer;
@@ -40,5 +41,15 @@ public class UiUtils {
 			return new Rectangle(parentX, parentY, width, height);
 		
 		return new Rectangle((parentX + (parentWidth - width) / 2), (parentY + (parentHeight - height) / 2), width, height);
+	}
+	
+	public static void showDialog(Window parent, JDialog dialog) {
+		Dimension size = dialog.getPreferredSize();
+		Rectangle bounds = parent.getBounds();
+		int x = (int)(bounds.x + (bounds.getWidth() - size.width) / 2);
+		int y = (int)(bounds.y + (bounds.getHeight() - size.height) / 2);
+		
+		dialog.setBounds(x, y, size.width, size.height);
+		dialog.setVisible(true);
 	}
 }

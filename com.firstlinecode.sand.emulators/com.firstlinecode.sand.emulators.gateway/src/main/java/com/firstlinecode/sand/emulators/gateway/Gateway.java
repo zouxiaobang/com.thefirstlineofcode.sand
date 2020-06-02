@@ -3,10 +3,7 @@ package com.firstlinecode.sand.emulators.gateway;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.Font;
-import java.awt.Rectangle;
 import java.awt.Toolkit;
-import java.awt.datatransfer.Clipboard;
-import java.awt.datatransfer.StringSelection;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ComponentEvent;
@@ -30,9 +27,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.swing.JButton;
 import javax.swing.JDesktopPane;
-import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JInternalFrame;
@@ -53,6 +48,7 @@ import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileSystemView;
 import javax.swing.plaf.FontUIResource;
 
+import com.alexandriasoftware.swing.JSplitButton;
 import com.firstlinecode.basalt.protocol.core.IError;
 import com.firstlinecode.chalk.AuthFailureException;
 import com.firstlinecode.chalk.IChatClient;
@@ -88,6 +84,7 @@ import com.firstlinecode.sand.emulators.modes.Le01ModeDescriptor;
 import com.firstlinecode.sand.emulators.thing.AbstractThingEmulator;
 import com.firstlinecode.sand.emulators.thing.AbstractThingEmulatorPanel;
 import com.firstlinecode.sand.emulators.thing.Constants;
+import com.firstlinecode.sand.emulators.thing.CopyDeviceIdOrShowQrCodeButton;
 import com.firstlinecode.sand.emulators.thing.IThingEmulator;
 import com.firstlinecode.sand.emulators.thing.IThingEmulatorFactory;
 import com.firstlinecode.sand.emulators.thing.UiUtils;
@@ -304,7 +301,6 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 		private static final long serialVersionUID = -4540556323673700464L;
 		
 		private JLabel text;
-		private JButton copy;
 		
 		public GatewayStatusBar() {
 			super(new BorderLayout());
@@ -314,17 +310,7 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 			text.setHorizontalAlignment(SwingConstants.RIGHT);
 			statusBarPanel.add(text);
 			
-			copy = new JButton("Copy Device ID");
-			copy.setToolTipText("Copy gateway device ID to clipboard.");
-			copy.addActionListener(new ActionListener() {
-				@Override
-				public void actionPerformed(ActionEvent e) {
-					Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
-					clipboard.setContents(new StringSelection(deviceId), null);
-					UiUtils.showNotification(Gateway.this, "Message", "Device ID has copied to clipboard.");
-				}
-			});
-			statusBarPanel.add(copy);
+			statusBarPanel.add(new CopyDeviceIdOrShowQrCodeButton(deviceId));
 			
 			add(statusBarPanel, BorderLayout.EAST);	
 			setPreferredSize(new Dimension(640, 48));
@@ -568,7 +554,7 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 		
 		if (streamConfig == null) {
 			StreamConfigDialog streamConfigDialog = new StreamConfigDialog(this);
-			showDialog(streamConfigDialog);
+			UiUtils.showDialog(this, streamConfigDialog);
 			
 			streamConfig = streamConfigDialog.getStreamConfig();
 		}
@@ -610,16 +596,6 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 		if (logListener != null) {
 			registration.addConnectionListener(logListener);
 		}
-	}
-
-	private void showDialog(JDialog dialog) {
-		Dimension size = dialog.getPreferredSize();
-		Rectangle bounds = getBounds();
-		int x = (int)(bounds.x + (bounds.getWidth() - size.width) / 2);
-		int y = (int)(bounds.y + (bounds.getHeight() - size.height) / 2);
-		
-		dialog.setBounds(x, y, size.width, size.height);
-		dialog.setVisible(true);
 	}
 
 	private void delete() {
@@ -761,7 +737,7 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 	}
 	
 	private void showAboutDialog() {
-		showDialog(new AboutDialog(this, Constants.SOFTWARE_VERSION));
+		UiUtils.showDialog(this, new AboutDialog(this, Constants.SOFTWARE_VERSION));
 	}
 
 	private void quit() {
