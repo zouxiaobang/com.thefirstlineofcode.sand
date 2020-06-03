@@ -1,17 +1,16 @@
 package com.firstlinecode.sand.emulators.gateway.log;
 
+import java.awt.event.WindowEvent;
+import java.util.Map;
+
 import com.firstlinecode.basalt.protocol.core.Protocol;
 import com.firstlinecode.sand.client.things.commuication.CommunicationException;
 import com.firstlinecode.sand.client.things.commuication.ICommunicationListener;
 import com.firstlinecode.sand.client.things.commuication.ICommunicator;
 import com.firstlinecode.sand.client.things.obm.ObmData;
-import com.firstlinecode.sand.emulators.modes.Le01ModeDescriptor;
 import com.firstlinecode.sand.emulators.thing.IThingEmulator;
 import com.firstlinecode.sand.protocols.core.ModeDescriptor;
 import com.firstlinecode.sand.protocols.lora.LoraAddress;
-
-import java.awt.event.WindowEvent;
-import java.util.Map;
 
 public class ThingLogConsolePanel extends AbstractLogConsolePanel
 		implements ICommunicationListener<LoraAddress, LoraAddress, byte[]> {
@@ -32,7 +31,7 @@ public class ThingLogConsolePanel extends AbstractLogConsolePanel
 	@Override
 	public void sent(LoraAddress to, byte[] data) {
 		ObmData obmData = new ObmData(parseProtocol(data), data);
-		log(String.format("-->%s:\n" +
+		log(String.format("-->%s\n" +
 				"    O: %s\n" +
 				"    B: %s",
 				to, obmData.getProtocolObjectInfoString(), obmData.getHexString()));
@@ -41,7 +40,7 @@ public class ThingLogConsolePanel extends AbstractLogConsolePanel
 	@Override
 	public void received(LoraAddress from, byte[] data) {
 		ObmData obmData = new ObmData(parseProtocol(data), data);
-		log(String.format("<--%s:\n" +
+		log(String.format("<--%s\n" +
 				"    O: %s\n" +
 				"    B: %s",
 				from, obmData.getProtocolObjectInfoString(), obmData.getHexString()));

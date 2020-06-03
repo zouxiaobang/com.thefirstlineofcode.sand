@@ -48,7 +48,6 @@ import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileSystemView;
 import javax.swing.plaf.FontUIResource;
 
-import com.alexandriasoftware.swing.JSplitButton;
 import com.firstlinecode.basalt.protocol.core.IError;
 import com.firstlinecode.chalk.AuthFailureException;
 import com.firstlinecode.chalk.IChatClient;

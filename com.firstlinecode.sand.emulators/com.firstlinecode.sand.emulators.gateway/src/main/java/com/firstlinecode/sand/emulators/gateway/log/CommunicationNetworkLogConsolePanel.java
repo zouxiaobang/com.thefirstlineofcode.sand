@@ -59,7 +59,7 @@ public class CommunicationNetworkLogConsolePanel extends AbstractLogConsolePanel
 	@Override
 	public void received(LoraAddress from, LoraAddress to, byte[] data) {
 		ObmData obmData = new ObmData(parseProtocol(data), data);
-		log(String.format("D(%s)<--N<--D(%s): \n" +
+		log(String.format("D(%s)<--N<--D(%s)\n" +
 						"    O: %s\n" +
 						"    B: %s",
 				to, from, obmData.getProtocolObjectInfoString(), obmData.getHexString()));
@@ -74,7 +74,7 @@ public class CommunicationNetworkLogConsolePanel extends AbstractLogConsolePanel
 	@Override
 	public void collided(LoraAddress from, LoraAddress to, byte[] data) {
 		ObmData obmData = new ObmData(parseProtocol(data), data);
-		log(String.format("?* D(%s)-->N-->D(%s): \n" +
+		log(String.format("?* D(%s)-->N-->D(%s)\n" +
 						"    O: %s\n" +
 						"    B: %s",
 				from, to, obmData.getProtocolObjectInfoString(), obmData.getHexString()));
@@ -83,7 +83,7 @@ public class CommunicationNetworkLogConsolePanel extends AbstractLogConsolePanel
 	@Override
 	public void lost(LoraAddress from, LoraAddress to, byte[] data) {
 		ObmData obmData = new ObmData(parseProtocol(data), data);
-		log(String.format("?& D(%s)->N-->D(%s): \n" +
+		log(String.format("?& D(%s)->N-->D(%s)\n" +
 						"    O: %s\n" +
 						"    B: %s",
 				from, to, obmData.getProtocolObjectInfoString(), obmData.getHexString()));

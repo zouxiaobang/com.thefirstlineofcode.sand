@@ -53,7 +53,7 @@ public class GatewayLogConsolePanel extends AbstractLogConsolePanel implements I
 	@Override
 	public void sent(LoraAddress to, byte[] data) {
 		ObmData obmData = new ObmData(parseProtocol(data), data);
-		log(String.format("-->%s: \n" +
+		log(String.format("-->%s\n" +
 						"    O: %s\n" +
 						"    B: %s",
 				to, obmData.getProtocolObjectInfoString(), obmData.getHexString()));
@@ -62,7 +62,7 @@ public class GatewayLogConsolePanel extends AbstractLogConsolePanel implements I
 	@Override
 	public void received(LoraAddress from, byte[] data) {
 		ObmData obmData = new ObmData(parseProtocol(data), data);
-		log(String.format("<--%s: \n" +
+		log(String.format("<--%s\n" +
 						"    O: %s\n" +
 						"    B: %s",
 				from, obmData.getProtocolObjectInfoString(), obmData.getHexString()));
