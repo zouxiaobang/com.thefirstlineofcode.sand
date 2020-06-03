@@ -1,0 +1,2 @@
+rootProject.name='com.firstlinecode.sand.demo'
+include ':app'
