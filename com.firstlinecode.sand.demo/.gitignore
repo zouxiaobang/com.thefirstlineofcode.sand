@@ -9,7 +9,6 @@
 /gradlew.bat
 /gradlew.sh
 .DS_Store
-/build
 /captures
 .externalNativeBuild
 .cxx
