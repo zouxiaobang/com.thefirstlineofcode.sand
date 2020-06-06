@@ -7,13 +7,13 @@
     tools:context=".RegisterActivity">
 
     <TextView
-        android:id="@+id/textName"
+        android:id="@+id/textLoginName"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="16dp"
-        android:text="@string/text_name"
-        app:layout_constraintBaseline_toBaselineOf="@+id/name"
-        app:layout_constraintEnd_toStartOf="@+id/name" />
+        android:text="@string/text_login_name"
+        app:layout_constraintBaseline_toBaselineOf="@+id/loginName"
+        app:layout_constraintEnd_toStartOf="@+id/loginName" />
 
     <TextView
         android:id="@+id/textPassword"
@@ -25,16 +25,16 @@
         app:layout_constraintEnd_toStartOf="@+id/password" />
 
     <TextView
-        android:id="@+id/textRepeatPassword"
+        android:id="@+id/textConfirmPassword"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="16dp"
-        android:text="@string/text_repeat_password"
-        app:layout_constraintBaseline_toBaselineOf="@+id/repeatPassword"
-        app:layout_constraintEnd_toStartOf="@+id/repeatPassword" />
+        android:text="@string/text_confirm_password"
+        app:layout_constraintBaseline_toBaselineOf="@+id/confirmPassword"
+        app:layout_constraintEnd_toStartOf="@+id/confirmPassword" />
 
     <EditText
-        android:id="@+id/name"
+        android:id="@+id/loginName"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="16dp"
@@ -54,13 +54,13 @@
         android:importantForAutofill="no"
         android:inputType="textPassword"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="@+id/repeatPassword"
-        app:layout_constraintStart_toStartOf="@+id/repeatPassword"
+        app:layout_constraintEnd_toEndOf="@+id/confirmPassword"
+        app:layout_constraintStart_toStartOf="@+id/confirmPassword"
         app:layout_constraintTop_toTopOf="parent"
         tools:ignore="LabelFor" />
 
     <EditText
-        android:id="@+id/repeatPassword"
+        android:id="@+id/confirmPassword"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
@@ -84,7 +84,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/repeatPassword"
+        app:layout_constraintTop_toBottomOf="@+id/confirmPassword"
         android:textAllCaps="false" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

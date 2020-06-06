@@ -1,9 +1,12 @@
 <resources>
     <string name="app_name">Light Demo</string>
-    <string name="text_name">Name</string>
+    <string name="text_login_name">Login Name</string>
     <string name="text_password">Password</string>
-    <string name="text_repeat_password">Repeat Password</string>
+    <string name="text_confirm_password">Confirm Password</string>
     <string name="text_login">Login</string>
     <string name="text_register">Register</string>
     <string name="name_cant_be_null">Name can\'t be null.</string>
+    <string name="password_cant_be_null">Password can\'t be null.</string>
+    <string name="confirm_password_cant_be_null">Confirm password can\'t be null.</string>
+    <string name="password_not_equal_to_confirm_password">Password doesn\'t equal to confirm password.</string>
 </resources>
