@@ -17,4 +17,8 @@ public class LoginActivity extends AppCompatActivity {
 	public void startRegisterActivity(View view) {
 		startActivity(new Intent(this, RegisterActivity.class));
 	}
+
+	public void startConfigureStreamActivity(View view) {
+		startActivity(new Intent(this, ConfigureStreamActivity.class));
+	}
 }
