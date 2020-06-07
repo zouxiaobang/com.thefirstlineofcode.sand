@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".ConfigureStreamActivity">
+
+    <EditText
+        android:id="@+id/host"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        android:ems="10"
+        android:importantForAutofill="no"
+        android:inputType="textPersonName"
+        android:text="@string/text_default_host"
+        app:layout_constraintBottom_toTopOf="@+id/port"
+        app:layout_constraintEnd_toEndOf="@+id/port"
+        app:layout_constraintStart_toStartOf="@+id/port"
+        tools:ignore="LabelFor" />
+
+    <TextView
+        android:id="@+id/textHost"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="16dp"
+        android:text="@string/text_host"
+        app:layout_constraintBaseline_toBaselineOf="@+id/host"
+        app:layout_constraintEnd_toStartOf="@+id/host" />
+
+    <EditText
+        android:id="@+id/port"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:importantForAutofill="no"
+        android:inputType="textPersonName"
+        android:text="@string/text_default_port"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:ignore="LabelFor" />
+
+    <TextView
+        android:id="@+id/textPort"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:importantForAutofill="no"
+        android:text="@string/text_port"
+        app:layout_constraintBaseline_toBaselineOf="@+id/port"
+        app:layout_constraintEnd_toEndOf="@+id/textHost" />
+
+    <CheckBox
+        android:id="@+id/enableTls"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        app:layout_constraintStart_toStartOf="@+id/port"
+        app:layout_constraintTop_toBottomOf="@+id/port" />
+
+    <TextView
+        android:id="@+id/textTlsRequired"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:importantForAutofill="no"
+        android:text="@string/text_enable_tls"
+        app:layout_constraintBaseline_toBaselineOf="@+id/enableTls"
+        app:layout_constraintEnd_toEndOf="@+id/textPort" />
+
+    <Button
+        android:id="@+id/ok"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="@string/text_ok"
+        android:textAllCaps="false"
+        app:layout_constraintEnd_toEndOf="@+id/port"
+        app:layout_constraintStart_toStartOf="@+id/port"
+        app:layout_constraintTop_toBottomOf="@+id/enableTls" />
+</androidx.constraintlayout.widget.ConstraintLayout>

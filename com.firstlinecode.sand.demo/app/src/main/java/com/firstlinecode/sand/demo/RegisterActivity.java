@@ -16,41 +16,41 @@ public class RegisterActivity extends AppCompatActivity {
 	}
 
 	public void register(View view) {
-		EditText etName = findViewById(R.id.name);
-		if (TextUtils.isEmpty(etName.getText().toString())) {
-			Toast.makeText(view.getContext(), "Name can't be null.", Toast.LENGTH_LONG).show();
-			etName.requestFocus();
+		EditText etLoginName = findViewById(R.id.loginName);
+		if (TextUtils.isEmpty(etLoginName.getText().toString())) {
+			Toast.makeText(view.getContext(), getString(R.string.name_cant_be_null), Toast.LENGTH_LONG).show();
+			etLoginName.requestFocus();
 
 			return;
 		}
 
 		EditText etPassword = findViewById(R.id.password);
 		if (TextUtils.isEmpty(etPassword.getText().toString())) {
-			Toast.makeText(view.getContext(), "Password can't be null.", Toast.LENGTH_LONG).show();
+			Toast.makeText(view.getContext(), getString(R.string.password_cant_be_null), Toast.LENGTH_LONG).show();
 			etPassword.requestFocus();
 
 			return;
 		}
 
-		EditText etRepeatPassword = findViewById(R.id.repeatPassword);
-		if (TextUtils.isEmpty(etRepeatPassword.getText().toString())) {
-			Toast.makeText(view.getContext(), "Repeat password can't be null.", Toast.LENGTH_LONG).show();
-			etRepeatPassword.requestFocus();
+		EditText etConfirmPassword = findViewById(R.id.confirmPassword);
+		if (TextUtils.isEmpty(etConfirmPassword.getText().toString())) {
+			Toast.makeText(view.getContext(), getString(R.string.confirm_password_cant_be_null), Toast.LENGTH_LONG).show();
+			etConfirmPassword.requestFocus();
 
 			return;
 		}
 
-		if (!etPassword.getText().toString().equals(etRepeatPassword.getText().toString())) {
-			Toast.makeText(view.getContext(), "Password doesn't equal to repeat password.", Toast.LENGTH_LONG).show();
+		if (!etPassword.getText().toString().equals(etConfirmPassword.getText().toString())) {
+			Toast.makeText(view.getContext(), getString(R.string.password_not_equal_to_confirm_password), Toast.LENGTH_LONG).show();
 			etPassword.requestFocus();
 
 			return;
 		}
 
-		register(etName.getText().toString(), etPassword.getText().toString());
+		register(etLoginName.getText().toString(), etPassword.getText().toString());
 	}
 
-	private void register(String name, String password) {
+	private void register(String loginName, String password) {
 		// TODO
 	}
 }
