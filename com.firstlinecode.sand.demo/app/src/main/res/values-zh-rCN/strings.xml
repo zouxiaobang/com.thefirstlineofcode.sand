@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">灯示例</string>
-    <string name="text_login_name">登录名</string>
+    <string name="text_user_name">用户名</string>
     <string name="text_password">口令</string>
     <string name="text_confirm_password">确认口令</string>
     <string name="text_login">登录</string>
     <string name="text_register">注册</string>
     <string name="text_configure_stream">配置传输通道</string>
-    <string name="name_cant_be_null">登录名不能为空</string>
+    <string name="user_name_cant_be_null">用户名不能为空</string>
     <string name="password_cant_be_null">密码不能为空</string>
     <string name="confirm_password_cant_be_null">确认密码不能为空</string>
     <string name="password_not_equal_to_confirm_password">密码和确认密码不相同</string>
@@ -15,6 +15,13 @@
     <string name="text_port">端口</string>
     <string name="text_enable_tls">启用安全通道</string>
     <string name="text_ok">确定</string>
-    <string name="text_default_host">47.115.36.99</string>
-    <string name="text_default_port">5222</string>
+    <string name="text_host_cant_be_null">主机不能为空</string>
+    <string name="text_host_must_be_an_ipv4_address">主机必须是有效的IPv4地址</string>
+    <string name="text_port_cant_be_null">端口不能为空</string>
+    <string name="text_port_must_be_an_positive_integer">端口必须是一个正整数</string>
+    <string name="text_user_name_has_existed">用户名已经存在，请修改你的用户名</string>
+    <string name="text_invalid_user_name">无效的用户名，请修改你的用户名</string>
+    <string name="text_network_error">网络故障，请稍后重试</string>
+    <string name="text_unknown_error">未知错误，请联系开发者</string>
+    <string name="text_user_has_registered">用户已经注册</string>
 </resources>

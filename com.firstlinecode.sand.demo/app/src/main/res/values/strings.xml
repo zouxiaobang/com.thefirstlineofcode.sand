@@ -1,12 +1,12 @@
 <resources>
     <string name="app_name">Light Demo</string>
-    <string name="text_login_name">Login Name</string>
+    <string name="text_user_name">User Name</string>
     <string name="text_password">Password</string>
     <string name="text_confirm_password">Confirm Password</string>
     <string name="text_login">Login</string>
     <string name="text_register">Register</string>
     <string name="text_configure_stream">Configure Stream</string>
-    <string name="name_cant_be_null">Name can\'t be null.</string>
+    <string name="user_name_cant_be_null">User name can\'t be null.</string>
     <string name="password_cant_be_null">Password can\'t be null.</string>
     <string name="confirm_password_cant_be_null">Confirm password can\'t be null.</string>
     <string name="password_not_equal_to_confirm_password">Password doesn\'t equal to confirm password.</string>
@@ -14,6 +14,20 @@
     <string name="text_port">Port</string>
     <string name="text_enable_tls">Enable TLS</string>
     <string name="text_ok">Ok</string>
-    <string name="text_default_host">47.115.36.99</string>
-    <string name="text_default_port">5222</string>
+    <string name="text_default_host" translatable="false">47.115.36.99</string>
+    <string name="text_default_port" translatable="false">5222</string>
+    <string name="text_default_enable_tils" translatable="false">false</string>
+    <string name="text_host_cant_be_null">Host can\'t be null.</string>
+    <string name="text_host_must_be_an_ipv4_address">Host must be a valid IPv4 address.</string>
+    <string name="text_port_cant_be_null">Port can\'t be null.</string>
+    <string name="text_port_must_be_an_positive_integer">Port must be a positive integer.</string>
+    <string name="app_preferences_name" translatable="false">app-preferences</string>
+    <string name="stream_config_host" translatable="false">stream-config-host</string>
+    <string name="stream_config_port" translatable="false">stream-config-port</string>
+    <string name="stream_config_enable_tls" translatable="false">stream-config-enable-tls</string>
+    <string name="text_user_name_has_existed">User name %s has already existed. Please change your user name.</string>
+    <string name="text_invalid_user_name">Invalid user name. Please change your user name.</string>
+    <string name="text_network_error">Network error. Please try later.</string>
+    <string name="text_unknown_error">Unknown error. Please contact the developer.</string>
+    <string name="text_user_has_registered">User has already registered.</string>
 </resources>
