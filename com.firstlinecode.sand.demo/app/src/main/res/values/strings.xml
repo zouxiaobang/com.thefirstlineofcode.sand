@@ -14,9 +14,9 @@
     <string name="text_port">Port</string>
     <string name="text_enable_tls">Enable TLS</string>
     <string name="text_ok">Ok</string>
-    <string name="text_default_host" translatable="false">47.115.36.99</string>
-    <string name="text_default_port" translatable="false">5222</string>
-    <string name="text_default_enable_tils" translatable="false">false</string>
+    <string name="text_stream_config_default_host" translatable="false">47.115.36.99</string>
+    <string name="text_stream_config_default_port" translatable="false">5222</string>
+    <string name="text_stream_config_default_enable_tls" translatable="false">false</string>
     <string name="text_host_cant_be_null">Host can\'t be null.</string>
     <string name="text_host_must_be_an_ipv4_address">Host must be a valid IPv4 address.</string>
     <string name="text_port_cant_be_null">Port can\'t be null.</string>
@@ -28,6 +28,6 @@
     <string name="text_user_name_has_existed">User name %s has already existed. Please change your user name.</string>
     <string name="text_invalid_user_name">Invalid user name. Please change your user name.</string>
     <string name="text_network_error">Network error. Please try later.</string>
-    <string name="text_unknown_error">Unknown error. Please contact the developer.</string>
+    <string name="text_unknown_error">Unknown error: %s. Please contact the developer.</string>
     <string name="text_user_has_registered">User has already registered.</string>
 </resources>

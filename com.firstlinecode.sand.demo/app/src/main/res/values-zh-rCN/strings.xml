@@ -22,6 +22,6 @@
     <string name="text_user_name_has_existed">用户名已经存在，请修改你的用户名</string>
     <string name="text_invalid_user_name">无效的用户名，请修改你的用户名</string>
     <string name="text_network_error">网络故障，请稍后重试</string>
-    <string name="text_unknown_error">未知错误，请联系开发者</string>
+    <string name="text_unknown_error">未知错误： %s。请联系开发者</string>
     <string name="text_user_has_registered">用户已经注册</string>
 </resources>

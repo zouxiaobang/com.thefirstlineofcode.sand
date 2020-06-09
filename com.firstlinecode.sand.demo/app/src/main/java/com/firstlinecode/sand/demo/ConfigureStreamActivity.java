@@ -5,6 +5,7 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.Toast;
 
@@ -22,6 +23,15 @@ public class ConfigureStreamActivity extends AppCompatActivity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_configure_stream);
+
+		StandardStreamConfig streamConfig = PreferencesUtils.getStreamConfig(this);
+		EditText etHost = findViewById(R.id.host);
+		etHost.setText(streamConfig.getHost());
+		EditText etPort = findViewById(R.id.port);
+		etPort.setText(String.valueOf(streamConfig.getPort()));
+
+		CheckBox cbEnableTls = findViewById(R.id.enableTls);
+		cbEnableTls.setChecked(streamConfig.isTlsPreferred());
 	}
 
 	public void configureStream(View view) {
@@ -74,7 +84,10 @@ public class ConfigureStreamActivity extends AppCompatActivity {
 			return;
 		}
 
+		CheckBox cbEnableTls = findViewById(R.id.enableTls);
+
 		StandardStreamConfig streamConfig = new StandardStreamConfig(etHost.getText().toString(), port);
+		streamConfig.setTlsPreferred(cbEnableTls.isChecked());
 		PreferencesUtils.setStreamConfig(this, streamConfig);
 
 		finish();
