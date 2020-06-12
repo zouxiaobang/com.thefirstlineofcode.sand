@@ -75,22 +75,22 @@ public class RegisterActivity extends AppCompatActivity {
 		if (ContextCompat.checkSelfPermission(context, Manifest.permission.INTERNET) == PackageManager.PERMISSION_GRANTED) {
 			try {
 				register(userName.getText().toString(), password.getText().toString());
-				Toast.makeText(context, context.getString(R.string.text_user_has_registered), Toast.LENGTH_LONG).show();
+				Toast.makeText(context, context.getString(R.string.user_has_registered), Toast.LENGTH_LONG).show();
 				finish();
 			} catch (RegistrationException e) {
 				IbrError error = e.getError();
 				if (error == IbrError.CONFLICT) {
-					Toast.makeText(context, context.getString(R.string.text_user_name_has_existed), Toast.LENGTH_LONG).show();
+					Toast.makeText(context, context.getString(R.string.user_name_has_existed), Toast.LENGTH_LONG).show();
 					userName.selectAll();
 					userName.requestFocus();
 				} else if (error == IbrError.NOT_ACCEPTABLE) {
-					Toast.makeText(context, context.getString(R.string.text_invalid_user_name), Toast.LENGTH_LONG).show();
+					Toast.makeText(context, context.getString(R.string.invalid_user_name), Toast.LENGTH_LONG).show();
 					userName.selectAll();
 					userName.requestFocus();
 				} else if (error == IbrError.CONNECTION_ERROR || error == IbrError.TIMEOUT) {
-					Toast.makeText(context, context.getString(R.string.text_network_error), Toast.LENGTH_LONG).show();
+					Toast.makeText(context, context.getString(R.string.network_error), Toast.LENGTH_LONG).show();
 				} else {
-					Toast.makeText(context, context.getString(R.string.text_unknown_error,
+					Toast.makeText(context, context.getString(R.string.unknown_error,
 							 e.getCause() == null ? "No cause found" :  e.getCause().getClass().getName()),
 							Toast.LENGTH_LONG).show();
 				}
@@ -98,10 +98,10 @@ public class RegisterActivity extends AppCompatActivity {
 				NegotiationException ne = Toolkits.findNegotiationException(e);
 				if (ne != null && ne.getAdditionalErrorInfo() instanceof IError) {
 					IError error = (IError)ne.getAdditionalErrorInfo();
-					Toast.makeText(context, context.getString(R.string.text_unknown_error,
+					Toast.makeText(context, context.getString(R.string.unknown_error,
 							Toolkits.getErrorInfo(error)), Toast.LENGTH_LONG).show();
 				} else {
-					Toast.makeText(context, context.getString(R.string.text_unknown_error, e.getClass().getName()), Toast.LENGTH_LONG).show();
+					Toast.makeText(context, context.getString(R.string.unknown_error, e.getClass().getName()), Toast.LENGTH_LONG).show();
 				}
 			}
 		} else {

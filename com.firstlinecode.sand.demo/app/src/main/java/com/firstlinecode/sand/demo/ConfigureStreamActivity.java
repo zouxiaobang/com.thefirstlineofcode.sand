@@ -33,7 +33,7 @@ public class ConfigureStreamActivity extends AppCompatActivity {
 	public void configureStream(View view) {
 		EditText etHost = findViewById(R.id.host);
 		if (TextUtils.isEmpty(etHost.getText().toString())) {
-			Toast.makeText(this, getString(R.string.text_host_cant_be_null), Toast.LENGTH_LONG).show();
+			Toast.makeText(this, getString(R.string.host_cant_be_null), Toast.LENGTH_LONG).show();
 			etHost.requestFocus();
 
 			return;
@@ -45,7 +45,7 @@ public class ConfigureStreamActivity extends AppCompatActivity {
 				throw new IllegalArgumentException("Not an IPv4 address.");
 			}
 		} catch (Exception e) {
-			Toast.makeText(this, getString(R.string.text_host_must_be_an_ipv4_address), Toast.LENGTH_LONG).show();
+			Toast.makeText(this, getString(R.string.host_must_be_an_ipv4_address), Toast.LENGTH_LONG).show();
 			etHost.selectAll();
 			etHost.requestFocus();
 
@@ -54,7 +54,7 @@ public class ConfigureStreamActivity extends AppCompatActivity {
 
 		EditText etPort = findViewById(R.id.port);
 		if (TextUtils.isEmpty(etHost.getText().toString())) {
-			Toast.makeText(this, getString(R.string.text_port_cant_be_null), Toast.LENGTH_LONG).show();
+			Toast.makeText(this, getString(R.string.port_cant_be_null), Toast.LENGTH_LONG).show();
 			etPort.requestFocus();
 
 			return;
@@ -73,7 +73,7 @@ public class ConfigureStreamActivity extends AppCompatActivity {
 		}
 
 		if (portIsInvalid) {
-			Toast.makeText(this, getString(R.string.text_port_must_be_an_positive_integer), Toast.LENGTH_LONG).show();
+			Toast.makeText(this, getString(R.string.port_must_be_an_positive_integer), Toast.LENGTH_LONG).show();
 			etPort.selectAll();
 			etPort.requestFocus();
 

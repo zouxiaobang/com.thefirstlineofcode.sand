@@ -29,8 +29,6 @@ public class LoginActivity extends AppCompatActivity {
 			etUserName.setText(token.getUsername());
 			EditText etPassword = findViewById(R.id.password);
 			etPassword.setText(new String(token.getPassword()));
-
-			login(findViewById(R.id.textUserName).getRootView());
 		}
 	}
 
@@ -65,10 +63,10 @@ public class LoginActivity extends AppCompatActivity {
 		try {
 			chatClient.connect(new UsernamePasswordToken(userName, password));
 		} catch (ConnectionException e) {
-			Toast.makeText(this, getString(R.string.text_network_error), Toast.LENGTH_LONG).show();
+			Toast.makeText(this, getString(R.string.network_error), Toast.LENGTH_LONG).show();
 			return;
 		} catch (AuthFailureException e) {
-			Toast.makeText(this, getString(R.string.text_incorrect_user_name_or_password), Toast.LENGTH_LONG).show();
+			Toast.makeText(this, getString(R.string.incorrect_user_name_or_password), Toast.LENGTH_LONG).show();
 			etUserName.selectAll();
 			etUserName.requestFocus();
 
@@ -77,10 +75,10 @@ public class LoginActivity extends AppCompatActivity {
 			NegotiationException ne = Toolkits.findNegotiationException(e);
 			if (ne != null && ne.getAdditionalErrorInfo() instanceof IError) {
 				IError error = (IError)ne.getAdditionalErrorInfo();
-				Toast.makeText(this, getString(R.string.text_unknown_error,
+				Toast.makeText(this, getString(R.string.unknown_error,
 						Toolkits.getErrorInfo(error)), Toast.LENGTH_LONG).show();
 			} else {
-				Toast.makeText(this, getString(R.string.text_unknown_error, e.getClass().getName()), Toast.LENGTH_LONG).show();
+				Toast.makeText(this, getString(R.string.unknown_error, e.getClass().getName()), Toast.LENGTH_LONG).show();
 			}
 
 			return;

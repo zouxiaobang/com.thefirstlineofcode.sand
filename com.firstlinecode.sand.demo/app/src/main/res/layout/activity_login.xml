@@ -11,7 +11,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="16dp"
-        android:text="@string/text_user_name"
+        android:text="@string/user_name"
         app:layout_constraintBaseline_toBaselineOf="@+id/userName"
         app:layout_constraintEnd_toStartOf="@+id/userName" />
 
@@ -20,7 +20,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="16dp"
-        android:text="@string/text_password"
+        android:text="@string/password"
         app:layout_constraintBaseline_toBaselineOf="@+id/password"
         app:layout_constraintEnd_toStartOf="@+id/password" />
 
@@ -60,7 +60,7 @@
         android:autoLink="all"
         android:importantForAutofill="no"
         android:onClick="login"
-        android:text="@string/text_login"
+        android:text="@string/login"
         android:textAllCaps="false"
         app:layout_constraintEnd_toEndOf="@+id/password"
         app:layout_constraintStart_toStartOf="@+id/password"
@@ -73,7 +73,7 @@
         android:layout_marginStart="16dp"
         android:autoLink="all"
         android:onClick="startRegisterActivity"
-        android:text="@string/text_register"
+        android:text="@string/register"
         app:layout_constraintBaseline_toBaselineOf="@+id/login"
         app:layout_constraintStart_toEndOf="@+id/login" />
 
@@ -83,7 +83,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="32dp"
         android:onClick="startConfigureStreamActivity"
-        android:text="@string/text_configure_stream"
+        android:text="@string/configure_stream"
         app:layout_constraintEnd_toEndOf="@+id/login"
         app:layout_constraintStart_toStartOf="@+id/login"
         app:layout_constraintTop_toBottomOf="@+id/login" />

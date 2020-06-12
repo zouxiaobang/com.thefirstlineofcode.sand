@@ -11,7 +11,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="16dp"
-        android:text="@string/text_user_name"
+        android:text="@string/user_name"
         app:layout_constraintBaseline_toBaselineOf="@+id/userName"
         app:layout_constraintEnd_toStartOf="@+id/userName" />
 
@@ -20,7 +20,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="16dp"
-        android:text="@string/text_password"
+        android:text="@string/password"
         app:layout_constraintBaseline_toBaselineOf="@+id/password"
         app:layout_constraintEnd_toStartOf="@+id/password" />
 
@@ -29,7 +29,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="16dp"
-        android:text="@string/text_confirm_password"
+        android:text="@string/confirm_password"
         app:layout_constraintBaseline_toBaselineOf="@+id/confirmPassword"
         app:layout_constraintEnd_toStartOf="@+id/confirmPassword" />
 
@@ -80,7 +80,7 @@
         android:autoLink="all"
         android:importantForAutofill="no"
         android:onClick="register"
-        android:text="@string/text_register"
+        android:text="@string/register"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
