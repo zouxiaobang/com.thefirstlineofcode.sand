@@ -1,7 +1,5 @@
 package com.firstlinecode.sand.demo;
 
-import android.content.Context;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
@@ -13,10 +11,8 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.firstlinecode.chalk.core.stream.StandardStreamConfig;
 
-import java.lang.reflect.InvocationTargetException;
 import java.net.Inet4Address;
 import java.net.InetAddress;
-import java.net.UnknownHostException;
 
 public class ConfigureStreamActivity extends AppCompatActivity {
 	@Override
@@ -24,7 +20,7 @@ public class ConfigureStreamActivity extends AppCompatActivity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_configure_stream);
 
-		StandardStreamConfig streamConfig = PreferencesUtils.getStreamConfig(this);
+		StandardStreamConfig streamConfig = Toolkits.getStreamConfig(this);
 		EditText etHost = findViewById(R.id.host);
 		etHost.setText(streamConfig.getHost());
 		EditText etPort = findViewById(R.id.port);
@@ -88,7 +84,7 @@ public class ConfigureStreamActivity extends AppCompatActivity {
 
 		StandardStreamConfig streamConfig = new StandardStreamConfig(etHost.getText().toString(), port);
 		streamConfig.setTlsPreferred(cbEnableTls.isChecked());
-		PreferencesUtils.setStreamConfig(this, streamConfig);
+		Toolkits.setStreamConfig(this, streamConfig);
 
 		finish();
 	}

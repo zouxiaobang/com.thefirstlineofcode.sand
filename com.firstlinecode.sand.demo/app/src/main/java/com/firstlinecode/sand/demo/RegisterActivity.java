@@ -94,12 +94,12 @@ public class RegisterActivity extends AppCompatActivity {
 							 e.getCause() == null ? "No cause found" :  e.getCause().getClass().getName()),
 							Toast.LENGTH_LONG).show();
 				}
-			} catch (Exception e) {
-				NegotiationException ne = findNegotiationException(e);
+			} catch (RuntimeException e) {
+				NegotiationException ne = Toolkits.findNegotiationException(e);
 				if (ne != null && ne.getAdditionalErrorInfo() instanceof IError) {
 					IError error = (IError)ne.getAdditionalErrorInfo();
 					Toast.makeText(context, context.getString(R.string.text_unknown_error,
-							getErrorInfo(error)), Toast.LENGTH_LONG).show();
+							Toolkits.getErrorInfo(error)), Toast.LENGTH_LONG).show();
 				} else {
 					Toast.makeText(context, context.getString(R.string.text_unknown_error, e.getClass().getName()), Toast.LENGTH_LONG).show();
 				}
@@ -108,25 +108,6 @@ public class RegisterActivity extends AppCompatActivity {
 			requestPermissions(new String[] {Manifest.permission.INTERNET}, INTERNET_PERMISSION_REQUEST_CODE);
 		}
 
-	}
-
-	private String getErrorInfo(IError error) {
-		if (error.getText() == null)
-			return error.getDefinedCondition();
-		else
-			return String.format("%s - %s", error.getDefinedCondition(), error.getText());
-	}
-
-	private NegotiationException findNegotiationException(Exception e) {
-		Throwable t = e;
-		while (t.getCause() != null) {
-			if (t.getCause() instanceof NegotiationException)
-				return (NegotiationException)t.getCause();
-
-			t = t.getCause();
-		}
-
-		return null;
 	}
 
 	private void register(final String userName, final String password) throws RegistrationException {
@@ -150,7 +131,7 @@ public class RegisterActivity extends AppCompatActivity {
 	}
 
 	private IChatClient createChatClient() {
-		StandardStreamConfig streamConfig = PreferencesUtils.getStreamConfig(this);
+		StandardStreamConfig streamConfig = Toolkits.getStreamConfig(this);
 		IChatClient chatClient = new StandardChatClient(streamConfig);
 		chatClient.register(IbrPlugin.class);
 

@@ -30,4 +30,7 @@
     <string name="text_network_error">Network error. Please try later.</string>
     <string name="text_unknown_error">Unknown error: %s. Please contact the developer.</string>
     <string name="text_user_has_registered">User has already registered.</string>
+    <string name="text_incorrect_user_name_or_password">Incorrect user name or password.</string>
+    <string name="file_name_user_data_properties" translatable="false">user-data.properties</string>
+
 </resources>

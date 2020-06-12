@@ -24,4 +24,5 @@
     <string name="text_network_error">网络故障，请稍后重试</string>
     <string name="text_unknown_error">未知错误： %s。请联系开发者</string>
     <string name="text_user_has_registered">用户已经注册</string>
+    <string name="text_incorrect_user_name_or_password">用户名或密码不正确</string>
 </resources>
