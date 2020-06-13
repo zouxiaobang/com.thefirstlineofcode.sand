@@ -33,5 +33,6 @@
     <string name="incorrect_user_name_or_password">Incorrect user name or password.</string>
     <string name="file_name_user_data_properties" translatable="false">user-data.properties</string>
     <string name="logout">Logout</string>
+    <string name="auto_login" translatable="false">auto-login</string>
 
 </resources>

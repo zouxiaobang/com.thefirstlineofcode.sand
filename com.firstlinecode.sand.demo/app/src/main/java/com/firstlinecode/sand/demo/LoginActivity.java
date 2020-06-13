@@ -30,6 +30,10 @@ public class LoginActivity extends AppCompatActivity {
 			EditText etPassword = findViewById(R.id.password);
 			etPassword.setText(new String(token.getPassword()));
 		}
+
+		Intent intent = getIntent();
+		if (intent != null && intent.getBooleanExtra(getString(R.string.auto_login), true))
+			login(findViewById(R.id.login));
 	}
 
 	public void startRegisterActivity(View view) {
@@ -60,17 +64,25 @@ public class LoginActivity extends AppCompatActivity {
 		}
 
 		IChatClient chatClient = ChatClientSingleton.get(this);
+		if (!chatClient.isConnected() && !connect(etUserName, userName, password, chatClient))
+			return;
+
+		finish();
+		startActivity(new Intent(this, MainActivity.class));
+	}
+
+	private boolean connect(EditText etUserName, String userName, String password, IChatClient chatClient) {
 		try {
 			chatClient.connect(new UsernamePasswordToken(userName, password));
 		} catch (ConnectionException e) {
 			Toast.makeText(this, getString(R.string.network_error), Toast.LENGTH_LONG).show();
-			return;
+			return false;
 		} catch (AuthFailureException e) {
 			Toast.makeText(this, getString(R.string.incorrect_user_name_or_password), Toast.LENGTH_LONG).show();
 			etUserName.selectAll();
 			etUserName.requestFocus();
 
-			return;
+			return false;
 		} catch (RuntimeException e) {
 			NegotiationException ne = Toolkits.findNegotiationException(e);
 			if (ne != null && ne.getAdditionalErrorInfo() instanceof IError) {
@@ -81,11 +93,10 @@ public class LoginActivity extends AppCompatActivity {
 				Toast.makeText(this, getString(R.string.unknown_error, e.getClass().getName()), Toast.LENGTH_LONG).show();
 			}
 
-			return;
+			return false;
 		}
 
 		Toolkits.rememberUser(this, userName, password.toCharArray());
-
-		startActivity(new Intent(this, MainActivity.class));
+		return true;
 	}
 }
