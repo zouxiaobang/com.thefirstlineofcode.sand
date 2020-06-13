@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">灯示例</string>
+    <string name="app_name">Sand示例</string>
     <string name="user_name">用户名</string>
     <string name="password">口令</string>
     <string name="confirm_password">确认口令</string>

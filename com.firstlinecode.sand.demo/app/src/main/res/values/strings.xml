@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Light Demo</string>
+    <string name="app_name">Sand Demo</string>
     <string name="user_name">User Name</string>
     <string name="password">Password</string>
     <string name="confirm_password">Confirm Password</string>
