@@ -24,6 +24,7 @@
 		<module>com.firstlinecode.sand.emulators</module>
 		<module>com.firstlinecode.sand.client</module>
 		<module>com.firstlinecode.sand.server</module>
+		<module>com.firstlinecode.sand.demo</module>
 	</modules>
 	
 	<profiles>
