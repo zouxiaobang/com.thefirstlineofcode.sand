@@ -2,6 +2,13 @@ package com.firstlinecode.sand.server.ibdr;
 
 import java.util.List;
 
+import com.firstlinecode.basalt.oxm.OxmService;
+import com.firstlinecode.basalt.oxm.parsers.core.stanza.IqParserFactory;
+import com.firstlinecode.basalt.oxm.parsing.IParsingFactory;
+import com.firstlinecode.basalt.oxm.translating.ITranslatingFactory;
+import com.firstlinecode.basalt.oxm.translators.core.stanza.IqTranslatorFactory;
+import com.firstlinecode.basalt.oxm.translators.core.stream.StreamTranslatorFactory;
+import com.firstlinecode.basalt.oxm.translators.error.StanzaErrorTranslatorFactory;
 import com.firstlinecode.basalt.protocol.core.ProtocolChain;
 import com.firstlinecode.basalt.protocol.core.ProtocolException;
 import com.firstlinecode.basalt.protocol.core.stanza.Iq;
@@ -10,20 +17,13 @@ import com.firstlinecode.basalt.protocol.core.stanza.error.InternalServerError;
 import com.firstlinecode.basalt.protocol.core.stanza.error.StanzaError;
 import com.firstlinecode.basalt.protocol.core.stream.Feature;
 import com.firstlinecode.basalt.protocol.core.stream.Stream;
-import com.firstlinecode.basalt.oxm.OxmService;
-import com.firstlinecode.basalt.oxm.parsers.core.stanza.IqParserFactory;
-import com.firstlinecode.basalt.oxm.parsing.IParsingFactory;
-import com.firstlinecode.basalt.oxm.translating.ITranslatingFactory;
-import com.firstlinecode.basalt.oxm.translators.core.stanza.IqTranslatorFactory;
-import com.firstlinecode.basalt.oxm.translators.core.stream.StreamTranslatorFactory;
-import com.firstlinecode.basalt.oxm.translators.error.StanzaErrorTranslatorFactory;
 import com.firstlinecode.granite.framework.core.connection.IClientConnectionContext;
 import com.firstlinecode.granite.framework.core.integration.IMessage;
 import com.firstlinecode.granite.framework.stream.negotiants.InitialStreamNegotiant;
-import com.firstlinecode.sand.protocols.core.DeviceIdentity;
 import com.firstlinecode.sand.protocols.ibdr.DeviceRegister;
 import com.firstlinecode.sand.protocols.ibdr.oxm.DeviceRegisterParserFactory;
 import com.firstlinecode.sand.protocols.ibdr.oxm.DeviceRegisterTranslatorFactory;
+import com.firstlinecode.sand.server.ibdr.IDeviceRegistrar.RegistrationResult;
 
 public class IbdrNegotiant extends InitialStreamNegotiant {
 	public static final Object KEY_IBDR_REGISTERED = new Object();
@@ -55,11 +55,14 @@ public class IbdrNegotiant extends InitialStreamNegotiant {
 	}
 	
 	private IDeviceRegistrar registrar;
+	private IDeviceRegistrationCustomizerProxy registrationCustomizerProxy;
 	
-	public IbdrNegotiant(String domainName, List<Feature> features, IDeviceRegistrar registrar) {
+	public IbdrNegotiant(String domainName, List<Feature> features, IDeviceRegistrar registrar,
+			IDeviceRegistrationCustomizerProxy registrationCustomizerProxy) {
 		super(domainName, features);
 		
 		this.registrar = registrar;
+		this.registrationCustomizerProxy = registrationCustomizerProxy;
 	}
 	
 	protected boolean doNegotiate(IClientConnectionContext context, IMessage message) {
@@ -110,11 +113,14 @@ public class IbdrNegotiant extends InitialStreamNegotiant {
 			if (register == null || !(register instanceof String))
 				throw new ProtocolException(new BadRequest("Register object isn't a string."));
 			
-			DeviceIdentity identity = registrar.register((String)register);
+			RegistrationResult registrationResult = registrar.register((String)register);
 			Iq result = new Iq(Iq.Type.RESULT, iq.getId());
-			result.setObject(new DeviceRegister(identity));
+			result.setObject(new DeviceRegister(registrationResult.getIdentity()));
 			
 			context.write(translatingFactory.translate(result));
+			
+			if (registrationCustomizerProxy != null)
+				registrationCustomizerProxy.processResult(context, registrationResult.getCustomizedTaskResult());
 		} catch (RuntimeException e) {
 			// Standard client message processor doesn't support processing stanza error in normal situation.
 			// So we process the exception by self.

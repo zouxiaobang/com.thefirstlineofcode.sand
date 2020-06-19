@@ -22,6 +22,9 @@ public class IbdrSupportedClientMessageProcessor extends StandardClientMessagePr
 	@Dependency("registrar")
 	private IDeviceRegistrar registrar;
 	
+	@Dependency(value = "registration.customizer.proxy")
+	private IDeviceRegistrationCustomizerProxy registrationCustomizerProxy;
+	
 	@Override
 	protected IStreamNegotiant createNegotiant() {
 		if (tlsRequired) {
@@ -32,7 +35,7 @@ public class IbdrSupportedClientMessageProcessor extends StandardClientMessagePr
 					getTlsNegotiantAdvertisements());
 			
 			IStreamNegotiant ibrAfterTls = new IbdrNegotiant(hostName,
-					getTlsNegotiantAdvertisements(), registrar);
+					getTlsNegotiantAdvertisements(), registrar, registrationCustomizerProxy);
 			
 			IStreamNegotiant sasl = new SaslNegotiant(hostName,
 					saslSupportedMechanisms, saslAbortRetries, saslFailureRetries,
@@ -55,13 +58,13 @@ public class IbdrSupportedClientMessageProcessor extends StandardClientMessagePr
 					getInitialStreamNegotiantAdvertisements());
 			
 			IStreamNegotiant ibdrBeforeTls = new IbdrNegotiant(hostName,
-					getInitialStreamNegotiantAdvertisements(), registrar);
+					getInitialStreamNegotiantAdvertisements(), registrar, registrationCustomizerProxy);
 			
 			IStreamNegotiant tls = new IbdrSupportedTlsNegotiant(hostName, tlsRequired,
 					getTlsNegotiantAdvertisements());
 			
 			IStreamNegotiant ibrAfterTls = new IbdrNegotiant(hostName,
-					getTlsNegotiantAdvertisements(), registrar);
+					getTlsNegotiantAdvertisements(), registrar, registrationCustomizerProxy);
 			
 			IStreamNegotiant sasl = new SaslNegotiant(hostName,
 					saslSupportedMechanisms, saslAbortRetries, saslFailureRetries,

@@ -52,7 +52,7 @@ public class Registration implements IRegistration, IConnectionListener, INegoti
 		}
 		
 		try {
-			return chatClient.getChatServices().getTaskService().execute(new RegisterTask(deviceId), 1000 * 60 * 10);
+			return chatClient.getChatServices().getTaskService().execute(new RegisterTask(deviceId));
 		} catch (ErrorException e) {
 			IError error = e.getError();
 			if (error.getDefinedCondition().equals(RemoteServerTimeout.DEFINED_CONDITION)) {

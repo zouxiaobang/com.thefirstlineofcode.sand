@@ -18,6 +18,7 @@
 
 	<modules>
 		<module>com.firstlinecode.sand.server.lite.device</module>
+		<module>com.firstlinecode.sand.server.lite.ibdr</module>
 		<module>com.firstlinecode.sand.server.lite.concentrator</module>
 	</modules>
 

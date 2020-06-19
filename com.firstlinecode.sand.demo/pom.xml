@@ -16,9 +16,9 @@
 	<packaging>pom</packaging>
 	<name>Lithosphere IoT Demo Projects</name>
 
-	<!--	<modules>
+	<modules>
 		<module>com.firstlinecode.sand.demo.client</module>
 		<module>com.firstlinecode.sand.demo.server</module>
-	</modules> -->
+	</modules>
 
 </project>

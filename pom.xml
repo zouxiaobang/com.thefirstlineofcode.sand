@@ -384,6 +384,12 @@
 
 			<dependency>
 				<groupId>com.firstlinecode.granite.framework.supports</groupId>
+        			<artifactId>com.firstlinecode.granite.framework.supports.spring</artifactId>
+        			<version>${granite.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>com.firstlinecode.granite.framework.supports</groupId>
         			<artifactId>com.firstlinecode.granite.framework.supports.mybatis</artifactId>
         			<version>${granite.version}</version>
 			</dependency>
@@ -507,6 +513,12 @@
 			<dependency>
 				<groupId>com.firstlinecode.sand.server</groupId>
 				<artifactId>com.firstlinecode.sand.server.device</artifactId>
+				<version>${sand.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>com.firstlinecode.sand.server</groupId>
+				<artifactId>com.firstlinecode.sand.server.ibdr</artifactId>
 				<version>${sand.version}</version>
 			</dependency>
 
