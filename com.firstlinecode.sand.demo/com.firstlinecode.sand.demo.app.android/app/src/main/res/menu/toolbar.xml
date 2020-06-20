@@ -1,6 +1,11 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
+        android:id="@+id/device_registration"
+        android:title="@string/device_registration"
+        app:showAsAction="never"/>
+
+    <item
         android:id="@+id/logout"
         android:title="@string/logout"
         app:showAsAction="never"/>
