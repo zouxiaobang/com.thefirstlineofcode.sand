@@ -25,6 +25,6 @@
     <string name="unknown_error">未知错误： %s。请联系开发者</string>
     <string name="user_has_registered">用户已经注册</string>
     <string name="incorrect_user_name_or_password">用户名或密码不正确</string>
-    <string name="device_registration">设备注册</string>
+    <string name="register_device">注册设备</string>
     <string name="logout">注销</string>
 </resources>

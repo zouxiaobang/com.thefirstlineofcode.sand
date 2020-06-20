@@ -37,7 +37,7 @@ public class MainActivity extends AppCompatActivity {
 
 	@Override
 	public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-		if (item.getItemId() == R.id.device_registration) {
+		if (item.getItemId() == R.id.register_device) {
 			registerDevice();
 			return true;
 		} else if (item.getItemId() == R.id.logout) {
