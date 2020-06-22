@@ -12,6 +12,10 @@ import org.eclipse.osgi.framework.console.CommandProvider;
 
 import com.firstlinecode.basalt.protocol.core.Protocol;
 import com.firstlinecode.granite.framework.core.annotations.Dependency;
+import com.firstlinecode.granite.framework.core.config.IApplicationConfiguration;
+import com.firstlinecode.granite.framework.core.config.IApplicationConfigurationAware;
+import com.firstlinecode.granite.framework.core.config.IConfiguration;
+import com.firstlinecode.granite.framework.core.config.IConfigurationAware;
 import com.firstlinecode.granite.framework.core.event.IEventProducer;
 import com.firstlinecode.granite.framework.core.event.IEventProducerAware;
 import com.firstlinecode.sand.protocols.actuator.Execute;
@@ -25,16 +29,14 @@ import com.firstlinecode.sand.server.concentrator.Node;
 import com.firstlinecode.sand.server.device.Device;
 import com.firstlinecode.sand.server.device.IDeviceManager;
 
-public class SandCommandProvider implements CommandProvider, IEventProducerAware {
+public class SandCommandProvider implements CommandProvider, IEventProducerAware,
+			IApplicationConfigurationAware, IConfigurationAware {
 	private static final String COMMAND_SAND = "sand";
 	private static final String PARAM_AUTHORIZE = "authorize";
 	private static final String PARAM_DEVICES = "devices";
 	private static final String PARAM_CONFIRM = "confirm";
 	private static final String PARAM_EXECUTE = "execute";
 	private static final String PARAM_HELP = "help";
-	
-	private static final String SYSTEM_CONSOLE_AUTHORIZER = "System.Console";
-	private static final int DEFAULT_VALIDITY_TIME = 1000 * 60 * 30;
 
 	private static final String MSG_HELP = "sand - Monitoring and managing sand application.\r\n";
 	
@@ -47,15 +49,22 @@ public class SandCommandProvider implements CommandProvider, IEventProducerAware
 	
 	private static final String ACTION_NAME_FLASH = "flash";
 	
+	private static final String DEVICE_AUTHORIZATION_VALIDITY_TIME = "device.authorization.validity.time";
+	private static final int DEFAULT_DEVICE_AUTHORIZATION_VALIDITY_TIME = 1000 * 60 * 30;
+	
 	@Dependency("device.manager")
 	private IDeviceManager deviceManager;
 	
 	@Dependency("concentrator.factory")
 	private IConcentratorFactory concentratorFactory;
 	
+	private String domainName;
+	
 	private IEventProducer eventProducer;
 	
 	private Map<String, Protocol> actionNameToProtocols;
+	
+	private int deviceAuthorizationValidityTime;
 	
 	public SandCommandProvider() {
 		actionNameToProtocols = createActionNameToProtocols();
@@ -135,7 +144,7 @@ public class SandCommandProvider implements CommandProvider, IEventProducerAware
 				return;
 			}
 			
-			Confirmed confirmed = concentratorFactory.getConcentrator(device).confirm(SYSTEM_CONSOLE_AUTHORIZER, nodeDeviceId);
+			Confirmed confirmed = concentratorFactory.getConcentrator(device).confirm(domainName, nodeDeviceId);
 			eventProducer.fire(new ConfirmedEvent(confirmed.getRequestId(), confirmed.getNodeCreated()));
 			
 			interpreter.print(String.format("Device '%s' has already been confirmed to be a node of concentrator '%s'.\n", device.getDeviceId(), nodeDeviceId));
@@ -364,7 +373,7 @@ public class SandCommandProvider implements CommandProvider, IEventProducerAware
 			return;
 		}
 		
-		deviceManager.authorize(deviceId, SYSTEM_CONSOLE_AUTHORIZER, DEFAULT_VALIDITY_TIME);
+		deviceManager.authorize(deviceId, domainName, deviceAuthorizationValidityTime);
 		interpreter.print(String.format("Device which's ID is '%s' has authorized.\n", deviceId));
 	}
 
@@ -375,6 +384,16 @@ public class SandCommandProvider implements CommandProvider, IEventProducerAware
 	@Override
 	public void setEventProducer(IEventProducer eventProducer) {
 		this.eventProducer = eventProducer;
+	}
+
+	@Override
+	public void setApplicationConfiguration(IApplicationConfiguration appConfiguration) {
+		domainName = appConfiguration.getDomainName();
+	}
+
+	@Override
+	public void setConfiguration(IConfiguration configuration) {
+		deviceAuthorizationValidityTime = configuration.getInteger(DEVICE_AUTHORIZATION_VALIDITY_TIME, DEFAULT_DEVICE_AUTHORIZATION_VALIDITY_TIME);
 	}
 
 }

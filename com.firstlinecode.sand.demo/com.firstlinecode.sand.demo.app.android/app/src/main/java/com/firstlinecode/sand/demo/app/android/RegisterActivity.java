@@ -9,6 +9,7 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 
@@ -27,7 +28,6 @@ import com.firstlinecode.chalk.xeps.ibr.IbrPlugin;
 import com.firstlinecode.chalk.xeps.ibr.RegistrationException;
 
 public class RegisterActivity extends AppCompatActivity {
-
 	public static final int INTERNET_PERMISSION_REQUEST_CODE = 1;
 
 	@Override
@@ -136,5 +136,14 @@ public class RegisterActivity extends AppCompatActivity {
 		chatClient.register(IbrPlugin.class);
 
 		return chatClient;
+	}
+
+	@Override
+	public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+		if (requestCode == INTERNET_PERMISSION_REQUEST_CODE) {
+			register(findViewById(R.id.register));
+		} else {
+			Toolkits.showAlertMessage(this, getString(R.string.can_not_connect_to_internet));
+		}
 	}
 }

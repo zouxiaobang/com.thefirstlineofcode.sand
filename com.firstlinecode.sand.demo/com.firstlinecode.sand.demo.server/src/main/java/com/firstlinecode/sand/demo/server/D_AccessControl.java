@@ -1,6 +1,7 @@
 package com.firstlinecode.sand.demo.server;
 
 import com.firstlinecode.granite.framework.core.supports.data.IIdProvider;
+import com.firstlinecode.sand.demo.protocols.acl.AccessControl;
 
 public class D_AccessControl extends AccessControl implements IIdProvider<String> {
 	private String id;

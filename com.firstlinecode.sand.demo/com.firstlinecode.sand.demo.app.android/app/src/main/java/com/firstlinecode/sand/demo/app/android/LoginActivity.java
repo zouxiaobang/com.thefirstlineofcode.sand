@@ -1,8 +1,12 @@
 package com.firstlinecode.sand.demo.app.android;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 
+import android.Manifest;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
@@ -17,6 +21,7 @@ import com.firstlinecode.chalk.core.stream.UsernamePasswordToken;
 import com.firstlinecode.chalk.network.ConnectionException;
 
 public class LoginActivity extends AppCompatActivity {
+	public static final int INTERNET_PERMISSION_REQUEST_CODE = 1;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -65,8 +70,12 @@ public class LoginActivity extends AppCompatActivity {
 		}
 
 		IChatClient chatClient = ChatClientSingleton.get(this);
-		if (!chatClient.isConnected() && !connect(etUserName, userName, password, chatClient))
-			return;
+		if (ContextCompat.checkSelfPermission(this, Manifest.permission.INTERNET) == PackageManager.PERMISSION_GRANTED) {
+			if (!chatClient.isConnected() && !connect(etUserName, userName, password, chatClient))
+				return;
+		} else {
+			requestPermissions(new String[] {Manifest.permission.INTERNET}, INTERNET_PERMISSION_REQUEST_CODE);
+		}
 
 		finish();
 		startActivity(new Intent(this, MainActivity.class));
@@ -99,5 +108,14 @@ public class LoginActivity extends AppCompatActivity {
 
 		Toolkits.rememberUser(this, userName, password.toCharArray());
 		return true;
+	}
+
+	@Override
+	public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+		if (requestCode == INTERNET_PERMISSION_REQUEST_CODE) {
+			login(findViewById(R.id.login));
+		} else {
+			super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+		}
 	}
 }

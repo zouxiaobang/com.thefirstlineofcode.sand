@@ -1,4 +1,4 @@
-package com.firstlinecode.sand.demo.server;
+package com.firstlinecode.sand.demo.protocols.acl;
 
 public class AccessControl {
 	private String deviceName;

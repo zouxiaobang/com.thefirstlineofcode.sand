@@ -1,0 +1,10 @@
+#-----------------------------------------------------------------
+# Use this file to add customized Bnd instructions for the bundle
+#-----------------------------------------------------------------
+
+Basalt-Parsers: protocol-chain=iq|null->auth|http://firstlinecode.com/sand-demo;\
+ class=com.firstlinecode.sand.demo.protocols.auth.DeviceAuthorization;\
+ type=naming-convention
+Basalt-Translators: protocol=auth|http://firstlinecode.com/sand-demo;\
+ class=com.firstlinecode.sand.demo.protocols.auth.DeviceAuthorization;\
+ type=naming-convention

@@ -13,8 +13,8 @@
 	</parent>
 
 	<groupId>com.firstlinecode.sand.demo</groupId>
-	<artifactId>com.firstlinecode.sand.demo.server</artifactId>
-	<name>com.firstlinecode.sand.demo.server</name>
+	<artifactId>com.firstlinecode.sand.demo.lite.server</artifactId>
+	<name>com.firstlinecode.sand.demo.lite.server</name>
 	
 	<dependencies>
 		<dependency>

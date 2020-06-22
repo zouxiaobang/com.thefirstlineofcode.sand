@@ -17,8 +17,10 @@
 	<name>Lithosphere IoT Demo Projects</name>
 
 	<modules>
+		<module>com.firstlinecode.sand.demo.protocols</module>
 		<module>com.firstlinecode.sand.demo.client</module>
 		<module>com.firstlinecode.sand.demo.server</module>
+		<module>com.firstlinecode.sand.demo.lite.server</module>
 	</modules>
 
 </project>

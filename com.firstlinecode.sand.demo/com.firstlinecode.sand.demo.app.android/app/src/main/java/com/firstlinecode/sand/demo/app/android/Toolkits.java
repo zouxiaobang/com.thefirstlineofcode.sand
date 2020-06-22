@@ -1,8 +1,12 @@
 package com.firstlinecode.sand.demo.app.android;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.SharedPreferences;
+import android.view.View;
 
 import com.firstlinecode.basalt.protocol.core.IError;
 import com.firstlinecode.chalk.core.stream.NegotiationException;
@@ -109,5 +113,13 @@ class Toolkits {
 		}
 
 		return null;
+	}
+
+	static void showAlertMessage(Activity activity, String message) {
+		AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+		builder.setTitle(activity.getString(R.string.app_name));
+		builder.setMessage(message);
+
+		builder.show();
 	}
 }
