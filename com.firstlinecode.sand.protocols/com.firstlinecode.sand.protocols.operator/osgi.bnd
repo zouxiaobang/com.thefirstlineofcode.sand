@@ -1,0 +1,11 @@
+#-----------------------------------------------------------------
+# Use this file to add customized Bnd instructions for the bundle
+#-----------------------------------------------------------------
+
+Basalt-Parsers: protocol-chain=iq|null->auth|urn:leps:iot:operator;\
+ class=com.firstlinecode.sand.protocols.operator.DeviceAuthorization;\
+ type=name-convention
+ 
+Basalt-Translators: class=com.firstlinecode.sand.protocols.operator.DeviceAuthorization;\
+ type=name-convention
+ 

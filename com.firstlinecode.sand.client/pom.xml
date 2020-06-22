@@ -23,6 +23,7 @@
 		<module>com.firstlinecode.sand.client.dmr</module>
 		<module>com.firstlinecode.sand.client.concentrator</module>
 		<module>com.firstlinecode.sand.client.actuator</module>
+		<module>com.firstlinecode.sand.client.operator</module>
 	</modules>
 
 </project>

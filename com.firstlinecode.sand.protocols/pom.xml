@@ -22,6 +22,7 @@
 		<module>com.firstlinecode.sand.protocols.lora</module>
 		<module>com.firstlinecode.sand.protocols.concentrator</module>
 		<module>com.firstlinecode.sand.protocols.actuator</module>
+		<module>com.firstlinecode.sand.protocols.operator</module>
 		<module>com.firstlinecode.sand.protocols.emulators</module>
 	</modules>
 

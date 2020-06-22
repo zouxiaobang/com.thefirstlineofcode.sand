@@ -1,0 +1,8 @@
+#-----------------------------------------------------------------
+# Use this file to add customized Bnd instructions for the bundle
+#-----------------------------------------------------------------
+
+Export-Package: com.firstlinecode.sand.server.operator.*
+Granite-Xep-Processors: xep=iq->auth|urn:leps:iot:operator;\
+ class=com.firstlinecode.sand.server.operator.DeviceAuthorizationProcessor
+

@@ -5,7 +5,7 @@ import com.firstlinecode.basalt.protocol.core.stanza.Iq;
 import com.firstlinecode.basalt.protocol.core.stanza.error.BadRequest;
 import com.firstlinecode.granite.framework.processing.IProcessingContext;
 import com.firstlinecode.granite.framework.processing.IXepProcessor;
-import com.firstlinecode.sand.demo.protocols.acl.AccessControlList;
+import com.firstlinecode.sand.demo.protocols.AccessControlList;
 
 public class AccessControlListProcessor implements IXepProcessor<Iq, AccessControlList> {
 

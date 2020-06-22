@@ -1,4 +1,4 @@
-package com.firstlinecode.sand.demo.protocols.auth;
+package com.firstlinecode.sand.protocols.operator;
 
 import com.firstlinecode.basalt.oxm.convention.annotations.ProtocolObject;
 

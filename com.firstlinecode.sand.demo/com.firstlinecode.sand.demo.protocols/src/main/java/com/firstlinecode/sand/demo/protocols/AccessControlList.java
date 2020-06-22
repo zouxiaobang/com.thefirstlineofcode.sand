@@ -1,4 +1,4 @@
-package com.firstlinecode.sand.demo.protocols.acl;
+package com.firstlinecode.sand.demo.protocols;
 
 import java.util.List;
 

@@ -1,4 +1,4 @@
-package com.firstlinecode.sand.demo.server;
+package com.firstlinecode.sand.server.operator;
 
 import com.firstlinecode.basalt.protocol.core.ProtocolException;
 import com.firstlinecode.basalt.protocol.core.stanza.Iq;
@@ -10,7 +10,7 @@ import com.firstlinecode.granite.framework.core.config.IConfiguration;
 import com.firstlinecode.granite.framework.core.config.IConfigurationAware;
 import com.firstlinecode.granite.framework.processing.IProcessingContext;
 import com.firstlinecode.granite.framework.processing.IXepProcessor;
-import com.firstlinecode.sand.demo.protocols.auth.DeviceAuthorization;
+import com.firstlinecode.sand.server.device.DeviceAuthorization;
 import com.firstlinecode.sand.server.device.IDeviceManager;
 
 @Component("device.authorization.processor")
