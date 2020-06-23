@@ -1,16 +1,16 @@
 package com.firstlinecode.sand.demo.protocols;
 
 public class AccessControl {
-	private String deviceName;
+	private String deviceId;
 	private String mode;
 	private String role;
 	
-	public String getDeviceName() {
-		return deviceName;
+	public String getDeviceId() {
+		return deviceId;
 	}
 	
-	public void setDeviceName(String deviceName) {
-		this.deviceName = deviceName;
+	public void setDeviceId(String deviceId) {
+		this.deviceId = deviceId;
 	}
 	
 	public String getMode() {

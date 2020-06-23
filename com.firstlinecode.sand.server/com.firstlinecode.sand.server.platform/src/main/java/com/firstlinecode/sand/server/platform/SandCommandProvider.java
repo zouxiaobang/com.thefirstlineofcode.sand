@@ -49,8 +49,8 @@ public class SandCommandProvider implements CommandProvider, IEventProducerAware
 	
 	private static final String ACTION_NAME_FLASH = "flash";
 	
-	private static final String DEVICE_AUTHORIZATION_VALIDITY_TIME = "device.authorization.validity.time";
-	private static final int DEFAULT_DEVICE_AUTHORIZATION_VALIDITY_TIME = 1000 * 60 * 30;
+	private static final String AUTHORIZE_DEVICE_VALIDITY_TIME = "authorize.device.validity.time";
+	private static final int DEFAULT_AUTHORIZE_DEVICE_VALIDITY_TIME = 1000 * 60 * 30;
 	
 	@Dependency("device.manager")
 	private IDeviceManager deviceManager;
@@ -363,7 +363,7 @@ public class SandCommandProvider implements CommandProvider, IEventProducerAware
 	}
 
 	private void authorize(CommandInterpreter interpreter, String deviceId) {
-		if (!deviceManager.isValid(deviceId)) {			
+		if (!deviceManager.isValid(deviceId)) {
 			interpreter.print(String.format("Error: Invalid device ID '%s'.\n", deviceId));
 			return;
 		}
@@ -393,7 +393,7 @@ public class SandCommandProvider implements CommandProvider, IEventProducerAware
 
 	@Override
 	public void setConfiguration(IConfiguration configuration) {
-		deviceAuthorizationValidityTime = configuration.getInteger(DEVICE_AUTHORIZATION_VALIDITY_TIME, DEFAULT_DEVICE_AUTHORIZATION_VALIDITY_TIME);
+		deviceAuthorizationValidityTime = configuration.getInteger(AUTHORIZE_DEVICE_VALIDITY_TIME, DEFAULT_AUTHORIZE_DEVICE_VALIDITY_TIME);
 	}
 
 }

@@ -23,6 +23,10 @@
 			<artifactId>com.firstlinecode.granite.framework.processing</artifactId>
 		</dependency>	
 		<dependency>
+			<groupId>com.firstlinecode.sand.protocols</groupId>
+			<artifactId>com.firstlinecode.sand.protocols.operator</artifactId>
+		</dependency>
+		<dependency>
 			<groupId>com.firstlinecode.sand.server</groupId>
 			<artifactId>com.firstlinecode.sand.server.device</artifactId>
 		</dependency>

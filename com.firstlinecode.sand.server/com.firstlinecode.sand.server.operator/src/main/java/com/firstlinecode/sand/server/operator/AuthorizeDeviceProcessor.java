@@ -10,12 +10,12 @@ import com.firstlinecode.granite.framework.core.config.IConfiguration;
 import com.firstlinecode.granite.framework.core.config.IConfigurationAware;
 import com.firstlinecode.granite.framework.processing.IProcessingContext;
 import com.firstlinecode.granite.framework.processing.IXepProcessor;
-import com.firstlinecode.sand.server.device.DeviceAuthorization;
+import com.firstlinecode.sand.protocols.operator.AuthorizeDevice;
 import com.firstlinecode.sand.server.device.IDeviceManager;
 
-@Component("device.authorization.processor")
-public class DeviceAuthorizationProcessor implements IXepProcessor<Iq, DeviceAuthorization>, IConfigurationAware {
-	private static final String DEVICE_AUTHORIZATION_VALIDITY_TIME = "device.authorization.validity.time";
+@Component("authorize.device.processor")
+public class AuthorizeDeviceProcessor implements IXepProcessor<Iq, AuthorizeDevice>, IConfigurationAware {
+	private static final String DEVICE_AUTHORIZATION_VALIDITY_TIME = "authorize.device.validity.time";
 	private static final int DEFAULT_DEVICE_AUTHORIZATION_VALIDITY_TIME = 1000 * 60 * 30;
 	
 	@Dependency("device.manager")
@@ -24,9 +24,13 @@ public class DeviceAuthorizationProcessor implements IXepProcessor<Iq, DeviceAut
 	private int deviceAuthorizationValidityTime;
 	
 	@Override
-	public void process(IProcessingContext context, Iq iq, DeviceAuthorization xep) {
+	public void process(IProcessingContext context, Iq iq, AuthorizeDevice xep) {
 		if (iq.getType() != Iq.Type.SET)
 			throw new ProtocolException(new BadRequest("Attribute 'type' should be set to 'set'."));
+		
+		if (!deviceManager.isValid(xep.getDeviceId())) {
+			throw new ProtocolException(new BadRequest("Attribute 'type' should be set to 'set'."));
+		}
 		
 		if (deviceManager.deviceIdExists(xep.getDeviceId()))
 			throw new ProtocolException(new Conflict());

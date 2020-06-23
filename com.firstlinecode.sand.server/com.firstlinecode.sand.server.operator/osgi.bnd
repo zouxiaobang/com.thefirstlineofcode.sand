@@ -3,6 +3,6 @@
 #-----------------------------------------------------------------
 
 Export-Package: com.firstlinecode.sand.server.operator.*
-Granite-Xep-Processors: xep=iq->auth|urn:leps:iot:operator;\
- class=com.firstlinecode.sand.server.operator.DeviceAuthorizationProcessor
+Granite-Xep-Processors: xep=iq->auth-device|urn:leps:iot:operator;\
+ class=com.firstlinecode.sand.server.operator.AuthorizeDeviceProcessor
 
