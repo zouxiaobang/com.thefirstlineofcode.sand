@@ -15,6 +15,7 @@
 	<groupId>com.firstlinecode.sand.demo</groupId>
 	<artifactId>com.firstlinecode.sand.demo.server</artifactId>
 	<name>com.firstlinecode.sand.demo.server</name>
+	<packaging>bundle</packaging>
 	
 	<dependencies>
 		<dependency>

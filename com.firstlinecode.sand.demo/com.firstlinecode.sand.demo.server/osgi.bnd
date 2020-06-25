@@ -1,7 +1,5 @@
 #-----------------------------------------------------------------
 # Use this file to add customized Bnd instructions for the bundle
 #-----------------------------------------------------------------
-Granite-Xep-Processors: xep=iq->auth|http://firstlinecode.com/sand-demo;\
- class=com.firstlinecode.sand.demo.server.DeviceAuthorizationProcessor,\
- xep=iq->query|acl|http://firstlinecode.com/sand-demo;\
+Granite-Xep-Processors: xep=iq->query|acl|http://firstlinecode.com/sand-demo;\
  class=com.firstlinecode.sand.demo.server.AccessControlListProcessor

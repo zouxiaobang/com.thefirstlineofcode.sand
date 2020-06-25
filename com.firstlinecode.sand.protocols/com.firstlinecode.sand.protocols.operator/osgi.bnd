@@ -4,13 +4,13 @@
 
 Basalt-Parsers: protocol-chain=iq|null->auth-device|urn:leps:iot:operator;\
  class=com.firstlinecode.sand.protocols.operator.AuthorizeDevice;\
- type=name-convention,
+ type=naming-convention,\
  protocol-chain=iq|null->confirm-concentration|urn:leps:iot:operator;\
  class=com.firstlinecode.sand.protocols.operator.ConfirmConcentration;\
- type=name-convention
+ type=naming-convention
  
 Basalt-Translators: class=com.firstlinecode.sand.protocols.operator.AuthorizeDevice;\
- type=name-convention,
+ type=naming-convention,\
  class=com.firstlinecode.sand.protocols.operator.ConfirmConcentration;\
- type=name-convention
+ type=naming-convention
  

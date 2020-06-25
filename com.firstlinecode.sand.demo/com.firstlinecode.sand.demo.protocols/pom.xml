@@ -15,7 +15,7 @@
 	<groupId>com.firstlinecode.sand.demo</groupId>
 	<artifactId>com.firstlinecode.sand.demo.protocols</artifactId>
 	<name>com.firstlinecode.sand.demo.protocols</name>
-	<packaging>jar</packaging>
+	<packaging>bundle</packaging>
 	
 	<dependencies>
 		<dependency>

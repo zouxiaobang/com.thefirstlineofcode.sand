@@ -27,7 +27,7 @@
 		</dependency>
 		<dependency>
 			<groupId>com.firstlinecode.sand.demo</groupId>
-			<artifactId>com.firstlinecode.sand.demo.protocols</artifactId>
+			<artifactId>com.firstlinecode.sand.demo.server</artifactId>
 			<version>0.1.0.RELEASE</version>
 		</dependency>
 		<dependency>
