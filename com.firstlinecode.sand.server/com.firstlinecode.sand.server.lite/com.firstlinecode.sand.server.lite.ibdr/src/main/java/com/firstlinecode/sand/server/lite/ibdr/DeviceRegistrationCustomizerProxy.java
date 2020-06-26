@@ -25,11 +25,15 @@ public class DeviceRegistrationCustomizerProxy implements IDeviceRegistrationCus
 
 	@Override
 	public void processResult(IClientConnectionContext context, Object result) {
-		// TODO Auto-generated method stub
 		if (real == null)
 			return;
 		
 		real.processResult(context, result);
+	}
+
+	@Override
+	public IDeviceRegistrationCustomizer getDeviceRegistrationCustomizer() {
+		return real;
 	}
 
 }

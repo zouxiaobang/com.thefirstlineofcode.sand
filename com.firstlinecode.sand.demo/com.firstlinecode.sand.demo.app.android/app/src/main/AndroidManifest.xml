@@ -15,17 +15,21 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.AppCompat.Light.NoActionBar"
         android:hardwareAccelerated="true">
-        <activity android:name="com.firstlinecode.sand.demo.app.android.MainActivity" />
-        <activity android:name="com.firstlinecode.sand.demo.app.android.LoginActivity">
+        <activity android:name=".MainActivity" />
+        <activity android:name=".LoginActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name="com.firstlinecode.sand.demo.app.android.RegisterActivity" />
-        <activity android:name="com.firstlinecode.sand.demo.app.android.ConfigureStreamActivity" />
+        <activity android:name=".RegisterActivity" />
+        <activity android:name=".ConfigureStreamActivity" />
         <activity android:name="com.journeyapps.barcodescanner.CaptureActivity"
             android:screenOrientation="fullSensor" tools:replace="screenOrientation" />
+        <service android:name=".AppExitMonitor"
+            android:exported="false"
+            android:enabled="true"
+            android:stopWithTask="false" />
     </application>
 
 </manifest>

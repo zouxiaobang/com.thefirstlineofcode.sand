@@ -9,7 +9,7 @@ import com.firstlinecode.basalt.protocol.core.stanza.error.NotAcceptable;
 import com.firstlinecode.sand.protocols.core.DeviceIdentity;
 import com.firstlinecode.sand.server.device.IDeviceManager;
 import com.firstlinecode.sand.server.ibdr.IDeviceRegistrar;
-import com.firstlinecode.sand.server.ibdr.IDeviceRegistrationCustomizer;
+import com.firstlinecode.sand.server.ibdr.IDeviceRegistrationCustomizerProxy;
 
 @Component
 @Transactional
@@ -17,8 +17,8 @@ public class DeviceRegistrar implements IDeviceRegistrar {
 	@Autowired
 	private IDeviceManager deviceManager;
 	
-	@Autowired(required=false)
-	private IDeviceRegistrationCustomizer registrationCustomizer;
+	@Autowired
+	private IDeviceRegistrationCustomizerProxy registrationCustomizerProxy;
 	
 	@Override
 	public RegistrationResult register(String deviceId) {
@@ -26,10 +26,10 @@ public class DeviceRegistrar implements IDeviceRegistrar {
 			throw new ProtocolException(new NotAcceptable(String.format("Invalid device ID '%s'.", deviceId)));
 
 		DeviceIdentity identity = deviceManager.register(deviceId);
-		if (registrationCustomizer == null)
+		if (registrationCustomizerProxy.getDeviceRegistrationCustomizer() == null)
 			return new RegistrationResult(identity);
 		
-		Object customizedTaskResult = registrationCustomizer.executeCustomizedTask(deviceId, identity);
+		Object customizedTaskResult = registrationCustomizerProxy.executeCustomizedTask(deviceId, identity);
 		
 		return new RegistrationResult(identity, customizedTaskResult);
 	}

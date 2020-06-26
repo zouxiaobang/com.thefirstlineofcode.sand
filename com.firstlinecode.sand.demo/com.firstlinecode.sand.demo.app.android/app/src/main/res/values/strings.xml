@@ -36,5 +36,6 @@
     <string name="logout">Logout</string>
     <string name="auto_login" translatable="false">auto-login</string>
     <string name="can_not_connect_to_internet">Can not connect to internet. You needs to grant permission to connect to internet first for running app correctly.</string>
-
+    <string name="device_has_registered">Device which\'s ID is %s has registered successfully.</string>
+    <string name="failed_to_authorize_device">Failed to authorize device. Error is: %s.</string>
 </resources>
