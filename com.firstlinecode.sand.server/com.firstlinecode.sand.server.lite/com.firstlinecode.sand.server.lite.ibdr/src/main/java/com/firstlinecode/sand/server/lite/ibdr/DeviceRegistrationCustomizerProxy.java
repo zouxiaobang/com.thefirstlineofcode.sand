@@ -1,6 +1,8 @@
 package com.firstlinecode.sand.server.lite.ibdr;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import java.util.Map;
+
+import org.eclipse.gemini.blueprint.service.importer.OsgiServiceLifecycleListener;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -11,10 +13,9 @@ import com.firstlinecode.sand.server.ibdr.IDeviceRegistrationCustomizerProxy;
 
 @Component
 @Transactional
-public class DeviceRegistrationCustomizerProxy implements IDeviceRegistrationCustomizerProxy {
-	@Autowired(required = false)
+public class DeviceRegistrationCustomizerProxy implements IDeviceRegistrationCustomizerProxy, OsgiServiceLifecycleListener {
 	private IDeviceRegistrationCustomizer real;
-
+	
 	@Override
 	public Object executeCustomizedTask(String deviceId, DeviceIdentity identity) {
 		if (real == null)
@@ -30,10 +31,22 @@ public class DeviceRegistrationCustomizerProxy implements IDeviceRegistrationCus
 		
 		real.processResult(context, result);
 	}
-
+	
 	@Override
-	public IDeviceRegistrationCustomizer getDeviceRegistrationCustomizer() {
-		return real;
+	public boolean isBinded() {
+		return real != null;
+	}
+
+	@SuppressWarnings("rawtypes")
+	@Override
+	public void bind(Object service, Map properties) throws Exception {
+		this.real = (IDeviceRegistrationCustomizer)service;
+	}
+
+	@SuppressWarnings("rawtypes")
+	@Override
+	public void unbind(Object service, Map properties) throws Exception {
+		real = null;
 	}
 
 }

@@ -26,7 +26,7 @@ public class DeviceRegistrar implements IDeviceRegistrar {
 			throw new ProtocolException(new NotAcceptable(String.format("Invalid device ID '%s'.", deviceId)));
 
 		DeviceIdentity identity = deviceManager.register(deviceId);
-		if (registrationCustomizerProxy.getDeviceRegistrationCustomizer() == null)
+		if (!registrationCustomizerProxy.isBinded())
 			return new RegistrationResult(identity);
 		
 		Object customizedTaskResult = registrationCustomizerProxy.executeCustomizedTask(deviceId, identity);

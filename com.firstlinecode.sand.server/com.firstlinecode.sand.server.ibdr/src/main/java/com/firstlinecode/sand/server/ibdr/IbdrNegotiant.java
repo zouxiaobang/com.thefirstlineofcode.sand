@@ -119,7 +119,7 @@ public class IbdrNegotiant extends InitialStreamNegotiant {
 			
 			context.write(translatingFactory.translate(result));
 			
-			if (registrationCustomizerProxy != null)
+			if (registrationCustomizerProxy.isBinded())
 				registrationCustomizerProxy.processResult(context, registrationResult.getCustomizedTaskResult());
 		} catch (RuntimeException e) {
 			// Standard client message processor doesn't support processing stanza error in normal situation.

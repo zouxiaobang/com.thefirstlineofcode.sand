@@ -19,8 +19,10 @@
 		<osgi:reference id="dataSource" interface="javax.sql.DataSource"/>
 		<osgi:reference id="txManager" interface="org.springframework.jdbc.datasource.DataSourceTransactionManager"/>
 		
+		<osgi:reference id="deviceRegistrationCustomizer" interface="com.firstlinecode.sand.server.ibdr.IDeviceRegistrationCustomizer" cardinality="0..1">
+			<osgi:listener ref="deviceRegistrationCustomizerProxy"/>
+		</osgi:reference>
 		<osgi:reference id="deviceManager" interface="com.firstlinecode.sand.server.device.IDeviceManager"/>
-		<osgi:reference id="deviceRegistrationCustomizer" interface="com.firstlinecode.sand.server.ibdr.IDeviceRegistrationCustomizer" cardinality="0..1" />
 		
 		<granite:component component-id="lite.device.registrar" ref="deviceRegistrar"/>
 		<granite:component component-id="device.registration.customizer.proxy" ref="deviceRegistrationCustomizerProxy"/>
