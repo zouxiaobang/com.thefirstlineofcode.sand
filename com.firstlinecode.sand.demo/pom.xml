@@ -20,7 +20,7 @@
 		<module>com.firstlinecode.sand.demo.protocols</module>
 		<module>com.firstlinecode.sand.demo.client</module>
 		<module>com.firstlinecode.sand.demo.server</module>
-		<module>com.firstlinecode.sand.demo.lite.server</module>
+		<module>com.firstlinecode.sand.demo.server.lite</module>
 	</modules>
 
 </project>

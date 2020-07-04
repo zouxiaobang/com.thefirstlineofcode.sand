@@ -3,26 +3,26 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.firstlinecode.sand.server.lite.concentrator.ConcentrationMapper">
     <insert id="insert" parameterType="com.firstlinecode.sand.server.lite.concentrator.Concentration">
-        INSERT INTO CONCENTRATION(id, concentrator, node, lan_id, communication_net, address, confirmation_time) VALUES(#{id}, #{concentrator}, #{node}, #{lanId}, #{communicationNet}, #{address}, #{confirmationTime})
+        INSERT INTO CONCENTRATIONS(id, concentrator, node, lan_id, communication_net, address, confirmation_time) VALUES(#{id}, #{concentrator}, #{node}, #{lanId}, #{communicationNet}, #{address}, #{confirmationTime})
     </insert>
     
 	<select id="selectCountByConcentratorAndNode" resultType="int">
-		SELECT COUNT(*) FROM CONCENTRATION WHERE concentrator = #{0} AND node = #{1}
+		SELECT COUNT(*) FROM CONCENTRATIONS WHERE concentrator = #{0} AND node = #{1}
 	</select>
 	
 	<select id="selectCountByConcentratorAndLanId" resultType="int">
-		SELECT COUNT(*) FROM CONCENTRATION WHERE concentrator = #{0} AND lan_id = #{1}
+		SELECT COUNT(*) FROM CONCENTRATIONS WHERE concentrator = #{0} AND lan_id = #{1}
 	</select>
 	
 	<select id="selectByConcentratorAndNode" resultType="com.firstlinecode.sand.server.lite.concentrator.Concentration">
-		SELECT * FROM CONCENTRATION WHERE concentrator = #{0} AND node = #{1}
+		SELECT * FROM CONCENTRATIONS WHERE concentrator = #{0} AND node = #{1}
 	</select>
 	
 	<select id="selectByConcentratorAndLanId" resultType="com.firstlinecode.sand.server.lite.concentrator.Concentration">
-		SELECT * FROM CONCENTRATION WHERE concentrator = #{0} AND lan_id = #{1}
+		SELECT * FROM CONCENTRATIONS WHERE concentrator = #{0} AND lan_id = #{1}
 	</select>
 	
 	<select id="selectByLanId" resultType="com.firstlinecode.sand.server.concentrator.Node">
-		SELECT node AS device_id, lan_id, communication_net, address FROM CONCENTRATION WHERE concentrator = #{0} AND lan_id = #{1}
+		SELECT node AS device_id, lan_id, communication_net, address FROM CONCENTRATIONS WHERE concentrator = #{0} AND lan_id = #{1}
 	</select>
 </mapper>

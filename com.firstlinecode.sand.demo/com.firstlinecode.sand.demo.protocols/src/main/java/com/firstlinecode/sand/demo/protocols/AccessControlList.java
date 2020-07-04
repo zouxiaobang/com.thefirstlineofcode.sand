@@ -7,14 +7,20 @@ import com.firstlinecode.basalt.oxm.convention.annotations.ProtocolObject;
 
 @ProtocolObject(namespace = "http://firstlinecode.com/sand-demo/acl", localName = "query")
 public class AccessControlList {
-	@Array(type = AccessControl.class, elementName = "access-control")
-	private List<AccessControl> accessControls;
-
-	public List<AccessControl> getAccessControls() {
-		return accessControls;
+	public enum Role {
+		OWNER,
+		VIEWER,
+		CONTROLLER
 	}
 	
-	public void setAccessControls(List<AccessControl> accessControls) {
-		this.accessControls = accessControls;
+	@Array(AccessControlEntry.class)
+	private List<AccessControlEntry> entries;
+
+	public List<AccessControlEntry> getEntries() {
+		return entries;
+	}
+	
+	public void setEntries(List<AccessControlEntry> entries) {
+		this.entries = entries;
 	}
 }

@@ -3,7 +3,7 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.firstlinecode.sand.server.lite.device.DeviceIdentityMapper">
     <insert id="insert" parameterType="com.firstlinecode.sand.server.lite.device.D_DeviceIdentity">
-        INSERT INTO DEVICE_IDENTITY(id, device_id, device_name, credentials) VALUES(#{id}, #{deviceId}, #{deviceName}, #{credentials})
+        INSERT INTO DEVICE_IDENTITIES(id, device_id, device_name, credentials) VALUES(#{id}, #{deviceId}, #{deviceName}, #{credentials})
     </insert>
         
 	<resultMap id="deviceIdentityResultMap" type="DeviceIdentity">
@@ -14,14 +14,14 @@
 	</resultMap>
     
 	<select id="selectByDeviceName" resultType="com.firstlinecode.sand.server.lite.device.D_DeviceIdentity">
-		SELECT * FROM DEVICE_IDENTITY WHERE device_name = #{0}
+		SELECT * FROM DEVICE_IDENTITIES WHERE device_name = #{0}
     </select>
     
 	<select id="selectByDeviceId" resultType="com.firstlinecode.sand.server.lite.device.D_DeviceIdentity">
-		SELECT * FROM DEVICE_IDENTITY WHERE device_id = #{0}
+		SELECT * FROM DEVICE_IDENTITIES WHERE device_id = #{0}
     </select>
     
 	<select id="selectCountByDeviceName" resultType="int">
-		SELECT COUNT(*) FROM DEVICE_IDENTITY WHERE device_name = #{0}
+		SELECT COUNT(*) FROM DEVICE_IDENTITIES WHERE device_name = #{0}
     </select>
 </mapper>

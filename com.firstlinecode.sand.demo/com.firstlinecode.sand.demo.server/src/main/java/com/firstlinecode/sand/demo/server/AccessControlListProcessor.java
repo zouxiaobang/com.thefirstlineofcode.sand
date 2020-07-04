@@ -15,8 +15,8 @@ public class AccessControlListProcessor implements IXepProcessor<Iq, AccessContr
 		if (iq.getType() != Iq.Type.GET)
 			throw new ProtocolException(new BadRequest("Attribute 'type' should be set to 'get'."));
 		
-		if (xep.getAccessControls() != null)
-			throw new ProtocolException(new BadRequest("Access controls must be null."));
+		if (xep.getEntries() != null)
+			throw new ProtocolException(new BadRequest("Access control list entries must be null."));
 		
 		
 	}

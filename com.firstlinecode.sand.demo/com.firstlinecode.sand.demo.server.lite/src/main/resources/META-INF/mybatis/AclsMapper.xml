@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.firstlinecode.sand.demo.serverlite.AccessControlEntryMapper">
+    <insert id="insert" parameterType="com.firstlinecode.sand.server.lite.device.D_Device">
+        INSERT INTO ACLS(id, device_id, user, role) VALUES(#{id}, #{deviceId}, #{user}, #{role, typeHandler=EnumTypeHandler})
+    </insert>
+    
+	<select id="selectByUser" resultType="AccessControlEntry">
+		SELECT * FROM ACLS WHERE user=#{0}
+    </select>
+</mapper>

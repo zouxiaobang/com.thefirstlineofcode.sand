@@ -1,9 +1,9 @@
-package com.firstlinecode.sand.demo.lite.server;
+package com.firstlinecode.sand.demo.server.lite;
 
 import com.firstlinecode.granite.framework.core.supports.data.IIdProvider;
-import com.firstlinecode.sand.demo.server.AccessControl;
+import com.firstlinecode.sand.demo.protocols.AccessControlEntry;
 
-public class D_AccessControl extends AccessControl implements IIdProvider<String> {
+public class D_AccessControlEntry extends AccessControlEntry implements IIdProvider<String> {
 	private String id;
 
 	@Override
