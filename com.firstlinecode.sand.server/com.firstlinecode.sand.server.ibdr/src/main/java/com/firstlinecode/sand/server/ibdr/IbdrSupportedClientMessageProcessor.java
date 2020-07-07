@@ -34,8 +34,8 @@ public class IbdrSupportedClientMessageProcessor extends StandardClientMessagePr
 			IStreamNegotiant tls = new IbdrSupportedTlsNegotiant(hostName, tlsRequired,
 					getTlsNegotiantAdvertisements());
 			
-			IStreamNegotiant ibrAfterTls = new IbdrNegotiant(hostName,
-					getTlsNegotiantAdvertisements(), registrar, registrationCustomizerProxy);
+			IStreamNegotiant ibrAfterTls = new IbdrNegotiant(hostName, getTlsNegotiantAdvertisements(),
+					registrar, eventMessageChannel);
 			
 			IStreamNegotiant sasl = new SaslNegotiant(hostName,
 					saslSupportedMechanisms, saslAbortRetries, saslFailureRetries,
@@ -57,14 +57,14 @@ public class IbdrSupportedClientMessageProcessor extends StandardClientMessagePr
 			IStreamNegotiant initialStream = new IbrSupportedInitialStreamNegotiant(hostName,
 					getInitialStreamNegotiantAdvertisements());
 			
-			IStreamNegotiant ibdrBeforeTls = new IbdrNegotiant(hostName,
-					getInitialStreamNegotiantAdvertisements(), registrar, registrationCustomizerProxy);
+			IStreamNegotiant ibdrBeforeTls = new IbdrNegotiant(hostName, getInitialStreamNegotiantAdvertisements(),
+					registrar, eventMessageChannel);
 			
 			IStreamNegotiant tls = new IbdrSupportedTlsNegotiant(hostName, tlsRequired,
 					getTlsNegotiantAdvertisements());
 			
-			IStreamNegotiant ibrAfterTls = new IbdrNegotiant(hostName,
-					getTlsNegotiantAdvertisements(), registrar, registrationCustomizerProxy);
+			IStreamNegotiant ibrAfterTls = new IbdrNegotiant(hostName, getTlsNegotiantAdvertisements(),
+					registrar, eventMessageChannel);
 			
 			IStreamNegotiant sasl = new SaslNegotiant(hostName,
 					saslSupportedMechanisms, saslAbortRetries, saslFailureRetries,

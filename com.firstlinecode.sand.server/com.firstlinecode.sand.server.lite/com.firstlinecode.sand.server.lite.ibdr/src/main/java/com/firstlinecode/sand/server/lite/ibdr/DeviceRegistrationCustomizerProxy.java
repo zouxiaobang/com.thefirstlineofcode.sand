@@ -6,7 +6,6 @@ import org.eclipse.gemini.blueprint.service.importer.OsgiServiceLifecycleListene
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.firstlinecode.granite.framework.core.connection.IClientConnectionContext;
 import com.firstlinecode.sand.protocols.core.DeviceIdentity;
 import com.firstlinecode.sand.server.ibdr.IDeviceRegistrationCustomizer;
 import com.firstlinecode.sand.server.ibdr.IDeviceRegistrationCustomizerProxy;
@@ -22,14 +21,6 @@ public class DeviceRegistrationCustomizerProxy implements IDeviceRegistrationCus
 			return null;
 		
 		return real.executeCustomizedTask(deviceId, identity);
-	}
-
-	@Override
-	public void processResult(IClientConnectionContext context, Object result) {
-		if (real == null)
-			return;
-		
-		real.processResult(context, result);
 	}
 	
 	@Override

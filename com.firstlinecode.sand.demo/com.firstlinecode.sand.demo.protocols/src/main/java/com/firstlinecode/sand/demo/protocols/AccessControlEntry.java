@@ -9,6 +9,14 @@ public class AccessControlEntry {
 	@String2Enum(Role.class)
 	private Role role;
 	
+	public AccessControlEntry() {}
+	
+	public AccessControlEntry(String deviceId, String user, Role role) {
+		this.deviceId = deviceId;
+		this.user = user;
+		this.role = role;
+	}
+	
 	public String getDeviceId() {
 		return deviceId;
 	}

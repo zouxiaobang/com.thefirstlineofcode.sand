@@ -11,7 +11,7 @@
     </update>
     
 	<select id="selectByDeviceId" resultMap="deviceAuthorizationResultMap">
-		SELECT * FROM DEVICE_AUTHORIZATIONS WHERE device_id = #{0}
+		SELECT * FROM DEVICE_AUTHORIZATIONS WHERE device_id = #{0} ORDER BY authorized_time DESC
 	</select>
 	
 	<resultMap id="deviceAuthorizationResultMap" type="DeviceAuthorization">

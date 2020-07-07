@@ -7,6 +7,7 @@ import com.firstlinecode.sand.protocols.core.ModeDescriptor;
 
 public interface IDeviceManager {
 	void authorize(String deviceId, String authorizer, long validityTime);
+	DeviceAuthorization getAuthorization(String deviceId);
 	void cancelAuthorization(String deviceId);
 	DeviceIdentity register(String deviceId);
 	void create(Device device);

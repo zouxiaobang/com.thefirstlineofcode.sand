@@ -8,3 +8,5 @@ Import-Package: org.springframework.core;version="[4.3.9,5)",
  org.aopalliance.aop;version="[1.0.0,2)"
 Granite-Xep-Processors: xep=iq->query|acl|http://firstlinecode.com/sand-demo;
  class=com.firstlinecode.sand.demo.server.AccessControlListProcessor
+Granite-Event-Listeners: event=com.firstlinecode.sand.server.ibdr.DeviceRegistrationEvent;
+ event-listener=com.firstlinecode.sand.demo.server.DeviceRegistrationListener

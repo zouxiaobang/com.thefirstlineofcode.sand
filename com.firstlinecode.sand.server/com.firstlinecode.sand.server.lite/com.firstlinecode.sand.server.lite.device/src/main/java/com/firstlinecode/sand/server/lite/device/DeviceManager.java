@@ -77,7 +77,7 @@ public class DeviceManager implements IDeviceManager {
 			throw new ProtocolException(new Conflict());
 		}
 		
-		DeviceAuthorization authorization = getDeviceAuthorization(deviceId);
+		DeviceAuthorization authorization = getAuthorization(deviceId);
 		if (authorization == null) {
 			throw new ProtocolException(new NotAuthorized());
 		}
@@ -111,21 +111,23 @@ public class DeviceManager implements IDeviceManager {
 	protected String createDeviceName(String deviceId) {
 		return deviceId;
 	}
-
-	private DeviceAuthorization getDeviceAuthorization(String deviceId) {
+	
+	@Override
+	public DeviceAuthorization getAuthorization(String deviceId) {
 		DeviceAuthorization[] authroizations = getDeviceAuthorizationMapper().selectByDeviceId(deviceId);
 		if (authroizations == null || authroizations.length == 0)
 			return null;
 		
-		Date currentTime = Calendar.getInstance().getTime();
-		for (DeviceAuthorization authorization : authroizations) {
-			if (authorization.getExpiredTime().after(currentTime) &&
-					!authorization.isCanceled()) {
-				return authorization;
-			}
+		DeviceAuthorization authorization = authroizations[0];
+		if (isAuthorizationExpired(authorization) || authorization.isCanceled()) {
+			return null;
 		}
 		
-		return null;
+		return authorization;
+	}
+
+	private boolean isAuthorizationExpired(DeviceAuthorization authorization) {
+		return Calendar.getInstance().getTime().after(authorization.getExpiredTime());
 	}
 
 	@Override

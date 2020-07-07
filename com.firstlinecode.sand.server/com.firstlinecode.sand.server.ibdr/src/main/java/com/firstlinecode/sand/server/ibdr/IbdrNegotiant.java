@@ -19,11 +19,12 @@ import com.firstlinecode.basalt.protocol.core.stream.Feature;
 import com.firstlinecode.basalt.protocol.core.stream.Stream;
 import com.firstlinecode.granite.framework.core.connection.IClientConnectionContext;
 import com.firstlinecode.granite.framework.core.integration.IMessage;
+import com.firstlinecode.granite.framework.core.integration.IMessageChannel;
+import com.firstlinecode.granite.framework.core.integration.SimpleMessage;
 import com.firstlinecode.granite.framework.stream.negotiants.InitialStreamNegotiant;
 import com.firstlinecode.sand.protocols.ibdr.DeviceRegister;
 import com.firstlinecode.sand.protocols.ibdr.oxm.DeviceRegisterParserFactory;
 import com.firstlinecode.sand.protocols.ibdr.oxm.DeviceRegisterTranslatorFactory;
-import com.firstlinecode.sand.server.ibdr.IDeviceRegistrar.RegistrationResult;
 
 public class IbdrNegotiant extends InitialStreamNegotiant {
 	public static final Object KEY_IBDR_REGISTERED = new Object();
@@ -55,14 +56,13 @@ public class IbdrNegotiant extends InitialStreamNegotiant {
 	}
 	
 	private IDeviceRegistrar registrar;
-	private IDeviceRegistrationCustomizerProxy registrationCustomizerProxy;
+	private IMessageChannel eventMessageChannel;
 	
-	public IbdrNegotiant(String domainName, List<Feature> features, IDeviceRegistrar registrar,
-			IDeviceRegistrationCustomizerProxy registrationCustomizerProxy) {
+	public IbdrNegotiant(String domainName, List<Feature> features, IDeviceRegistrar registrar, IMessageChannel eventMessageChannel) {
 		super(domainName, features);
 		
 		this.registrar = registrar;
-		this.registrationCustomizerProxy = registrationCustomizerProxy;
+		this.eventMessageChannel = eventMessageChannel;
 	}
 	
 	protected boolean doNegotiate(IClientConnectionContext context, IMessage message) {
@@ -113,14 +113,13 @@ public class IbdrNegotiant extends InitialStreamNegotiant {
 			if (register == null || !(register instanceof String))
 				throw new ProtocolException(new BadRequest("Register object isn't a string."));
 			
-			RegistrationResult registrationResult = registrar.register((String)register);
+			DeviceRegistrationEvent registrationEvent = registrar.register((String)register);
 			Iq result = new Iq(Iq.Type.RESULT, iq.getId());
-			result.setObject(new DeviceRegister(registrationResult.getIdentity()));
+			result.setObject(new DeviceRegister(registrationEvent.getIdentity()));
 			
 			context.write(translatingFactory.translate(result));
 			
-			if (registrationCustomizerProxy.isBinded())
-				registrationCustomizerProxy.processResult(context, registrationResult.getCustomizedTaskResult());
+			eventMessageChannel.send(new SimpleMessage(registrationEvent));
 		} catch (RuntimeException e) {
 			// Standard client message processor doesn't support processing stanza error in normal situation.
 			// So we process the exception by self.

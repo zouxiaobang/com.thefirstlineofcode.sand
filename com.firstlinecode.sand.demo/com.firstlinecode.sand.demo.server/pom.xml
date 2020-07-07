@@ -24,16 +24,16 @@
 		</dependency>
 		<dependency>
 			<groupId>com.firstlinecode.sand.server</groupId>
+			<artifactId>com.firstlinecode.sand.server.device</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.firstlinecode.sand.server</groupId>
 			<artifactId>com.firstlinecode.sand.server.ibdr</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>com.firstlinecode.sand.demo</groupId>
 			<artifactId>com.firstlinecode.sand.demo.protocols</artifactId>
 			<version>0.1.0.RELEASE</version>
-		</dependency>
-		<dependency>
-			<groupId>com.firstlinecode.sand.server</groupId>
-			<artifactId>com.firstlinecode.sand.server.device</artifactId>
 		</dependency>
 	</dependencies>
 </project>
