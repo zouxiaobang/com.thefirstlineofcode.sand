@@ -22,6 +22,10 @@
 			<groupId>com.firstlinecode.chalk</groupId>
 			<artifactId>com.firstlinecode.chalk</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>com.firstlinecode.sand.demo</groupId>
+			<artifactId>com.firstlinecode.sand.demo.protocols</artifactId>
+		</dependency>
 	</dependencies>
 	
 </project>

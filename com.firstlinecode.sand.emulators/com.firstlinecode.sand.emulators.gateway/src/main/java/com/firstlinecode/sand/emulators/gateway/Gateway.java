@@ -48,7 +48,7 @@ import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileSystemView;
 import javax.swing.plaf.FontUIResource;
 
-import com.firstlinecode.basalt.protocol.core.IError;
+import com.firstlinecode.basalt.protocol.core.stanza.error.StanzaError;
 import com.firstlinecode.chalk.AuthFailureException;
 import com.firstlinecode.chalk.IChatClient;
 import com.firstlinecode.chalk.StandardChatClient;
@@ -1401,7 +1401,7 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 	}
 
 	@Override
-	public void occurred(IError error, Node source) {
+	public void occurred(StanzaError error, Node source) {
 		// TODO Auto-generated method stub
 		
 	}

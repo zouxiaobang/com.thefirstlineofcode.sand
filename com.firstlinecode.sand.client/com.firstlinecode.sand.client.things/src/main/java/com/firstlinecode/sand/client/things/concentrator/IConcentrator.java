@@ -2,7 +2,7 @@ package com.firstlinecode.sand.client.things.concentrator;
 
 import java.util.Map;
 
-import com.firstlinecode.basalt.protocol.core.IError;
+import com.firstlinecode.basalt.protocol.core.stanza.error.StanzaError;
 import com.firstlinecode.sand.client.things.commuication.ICommunicator;
 import com.firstlinecode.sand.protocols.concentrator.NodeAddress;
 import com.firstlinecode.sand.protocols.core.CommunicationNet;
@@ -34,7 +34,7 @@ public interface IConcentrator {
 	public interface Listener {
 		void nodeCreated(String requestedLanId, String allocatedLanId, Node node);
 		void nodeRemoved(String lanId, Node node);
-		void occurred(IError error, Node source);
+		void occurred(StanzaError error, Node source);
 		void occurred(LanError error, Node source);
 	}
 }

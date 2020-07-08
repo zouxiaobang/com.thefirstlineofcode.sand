@@ -545,6 +545,11 @@
 				<artifactId>com.firstlinecode.sand.server.actuator</artifactId>
 				<version>${sand.version}</version>
 			</dependency>
+			<dependency>
+				<groupId>com.firstlinecode.sand.demo</groupId>
+				<artifactId>com.firstlinecode.sand.demo.protocols</artifactId>
+				<version>${sand.version}</version>
+			</dependency>
 		</dependencies>
 	</dependencyManagement>
 	
