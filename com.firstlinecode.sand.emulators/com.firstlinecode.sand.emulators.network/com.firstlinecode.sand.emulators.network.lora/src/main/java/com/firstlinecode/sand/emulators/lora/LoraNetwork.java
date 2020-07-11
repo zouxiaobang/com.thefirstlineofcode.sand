@@ -316,7 +316,7 @@ public class LoraNetwork implements ILoraNetwork {
 		
 		@Override
 		public int hashCode() {
-			return chip1.hashCode() + chip2.hashCode();
+			return 7 + 31 * chip1.hashCode() + chip2.hashCode();
 		}
 		
 		@Override
