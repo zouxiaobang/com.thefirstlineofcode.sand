@@ -23,6 +23,6 @@
 	</resultMap>
     
 	<select id="selectCountByDeviceId" resultType="int">
-		SELECT COUNT(*) FROM DEVICES WHERE device_id=#{0}
+		SELECT count(*) FROM DEVICES WHERE device_id=#{0}
     </select>
 </mapper>

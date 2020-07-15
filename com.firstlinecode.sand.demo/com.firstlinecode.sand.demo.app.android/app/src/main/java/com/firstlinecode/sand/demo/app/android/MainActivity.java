@@ -103,7 +103,7 @@ public class MainActivity extends AppCompatActivity implements IOperator.Listene
 		runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
-				Toast.makeText(MainActivity.this, getString(R.string.device_has_registered, deviceId), Toast.LENGTH_LONG).show();
+				Toast.makeText(MainActivity.this, getString(R.string.device_has_authorized, deviceId), Toast.LENGTH_LONG).show();
 			}
 		});
 	}
@@ -128,7 +128,7 @@ public class MainActivity extends AppCompatActivity implements IOperator.Listene
 		runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
-				Toast.makeText(MainActivity.this, getString(R.string.failed_to_authorize_device, error.toString()), Toast.LENGTH_LONG).show();
+				Toast.makeText(MainActivity.this, getString(R.string.failed_to_authorize_device, error.getReason()), Toast.LENGTH_LONG).show();
 			}
 		});
 

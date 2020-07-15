@@ -1,5 +1,10 @@
 package com.firstlinecode.sand.emulators.lora;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+
 import com.firstlinecode.chalk.IOrder;
 import com.firstlinecode.sand.client.lora.IDualLoraChipsCommunicator;
 import com.firstlinecode.sand.client.lora.ILoraChip;
@@ -8,11 +13,6 @@ import com.firstlinecode.sand.client.things.commuication.CommunicationException;
 import com.firstlinecode.sand.client.things.commuication.ICommunicationListener;
 import com.firstlinecode.sand.protocols.lora.DualLoraAddress;
 import com.firstlinecode.sand.protocols.lora.LoraAddress;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
 
 public class DualLoraChipsCommunicator implements IDualLoraChipsCommunicator {
 	private ILoraChip masterChip;
@@ -128,7 +128,9 @@ public class DualLoraChipsCommunicator implements IDualLoraChipsCommunicator {
 	@Override
 	public void addCommunicationListener(ICommunicationListener<DualLoraAddress, LoraAddress, byte[]> listener) {
 		listeners.add(listener);
-		Collections.sort(listeners, new OrderComparator<>());
+		if (listeners.size() > 1) {			
+			Collections.sort(listeners, new OrderComparator<ICommunicationListener<DualLoraAddress, LoraAddress, byte[]>>());
+		}
 	}
 
 	@Override

@@ -65,20 +65,20 @@ public class AccessControlList {
 			return;
 		
 		for (AccessControlEntry entry : entries) {
-			if (entry.getDeviceId() == null)
-				entry.setDeviceId(deviceId);
+			if (entry.getDevice() == null)
+				entry.setDevice(deviceId);
 		}
 	}
 	
 	public boolean contains(AccessControlEntry ace) {
-		if (ace.getDeviceId() == null)
+		if (ace.getDevice() == null)
 			throw new RuntimeException("Null device ID.");
 			
 		if (entries == null || entries.isEmpty())
 			return false;
 		
 		for (AccessControlEntry entry : entries) {
-			if (entry.getDeviceId().equals(ace.getDeviceId()) &&
+			if (entry.getDevice().equals(ace.getDevice()) &&
 					entry.getUser().equals(entry.getUser()))
 				return true;
 		}
@@ -95,13 +95,13 @@ public class AccessControlList {
 
 	public boolean update(AccessControlEntry entry) {
 		for (AccessControlEntry anEntry : entries) {
-			if (anEntry.getDeviceId().equals(entry.getDeviceId()) &&
+			if (anEntry.getDevice().equals(entry.getDevice()) &&
 					anEntry.getUser().equals(entry.getUser()))
 				anEntry.setRole(entry.getRole());
 			
 			return true;
 		}
 		
-		throw new RuntimeException(String.format("Entry[%s, %s] doesn't exist.", entry.getDeviceId(), entry.getUser()));
+		throw new RuntimeException(String.format("Entry[%s, %s] doesn't exist.", entry.getDevice(), entry.getUser()));
 	}
 }

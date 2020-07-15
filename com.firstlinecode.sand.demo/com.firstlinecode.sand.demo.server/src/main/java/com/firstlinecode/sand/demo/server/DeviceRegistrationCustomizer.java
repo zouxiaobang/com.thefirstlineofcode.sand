@@ -30,9 +30,9 @@ public class DeviceRegistrationCustomizer implements IDeviceRegistrationCustomiz
 		
 		DeviceAuthorization authorization = deviceManager.getAuthorization(deviceId);
 		if (authorization == null)
-			throw new RuntimeException(String.format("No device authorization which authorized device's ID is '%s' found.", deviceId));
+			throw new RuntimeException(String.format("No device authorization which's authorized device's ID is '%s' found.", deviceId));
 		
-		AccessControlEntry ace = new AccessControlEntry(deviceId, authorization.getAuthorizer(), Role.OWNER);
+		AccessControlEntry ace = new AccessControlEntry(authorization.getAuthorizer(), deviceId, Role.OWNER);
 		aclService.add(ace);
 		
 		return ace;

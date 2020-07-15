@@ -24,11 +24,11 @@
 			<jdbc:script location="osgibundlejar:/META-INF/spring/device.sql"/>
 		</jdbc:initialize-database>
 		
-		<osgi:service ref="deviceManager" interface="com.firstlinecode.sand.server.device.IDeviceManager" ranking="1"/>
-		
 		<osgi:reference id="dataSource" interface="javax.sql.DataSource"/>
 		<osgi:reference id="sqlSessionFactory" interface="org.apache.ibatis.session.SqlSessionFactory"/>
 		<osgi:reference id="txManager" interface="org.springframework.jdbc.datasource.DataSourceTransactionManager"/>
+		
+		<osgi:service ref="deviceManager" interface="com.firstlinecode.sand.server.device.IDeviceManager" ranking="1"/>
 		
 		<granite:component component-id="lite.device.authenticator" ref="deviceAuthenticator"/>
 		<granite:component component-id="device.authenticator" ref="deviceAuthenticator"/>

@@ -28,6 +28,6 @@
     <string name="register_device">注册设备</string>
     <string name="logout">注销</string>
     <string name="can_not_connect_to_internet">不能访问因特网。为了程序能正常运行，你需要授权访问因特网</string>
-    <string name="device_has_registered">ID为%s的设备已经成功注册.</string>
+    <string name="device_has_authorized">ID为%s的设备已经成功授权.</string>
     <string name="failed_to_authorize_device">授权设备失败。错误：%s</string>
 </resources>

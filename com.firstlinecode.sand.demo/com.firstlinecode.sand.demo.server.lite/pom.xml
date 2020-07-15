@@ -22,6 +22,10 @@
 			<artifactId>com.firstlinecode.granite.framework.processing</artifactId>
 		</dependency>
 		<dependency>
+			<groupId>com.firstlinecode.granite.framework.supports</groupId>
+			<artifactId>com.firstlinecode.granite.framework.supports.mybatis</artifactId>
+		</dependency>
+		<dependency>
 			<groupId>com.firstlinecode.sand.demo</groupId>
 			<artifactId>com.firstlinecode.sand.demo.server</artifactId>
 			<version>0.1.0.RELEASE</version>

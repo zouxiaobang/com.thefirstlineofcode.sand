@@ -24,9 +24,11 @@
 			<jdbc:script location="osgibundlejar:/META-INF/spring/demo.sql"/>
 		</jdbc:initialize-database>
 		
-		<osgi:service ref="accessControlListService" interface="com.firstlinecode.sand.demo.server.IAccessControlListService" ranking="1"/>
-		
 		<osgi:reference id="dataSource" interface="javax.sql.DataSource"/>
 		<osgi:reference id="sqlSessionFactory" interface="org.apache.ibatis.session.SqlSessionFactory"/>
-		<osgi:reference id="txManager" interface="org.springframework.jdbc.datasource.DataSourceTransactionManager"/>	
+		<osgi:reference id="txManager" interface="org.springframework.jdbc.datasource.DataSourceTransactionManager"/>
+		
+		<osgi:service ref="accessControlListService" interface="com.firstlinecode.sand.demo.server.IAccessControlListService"/>
+		
+		<granite:component component-id="access.control.list.service" ref="accessControlListService"/>
 </beans>
