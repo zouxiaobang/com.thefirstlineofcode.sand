@@ -12,12 +12,19 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
+import com.firstlinecode.basalt.protocol.core.IError;
+import com.firstlinecode.basalt.protocol.core.stanza.Iq;
+import com.firstlinecode.basalt.protocol.core.stream.error.StreamError;
 import com.firstlinecode.chalk.IChatClient;
+import com.firstlinecode.chalk.core.IErrorListener;
 import com.firstlinecode.sand.client.operator.IOperator;
+import com.firstlinecode.sand.demo.client.AclError;
+import com.firstlinecode.sand.demo.client.IAclService;
+import com.firstlinecode.sand.demo.protocols.AccessControlList;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 
-public class MainActivity extends AppCompatActivity implements IOperator.Listener {
+public class MainActivity extends AppCompatActivity implements IOperator.Listener, IAclService.Listener, IErrorListener {
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -27,6 +34,13 @@ public class MainActivity extends AppCompatActivity implements IOperator.Listene
 		Toolbar toolbar = findViewById(R.id.toolbar);
 		toolbar.setTitle(R.string.app_name);
 		setSupportActionBar(toolbar);
+
+		IChatClient chatClient = ChatClientSingleton.get(this);
+		IAclService aclService = chatClient.createApi(IAclService.class);
+		if (!aclService.getListeners().contains(this)) {
+			aclService.addListener(this);
+			chatClient.getStream().addErrorListener(this);
+		}
 	}
 
 	@Override
@@ -47,8 +61,8 @@ public class MainActivity extends AppCompatActivity implements IOperator.Listene
 
 	@Override
 	public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-		if (item.getItemId() == R.id.register_device) {
-			registerDevice();
+		if (item.getItemId() == R.id.authorize_device) {
+			authorizeDevice();
 			return true;
 		} else if (item.getItemId() == R.id.logout) {
 			logout();
@@ -58,7 +72,7 @@ public class MainActivity extends AppCompatActivity implements IOperator.Listene
 		}
 	}
 
-	private void registerDevice() {
+	private void authorizeDevice() {
 		IntentIntegrator integrator = new IntentIntegrator(this);
 		integrator.setDesiredBarcodeFormats(IntentIntegrator.QR_CODE);
 		integrator.setOrientationLocked(false);
@@ -79,7 +93,8 @@ public class MainActivity extends AppCompatActivity implements IOperator.Listene
 	private void authorizeDevice(String deviceId) {
 		IChatClient chatClient = ChatClientSingleton.get(this);
 		IOperator operator = chatClient.createApi(IOperator.class);
-		operator.addListener(this);
+		if (!operator.getListeners().contains(this))
+			operator.addListener(this);
 
 		operator.authorize(deviceId);
 	}
@@ -137,5 +152,39 @@ public class MainActivity extends AppCompatActivity implements IOperator.Listene
 	@Override
 	public void occurred(IOperator.ConfirmationError error, String concentratorId, String nodeId) {
 		// NOOP
+	}
+
+	@Override
+	public void retrived(AccessControlList acl) {
+
+	}
+
+	@Override
+	public void updated(AccessControlList acl) {
+		System.out.println(String.format("ACL %s received", acl));
+	}
+
+	@Override
+	public void timeout(Iq iq) {
+
+	}
+
+	@Override
+	public void occurred(AclError error) {
+
+	}
+
+	@Override
+	public void occurred(IError error) {
+		runOnUiThread(new Runnable() {
+			@Override
+			public void run() {
+				if (error instanceof StreamError) {
+					Toast.makeText(MainActivity.this, getString(R.string.stream_error_occurred, error.getDefinedCondition()), Toast.LENGTH_LONG).show();
+				} else {
+					Toast.makeText(MainActivity.this, getString(R.string.stanza_error_occurred, error.getDefinedCondition()), Toast.LENGTH_LONG).show();
+				}
+			}
+		});
 	}
 }

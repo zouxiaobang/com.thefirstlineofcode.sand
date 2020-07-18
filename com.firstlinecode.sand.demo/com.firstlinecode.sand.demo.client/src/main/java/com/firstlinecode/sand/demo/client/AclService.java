@@ -1,6 +1,7 @@
 package com.firstlinecode.sand.demo.client;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import com.firstlinecode.basalt.protocol.core.stanza.Iq;
@@ -9,10 +10,11 @@ import com.firstlinecode.basalt.protocol.datetime.DateTime;
 import com.firstlinecode.chalk.IChatServices;
 import com.firstlinecode.chalk.ITask;
 import com.firstlinecode.chalk.IUnidirectionalStream;
+import com.firstlinecode.chalk.core.stanza.IIqListener;
 import com.firstlinecode.sand.demo.protocols.AccessControlEntry;
 import com.firstlinecode.sand.demo.protocols.AccessControlList;
 
-public class AclService implements IAclService {
+public class AclService implements IAclService, IIqListener {
 	private static final int DEFAULT_RETRIEVE_TIMEOUT = 5 * 1000;
 
 	private List<Listener> listeners;
@@ -22,6 +24,8 @@ public class AclService implements IAclService {
 	public AclService(IChatServices chatServices) {
 		this.chatServices = chatServices;
 		listeners = new ArrayList<Listener>();
+		
+		chatServices.getIqService().addListener(AccessControlList.PROTOCOL, this);
 	}
 
 	@Override
@@ -92,12 +96,16 @@ public class AclService implements IAclService {
 	}
 	
 	private void processRetrived(Iq iq) {
-		if (iq.getType() != Iq.Type.RESULT && iq.getType() != Iq.Type.SET) {
+		if (iq.getType() != Iq.Type.RESULT) {
 			notifyError(new AclError(AclError.Type.INVALID_RESPONSE));
 			
 			return;
 		}
 		
+		updateAcl(iq);
+	}
+
+	private void updateAcl(Iq iq) {
 		AccessControlList acl = iq.getObject();
 		if (local == null) {
 			local = acl;
@@ -151,8 +159,8 @@ public class AclService implements IAclService {
 	}
 
 	@Override
-	public Listener[] getListeners() {
-		return listeners.toArray(new Listener[listeners.size()]);
+	public List<Listener> getListeners() {
+		return Collections.unmodifiableList(listeners);
 	}
 	
 	@Override
@@ -163,6 +171,17 @@ public class AclService implements IAclService {
 	@Override
 	public AccessControlList getLocal() {
 		return local;
+	}
+
+	@Override
+	public void received(Iq iq) {
+		if (iq.getType() != Iq.Type.SET) {
+			notifyError(new AclError(AclError.Type.INVALID_RESPONSE));
+			
+			return;
+		}
+		
+		updateAcl(iq);
 	}
 
 }

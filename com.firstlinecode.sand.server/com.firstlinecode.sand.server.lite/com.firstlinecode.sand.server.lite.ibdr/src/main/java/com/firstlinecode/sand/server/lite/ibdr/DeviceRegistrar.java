@@ -1,5 +1,7 @@
 package com.firstlinecode.sand.server.lite.ibdr;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,6 +17,8 @@ import com.firstlinecode.sand.server.ibdr.IDeviceRegistrationCustomizerProxy;
 @Component
 @Transactional
 public class DeviceRegistrar implements IDeviceRegistrar {
+	private static final Logger logger = LoggerFactory.getLogger(DeviceRegistrar.class);
+	
 	@Autowired
 	private IDeviceManager deviceManager;
 	
@@ -27,6 +31,9 @@ public class DeviceRegistrar implements IDeviceRegistrar {
 			throw new ProtocolException(new NotAcceptable(String.format("Invalid device ID '%s'.", deviceId)));
 
 		DeviceIdentity identity = deviceManager.register(deviceId);
+		if (logger.isInfoEnabled())
+			logger.info("Device which's device ID is '{}' is registered. It's device name is assigned to '{}'.", deviceId, identity.getDeviceName());
+		
 		if (!registrationCustomizerProxy.isBinded())
 			return new DeviceRegistrationEvent(identity);
 		

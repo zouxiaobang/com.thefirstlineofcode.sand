@@ -1,5 +1,8 @@
 package com.firstlinecode.sand.server.operator;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.firstlinecode.basalt.protocol.core.ProtocolException;
 import com.firstlinecode.basalt.protocol.core.stanza.Iq;
 import com.firstlinecode.basalt.protocol.core.stanza.error.BadRequest;
@@ -17,6 +20,8 @@ import com.firstlinecode.sand.server.device.IDeviceManager;
 public class AuthorizeDeviceProcessor implements IXepProcessor<Iq, AuthorizeDevice>, IConfigurationAware {
 	private static final String DEVICE_AUTHORIZATION_VALIDITY_TIME = "authorize.device.validity.time";
 	private static final int DEFAULT_DEVICE_AUTHORIZATION_VALIDITY_TIME = 1000 * 60 * 30;
+	
+	private Logger logger = LoggerFactory.getLogger(AuthorizeDeviceProcessor.class);
 	
 	@Dependency("device.manager")
 	private IDeviceManager deviceManager;
@@ -36,6 +41,9 @@ public class AuthorizeDeviceProcessor implements IXepProcessor<Iq, AuthorizeDevi
 			throw new ProtocolException(new Conflict());
 		
 		deviceManager.authorize(xep.getDeviceId(), context.getJid().getBareIdString(), deviceAuthorizationValidityTime);
+		
+		if (logger.isInfoEnabled())
+			logger.info("Device '{}' has authorized by authorizer '{}'.", xep.getDeviceId(), context.getJid().getBareIdString());
 		
 		context.write(context.getJid(), new Iq(Iq.Type.RESULT, iq.getId()));
 	}

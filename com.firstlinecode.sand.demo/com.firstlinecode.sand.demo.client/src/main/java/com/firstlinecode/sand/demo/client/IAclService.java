@@ -1,5 +1,7 @@
 package com.firstlinecode.sand.demo.client;
 
+import java.util.List;
+
 import com.firstlinecode.basalt.protocol.core.stanza.Iq;
 import com.firstlinecode.basalt.protocol.datetime.DateTime;
 import com.firstlinecode.sand.demo.protocols.AccessControlEntry;
@@ -16,7 +18,7 @@ public interface IAclService {
 	void update(AccessControlEntry entry);
 	void addListener(Listener listener);
 	boolean removeListener(Listener listener);
-	Listener[] getListeners();
+	List<Listener> getListeners();
 	void setLocal(AccessControlList local);
 	AccessControlList getLocal();
 	

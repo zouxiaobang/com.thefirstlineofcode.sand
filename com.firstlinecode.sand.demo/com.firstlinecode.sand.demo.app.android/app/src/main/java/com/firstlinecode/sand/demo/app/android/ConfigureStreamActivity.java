@@ -86,6 +86,8 @@ public class ConfigureStreamActivity extends AppCompatActivity {
 		streamConfig.setTlsPreferred(cbEnableTls.isChecked());
 		Toolkits.setStreamConfig(this, streamConfig);
 
+		ChatClientSingleton.destroy();
+
 		finish();
 	}
 }

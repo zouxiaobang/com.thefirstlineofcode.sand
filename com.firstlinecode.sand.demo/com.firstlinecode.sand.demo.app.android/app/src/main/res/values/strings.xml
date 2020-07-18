@@ -32,10 +32,12 @@
     <string name="user_has_registered">User has already registered.</string>
     <string name="incorrect_user_name_or_password">Incorrect user name or password.</string>
     <string name="file_name_user_data_properties" translatable="false">user-data.properties</string>
-    <string name="register_device">Register Device</string>
+    <string name="authorize_device">Authorize Device</string>
     <string name="logout">Logout</string>
     <string name="auto_login" translatable="false">auto-login</string>
     <string name="can_not_connect_to_internet">Can not connect to internet. You needs to grant permission to connect to internet first for running app correctly.</string>
     <string name="device_has_authorized">Device which\'s ID is %s has authorized successfully.</string>
     <string name="failed_to_authorize_device">Failed to authorize device. Error is: %s.</string>
+    <string name="stream_error_occurred">Stream error %s occurred. Please contact the developer.</string>
+    <string name="stanza_error_occurred">Stanza error %s occurred. Please contact the developer.</string>
 </resources>

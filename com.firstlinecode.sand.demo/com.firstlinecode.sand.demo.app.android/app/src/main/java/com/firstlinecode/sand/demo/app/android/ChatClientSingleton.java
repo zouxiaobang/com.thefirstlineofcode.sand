@@ -5,6 +5,7 @@ import android.content.Context;
 import com.firstlinecode.chalk.IChatClient;
 import com.firstlinecode.chalk.android.StandardChatClient;
 import com.firstlinecode.sand.client.operator.OperatorPlugin;
+import com.firstlinecode.sand.demo.client.DemoPlugin;
 
 class ChatClientSingleton {
 	private static IChatClient chatClient;
@@ -13,6 +14,7 @@ class ChatClientSingleton {
 		if (chatClient == null) {
 			chatClient = new StandardChatClient(Toolkits.getStreamConfig(context));
 			chatClient.register(OperatorPlugin.class);
+			chatClient.register(DemoPlugin.class);
 		}
 
 		return chatClient;

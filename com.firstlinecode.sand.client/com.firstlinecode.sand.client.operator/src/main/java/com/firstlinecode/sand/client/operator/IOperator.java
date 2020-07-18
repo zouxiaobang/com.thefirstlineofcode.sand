@@ -1,5 +1,7 @@
 package com.firstlinecode.sand.client.operator;
 
+import java.util.List;
+
 import com.firstlinecode.basalt.protocol.core.stanza.error.StanzaError;
 
 public interface IOperator {
@@ -20,6 +22,7 @@ public interface IOperator {
 	void cancelComfirmation(String concentratorId, String nodeId);
 	void addListener(Listener listener);
 	boolean removeListener(Listener listener);
+	List<Listener> getListeners();
 	
 	public interface Listener {
 		void authorized(String deviceId);

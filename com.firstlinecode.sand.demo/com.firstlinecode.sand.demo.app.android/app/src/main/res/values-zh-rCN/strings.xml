@@ -25,9 +25,11 @@
     <string name="unknown_error">未知错误： %s。请联系开发者</string>
     <string name="user_has_registered">用户已经注册</string>
     <string name="incorrect_user_name_or_password">用户名或密码不正确</string>
-    <string name="register_device">注册设备</string>
+    <string name="authorize_device">授权设备</string>
     <string name="logout">注销</string>
     <string name="can_not_connect_to_internet">不能访问因特网。为了程序能正常运行，你需要授权访问因特网</string>
-    <string name="device_has_authorized">ID为%s的设备已经成功授权.</string>
+    <string name="device_has_authorized">ID为%s的设备已经成功授权</string>
     <string name="failed_to_authorize_device">授权设备失败。错误：%s</string>
+    <string name="stream_error_occurred">Stream错误：%s。请联系开发者</string>
+    <string name="stanza_error_occurred">Stanza错误：%s。请联系开发者</string>
 </resources>

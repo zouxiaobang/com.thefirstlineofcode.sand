@@ -1,6 +1,6 @@
 package com.firstlinecode.sand.demo.protocols;
 
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.List;
 
 import com.firstlinecode.basalt.oxm.convention.annotations.Array;
@@ -24,15 +24,19 @@ public class AccessControlList {
 	@Array(AccessControlEntry.class)
 	private List<AccessControlEntry> entries;
 	
-	public AccessControlList() {}
+	public AccessControlList() {
+		this(null);
+	}
 	
 	public AccessControlList(DateTime lastModDateTime) {
-		this.lastModifiedTime = lastModDateTime;
+		this(null, lastModDateTime);
 	}
 	
 	public AccessControlList(String deviceId, DateTime lastModDateTime) {
 		this.deviceId = deviceId;
 		this.lastModifiedTime = lastModDateTime;
+		
+		entries = new ArrayList<AccessControlEntry>();
 	}
 
 	public String getDeviceId() {
@@ -52,10 +56,7 @@ public class AccessControlList {
 	}
 
 	public List<AccessControlEntry> getEntries() {
-		if (entries == null)
-			return Collections.emptyList();
-		
-		return Collections.unmodifiableList(entries);
+		return entries;
 	}
 	
 	public void setEntries(List<AccessControlEntry> entries) {

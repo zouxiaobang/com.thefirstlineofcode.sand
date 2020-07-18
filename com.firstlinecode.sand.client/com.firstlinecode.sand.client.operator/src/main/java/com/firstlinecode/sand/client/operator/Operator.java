@@ -1,6 +1,7 @@
 package com.firstlinecode.sand.client.operator;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import com.firstlinecode.basalt.protocol.core.stanza.Iq;
@@ -106,6 +107,11 @@ public class Operator implements IOperator {
 	@Override
 	public boolean removeListener(Listener listener) {
 		return listeners.remove(listener);
+	}
+
+	@Override
+	public List<Listener> getListeners() {
+		return Collections.unmodifiableList(listeners);
 	}
 
 }

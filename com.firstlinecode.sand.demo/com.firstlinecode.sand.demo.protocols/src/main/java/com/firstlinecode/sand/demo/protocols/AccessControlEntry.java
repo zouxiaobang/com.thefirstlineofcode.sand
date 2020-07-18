@@ -68,10 +68,7 @@ public class AccessControlEntry {
 	}
 	
 	public Boolean getRemove() {
-		if (remove)
-			return remove;
-		
-		return null;
+		return (remove != null && remove) ? remove : null;
 	}
 
 	public void setRemove(Boolean remove) {
