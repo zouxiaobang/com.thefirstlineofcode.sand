@@ -12,6 +12,7 @@ import org.eclipse.osgi.framework.console.CommandProvider;
 
 import com.firstlinecode.basalt.protocol.core.Protocol;
 import com.firstlinecode.granite.framework.core.annotations.Dependency;
+import com.firstlinecode.granite.framework.core.auth.IAccountManager;
 import com.firstlinecode.granite.framework.core.config.IApplicationConfiguration;
 import com.firstlinecode.granite.framework.core.config.IApplicationConfigurationAware;
 import com.firstlinecode.granite.framework.core.config.IConfiguration;
@@ -41,16 +42,19 @@ public class SandCommandProvider implements CommandProvider, IEventProducerAware
 	private static final String MSG_HELP = "sand - Monitoring and managing sand application.\r\n";
 	
 	private static final String MSG_DETAIL_HELP =
-			"\tsand authorize <device_id> - Authorize a device to register.\r\n" +
+			"\tsand authorize <device_id> [authorizier] - Authorize a device to register.\r\n" +
 			"\tsand devices [start_index] - Display registered devices. Twenty items each page.\r\n" +
 			"\tsand confirm <concentrator_device_id> <node_device_id> - Confirm to add a node to concentrator.\r\n" +
-			"\tsand execute <device_location> <ACTION_NAME> [PARAMS...] - Execute an action on the specified device.\r\n" +
+			"\tsand execute <device_location> <action_name> [params...] - Execute an action on the specified device.\r\n" +
 			"\tsand help - Display help information.\r\n";
 	
 	private static final String ACTION_NAME_FLASH = "flash";
 	
 	private static final String AUTHORIZE_DEVICE_VALIDITY_TIME = "authorize.device.validity.time";
 	private static final int DEFAULT_AUTHORIZE_DEVICE_VALIDITY_TIME = 1000 * 60 * 30;
+	
+	@Dependency("account.manager")
+	private IAccountManager accountManager;
 	
 	@Dependency("device.manager")
 	private IDeviceManager deviceManager;
@@ -105,8 +109,9 @@ public class SandCommandProvider implements CommandProvider, IEventProducerAware
 				interpreter.print("Error: You must provide a device ID.\n");	
 				return;
 			}
+			String authorizer = interpreter.nextArgument();
 			
-			authorize(interpreter, deviceId);
+			authorize(interpreter, deviceId, authorizer);
 		} else if (PARAM_DEVICES.equals(nextArg)) {
 			String sStartIndex = interpreter.nextArgument();
 			
@@ -362,7 +367,7 @@ public class SandCommandProvider implements CommandProvider, IEventProducerAware
 		
 	}
 
-	private void authorize(CommandInterpreter interpreter, String deviceId) {
+	private void authorize(CommandInterpreter interpreter, String deviceId, String authorizer) {
 		if (!deviceManager.isValid(deviceId)) {
 			interpreter.print(String.format("Error: Invalid device ID '%s'.\n", deviceId));
 			return;
@@ -373,8 +378,19 @@ public class SandCommandProvider implements CommandProvider, IEventProducerAware
 			return;
 		}
 		
-		deviceManager.authorize(deviceId, domainName, deviceAuthorizationValidityTime);
-		interpreter.print(String.format("Device which's ID is '%s' has authorized.\n", deviceId));
+		if (authorizer != null && !accountManager.exists(authorizer)) {
+			interpreter.print(String.format("Error: '%s' isn't a valid user.\n", authorizer));
+			return;
+		}
+		
+		if (authorizer != null) {
+			authorizer = String.format("%s@%s", authorizer, domainName);
+		} else {
+			authorizer = domainName;
+		}
+		
+		deviceManager.authorize(deviceId, authorizer, deviceAuthorizationValidityTime);
+		interpreter.print(String.format("Device which's ID is '%s' has authorized by '%s'.\n", deviceId, authorizer));
 	}
 
 	private void printDetailHelp(CommandInterpreter interpreter) {
