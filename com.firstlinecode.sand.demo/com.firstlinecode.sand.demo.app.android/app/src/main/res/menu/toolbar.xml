@@ -1,6 +1,11 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
+        android:id="@+id/refresh_devices"
+        android:title="@string/refresh_devices"
+        app:showAsAction="never"/>
+
+    <item
         android:id="@+id/authorize_device"
         android:title="@string/authorize_device"
         app:showAsAction="never"/>

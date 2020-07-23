@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.widget.ExpandableListView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -25,6 +26,7 @@ import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 
 public class MainActivity extends AppCompatActivity implements IOperator.Listener, IAclService.Listener, IErrorListener {
+	private ExpandableListViewAdapter devicesListViewAdapter;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -41,6 +43,11 @@ public class MainActivity extends AppCompatActivity implements IOperator.Listene
 			aclService.addListener(this);
 			chatClient.getStream().addErrorListener(this);
 		}
+
+		ExpandableListView devicesListView = findViewById(R.id.devices);
+		devicesListViewAdapter = new ExpandableListViewAdapter(this, aclService.getLocal());
+		devicesListView.setAdapter(devicesListViewAdapter);
+
 	}
 
 	@Override
@@ -61,7 +68,10 @@ public class MainActivity extends AppCompatActivity implements IOperator.Listene
 
 	@Override
 	public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-		if (item.getItemId() == R.id.authorize_device) {
+		if (item.getItemId() == R.id.refresh_devices) {
+			refreshDevices();
+			return true;
+		} else if (item.getItemId() == R.id.authorize_device) {
 			authorizeDevice();
 			return true;
 		} else if (item.getItemId() == R.id.logout) {
@@ -70,6 +80,10 @@ public class MainActivity extends AppCompatActivity implements IOperator.Listene
 		} else {
 			return super.onOptionsItemSelected(item);
 		}
+	}
+
+	private void refreshDevices() {
+		// TODO
 	}
 
 	private void authorizeDevice() {
