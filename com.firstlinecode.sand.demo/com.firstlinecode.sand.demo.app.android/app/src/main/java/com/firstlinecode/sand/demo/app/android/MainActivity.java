@@ -175,7 +175,15 @@ public class MainActivity extends AppCompatActivity implements IOperator.Listene
 
 	@Override
 	public void updated(AccessControlList acl) {
-		System.out.println(String.format("ACL %s received", acl));
+		devicesListViewAdapter.updateAcl(acl);
+
+		runOnUiThread(new Runnable() {
+			@Override
+			public void run() {
+				devicesListViewAdapter.notifyDataSetChanged();
+				Toast.makeText(MainActivity.this, getString(R.string.devices_has_updated), Toast.LENGTH_LONG).show();
+			}
+		});
 	}
 
 	@Override

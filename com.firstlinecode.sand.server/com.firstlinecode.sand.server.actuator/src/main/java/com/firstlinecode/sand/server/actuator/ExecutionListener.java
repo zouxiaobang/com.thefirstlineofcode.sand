@@ -55,7 +55,7 @@ public class ExecutionListener implements IEventListener<ExecutionEvent>, IAppli
 
 	private JabberId getTo(ExecutionEvent event, String deviceName) {
 		JabberId to = new JabberId();
-		to.setName(deviceName);
+		to.setNode(deviceName);
 		to.setDomain(domain);
 		
 		if (event.getNodeLanId() != null) {
@@ -67,7 +67,7 @@ public class ExecutionListener implements IEventListener<ExecutionEvent>, IAppli
 
 	private JabberId getTarget(ExecutionEvent event, String deviceName) {
 		JabberId target = new JabberId();
-		target.setName(deviceName);
+		target.setNode(deviceName);
 		target.setDomain(domain);
 		
 		if (event.getNodeLanId() != null) {

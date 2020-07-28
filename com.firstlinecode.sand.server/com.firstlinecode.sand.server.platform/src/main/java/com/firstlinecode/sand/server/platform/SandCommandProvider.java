@@ -149,7 +149,7 @@ public class SandCommandProvider implements CommandProvider, IEventProducerAware
 				return;
 			}
 			
-			Confirmed confirmed = concentratorFactory.getConcentrator(device).confirm(domainName, nodeDeviceId);
+			Confirmed confirmed = concentratorFactory.getConcentrator(device).confirm(nodeDeviceId, domainName);
 			eventProducer.fire(new ConfirmedEvent(confirmed.getRequestId(), confirmed.getNodeCreated()));
 			
 			interpreter.print(String.format("Device '%s' has already been confirmed to be a node of concentrator '%s'.\n", device.getDeviceId(), nodeDeviceId));
@@ -383,14 +383,12 @@ public class SandCommandProvider implements CommandProvider, IEventProducerAware
 			return;
 		}
 		
-		if (authorizer != null) {
-			authorizer = String.format("%s@%s", authorizer, domainName);
-		} else {
-			authorizer = domainName;
-		}
-		
 		deviceManager.authorize(deviceId, authorizer, deviceAuthorizationValidityTime);
-		interpreter.print(String.format("Device which's ID is '%s' has authorized by '%s'.\n", deviceId, authorizer));
+		if (authorizer != null) {
+			interpreter.print(String.format("Device which's ID is '%s' has authorized by '%s' in server console.\n", deviceId, authorizer));
+		} else {
+			interpreter.print(String.format("Device which's ID is '%s' has authorized by unknown user in server console.\n", deviceId));
+		}
 	}
 
 	private void printDetailHelp(CommandInterpreter interpreter) {

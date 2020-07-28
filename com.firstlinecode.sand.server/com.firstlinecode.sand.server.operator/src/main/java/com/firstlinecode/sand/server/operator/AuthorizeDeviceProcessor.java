@@ -40,7 +40,7 @@ public class AuthorizeDeviceProcessor implements IXepProcessor<Iq, AuthorizeDevi
 		if (deviceManager.deviceIdExists(xep.getDeviceId()))
 			throw new ProtocolException(new Conflict());
 		
-		deviceManager.authorize(xep.getDeviceId(), context.getJid().getBareIdString(), deviceAuthorizationValidityTime);
+		deviceManager.authorize(xep.getDeviceId(), context.getJid().getNode(), deviceAuthorizationValidityTime);
 		
 		if (logger.isInfoEnabled())
 			logger.info("Device '{}' has authorized by authorizer '{}'.", xep.getDeviceId(), context.getJid().getBareIdString());

@@ -30,7 +30,7 @@ public class ConfirmedListener implements IEventListener<ConfirmedEvent>, IAppli
 
 	private JabberId getConcentratorJid(ConfirmedEvent event) {
 		JabberId jid = new JabberId();
-		jid.setName(event.getNodeCreated().getConcentrator());
+		jid.setNode(event.getNodeCreated().getConcentrator());
 		jid.setDomain(domainName);
 		jid.setResource(IConcentrator.LAN_ID_CONCENTRATOR);
 		

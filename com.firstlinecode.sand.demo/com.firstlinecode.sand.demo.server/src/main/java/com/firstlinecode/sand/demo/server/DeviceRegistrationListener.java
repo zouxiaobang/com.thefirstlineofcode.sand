@@ -30,14 +30,15 @@ public class DeviceRegistrationListener implements IEventListener<DeviceRegistra
 		if (ace == null)
 			throw new RuntimeException("Access control entry is null.");
 		
-		// Was the device authorized in OSGi console?
-		if (domainName.equals(ace.getUser())) {
+		// Was the device authorized in OSGi console and not specify the authorizer?
+		if (ace.getUser() == null) {
+			logger.warn("The authorizer hasn't be specified. Ignore to pass ACL update stanza to authorizer.");
 			return;
 		}
 		
-		IResource[] resources = resourceService.getResources(JabberId.parse(ace.getUser()));	
+		IResource[] resources = resourceService.getResources(JabberId.parse(String.format("%s@%s", ace.getUser(), domainName)));	
 		if (resources == null || resources.length == 0 && logger.isWarnEnabled()) {
-			logger.warn("Can't find any resource for authorizer '%s'. Ignore to pass ACL update stanza to authorizer.");
+			logger.warn("Can't find any resource for authorizer '{}'. Ignore to pass ACL update stanza to authorizer.", ace.getUser());
 		}
 		
 		AccessControlList acl = new AccessControlList();

@@ -107,6 +107,19 @@ public class AclService implements IAclService, IIqListener {
 
 	private void updateAcl(Iq iq) {
 		AccessControlList acl = iq.getObject();
+		if (!acl.getEntries().isEmpty()) {
+			String deviceId = acl.getDeviceId();
+			for (AccessControlEntry ace : acl.getEntries()) {
+				if (deviceId != null && ace.getDevice() == null) {
+					ace.setDevice(deviceId);
+				}
+				
+				if (ace.getUser() == null) {
+					ace.setUser(chatServices.getStream().getJid().getNode());
+				}
+			}
+		}
+		
 		if (local == null) {
 			local = acl;
 			notifyUpdated(acl);

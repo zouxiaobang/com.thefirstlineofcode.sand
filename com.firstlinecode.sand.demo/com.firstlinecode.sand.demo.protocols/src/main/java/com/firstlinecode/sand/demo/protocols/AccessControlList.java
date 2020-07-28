@@ -6,6 +6,7 @@ import java.util.List;
 import com.firstlinecode.basalt.oxm.convention.annotations.Array;
 import com.firstlinecode.basalt.oxm.convention.annotations.ProtocolObject;
 import com.firstlinecode.basalt.oxm.convention.conversion.annotations.String2DateTime;
+import com.firstlinecode.basalt.protocol.HandyUtils;
 import com.firstlinecode.basalt.protocol.core.Protocol;
 import com.firstlinecode.basalt.protocol.datetime.DateTime;
 
@@ -80,7 +81,7 @@ public class AccessControlList {
 		
 		for (AccessControlEntry entry : entries) {
 			if (entry.getDevice().equals(ace.getDevice()) &&
-					entry.getUser().equals(entry.getUser()))
+					HandyUtils.equalsEvenNull(entry.getUser(), ace.getUser()))
 				return true;
 		}
 		

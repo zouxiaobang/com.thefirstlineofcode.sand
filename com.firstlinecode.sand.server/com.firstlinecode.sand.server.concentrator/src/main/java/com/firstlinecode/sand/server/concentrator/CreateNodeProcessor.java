@@ -35,14 +35,14 @@ public class CreateNodeProcessor implements IXepProcessor<Iq, CreateNode>, IConf
 	
 	@Override
 	public void process(IProcessingContext context, Iq iq, CreateNode xep) {
-		Device device = deviceManager.getByDeviceName(context.getJid().getName());
+		Device device = deviceManager.getByDeviceName(context.getJid().getNode());
 		if (device == null)
 			throw new ProtocolException(new ItemNotFound(String.format("Device which's device name is '%s' not be found.",
-					context.getJid().getName())));
+					context.getJid().getNode())));
 		
 		if (!deviceManager.isConcentrator(device.getMode()))
 			throw new ProtocolException(new NotAcceptable("Device which's device name is '%s' isn't a concentrator.",
-					context.getJid().getName()));
+					context.getJid().getNode()));
 		
 		IConcentrator concentrator = concentratorFactory.getConcentrator(device);
 		if (concentrator == null)

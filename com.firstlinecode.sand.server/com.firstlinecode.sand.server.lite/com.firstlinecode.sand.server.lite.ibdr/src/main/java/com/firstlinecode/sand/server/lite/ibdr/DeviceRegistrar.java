@@ -32,7 +32,7 @@ public class DeviceRegistrar implements IDeviceRegistrar {
 
 		DeviceIdentity identity = deviceManager.register(deviceId);
 		if (logger.isInfoEnabled())
-			logger.info("Device which's device ID is '{}' is registered. It's device name is assigned to '{}'.", deviceId, identity.getDeviceName());
+			logger.info("Device which's device ID is '{}' has registered. It's device name is assigned to '{}'.", deviceId, identity.getDeviceName());
 		
 		if (!registrationCustomizerProxy.isBinded())
 			return new DeviceRegistrationEvent(identity);

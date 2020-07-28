@@ -22,44 +22,56 @@ public class ExpandableListViewAdapter extends BaseExpandableListAdapter {
 	private AccessControlList acl;
 	private Context context;
 	private AccessControlEntry[] things;
-	private Map<String, AccessControlEntry[]> nodes;
+	private Map<String, AccessControlEntry[]> concentratorAndNodes;
 
 	ExpandableListViewAdapter(Context context, AccessControlList acl) {
 		this.context = context;
 		updateAcl(acl);
 	}
 
-	void updateAcl(AccessControlList acl) {
-		this.acl = acl;
+	void updateAcl(AccessControlList updatedAcl) {
 		if (acl == null) {
-			things = new AccessControlEntry[0];
-			nodes = new HashMap<>();
+			acl = updatedAcl;
+		} else {
+			for (AccessControlEntry entry : updatedAcl.getEntries()) {
+				if (acl.contains(entry)) {
+					acl.update(entry);
+				} else {
+					acl.add(entry);
+				}
+			}
+		}
+
+		readThingsAndNodes();
+	}
+
+	private void readThingsAndNodes() {
+		if (acl == null) {
+			this.things = new AccessControlEntry[0];
+			this.concentratorAndNodes = new HashMap<>();
 
 			return;
 		}
 
-		readThingsAndNodes(acl);
-	}
-
-	private void readThingsAndNodes(AccessControlList acl) {
-		List<AccessControlEntry> things = new ArrayList<>();
+		List<AccessControlEntry> thingsList = new ArrayList<>();
 		for (AccessControlEntry entry : acl.getEntries()) {
 			if (entry.getParent() == null) {
-				things.add(entry);
+				thingsList.add(entry);
 			}
 		}
+		this.things = thingsList.toArray(new AccessControlEntry[] {});
 
-		this.things = things.toArray(new AccessControlEntry[things.size()]);
-
-		for (AccessControlEntry thing : things) {
+		concentratorAndNodes = new HashMap<>();
+		for (AccessControlEntry thing : thingsList) {
 			String thingDeviceId = thing.getDevice();
-			List<AccessControlEntry> nodes = new ArrayList<AccessControlEntry>();
+			List<AccessControlEntry> nodes = new ArrayList<>();
 			for (AccessControlEntry entry : acl.getEntries()) {
 				if (thingDeviceId.equals(entry.getParent())) {
 					 nodes.add(entry);
 				}
 			}
-			this.nodes.put(thingDeviceId, nodes.toArray(new AccessControlEntry[nodes.size()]));
+
+			this.concentratorAndNodes.put(thingDeviceId, nodes.toArray(new AccessControlEntry[] {}));
 		}
 	}
 
@@ -77,7 +89,7 @@ public class ExpandableListViewAdapter extends BaseExpandableListAdapter {
 			return 0;
 
 
-		return Objects.requireNonNull(nodes.get(things[groupPosition].getDevice())).length;
+		return Objects.requireNonNull(concentratorAndNodes.get(things[groupPosition].getDevice())).length;
 	}
 
 	@Override
@@ -87,7 +99,7 @@ public class ExpandableListViewAdapter extends BaseExpandableListAdapter {
 
 	@Override
 	public Object getChild(int groupPosition, int childPosition) {
-		return Objects.requireNonNull(nodes.get(things[groupPosition].getDevice()))[childPosition];
+		return Objects.requireNonNull(concentratorAndNodes.get(things[groupPosition].getDevice()))[childPosition];
 	}
 
 	@Override
@@ -130,7 +142,7 @@ public class ExpandableListViewAdapter extends BaseExpandableListAdapter {
 
 		TextView tvDeviceId = convertView.findViewById(R.id.node_device_id);
 		tvDeviceId.setTypeface(null, Typeface.BOLD);
-		tvDeviceId.setText(Objects.requireNonNull(nodes.get(things[groupPosition].getDevice()))[childPosition].getDevice());
+		tvDeviceId.setText(Objects.requireNonNull(concentratorAndNodes.get(things[groupPosition].getDevice()))[childPosition].getDevice());
 
 		return convertView;
 	}

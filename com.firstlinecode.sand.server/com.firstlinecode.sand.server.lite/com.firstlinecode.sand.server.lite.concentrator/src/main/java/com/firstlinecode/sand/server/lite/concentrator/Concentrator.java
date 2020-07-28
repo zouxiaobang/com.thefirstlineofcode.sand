@@ -46,7 +46,7 @@ public class Concentrator implements IConcentrator, IDataObjectFactoryAware {
 	}
 
 	@Override
-	public Confirmed confirm(String confirmer, String nodeDeviceId) {
+	public Confirmed confirm(String nodeDeviceId, String confirmer) {
 		if (!deviceManager.isValid(nodeDeviceId))
 			throw new RuntimeException(String.format("Invalid node device ID '%s'.", nodeDeviceId));
 		

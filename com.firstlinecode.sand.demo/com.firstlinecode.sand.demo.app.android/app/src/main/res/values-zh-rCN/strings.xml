@@ -33,4 +33,5 @@
     <string name="stream_error_occurred">Stream错误：%s。请联系开发者</string>
     <string name="stanza_error_occurred">Stanza错误：%s。请联系开发者</string>
     <string name="refresh_devices">刷新设备列表</string>
+    <string name="devices_has_updated">设备列表被更新</string>
 </resources>
