@@ -27,11 +27,9 @@ public class DeviceRegistrationListener implements IEventListener<DeviceRegistra
 	@Override
 	public void process(IEventContext context, DeviceRegistrationEvent event) {		
 		AccessControlEntry ace = (AccessControlEntry)event.getCustomizedTaskResult();
-		if (ace == null)
-			throw new RuntimeException("Access control entry is null.");
-		
+
 		// Was the device authorized in OSGi console and not specify the authorizer?
-		if (ace.getUser() == null) {
+		if (ace == null) {
 			logger.warn("The authorizer hasn't be specified. Ignore to pass ACL update stanza to authorizer.");
 			return;
 		}

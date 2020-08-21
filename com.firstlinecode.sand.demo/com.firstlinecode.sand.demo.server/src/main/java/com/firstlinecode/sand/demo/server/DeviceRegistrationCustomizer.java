@@ -37,6 +37,9 @@ public class DeviceRegistrationCustomizer implements IDeviceRegistrationCustomiz
 		if (authorization == null)
 			throw new RuntimeException(String.format("No device authorization which's authorized device's ID is '%s' found.", deviceId));
 		
+		if (authorization.getAuthorizer() == null)
+			return null;
+		
 		AccessControlEntry ace = dataObjectFactory.create(AccessControlEntry.class);
 		ace.setUser(authorization.getAuthorizer());
 		ace.setDevice(deviceId);
