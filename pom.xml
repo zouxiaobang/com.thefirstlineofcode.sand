@@ -409,11 +409,11 @@
 
 			<!-- sand libraries -->
 			<dependency>
-				<groupId>com.firstlinecode.sand.emulators.network</groupId>
-				<artifactId>com.firstlinecode.sand.emulators.network.lora</artifactId>
+				<groupId>com.firstlinecode.sand.emulators.lora</groupId>
+				<artifactId>com.firstlinecode.sand.emulators.lora.network</artifactId>
 				<version>${sand.version}</version>
 			</dependency>
-			
+
 			<dependency>
 				<groupId>com.firstlinecode.sand.emulators</groupId>
 				<artifactId>com.firstlinecode.sand.emulators.thing</artifactId>
@@ -421,8 +421,14 @@
 			</dependency>
 
 			<dependency>
-				<groupId>com.firstlinecode.sand.emulators</groupId>
-				<artifactId>com.firstlinecode.sand.emulators.light</artifactId>
+				<groupId>com.firstlinecode.sand.emulators.lora</groupId>
+				<artifactId>com.firstlinecode.sand.emulators.lora.thing</artifactId>
+				<version>${sand.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>com.firstlinecode.sand.emulators.lora</groupId>
+				<artifactId>com.firstlinecode.sand.emulators.lora.light</artifactId>
 				<version>${sand.version}</version>
 			</dependency>
 

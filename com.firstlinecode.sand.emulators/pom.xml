@@ -17,10 +17,8 @@
 	<name>Lithosphere IoT Emulator Plugins</name>
 
 	<modules>
-		<module>com.firstlinecode.sand.emulators.network</module>
 		<module>com.firstlinecode.sand.emulators.thing</module>
-		<module>com.firstlinecode.sand.emulators.gateway</module>
-		<module>com.firstlinecode.sand.emulators.light</module>
+		<module>com.firstlinecode.sand.emulators.lora</module>
 		<module>com.firstlinecode.sand.emulators.modes</module>
 	</modules>
 

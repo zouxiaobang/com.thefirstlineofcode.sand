@@ -1,0 +1,26 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+		http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	
+	<parent>
+		<groupId>com.firstlinecode.sand</groupId>
+		<artifactId>com.firstlinecode.sand.emulators</artifactId>
+		<version>0.1.0.RELEASE</version>
+		<relativePath>../pom.xml</relativePath>
+	</parent>
+
+	<groupId>com.firstlinecode.sand.emulators</groupId>
+	<artifactId>com.firstlinecode.sand.emulators.lora</artifactId>
+	<packaging>pom</packaging>
+	<name>Lithosphere IoT Lora Emulators</name>
+
+	<modules>
+		<module>com.firstlinecode.sand.emulators.lora.network</module>
+		<module>com.firstlinecode.sand.emulators.lora.thing</module>
+		<module>com.firstlinecode.sand.emulators.lora.gateway</module>
+		<module>com.firstlinecode.sand.emulators.lora.light</module>
+	</modules>
+
+</project>

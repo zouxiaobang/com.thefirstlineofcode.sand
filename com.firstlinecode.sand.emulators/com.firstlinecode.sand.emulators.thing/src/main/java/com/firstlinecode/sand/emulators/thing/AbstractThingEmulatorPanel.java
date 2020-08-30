@@ -13,10 +13,10 @@ import com.firstlinecode.sand.client.things.IThingListener;
 public abstract class AbstractThingEmulatorPanel extends JPanel implements IThingListener {	
 	private static final long serialVersionUID = 388916038961904955L;
 	
-	protected AbstractThingEmulator thingEmulator;
+	protected IThingEmulator thingEmulator;
 	protected JLabel statusBar;
 	
-	public AbstractThingEmulatorPanel(AbstractThingEmulator thingEmulator) {
+	public AbstractThingEmulatorPanel(IThingEmulator thingEmulator) {
 		super(new BorderLayout());
 		
 		this.thingEmulator = thingEmulator;

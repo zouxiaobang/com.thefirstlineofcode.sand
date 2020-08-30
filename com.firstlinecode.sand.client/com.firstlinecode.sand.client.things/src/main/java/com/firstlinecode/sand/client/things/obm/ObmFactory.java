@@ -68,7 +68,7 @@ public class ObmFactory implements IObmFactory {
 	}
 
 	@Override
-	public Object toObject(Class<?> type, byte[] data) {
+	public <T> T toObject(Class<T> type, byte[] data) {
 		registerTypeIfNeed(type);
 		
 		byte[] amendData = new byte[data.length + 4];
