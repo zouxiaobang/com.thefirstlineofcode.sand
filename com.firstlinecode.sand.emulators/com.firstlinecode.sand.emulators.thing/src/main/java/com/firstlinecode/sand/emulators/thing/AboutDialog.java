@@ -1,4 +1,4 @@
-package com.firstlinecode.sand.emulators.lora.gateway;
+package com.firstlinecode.sand.emulators.thing;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
@@ -15,13 +15,13 @@ import javax.swing.JPanel;
 public class AboutDialog extends JDialog {
 	private static final long serialVersionUID = -1872492975053174389L;
 
-	public AboutDialog(JFrame parent, String version) {
+	public AboutDialog(JFrame parent, String softwareName, String softwareVersion) {
 		super(parent, "About Dialog", true);
 		
 		Box box = Box.createVerticalBox();
 		JPanel softwarePanel = new JPanel();
 		softwarePanel.setLayout(new BorderLayout());
-		JLabel softwareLabel = new JLabel("Gateway Emulator " + version);
+		JLabel softwareLabel = new JLabel(String.format("% %", softwareName, softwareVersion));
 		softwareLabel.setHorizontalAlignment(JLabel.CENTER);
 		softwarePanel.add(softwareLabel, BorderLayout.CENTER);
 		box.add(softwarePanel);

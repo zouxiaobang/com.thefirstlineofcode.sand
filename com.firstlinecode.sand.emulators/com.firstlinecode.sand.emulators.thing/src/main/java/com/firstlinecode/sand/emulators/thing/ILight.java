@@ -1,6 +1,8 @@
-package com.firstlinecode.sand.emulators.modes;
+package com.firstlinecode.sand.emulators.thing;
 
-public interface ILight {
+import com.firstlinecode.sand.client.things.IDevice;
+
+public interface ILight extends IDevice {
 	public enum SwitchState {
 		ON,
 		OFF,

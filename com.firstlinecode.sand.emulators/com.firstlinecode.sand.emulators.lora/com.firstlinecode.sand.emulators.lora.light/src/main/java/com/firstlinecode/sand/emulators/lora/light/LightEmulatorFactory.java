@@ -16,11 +16,6 @@ public class LightEmulatorFactory extends AbstractLoraThingEmulatorFactory<Light
 			return new Light((LoraCommunicator)communicator);
 		}
 		
-		throw new RuntimeException("Light needs a lora Communicator.");
-	}
-
-	@Override
-	protected String getFullTypeName() {
-		return "Light Emulator";
+		throw new RuntimeException("Lora light needs a lora Communicator.");
 	}
 }

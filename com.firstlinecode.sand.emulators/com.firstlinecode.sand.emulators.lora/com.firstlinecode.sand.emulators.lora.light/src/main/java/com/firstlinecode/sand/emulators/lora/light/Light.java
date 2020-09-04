@@ -26,11 +26,11 @@ import javax.swing.SwingUtilities;
 import com.firstlinecode.basalt.protocol.core.Protocol;
 import com.firstlinecode.sand.emulators.lora.network.LoraCommunicator;
 import com.firstlinecode.sand.emulators.lora.thing.AbstractLoraThingEmulator;
-import com.firstlinecode.sand.emulators.modes.ILight;
 import com.firstlinecode.sand.emulators.modes.Le01ModeDescriptor;
-import com.firstlinecode.sand.emulators.modes.NotRemoteControlStateException;
-import com.firstlinecode.sand.emulators.modes.NotTurnOffStateException;
 import com.firstlinecode.sand.emulators.thing.AbstractThingEmulatorPanel;
+import com.firstlinecode.sand.emulators.thing.ILight;
+import com.firstlinecode.sand.emulators.thing.NotRemoteControlStateException;
+import com.firstlinecode.sand.emulators.thing.NotTurnOffStateException;
 import com.firstlinecode.sand.emulators.thing.PowerEvent;
 import com.firstlinecode.sand.protocols.emulators.light.Flash;
 

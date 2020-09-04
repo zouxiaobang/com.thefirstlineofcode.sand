@@ -1,7 +1,6 @@
-package com.firstlinecode.sand.emulators.modes;
+package com.firstlinecode.sand.emulators.thing;
 
 import com.firstlinecode.sand.client.things.IDevice;
-import com.firstlinecode.sand.emulators.thing.IThingEmulatorFactory;
 
 public interface IGateway extends IDevice {
 	void registerThingEmulatorFactory(IThingEmulatorFactory<?> factory);

@@ -81,11 +81,12 @@ import com.firstlinecode.sand.emulators.lora.network.LoraCommunicator;
 import com.firstlinecode.sand.emulators.lora.thing.AbstractLoraThingEmulator;
 import com.firstlinecode.sand.emulators.lora.thing.AbstractLoraThingEmulatorFactory;
 import com.firstlinecode.sand.emulators.modes.Ge01ModeDescriptor;
-import com.firstlinecode.sand.emulators.modes.IGateway;
 import com.firstlinecode.sand.emulators.modes.Le01ModeDescriptor;
+import com.firstlinecode.sand.emulators.thing.AboutDialog;
 import com.firstlinecode.sand.emulators.thing.AbstractThingEmulatorPanel;
 import com.firstlinecode.sand.emulators.thing.Constants;
 import com.firstlinecode.sand.emulators.thing.CopyDeviceIdOrShowQrCodeButton;
+import com.firstlinecode.sand.emulators.thing.IGateway;
 import com.firstlinecode.sand.emulators.thing.IThingEmulator;
 import com.firstlinecode.sand.emulators.thing.IThingEmulatorFactory;
 import com.firstlinecode.sand.emulators.thing.UiUtils;
@@ -100,9 +101,11 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 		IConcentrator.Listener {
 	private static final long serialVersionUID = -7894418812878036627L;
 	
+	private static final String THING_NAME = "Lora Gateway Emulator";
+	
 	private static final String DEFAULT_GATEWAY_LAN_ID = "00";
 	private static final int ALWAYS_FULL_POWER = 100;
-	private static final String DEVICE_MODE = "GE01";
+	private static final String THING_MODE = "GE01";
 	
 	// File Menu
 	private static final String MENU_TEXT_FILE = "File";
@@ -749,7 +752,7 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 	}
 	
 	private void showAboutDialog() {
-		UiUtils.showDialog(this, new AboutDialog(this, Constants.SOFTWARE_VERSION));
+		UiUtils.showDialog(this, new AboutDialog(this, THING_NAME, Constants.SOFTWARE_VERSION));
 	}
 
 	private void quit() {
@@ -1370,7 +1373,7 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 	
 	@Override
 	public String getMode() {
-		return DEVICE_MODE;
+		return THING_MODE;
 	}
 
 	@Override
