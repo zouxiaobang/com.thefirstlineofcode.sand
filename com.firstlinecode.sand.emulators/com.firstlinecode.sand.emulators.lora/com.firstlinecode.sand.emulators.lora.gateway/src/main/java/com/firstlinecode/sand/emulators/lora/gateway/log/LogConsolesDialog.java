@@ -13,7 +13,7 @@ import com.firstlinecode.chalk.network.IConnectionListener;
 import com.firstlinecode.sand.client.lora.IDualLoraChipsCommunicator;
 import com.firstlinecode.sand.client.things.commuication.ICommunicationNetwork;
 import com.firstlinecode.sand.client.things.commuication.ICommunicationNetworkListener;
-import com.firstlinecode.sand.emulators.lora.thing.AbstractLoraThingEmulator;
+import com.firstlinecode.sand.emulators.lora.things.AbstractLoraThingEmulator;
 import com.firstlinecode.sand.protocols.core.ModeDescriptor;
 import com.firstlinecode.sand.protocols.lora.LoraAddress;
 

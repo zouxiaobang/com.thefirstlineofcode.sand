@@ -8,7 +8,7 @@ import com.firstlinecode.sand.client.things.commuication.CommunicationException;
 import com.firstlinecode.sand.client.things.commuication.ICommunicationListener;
 import com.firstlinecode.sand.client.things.commuication.ICommunicator;
 import com.firstlinecode.sand.client.things.obm.ObmData;
-import com.firstlinecode.sand.emulators.lora.thing.AbstractLoraThingEmulator;
+import com.firstlinecode.sand.emulators.lora.things.AbstractLoraThingEmulator;
 import com.firstlinecode.sand.protocols.core.ModeDescriptor;
 import com.firstlinecode.sand.protocols.lora.LoraAddress;
 

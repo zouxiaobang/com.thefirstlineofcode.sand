@@ -2,7 +2,7 @@ package com.firstlinecode.sand.emulators.lora.light;
 
 import com.firstlinecode.sand.client.things.commuication.ICommunicator;
 import com.firstlinecode.sand.emulators.lora.network.LoraCommunicator;
-import com.firstlinecode.sand.emulators.lora.thing.AbstractLoraThingEmulatorFactory;
+import com.firstlinecode.sand.emulators.lora.things.AbstractLoraThingEmulatorFactory;
 import com.firstlinecode.sand.protocols.lora.LoraAddress;
 
 public class LightEmulatorFactory extends AbstractLoraThingEmulatorFactory<Light> {

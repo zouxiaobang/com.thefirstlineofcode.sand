@@ -19,7 +19,7 @@
 	<dependencies>
 		<dependency>
 			<groupId>com.firstlinecode.sand.emulators.lora</groupId>
-			<artifactId>com.firstlinecode.sand.emulators.lora.thing</artifactId>
+			<artifactId>com.firstlinecode.sand.emulators.lora.things</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>com.firstlinecode.sand.emulators</groupId>

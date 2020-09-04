@@ -416,13 +416,13 @@
 
 			<dependency>
 				<groupId>com.firstlinecode.sand.emulators</groupId>
-				<artifactId>com.firstlinecode.sand.emulators.thing</artifactId>
+				<artifactId>com.firstlinecode.sand.emulators.things</artifactId>
 				<version>${sand.version}</version>
 			</dependency>
 
 			<dependency>
 				<groupId>com.firstlinecode.sand.emulators.lora</groupId>
-				<artifactId>com.firstlinecode.sand.emulators.lora.thing</artifactId>
+				<artifactId>com.firstlinecode.sand.emulators.lora.things</artifactId>
 				<version>${sand.version}</version>
 			</dependency>
 

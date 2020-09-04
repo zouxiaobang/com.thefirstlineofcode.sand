@@ -5,7 +5,7 @@ import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
 
-import com.firstlinecode.sand.emulators.lora.thing.AbstractLoraThingEmulator;
+import com.firstlinecode.sand.emulators.lora.things.AbstractLoraThingEmulator;
 
 public class ThingInfo implements Externalizable {
 	private int layer;

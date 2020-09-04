@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns="http://maven.apache.org/POM/4.0.0"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+	<modelVersion>4.0.0</modelVersion>
+
+	<parent>
+		<groupId>com.firstlinecode.sand</groupId>
+		<artifactId>com.firstlinecode.sand.emulators</artifactId>
+		<version>0.1.0.RELEASE</version>
+	</parent>
+
+	<groupId>com.firstlinecode.sand.emulators</groupId>
+	<artifactId>com.firstlinecode.sand.emulators.things</artifactId>
+	<name>com.firstlinecode.sand.emulators.things</name>
+	<packaging>jar</packaging>
+	
+	<dependencies>
+		<dependency>
+			<groupId>com.google.zxing</groupId>
+			<artifactId>javase</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.alexandriasoftware.swing</groupId>
+			<artifactId>jsplitbutton</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.firstlinecode.sand.client</groupId>
+			<artifactId>com.firstlinecode.sand.client.things</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.firstlinecode.sand.protocols</groupId>
+			<artifactId>com.firstlinecode.sand.protocols.actuator</artifactId>
+		</dependency>
+	</dependencies>
+</project>
+

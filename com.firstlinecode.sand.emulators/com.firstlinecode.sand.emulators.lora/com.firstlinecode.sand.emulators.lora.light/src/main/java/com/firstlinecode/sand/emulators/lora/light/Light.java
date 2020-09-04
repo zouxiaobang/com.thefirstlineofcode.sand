@@ -25,13 +25,13 @@ import javax.swing.SwingUtilities;
 
 import com.firstlinecode.basalt.protocol.core.Protocol;
 import com.firstlinecode.sand.emulators.lora.network.LoraCommunicator;
-import com.firstlinecode.sand.emulators.lora.thing.AbstractLoraThingEmulator;
+import com.firstlinecode.sand.emulators.lora.things.AbstractLoraThingEmulator;
 import com.firstlinecode.sand.emulators.modes.Le01ModeDescriptor;
-import com.firstlinecode.sand.emulators.thing.AbstractThingEmulatorPanel;
-import com.firstlinecode.sand.emulators.thing.ILight;
-import com.firstlinecode.sand.emulators.thing.NotRemoteControlStateException;
-import com.firstlinecode.sand.emulators.thing.NotTurnOffStateException;
-import com.firstlinecode.sand.emulators.thing.PowerEvent;
+import com.firstlinecode.sand.emulators.things.AbstractThingEmulatorPanel;
+import com.firstlinecode.sand.emulators.things.ILight;
+import com.firstlinecode.sand.emulators.things.NotRemoteControlStateException;
+import com.firstlinecode.sand.emulators.things.NotTurnOffStateException;
+import com.firstlinecode.sand.emulators.things.PowerEvent;
 import com.firstlinecode.sand.protocols.emulators.light.Flash;
 
 public class Light extends AbstractLoraThingEmulator implements ILight {

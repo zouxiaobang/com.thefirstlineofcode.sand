@@ -3,7 +3,7 @@ package com.firstlinecode.sand.emulators.lora.gateway.things;
 import javax.swing.JInternalFrame;
 import javax.swing.JPanel;
 
-import com.firstlinecode.sand.emulators.lora.thing.AbstractLoraThingEmulator;
+import com.firstlinecode.sand.emulators.lora.things.AbstractLoraThingEmulator;
 
 public class ThingInternalFrame extends JInternalFrame {
 	private static final long serialVersionUID = 4975138886817512398L;
