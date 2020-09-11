@@ -1,4 +1,4 @@
-package com.firstlinecode.sand.emulators.things;
+package com.firstlinecode.sand.emulators.things.emulators;
 
 import java.io.IOException;
 import java.io.ObjectInput;
@@ -16,6 +16,7 @@ import com.firstlinecode.sand.client.things.IThingListener;
 import com.firstlinecode.sand.client.things.ThingsUtils;
 import com.firstlinecode.sand.client.things.obm.IObmFactory;
 import com.firstlinecode.sand.client.things.obm.ObmFactory;
+import com.firstlinecode.sand.emulators.things.PowerEvent;
 
 public abstract class AbstractThingEmulator implements IThingEmulator {
 	protected String thingName;

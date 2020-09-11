@@ -25,6 +25,10 @@
 			<groupId>com.firstlinecode.sand.emulators</groupId>
 			<artifactId>com.firstlinecode.sand.emulators.modes</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>com.firstlinecode.chalk</groupId>
+			<artifactId>com.firstlinecode.chalk</artifactId>
+		</dependency>
 	</dependencies>
 	
 	<build>

@@ -1,4 +1,4 @@
-package com.firstlinecode.sand.emulators.things;
+package com.firstlinecode.sand.emulators.things.emulators;
 
 import java.io.IOException;
 import java.io.ObjectInput;
@@ -19,6 +19,7 @@ import com.firstlinecode.sand.client.things.commuication.ICommunicationListener;
 import com.firstlinecode.sand.client.things.commuication.ICommunicator;
 import com.firstlinecode.sand.client.things.obm.IObmFactory;
 import com.firstlinecode.sand.client.things.obm.ObmFactory;
+import com.firstlinecode.sand.emulators.things.PowerEvent;
 
 public abstract class AbstractCommunicationNetworkThingEmulator<OA, PA, D>
 		implements ICommunicationNetworkThingEmulator<OA, PA, D>, ICommunicationListener<OA, PA, D> {

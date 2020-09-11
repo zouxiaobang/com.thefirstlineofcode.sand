@@ -20,10 +20,10 @@ import com.firstlinecode.chalk.IChatServices;
 import com.firstlinecode.chalk.core.stanza.IIqListener;
 import com.firstlinecode.sand.client.dmr.IModeRegistrar;
 import com.firstlinecode.sand.client.things.autuator.ExecutionException;
+import com.firstlinecode.sand.client.things.autuator.ExecutionException.Reason;
 import com.firstlinecode.sand.client.things.autuator.IActuator;
 import com.firstlinecode.sand.client.things.autuator.IExecutor;
 import com.firstlinecode.sand.client.things.autuator.IExecutorFactory;
-import com.firstlinecode.sand.client.things.autuator.ExecutionException.Reason;
 import com.firstlinecode.sand.client.things.commuication.CommunicationException;
 import com.firstlinecode.sand.client.things.commuication.ICommunicator;
 import com.firstlinecode.sand.client.things.concentrator.IActionDeliverer;
@@ -167,7 +167,8 @@ public class Actuator implements IActuator, IIqListener {
 			}
 		}
 		
-		chatServices.getIqService().addListener(Execute.PROTOCOL, this);
+		if (chatServices.getIqService().getListener(Execute.PROTOCOL) == null)
+			chatServices.getIqService().addListener(Execute.PROTOCOL, this);
 	}
 	
 	@SuppressWarnings("unchecked")

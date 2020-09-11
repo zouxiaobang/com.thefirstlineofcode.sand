@@ -27,11 +27,11 @@ import com.firstlinecode.basalt.protocol.core.Protocol;
 import com.firstlinecode.sand.emulators.lora.network.LoraCommunicator;
 import com.firstlinecode.sand.emulators.lora.things.AbstractLoraThingEmulator;
 import com.firstlinecode.sand.emulators.modes.Le01ModeDescriptor;
-import com.firstlinecode.sand.emulators.things.AbstractThingEmulatorPanel;
 import com.firstlinecode.sand.emulators.things.ILight;
 import com.firstlinecode.sand.emulators.things.NotRemoteControlStateException;
 import com.firstlinecode.sand.emulators.things.NotTurnOffStateException;
 import com.firstlinecode.sand.emulators.things.PowerEvent;
+import com.firstlinecode.sand.emulators.things.ui.AbstractThingEmulatorPanel;
 import com.firstlinecode.sand.protocols.emulators.light.Flash;
 
 public class Light extends AbstractLoraThingEmulator implements ILight {
@@ -362,6 +362,7 @@ public class Light extends AbstractLoraThingEmulator implements ILight {
 	@Override
 	protected void doReset() {
 		doTurnOff();
+		super.doReset();
 	}
 
 	@Override
@@ -370,6 +371,8 @@ public class Light extends AbstractLoraThingEmulator implements ILight {
 			light();
 		
 		panel.refreshFlashButtionStatus();
+		
+		super.doPowerOn();
 	}
 
 	private void light() {
@@ -387,6 +390,8 @@ public class Light extends AbstractLoraThingEmulator implements ILight {
 		unlight();
 		
 		panel.refreshFlashButtionStatus();
+		
+		super.doPowerOff();
 	}
 
 	@Override

@@ -1,5 +1,7 @@
 package com.firstlinecode.sand.emulators.things;
 
+import com.firstlinecode.sand.emulators.things.emulators.IThingEmulator;
+
 public class PowerEvent {
 	public enum Type {
 		POWER_ON,

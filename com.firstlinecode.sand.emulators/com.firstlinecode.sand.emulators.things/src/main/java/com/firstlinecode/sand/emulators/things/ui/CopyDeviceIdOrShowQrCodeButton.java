@@ -1,4 +1,4 @@
-package com.firstlinecode.sand.emulators.things;
+package com.firstlinecode.sand.emulators.things.ui;
 
 import java.awt.Container;
 import java.awt.Image;
@@ -18,6 +18,8 @@ import javax.swing.JPopupMenu;
 
 import com.alexandriasoftware.swing.JSplitButton;
 import com.alexandriasoftware.swing.action.ButtonClickedActionListener;
+import com.firstlinecode.sand.client.things.IDevice;
+import com.firstlinecode.sand.emulators.things.UiUtils;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.client.j2se.MatrixToImageWriter;
 import com.google.zxing.common.BitMatrix;
@@ -31,12 +33,12 @@ public class CopyDeviceIdOrShowQrCodeButton extends JSplitButton {
 	
 	private static final String DEFAULT_QR_CODE_IMAGE_FORMAT = "PNG";
 	
-	private String deviceId;
+	private IDevice device;
 
-	public CopyDeviceIdOrShowQrCodeButton(String deviceId) {
+	public CopyDeviceIdOrShowQrCodeButton(IDevice device) {
 		super(TEXT_COPY_DEVICE_ID);
 		
-		this.deviceId = deviceId;
+		this.device = device;
 		
 		JPopupMenu popup = new JPopupMenu();
 		JMenuItem copyDeviceId = new JMenuItem(TEXT_COPY_DEVICE_ID);
@@ -74,7 +76,7 @@ public class CopyDeviceIdOrShowQrCodeButton extends JSplitButton {
 	protected void showQrCode() {
 		QRCodeWriter qrCodeWriter = new QRCodeWriter();
 		try {
-			BitMatrix matrix = qrCodeWriter.encode(deviceId, BarcodeFormat.QR_CODE, 200, 200);
+			BitMatrix matrix = qrCodeWriter.encode(device.getDeviceId(), BarcodeFormat.QR_CODE, 200, 200);
 			ByteArrayOutputStream output = new ByteArrayOutputStream();
 			MatrixToImageWriter.writeToStream(matrix, DEFAULT_QR_CODE_IMAGE_FORMAT, output);
 			Image image = Toolkit.getDefaultToolkit().createImage(output.toByteArray());
@@ -92,7 +94,7 @@ public class CopyDeviceIdOrShowQrCodeButton extends JSplitButton {
 	
 	protected void copyDeviceId() {
 		Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
-		clipboard.setContents(new StringSelection(deviceId), null);
+		clipboard.setContents(new StringSelection(device.getDeviceId()), null);
 		
 		UiUtils.showNotification(getWindow(), "Message", "Device ID has copied to clipboard.");
 	}

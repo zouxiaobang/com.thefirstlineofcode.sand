@@ -1,4 +1,4 @@
-package com.firstlinecode.sand.emulators.things;
+package com.firstlinecode.sand.emulators.things.ui;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
@@ -21,7 +21,7 @@ public class AboutDialog extends JDialog {
 		Box box = Box.createVerticalBox();
 		JPanel softwarePanel = new JPanel();
 		softwarePanel.setLayout(new BorderLayout());
-		JLabel softwareLabel = new JLabel(String.format("% %", softwareName, softwareVersion));
+		JLabel softwareLabel = new JLabel(String.format("%s %s", softwareName, softwareVersion));
 		softwareLabel.setHorizontalAlignment(JLabel.CENTER);
 		softwarePanel.add(softwareLabel, BorderLayout.CENTER);
 		box.add(softwarePanel);

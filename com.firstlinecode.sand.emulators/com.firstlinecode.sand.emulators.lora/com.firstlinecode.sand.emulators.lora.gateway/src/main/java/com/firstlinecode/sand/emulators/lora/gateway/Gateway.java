@@ -31,15 +31,11 @@ import javax.swing.JDesktopPane;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JInternalFrame;
-import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
-import javax.swing.JPanel;
 import javax.swing.KeyStroke;
-import javax.swing.MenuElement;
-import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.event.InternalFrameEvent;
@@ -82,14 +78,14 @@ import com.firstlinecode.sand.emulators.lora.things.AbstractLoraThingEmulator;
 import com.firstlinecode.sand.emulators.lora.things.AbstractLoraThingEmulatorFactory;
 import com.firstlinecode.sand.emulators.modes.Ge01ModeDescriptor;
 import com.firstlinecode.sand.emulators.modes.Le01ModeDescriptor;
-import com.firstlinecode.sand.emulators.things.AboutDialog;
-import com.firstlinecode.sand.emulators.things.AbstractThingEmulatorPanel;
 import com.firstlinecode.sand.emulators.things.Constants;
-import com.firstlinecode.sand.emulators.things.CopyDeviceIdOrShowQrCodeButton;
 import com.firstlinecode.sand.emulators.things.IGateway;
-import com.firstlinecode.sand.emulators.things.IThingEmulator;
-import com.firstlinecode.sand.emulators.things.IThingEmulatorFactory;
 import com.firstlinecode.sand.emulators.things.UiUtils;
+import com.firstlinecode.sand.emulators.things.emulators.IThingEmulator;
+import com.firstlinecode.sand.emulators.things.emulators.IThingEmulatorFactory;
+import com.firstlinecode.sand.emulators.things.ui.AboutDialog;
+import com.firstlinecode.sand.emulators.things.ui.AbstractThingEmulatorPanel;
+import com.firstlinecode.sand.emulators.things.ui.StatusBar;
 import com.firstlinecode.sand.protocols.concentrator.NodeAddress;
 import com.firstlinecode.sand.protocols.core.CommunicationNet;
 import com.firstlinecode.sand.protocols.core.DeviceIdentity;
@@ -175,7 +171,7 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 	
 	private JDesktopPane desktop;
 	private JMenuBar menuBar;
-	private GatewayStatusBar statusBar;
+	private StatusBar statusBar;
 	private LogConsolesDialog logConsolesDialog;
 	
 	private File configFile;
@@ -188,7 +184,7 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 	private Map<String, ModeDescriptor> registeredModes;
 	
 	public Gateway(ILoraNetwork network, IDualLoraChipsCommunicator gatewayCommunicator) {
-		super("Unregistered Gateway Emulator");
+		super(THING_NAME);
 		
 		this.network = network;
 		this.gatewayCommunicator = gatewayCommunicator;
@@ -228,13 +224,13 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 		}
 	}
 	
-	private IConnectionListener getLogConsoleConnectionListener() {
+	private IConnectionListener getLogConsoleInternetConnectionListener() {
 		IConnectionListener listener = null;
 		
 		if (logConsolesDialog == null)
 			return null;
 		
-		listener = logConsolesDialog.getConnectionListener();
+		listener = logConsolesDialog.getInternetConnectionListener();
 		if (listener != null)
 			return (IConnectionListener)listener;
 		
@@ -256,7 +252,7 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 		menuBar = createMenuBar();
 		setJMenuBar(menuBar);
 		
-		statusBar = new GatewayStatusBar();
+		statusBar = new StatusBar(this);
 		add(statusBar, BorderLayout.SOUTH);
 		
 		updateStatus();
@@ -266,7 +262,7 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 	}
 
 	private void updateStatus() {
-		statusBar.setText(getGatewayStatus());
+		statusBar.setText(getStatus());
 	}
 	
 	private void setDefaultUiFont(FontUIResource fur) {
@@ -286,7 +282,7 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 		this.deviceId = deviceId;
 	}
 	
-	private String getGatewayStatus() {
+	private String getStatus() {
 		StringBuilder sb = new StringBuilder();
 		if (deviceIdentity == null) {
 			sb.append("Unregistered").append(", ");
@@ -304,30 +300,6 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 		return sb.toString();
 	}
 	
-	private class GatewayStatusBar extends JPanel {		
-		private static final long serialVersionUID = -4540556323673700464L;
-		
-		private JLabel text;
-		
-		public GatewayStatusBar() {
-			super(new BorderLayout());
-			
-			JPanel statusBarPanel = new JPanel();
-			text = new JLabel();
-			text.setHorizontalAlignment(SwingConstants.RIGHT);
-			statusBarPanel.add(text);
-			
-			statusBarPanel.add(new CopyDeviceIdOrShowQrCodeButton(deviceId));
-			
-			add(statusBarPanel, BorderLayout.EAST);	
-			setPreferredSize(new Dimension(640, 48));
-		}
-		
-		public void setText(String status) {
-			text.setText(status);
-		}
-	}
-
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		String actionCommand = e.getActionCommand();
@@ -382,21 +354,21 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 		addressConfigurator.stop();
 		startWorking(chatClient);
 		
-		getMenuItem(MENU_NAME_TOOLS, MENU_ITEM_NAME_WORKING_MODE).setEnabled(false);
-		getMenuItem(MENU_NAME_TOOLS, MENU_ITEM_NAME_ADDRESS_CONFIGURATION_MODE).setEnabled(true);	
-		getMenuItem(MENU_NAME_TOOLS, MENU_ITEM_NAME_RECONFIGURE_ADDRESS).setEnabled(false);	
+		UiUtils.getMenuItem(menuBar, MENU_NAME_TOOLS, MENU_ITEM_NAME_WORKING_MODE).setEnabled(false);
+		UiUtils.getMenuItem(menuBar, MENU_NAME_TOOLS, MENU_ITEM_NAME_ADDRESS_CONFIGURATION_MODE).setEnabled(true);	
+		UiUtils.getMenuItem(menuBar, MENU_NAME_TOOLS, MENU_ITEM_NAME_RECONFIGURE_ADDRESS).setEnabled(false);	
 	}
 
 	private synchronized void setToAddressConfigurationMode() {
 		addressConfigurator.start();
 		stopWorking(chatClient);
 		
-		getMenuItem(MENU_NAME_TOOLS, MENU_ITEM_NAME_ADDRESS_CONFIGURATION_MODE).setEnabled(false);
-		getMenuItem(MENU_NAME_TOOLS, MENU_ITEM_NAME_WORKING_MODE).setEnabled(true);
+		UiUtils.getMenuItem(menuBar, MENU_NAME_TOOLS, MENU_ITEM_NAME_ADDRESS_CONFIGURATION_MODE).setEnabled(false);
+		UiUtils.getMenuItem(menuBar, MENU_NAME_TOOLS, MENU_ITEM_NAME_WORKING_MODE).setEnabled(true);
 		
 		ThingInternalFrame thingInternalFrame = getSelectedFrame();
 		if (thingInternalFrame != null && !thingInternalFrame.getThing().isAddressConfigured()) {
-			getMenuItem(MENU_NAME_TOOLS, MENU_ITEM_NAME_RECONFIGURE_ADDRESS).setEnabled(true);
+			UiUtils.getMenuItem(menuBar, MENU_NAME_TOOLS, MENU_ITEM_NAME_RECONFIGURE_ADDRESS).setEnabled(true);
 		}
 	}
 	
@@ -454,9 +426,9 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 		if (chatClient == null)
 			chatClient = createChatClient();
 		
-		IConnectionListener logConsoleListener = getLogConsoleConnectionListener();
+		IConnectionListener logConsoleListener = getLogConsoleInternetConnectionListener();
 		if (logConsoleListener != null && !chatClient.getConnectionListeners().contains(logConsoleListener))
-			chatClient.addConnectionListener(getLogConsoleConnectionListener());
+			chatClient.addConnectionListener(getLogConsoleInternetConnectionListener());
 		
 		if (!chatClient.getConnectionListeners().contains(this)) {
 			chatClient.addConnectionListener(this);
@@ -555,12 +527,12 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 	}
 
 	private void showLogConsoleDialog() {
-		logConsolesDialog = new LogConsolesDialog(this, registeredModes, chatClient, network, gatewayCommunicator, allThings);
+		logConsolesDialog = new LogConsolesDialog(this, chatClient, registeredModes, network, gatewayCommunicator, allThings);
 		logConsolesDialog.addWindowListener(this);
 		
 		logConsolesDialog.setVisible(true);
 		
-		getMenuItem(MENU_NAME_TOOLS, MENU_ITEM_NAME_SHOW_LOG_CONSOLE).setEnabled(false);
+		UiUtils.getMenuItem(menuBar, MENU_NAME_TOOLS, MENU_ITEM_NAME_SHOW_LOG_CONSOLE).setEnabled(false);
 	}
 
 	private void register() {
@@ -596,18 +568,17 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 		} catch (RegistrationException e) {
 			JOptionPane.showMessageDialog(this, "Can't register device. Error: " + e.getError(), "Registration Error", JOptionPane.ERROR_MESSAGE);
 		} finally {			
-			registration.removeConnectionListener(getLogConsoleConnectionListener());
+			registration.removeConnectionListener(getLogConsoleInternetConnectionListener());
 			chatClient.close();
 		}
 		
 		setDirty(true);
 		refreshGatewayInstanceRelativatedMenus();
-		updateTitle();
 		updateStatus();
 	}
 
 	private void adddInternetLogListener(IRegistration registration) {
-		IConnectionListener logListener = getLogConsoleConnectionListener();
+		IConnectionListener logListener = getLogConsoleInternetConnectionListener();
 		if (logListener != null) {
 			registration.addConnectionListener(logListener);
 		}
@@ -804,19 +775,10 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 					}
 					
 					refreshGatewayInstanceRelativatedMenus();
-					updateTitle();
 					updateStatus();
 				}
 				
 			});
-		}
-	}
-
-	protected void updateTitle() {
-		if (deviceIdentity == null) {
-			setTitle("Unregistered Gateway Emulator");
-		} else {
-			setTitle("Registered Gateway Emulator");
 		}
 	}
 
@@ -848,39 +810,39 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 	
 	private void refreshConnectionStateRelativatedMenus() {
 		if (chatClient != null && chatClient.isConnected()) {
-			getMenuItem(MENU_NAME_TOOLS, MENU_ITEM_NAME_CONNECT).setEnabled(false);			
-			getMenuItem(MENU_NAME_TOOLS, MENU_ITEM_NAME_DISCONNECT).setEnabled(true);			
+			UiUtils.getMenuItem(menuBar, MENU_NAME_TOOLS, MENU_ITEM_NAME_CONNECT).setEnabled(false);			
+			UiUtils.getMenuItem(menuBar, MENU_NAME_TOOLS, MENU_ITEM_NAME_DISCONNECT).setEnabled(true);			
 			
-			getMenuItem(MENU_NAME_TOOLS, MENU_ITEM_NAME_ADDRESS_CONFIGURATION_MODE).setEnabled(true);
-			getMenuItem(MENU_NAME_TOOLS, MENU_ITEM_NAME_WORKING_MODE).setEnabled(false);
+			UiUtils.getMenuItem(menuBar, MENU_NAME_TOOLS, MENU_ITEM_NAME_ADDRESS_CONFIGURATION_MODE).setEnabled(true);
+			UiUtils.getMenuItem(menuBar, MENU_NAME_TOOLS, MENU_ITEM_NAME_WORKING_MODE).setEnabled(false);
 			
 			refreshGatewayInstanceRelativatedMenus();
 		} else {
-			getMenuItem(MENU_NAME_TOOLS, MENU_ITEM_NAME_DISCONNECT).setEnabled(false);			
-			getMenuItem(MENU_NAME_TOOLS, MENU_ITEM_NAME_CONNECT).setEnabled(true);
+			UiUtils.getMenuItem(menuBar, MENU_NAME_TOOLS, MENU_ITEM_NAME_DISCONNECT).setEnabled(false);			
+			UiUtils.getMenuItem(menuBar, MENU_NAME_TOOLS, MENU_ITEM_NAME_CONNECT).setEnabled(true);
 			
-			getMenuItem(MENU_NAME_TOOLS, MENU_ITEM_NAME_ADDRESS_CONFIGURATION_MODE).setEnabled(false);
-			getMenuItem(MENU_NAME_TOOLS, MENU_ITEM_NAME_WORKING_MODE).setEnabled(false);
+			UiUtils.getMenuItem(menuBar, MENU_NAME_TOOLS, MENU_ITEM_NAME_ADDRESS_CONFIGURATION_MODE).setEnabled(false);
+			UiUtils.getMenuItem(menuBar, MENU_NAME_TOOLS, MENU_ITEM_NAME_WORKING_MODE).setEnabled(false);
 		}
 	}
 
 	private void refreshGatewayInstanceRelativatedMenus() {
 		if (deviceIdentity != null) {
-			getMenuItem(MENU_NAME_TOOLS, MENU_ITEM_NAME_REGISTER).setEnabled(false);
+			UiUtils.getMenuItem(menuBar, MENU_NAME_TOOLS, MENU_ITEM_NAME_REGISTER).setEnabled(false);
 			
 			if (!isConnected()) {
-				getMenuItem(MENU_NAME_TOOLS, MENU_ITEM_NAME_CONNECT).setEnabled(true);
-				getMenuItem(MENU_NAME_TOOLS, MENU_ITEM_NAME_DISCONNECT).setEnabled(false);
+				UiUtils.getMenuItem(menuBar, MENU_NAME_TOOLS, MENU_ITEM_NAME_CONNECT).setEnabled(true);
+				UiUtils.getMenuItem(menuBar, MENU_NAME_TOOLS, MENU_ITEM_NAME_DISCONNECT).setEnabled(false);
 			} else {
-				getMenuItem(MENU_NAME_TOOLS, MENU_ITEM_NAME_DISCONNECT).setEnabled(true);
-				getMenuItem(MENU_NAME_TOOLS, MENU_ITEM_NAME_CONNECT).setEnabled(false);
+				UiUtils.getMenuItem(menuBar, MENU_NAME_TOOLS, MENU_ITEM_NAME_DISCONNECT).setEnabled(true);
+				UiUtils.getMenuItem(menuBar, MENU_NAME_TOOLS, MENU_ITEM_NAME_CONNECT).setEnabled(false);
 			}
 		}
 	}
 	
 	private void setConfigFile(File file) {
 		if (configFile == null && file != null) {
-			getMenuItem(MENU_NAME_FILE, MENU_ITEM_NAME_SAVE_AS).setEnabled(true);
+			UiUtils.getMenuItem(menuBar, MENU_NAME_FILE, MENU_ITEM_NAME_SAVE_AS).setEnabled(true);
 		}
 		
 		configFile = file;
@@ -1104,13 +1066,13 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 		editMenu.setName(MENU_NAME_EDIT);
 		editMenu.setMnemonic(KeyEvent.VK_E);
 		
-		editMenu.add(createMenuItem(MENU_ITEM_NAME_POWER_ON, MENU_ITEM_TEXT_POWER_ON, -1, null, false));
-		editMenu.add(createMenuItem(MENU_ITEM_NAME_POWER_OFF, MENU_ITEM_TEXT_POWER_OFF, -1, null, false));
-		editMenu.add(createMenuItem(MENU_ITEM_NAME_RESET, MENU_ITEM_TEXT_RESET, -1, null, false));
+		editMenu.add(UiUtils.createMenuItem(MENU_ITEM_NAME_POWER_ON, MENU_ITEM_TEXT_POWER_ON, -1, null, this, false));
+		editMenu.add(UiUtils.createMenuItem(MENU_ITEM_NAME_POWER_OFF, MENU_ITEM_TEXT_POWER_OFF, -1, null, this, false));
+		editMenu.add(UiUtils.createMenuItem(MENU_ITEM_NAME_RESET, MENU_ITEM_TEXT_RESET, -1, null, this, false));
 
 		editMenu.addSeparator();
 
-		editMenu.add(createMenuItem(MENU_ITEM_NAME_DELETE, MENU_ITEM_TEXT_DELETE, -1, null, false));
+		editMenu.add(UiUtils.createMenuItem(MENU_ITEM_NAME_DELETE, MENU_ITEM_TEXT_DELETE, -1, null, this, false));
 		
 		return editMenu;
 	}
@@ -1120,25 +1082,25 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 		toolsMenu.setName(MENU_NAME_TOOLS);
 		toolsMenu.setMnemonic(KeyEvent.VK_T);
 		
-		toolsMenu.add(createMenuItem(MENU_ITEM_NAME_REGISTER, MENU_ITEM_TEXT_REGISTER, -1, null));
+		toolsMenu.add(UiUtils.createMenuItem(MENU_ITEM_NAME_REGISTER, MENU_ITEM_TEXT_REGISTER, -1, null, this));
 		
 		toolsMenu.addSeparator();
 		
-		toolsMenu.add(createMenuItem(MENU_ITEM_NAME_CONNECT, MENU_ITEM_TEXT_CONNECT, -1, null, false));
-		toolsMenu.add(createMenuItem(MENU_ITEM_NAME_DISCONNECT, MENU_ITEM_TEXT_DISCONNECT, -1, null, false));
+		toolsMenu.add(UiUtils.createMenuItem(MENU_ITEM_NAME_CONNECT, MENU_ITEM_TEXT_CONNECT, -1, null, this, false));
+		toolsMenu.add(UiUtils.createMenuItem(MENU_ITEM_NAME_DISCONNECT, MENU_ITEM_TEXT_DISCONNECT, -1, null, this, false));
 		
 		toolsMenu.addSeparator();
 		
-		toolsMenu.add(createMenuItem(MENU_ITEM_NAME_WORKING_MODE,
-				MENU_ITEM_TEXT_WORKING_MODE, -1, null, false));
-		toolsMenu.add(createMenuItem(MENU_ITEM_NAME_ADDRESS_CONFIGURATION_MODE,
-				MENU_ITEM_TEXT_ADDRESS_CONFIGURATION_MODE, -1, null, false));
-		toolsMenu.add(createMenuItem(MENU_ITEM_NAME_RECONFIGURE_ADDRESS,
-				MENU_ITEM_TEXT_RECONFIGURE_ADDRESS, -1, null, false));
+		toolsMenu.add(UiUtils.createMenuItem(MENU_ITEM_NAME_WORKING_MODE,
+				MENU_ITEM_TEXT_WORKING_MODE, -1, null, this, false));
+		toolsMenu.add(UiUtils.createMenuItem(MENU_ITEM_NAME_ADDRESS_CONFIGURATION_MODE,
+				MENU_ITEM_TEXT_ADDRESS_CONFIGURATION_MODE, -1, null, this, false));
+		toolsMenu.add(UiUtils.createMenuItem(MENU_ITEM_NAME_RECONFIGURE_ADDRESS,
+				MENU_ITEM_TEXT_RECONFIGURE_ADDRESS, -1, null, this, false));
 		
 		toolsMenu.addSeparator();
 		
-		toolsMenu.add(createMenuItem(MENU_ITEM_NAME_SHOW_LOG_CONSOLE, MENU_ITEM_TEXT_SHOW_LOG_CONSOLE, -1, null));
+		toolsMenu.add(UiUtils.createMenuItem(MENU_ITEM_NAME_SHOW_LOG_CONSOLE, MENU_ITEM_TEXT_SHOW_LOG_CONSOLE, -1, null, this));
 		
 		return toolsMenu;
 	}
@@ -1148,7 +1110,7 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 		helpMenu.setName(MENU_NAME_HELP);
 		helpMenu.setMnemonic(KeyEvent.VK_H);
 		
-		helpMenu.add(createMenuItem(MENU_ITEM_NAME_ABOUT, MENU_ITEM_TEXT_ABOUT, -1, null));
+		helpMenu.add(UiUtils.createMenuItem(MENU_ITEM_NAME_ABOUT, MENU_ITEM_TEXT_ABOUT, -1, null, this));
 		
 		return helpMenu;
 	}
@@ -1158,44 +1120,21 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 		fileMenu.setName(MENU_NAME_FILE);
 		fileMenu.setMnemonic(KeyEvent.VK_F);
 		
-		fileMenu.add(createMenuItem(MENU_ITEM_NAME_NEW, MENU_ITEM_TEXT_NEW, -1,
-				KeyStroke.getKeyStroke(KeyEvent.VK_N, ActionEvent.CTRL_MASK)));
-		fileMenu.add(createMenuItem(MENU_ITEM_NAME_OPEN_FILE, MENU_ITEM_TEXT_OPEN_FILE, -1, null));
+		fileMenu.add(UiUtils.createMenuItem(MENU_ITEM_NAME_NEW, MENU_ITEM_TEXT_NEW, -1,
+				KeyStroke.getKeyStroke(KeyEvent.VK_N, ActionEvent.CTRL_MASK), this));
+		fileMenu.add(UiUtils.createMenuItem(MENU_ITEM_NAME_OPEN_FILE, MENU_ITEM_TEXT_OPEN_FILE, -1, null, this));
 		
 		fileMenu.addSeparator();
 		
-		fileMenu.add(createMenuItem(MENU_ITEM_NAME_SAVE, MENU_ITEM_TEXT_SAVE, -1,
-				KeyStroke.getKeyStroke(KeyEvent.VK_S, ActionEvent.CTRL_MASK), false));
-		fileMenu.add(createMenuItem(MENU_ITEM_NAME_SAVE_AS, MENU_ITEM_TEXT_SAVE_AS, -1, null, false));
+		fileMenu.add(UiUtils.createMenuItem(MENU_ITEM_NAME_SAVE, MENU_ITEM_TEXT_SAVE, -1,
+				KeyStroke.getKeyStroke(KeyEvent.VK_S, ActionEvent.CTRL_MASK), this, false));
+		fileMenu.add(UiUtils.createMenuItem(MENU_ITEM_NAME_SAVE_AS, MENU_ITEM_TEXT_SAVE_AS, -1, null, this, false));
 		
 		fileMenu.addSeparator();
 		
-		fileMenu.add(createMenuItem(MENU_ITEM_NAME_QUIT, MENU_ITEM_TEXT_QUIT, -1, null));
+		fileMenu.add(UiUtils.createMenuItem(MENU_ITEM_NAME_QUIT, MENU_ITEM_TEXT_QUIT, -1, null, this));
 		
 		return fileMenu;
-	}
-	
-	private JMenuItem createMenuItem(String name, String text, int mnemonic, KeyStroke accelerator) {
-		return this.createMenuItem(name, text, mnemonic, accelerator, true);
-	}
-	
-	private JMenuItem createMenuItem(String name, String text, int mnemonic, KeyStroke accelerator, boolean enabled) {
-		JMenuItem menuItem = new JMenuItem(text);
-		menuItem.setName(name);
-		
-		if (mnemonic != -1)
-			menuItem.setMnemonic(mnemonic);
-		
-		if (accelerator != null) {			
-			menuItem.setAccelerator(accelerator);
-		}
-		
-		menuItem.setActionCommand(name);
-		menuItem.addActionListener(this);
-		
-		menuItem.setEnabled(enabled);
-		
-		return menuItem;
 	}
 
 	@Override
@@ -1239,7 +1178,7 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 			logConsolesDialog.dispose();
 			logConsolesDialog = null;
 			
-			getMenuItem(MENU_NAME_TOOLS, MENU_ITEM_NAME_SHOW_LOG_CONSOLE).setEnabled(true);
+			UiUtils.getMenuItem(menuBar, MENU_NAME_TOOLS, MENU_ITEM_NAME_SHOW_LOG_CONSOLE).setEnabled(true);
 		} else {
 			// NO-OP
 		}
@@ -1288,16 +1227,16 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 	private void refreshThingSelectionRelativedMenuItems() {
 		ThingInternalFrame thingFrame = getSelectedFrame();
 		if (thingFrame == null) {
-			getMenuItem(MENU_NAME_EDIT, MENU_ITEM_NAME_RESET).setEnabled(false);
-			getMenuItem(MENU_NAME_TOOLS, MENU_ITEM_NAME_RECONFIGURE_ADDRESS).setEnabled(false);
+			UiUtils.getMenuItem(menuBar, MENU_NAME_EDIT, MENU_ITEM_NAME_RESET).setEnabled(false);
+			UiUtils.getMenuItem(menuBar, MENU_NAME_TOOLS, MENU_ITEM_NAME_RECONFIGURE_ADDRESS).setEnabled(false);
 			
 			return;
 		}
 		
-		getMenuItem(MENU_NAME_EDIT, MENU_ITEM_NAME_RESET).setEnabled(true);
+		UiUtils.getMenuItem(menuBar, MENU_NAME_EDIT, MENU_ITEM_NAME_RESET).setEnabled(true);
 		
-		if (!getMenuItem(MENU_NAME_TOOLS, MENU_ITEM_NAME_ADDRESS_CONFIGURATION_MODE).isEnabled())
-			getMenuItem(MENU_NAME_TOOLS, MENU_ITEM_NAME_RECONFIGURE_ADDRESS).setEnabled(true);
+		if (!UiUtils.getMenuItem(menuBar, MENU_NAME_TOOLS, MENU_ITEM_NAME_ADDRESS_CONFIGURATION_MODE).isEnabled())
+			UiUtils.getMenuItem(menuBar, MENU_NAME_TOOLS, MENU_ITEM_NAME_RECONFIGURE_ADDRESS).setEnabled(true);
 	}
 
 	private void refreshPowerRelativedMenuItems() {
@@ -1306,11 +1245,11 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 			return;
 		
 		if (thingFrame.getThing().isPowered()) {			
-			getMenuItem(MENU_NAME_EDIT, MENU_ITEM_NAME_POWER_ON).setEnabled(false);
-			getMenuItem(MENU_NAME_EDIT, MENU_ITEM_NAME_POWER_OFF).setEnabled(true);			
+			UiUtils.getMenuItem(menuBar, MENU_NAME_EDIT, MENU_ITEM_NAME_POWER_ON).setEnabled(false);
+			UiUtils.getMenuItem(menuBar, MENU_NAME_EDIT, MENU_ITEM_NAME_POWER_OFF).setEnabled(true);			
 		} else {
-			getMenuItem(MENU_NAME_EDIT, MENU_ITEM_NAME_POWER_OFF).setEnabled(false);			
-			getMenuItem(MENU_NAME_EDIT, MENU_ITEM_NAME_POWER_ON).setEnabled(true);
+			UiUtils.getMenuItem(menuBar, MENU_NAME_EDIT, MENU_ITEM_NAME_POWER_OFF).setEnabled(false);			
+			UiUtils.getMenuItem(menuBar, MENU_NAME_EDIT, MENU_ITEM_NAME_POWER_ON).setEnabled(true);
 		}
 	}
 	
@@ -1320,35 +1259,12 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 	}
 
 	private void refreshDirtyRelativedMenuItems(boolean dirty) {
-		JMenuItem saveMenuItem = getMenuItem(MENU_NAME_FILE, MENU_ITEM_NAME_SAVE);
+		JMenuItem saveMenuItem = UiUtils.getMenuItem(menuBar, MENU_NAME_FILE, MENU_ITEM_NAME_SAVE);
 		if (dirty) {
 			saveMenuItem.setEnabled(true);
 		} else {
 			saveMenuItem.setEnabled(false);
 		}
-	}
-
-	private JMenuItem getMenuItem(String menuName, String menuItemName) {
-		JMenu menu = getMenu(menuName);
-		
-		for (MenuElement child : menu.getSubElements()[0].getSubElements()) {
-			JMenuItem menuItem = (JMenuItem)child;
-			if (menuItem.getName().equals(menuItemName))
-				return menuItem;
-		}
-		
-		throw new IllegalArgumentException(String.format("Menu item '%s->%s' not existed.", menuName, menuItemName));
-	}
-
-	private JMenu getMenu(String menuName) {
-		for (MenuElement child : menuBar.getSubElements()) {
-			JMenu menu = (JMenu)child;
-			if (menuName.equals(menu.getName())) {
-				return menu;
-			}
-		}
-		
-		throw new IllegalArgumentException(String.format("Menu '%s' not existed.", menuName));
 	}
 
 	@Override

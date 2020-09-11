@@ -26,6 +26,10 @@
 			<artifactId>jsplitbutton</artifactId>
 		</dependency>
 		<dependency>
+			<groupId>com.firstlinecode.chalk</groupId>
+			<artifactId>com.firstlinecode.chalk</artifactId>
+		</dependency>
+		<dependency>
 			<groupId>com.firstlinecode.sand.client</groupId>
 			<artifactId>com.firstlinecode.sand.client.things</artifactId>
 		</dependency>

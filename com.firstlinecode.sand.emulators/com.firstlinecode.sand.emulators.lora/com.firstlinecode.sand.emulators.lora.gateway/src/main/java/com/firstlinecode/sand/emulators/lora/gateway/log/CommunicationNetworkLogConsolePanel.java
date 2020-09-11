@@ -8,6 +8,7 @@ import com.firstlinecode.basalt.protocol.core.Protocol;
 import com.firstlinecode.sand.client.things.commuication.ICommunicationNetwork;
 import com.firstlinecode.sand.client.things.obm.ObmData;
 import com.firstlinecode.sand.emulators.lora.network.ILoraNetworkListener;
+import com.firstlinecode.sand.emulators.things.ui.AbstractLogConsolePanel;
 import com.firstlinecode.sand.protocols.core.ModeDescriptor;
 import com.firstlinecode.sand.protocols.lora.LoraAddress;
 

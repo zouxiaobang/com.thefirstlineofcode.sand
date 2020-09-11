@@ -12,7 +12,7 @@ import com.firstlinecode.sand.client.things.commuication.ICommunicator;
 import com.firstlinecode.sand.client.things.obm.IObmFactory;
 import com.firstlinecode.sand.client.things.obm.ObmFactory;
 import com.firstlinecode.sand.emulators.lora.network.LoraCommunicator;
-import com.firstlinecode.sand.emulators.things.AbstractCommunicationNetworkThingEmulator;
+import com.firstlinecode.sand.emulators.things.emulators.AbstractCommunicationNetworkThingEmulator;
 import com.firstlinecode.sand.protocols.lora.LoraAddress;
 
 public abstract class AbstractLoraThingEmulator extends AbstractCommunicationNetworkThingEmulator<LoraAddress, LoraAddress, byte[]> {

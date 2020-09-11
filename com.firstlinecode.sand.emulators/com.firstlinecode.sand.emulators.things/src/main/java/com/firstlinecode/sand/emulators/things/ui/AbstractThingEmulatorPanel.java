@@ -1,4 +1,4 @@
-package com.firstlinecode.sand.emulators.things;
+package com.firstlinecode.sand.emulators.things.ui;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
@@ -9,6 +9,7 @@ import javax.swing.SwingConstants;
 
 import com.firstlinecode.sand.client.things.BatteryPowerEvent;
 import com.firstlinecode.sand.client.things.IThingListener;
+import com.firstlinecode.sand.emulators.things.emulators.IThingEmulator;
 
 public abstract class AbstractThingEmulatorPanel extends JPanel implements IThingListener {	
 	private static final long serialVersionUID = 388916038961904955L;
@@ -33,7 +34,7 @@ public abstract class AbstractThingEmulatorPanel extends JPanel implements IThin
 		statusBar.setHorizontalAlignment(SwingConstants.RIGHT);
 		statusBarPanel.add(statusBar, BorderLayout.CENTER);
 		
-		statusBarPanel.add(new CopyDeviceIdOrShowQrCodeButton(thingEmulator.getDeviceId()), BorderLayout.EAST);
+		statusBarPanel.add(new CopyDeviceIdOrShowQrCodeButton(thingEmulator), BorderLayout.EAST);
 		
 		statusBarPanel.setPreferredSize(new Dimension(800, 32));
 		

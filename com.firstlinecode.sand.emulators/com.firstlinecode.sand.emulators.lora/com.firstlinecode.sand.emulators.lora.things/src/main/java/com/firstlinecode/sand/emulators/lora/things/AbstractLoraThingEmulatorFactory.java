@@ -1,7 +1,7 @@
 package com.firstlinecode.sand.emulators.lora.things;
 
-import com.firstlinecode.sand.emulators.things.AbstractThingEmulatorFactory;
-import com.firstlinecode.sand.emulators.things.ICommunicationNetworkThingEmulatorFactory;
+import com.firstlinecode.sand.emulators.things.emulators.AbstractThingEmulatorFactory;
+import com.firstlinecode.sand.emulators.things.emulators.ICommunicationNetworkThingEmulatorFactory;
 import com.firstlinecode.sand.protocols.lora.LoraAddress;
 
 public abstract class AbstractLoraThingEmulatorFactory<T extends AbstractLoraThingEmulator> extends AbstractThingEmulatorFactory<T>

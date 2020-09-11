@@ -1,10 +1,11 @@
-package com.firstlinecode.sand.emulators.lora.gateway.log;
+package com.firstlinecode.sand.emulators.things.ui;
 
 import com.firstlinecode.basalt.oxm.binary.BinaryUtils;
 import com.firstlinecode.basalt.protocol.core.Protocol;
 import com.firstlinecode.gem.protocols.bxmpp.BinaryMessageProtocolReader;
 import com.firstlinecode.sand.client.things.obm.IObmFactory;
 import com.firstlinecode.sand.client.things.obm.ObmFactory;
+import com.firstlinecode.sand.emulators.things.ILogger;
 import com.firstlinecode.sand.protocols.lora.dac.Allocated;
 import com.firstlinecode.sand.protocols.lora.dac.Allocation;
 import com.firstlinecode.sand.protocols.lora.dac.Introduction;

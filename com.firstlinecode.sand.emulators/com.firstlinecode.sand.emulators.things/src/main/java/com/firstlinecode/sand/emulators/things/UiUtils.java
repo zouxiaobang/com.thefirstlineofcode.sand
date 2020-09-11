@@ -4,11 +4,17 @@ import java.awt.Dialog.ModalityType;
 import java.awt.Dimension;
 import java.awt.Rectangle;
 import java.awt.Window;
+import java.awt.event.ActionListener;
 import java.util.Timer;
 import java.util.TimerTask;
 
 import javax.swing.JDialog;
 import javax.swing.JLabel;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
+import javax.swing.KeyStroke;
+import javax.swing.MenuElement;
 
 public class UiUtils {
 	private static final int DEFAULT_NOTIFICATION_DELAY_TIME = 1000 * 2;
@@ -51,5 +57,51 @@ public class UiUtils {
 		
 		dialog.setBounds(x, y, size.width, size.height);
 		dialog.setVisible(true);
+	}
+	
+	public static JMenuItem createMenuItem(String name, String text, int mnemonic, KeyStroke accelerator, ActionListener actionListener) {
+		return createMenuItem(name, text, mnemonic, accelerator, actionListener, true);
+	}
+	
+	public static JMenuItem createMenuItem(String name, String text, int mnemonic, KeyStroke accelerator, ActionListener actionListener, boolean enabled) {
+		JMenuItem menuItem = new JMenuItem(text);
+		menuItem.setName(name);
+		
+		if (mnemonic != -1)
+			menuItem.setMnemonic(mnemonic);
+		
+		if (accelerator != null) {			
+			menuItem.setAccelerator(accelerator);
+		}
+		
+		menuItem.setActionCommand(name);
+		menuItem.addActionListener(actionListener);
+		
+		menuItem.setEnabled(enabled);
+		
+		return menuItem;
+	}
+	
+	public static JMenuItem getMenuItem(JMenuBar menuBar, String menuName, String menuItemName) {
+		JMenu menu = getMenu(menuBar, menuName);
+		
+		for (MenuElement child : menu.getSubElements()[0].getSubElements()) {
+			JMenuItem menuItem = (JMenuItem)child;
+			if (menuItem.getName().equals(menuItemName))
+				return menuItem;
+		}
+		
+		throw new IllegalArgumentException(String.format("Menu item '%s->%s' not existed.", menuName, menuItemName));
+	}
+
+	public static JMenu getMenu(JMenuBar menuBar, String menuName) {
+		for (MenuElement child : menuBar.getSubElements()) {
+			JMenu menu = (JMenu)child;
+			if (menuName.equals(menu.getName())) {
+				return menu;
+			}
+		}
+		
+		throw new IllegalArgumentException(String.format("Menu '%s' not existed.", menuName));
 	}
 }

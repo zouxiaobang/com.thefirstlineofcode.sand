@@ -1,4 +1,4 @@
-package com.firstlinecode.sand.emulators.lora.gateway.log;
+package com.firstlinecode.sand.emulators.things.ui;
 
 import java.awt.event.WindowEvent;
 
