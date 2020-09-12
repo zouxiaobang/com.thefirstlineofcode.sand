@@ -1,11 +1,5 @@
 package com.firstlinecode.sand.emulators.lora.light;
 
-import java.awt.BorderLayout;
-import java.awt.Dimension;
-import java.awt.GridLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.KeyEvent;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
@@ -15,26 +9,20 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.ExecutionException;
 
-import javax.swing.ButtonGroup;
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JRadioButton;
-import javax.swing.SwingUtilities;
-
 import com.firstlinecode.basalt.protocol.core.Protocol;
 import com.firstlinecode.sand.emulators.lora.network.LoraCommunicator;
 import com.firstlinecode.sand.emulators.lora.things.AbstractLoraThingEmulator;
 import com.firstlinecode.sand.emulators.modes.Le01ModeDescriptor;
-import com.firstlinecode.sand.emulators.things.ILight;
 import com.firstlinecode.sand.emulators.things.NotRemoteControlStateException;
 import com.firstlinecode.sand.emulators.things.NotTurnOffStateException;
 import com.firstlinecode.sand.emulators.things.PowerEvent;
+import com.firstlinecode.sand.emulators.things.emulators.ILightEmulator;
 import com.firstlinecode.sand.emulators.things.ui.AbstractThingEmulatorPanel;
+import com.firstlinecode.sand.emulators.things.ui.ISwitchStateListener;
+import com.firstlinecode.sand.emulators.things.ui.LightEmulatorPanel;
 import com.firstlinecode.sand.protocols.emulators.light.Flash;
 
-public class Light extends AbstractLoraThingEmulator implements ILight {
+public class Light extends AbstractLoraThingEmulator implements ILightEmulator, ISwitchStateListener {
 	public static final String THING_NAME = "Light Emulator";
 	public static final String THING_MODE = "LE01";
 	public static final String SOFTWARE_VERSION = "0.1.0.RELEASE";
@@ -47,7 +35,6 @@ public class Light extends AbstractLoraThingEmulator implements ILight {
 	private SwitchState switchState = DEFAULT_SWITCH_STATE;
 	private LightState lightState = DEFAULT_LIGHT_STATE;
 	
-	private JPanel switchsPanel;
 	private LightEmulatorPanel panel;
 	
 	private Timer dataReceivingTimer;
@@ -83,214 +70,6 @@ public class Light extends AbstractLoraThingEmulator implements ILight {
 		return SOFTWARE_VERSION;
 	}
 
-	private class LightEmulatorPanel extends AbstractThingEmulatorPanel implements ActionListener {
-		private static final long serialVersionUID = 7660599095831708565L;
-		
-		private static final String FILE_NAME_LIGHT_OFF = "light_off.png";
-		private static final String FILE_NAME_LIGHT_ON = "light_on.png";
-
-		private JLabel lightImage;
-		private JButton flash;
-		
-		private ImageIcon lightOn;
-		private ImageIcon lightOff;
-		
-		public LightEmulatorPanel() {
-			super(Light.this);
-			
-			addThingListener(this);
-		}
-		
-		private void createLightIcons() {
-			lightOn = createLightIcon(LightState.ON);
-			lightOff = createLightIcon(LightState.OFF);
-
-		}
-
-		private ImageIcon createLightIcon(LightState lightState) {
-			String path = lightState == LightState.ON ? "/images/" + FILE_NAME_LIGHT_ON : "/images/" + FILE_NAME_LIGHT_OFF;
-			java.net.URL imgURL = getClass().getResource(path);
-			if (imgURL != null) {
-				return new ImageIcon(imgURL);
-			} else {
-				throw new RuntimeException("Couldn't find file: " + path);
-			}
-		}
-
-		@Override
-		protected JPanel createThingCustomizedUi() {			
-			JPanel customizedUi = new JPanel(new BorderLayout());
-			
-			lightImage = new JLabel(getLightImageIcon(lightState));
-			switchsPanel = createSwitchsPanel();
-			
-			customizedUi.add(switchsPanel, BorderLayout.NORTH);
-			customizedUi.add(lightImage, BorderLayout.CENTER);			
-			customizedUi.add(createFlashPanel(), BorderLayout.SOUTH);
-			
-			customizedUi.setPreferredSize(new Dimension(360, 320));
-			
-			return customizedUi;
-		}
-
-		private JPanel createSwitchsPanel() {
-			JRadioButton off = createOffButton();
-			JRadioButton on = createOnButton();
-			JRadioButton control = createControlButton();
-			
-			ButtonGroup group = new ButtonGroup();
-			group.add(off);
-			group.add(on);
-			group.add(control);
-			
-			off.addActionListener(this);
-			on.addActionListener(this);
-			control.addActionListener(this);
-			
-			JPanel panel = new JPanel(new GridLayout(0, 1));
-			panel.add(off);
-			panel.add(on);
-			panel.add(control);
-			
-			return panel;
-		}
-
-		private JRadioButton createControlButton() {
-			JRadioButton control = new JRadioButton("Remote Control");
-			control.setMnemonic(KeyEvent.VK_R);
-			control.setActionCommand("Remote Control");
-			control.setSelected(true);
-			if (switchState == SwitchState.CONTROL)
-				control.setSelected(true);
-			return control;
-		}
-
-		private JRadioButton createOnButton() {
-			JRadioButton on = new JRadioButton("Turn On");
-			on.setMnemonic(KeyEvent.VK_N);
-			on.setActionCommand("on");
-			if (switchState == SwitchState.ON)
-				on.setSelected(true);
-			return on;
-		}
-
-		private JRadioButton createOffButton() {
-			JRadioButton off = new JRadioButton("Turn Off");
-			off.setMnemonic(KeyEvent.VK_F);
-			off.setActionCommand("off");
-			if (switchState == SwitchState.OFF)
-				off.setSelected(true);
-			return off;
-		}
-
-		private JPanel createFlashPanel() {
-			flash = new JButton("Flash");
-			flash.setPreferredSize(new Dimension(128, 48));
-			
-			JPanel flashPanel = new JPanel();
-			flashPanel.add(flash);
-			
-			flash.addActionListener(new ActionListener() {
-				public void actionPerformed(ActionEvent e) {
-					flash();
-				}
-			});
-			
-			return flashPanel;
-		}
-		
-		private void refreshFlashButtionStatus() {
-			if (powered && switchState == SwitchState.OFF && lightState == LightState.OFF) {
-				panel.flash.setEnabled(true);
-			} else {
-				panel.flash.setEnabled(false);
-			}
-		}
-		
-		private void flash() {
-			if (!powered)
-				return;
-			
-			SwingUtilities.invokeLater(new Runnable() {
-				
-				@Override
-				public void run() {
-					switchsPanel.setEnabled(false);
-					flash.setEnabled(false);
-					lightImage.setIcon(getLightImageIcon(LightState.ON));
-					
-					switchsPanel.repaint();
-					flash.repaint();
-					lightImage.repaint();
-				}
-			});
-			
-			new Thread(new Runnable() {		
-				@Override
-				public void run() {
-					try {
-						Thread.sleep(200);
-					} catch (InterruptedException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-					
-					SwingUtilities.invokeLater(new Runnable() {
-						
-						@Override
-						public void run() {
-							switchsPanel.setEnabled(true);
-							flash.setEnabled(true);
-							lightImage.setIcon(getLightImageIcon(LightState.OFF));
-							
-							switchsPanel.repaint();
-							flash.repaint();
-							lightImage.repaint();
-						}
-					});
-				}
-			}).start();
-		}
-		
-		protected ImageIcon getLightImageIcon(LightState lightState) {
-			if (lightState == null) {
-				throw new IllegalArgumentException("Null light state.");
-			}
-			
-			if (lightOn == null || lightOff == null)
-				createLightIcons();
-			
-			if (LightState.ON == lightState) {
-				return lightOn;
-			} else {
-				return lightOff;
-			}
-		}
-		
-		@Override
-		public void actionPerformed(ActionEvent e) {
-			String actionCommand = e.getActionCommand();
-			if (actionCommand.equals("off")) {
-				doTurnOff();
-				refreshFlashButtionStatus();
-			} else if (actionCommand.equals("on")) {
-				doTurnOn();
-				refreshFlashButtionStatus();
-			} else {
-				doTurnOff();
-				
-				if (switchState != SwitchState.CONTROL)
-					switchState = SwitchState.CONTROL;
-				
-				refreshFlashButtionStatus();
-			}
-		}
-
-		private void updateStatus() {
-			panel.updateStatus(getThingStatus());
-		}
-	}
-
 	@Override
 	protected void doWriteExternal(ObjectOutput out) throws IOException {
 		out.writeObject(lightState);
@@ -322,9 +101,7 @@ public class Light extends AbstractLoraThingEmulator implements ILight {
 
 	private void doTurnOn() {
 		switchState = SwitchState.ON;
-		if (powered) {			
-			light();
-		}
+		panel.turnOn();
 	}
 
 	@Override
@@ -337,23 +114,25 @@ public class Light extends AbstractLoraThingEmulator implements ILight {
 
 	private void doTurnOff() {
 		switchState = SwitchState.OFF;
-		
-		if (powered) {
-			unlight();
-		}	
+		panel.turnOff();
 	}
 
 	@Override
 	public void flash() throws NotRemoteControlStateException, NotTurnOffStateException {
+		if (switchState != SwitchState.CONTROL)
+			throw new NotRemoteControlStateException(switchState);
+		
+		if (lightState != LightState.OFF)
+			throw new NotTurnOffStateException();
+		
 		panel.flash();
 	}
 
 	@Override
-	public AbstractThingEmulatorPanel getPanel() {
+	public AbstractThingEmulatorPanel<?> getPanel() {
 		if (panel == null) {
-			panel = new LightEmulatorPanel();
-			panel.updateStatus();
-			panel.refreshFlashButtionStatus();
+			panel = new LightEmulatorPanel(this);
+			panel.setSwitchStateListener(this);
 		}
 		
 		return panel;
@@ -367,29 +146,18 @@ public class Light extends AbstractLoraThingEmulator implements ILight {
 
 	@Override
 	protected void doPowerOn() {
-		if (switchState == SwitchState.ON || lightState == LightState.ON)
-			light();
-		
-		panel.refreshFlashButtionStatus();
+		if (switchState == SwitchState.ON || lightState == LightState.ON) {
+			lightState = LightState.ON;					
+			panel.turnOn();
+		}
 		
 		super.doPowerOn();
 	}
 
-	private void light() {
-		lightState = LightState.ON;
-		panel.lightImage.setIcon(panel.getLightImageIcon(lightState));
-	}
-
-	private void unlight() {
-		lightState = LightState.OFF;
-		panel.lightImage.setIcon(panel.getLightImageIcon(lightState));
-	}
-
 	@Override
 	protected void doPowerOff() {		
-		unlight();
-		
-		panel.refreshFlashButtionStatus();
+		lightState = LightState.ON;
+		panel.turnOff();
 		
 		super.doPowerOff();
 	}
@@ -435,36 +203,37 @@ public class Light extends AbstractLoraThingEmulator implements ILight {
 	@Override
 	protected void processAction(Object action) throws ExecutionException {
 		if (action instanceof Flash) {
-			Flash flash = (Flash)action;
-			
-			int repeat = flash.getRepeat();
-			if (repeat == 0)
-				repeat = 1;
-			
-			if (repeat == 1) {
-				executeFlashAction();
-			} else {
-				for (int i = 0; i < repeat; i++) {
-					executeFlashAction();
-					
-					try {
-						Thread.sleep(2000);
-					} catch (InterruptedException e) {
-						// Ignore
-					}
-				}
-			}
+			executeFlash((Flash)action);
 		} else {
 			throw new ExecutionException(new IllegalArgumentException(String.format("Unsupported action type: %s", action.getClass())));
 		}
 	}
 
-	private void executeFlashAction() {
+	private void executeFlash(Flash flash) {
+		int repeat = flash.getRepeat();
+		if (repeat == 0)
+			repeat = 1;
+		
+		if (repeat == 1) {
+			executeFlash();
+		} else {
+			for (int i = 0; i < repeat; i++) {
+				executeFlash();
+				
+				try {
+					Thread.sleep(2000);
+				} catch (InterruptedException e) {
+					// Ignore
+				}
+			}
+		}
+	}
+
+	private void executeFlash() {
 		new Thread(new Runnable() {
 			
 			@Override
 			public void run() {
-				// TODO Auto-generated method stub					
 				try {
 					flash();
 				} catch (NotRemoteControlStateException e) {
@@ -482,5 +251,9 @@ public class Light extends AbstractLoraThingEmulator implements ILight {
 	protected Map<Protocol, Class<?>> createSupportedActions() {
 		return new Le01ModeDescriptor().getSupportedActions();
 	}
-	
+
+	@Override
+	public void switchStateChanged(SwitchState oldState, SwitchState newState) {
+		switchState = newState;
+	}
 }

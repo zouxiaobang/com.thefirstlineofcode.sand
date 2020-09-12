@@ -968,7 +968,7 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 	}
 
 	private void showThing(AbstractLoraThingEmulator thing, String title, int layer, int x, int y, boolean selected) {
-		AbstractThingEmulatorPanel thingPanel = thing.getPanel();
+		AbstractThingEmulatorPanel<?> thingPanel = thing.getPanel();
 		ThingInternalFrame internalFrame = new ThingInternalFrame(thing, title);
 		internalFrame.addComponentListener(this);
 		internalFrame.setBounds(x, y, thingPanel.getPreferredSize().width, thingPanel.getPreferredSize().height);

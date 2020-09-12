@@ -33,8 +33,11 @@ import com.firstlinecode.sand.protocols.core.DeviceIdentity;
 public class Light extends JFrame implements ILight, ActionListener, WindowListener {
 	private static final long serialVersionUID = 6734911253434942398L;
 	
-	private static final String THING_NAME = "WIFI Light Emulator";	
+	private static final String THING_NAME = "WIFI Light Emulator";
 	private static final String THING_MODE = "LE02";
+	
+	private static final SwitchState DEFAULT_SWITCH_STATE = SwitchState.OFF;
+	private static final LightState DEFAULT_LIGHT_STATE = LightState.OFF;
 	
 	// File Menu
 	private static final String MENU_TEXT_FILE = "File";
@@ -84,6 +87,9 @@ public class Light extends JFrame implements ILight, ActionListener, WindowListe
 	private String deviceId;
 	private DeviceIdentity deviceIdentity;
 	private boolean dirty;
+	
+	private SwitchState switchState = DEFAULT_SWITCH_STATE;
+	private LightState lightState = DEFAULT_LIGHT_STATE;
 	
 	private IChatClient chatClient;
 	
@@ -226,8 +232,7 @@ public class Light extends JFrame implements ILight, ActionListener, WindowListe
 
 	@Override
 	public SwitchState getSwitchState() {
-		// TODO Auto-generated method stub
-		return null;
+		return switchState;
 	}
 
 	@Override
@@ -252,12 +257,6 @@ public class Light extends JFrame implements ILight, ActionListener, WindowListe
 	public void flash() throws NotRemoteControlStateException, NotTurnOffStateException {
 		// TODO Auto-generated method stub
 		
-	}
-
-	@Override
-	public String getThingName() {
-		// TODO Auto-generated method stub
-		return null;
 	}
 
 	@Override

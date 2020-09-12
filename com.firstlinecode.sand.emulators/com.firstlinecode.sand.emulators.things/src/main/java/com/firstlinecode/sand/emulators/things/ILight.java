@@ -19,5 +19,4 @@ public interface ILight extends IDevice {
 	void turnOn() throws NotRemoteControlStateException;
 	void turnOff() throws NotRemoteControlStateException;
 	void flash() throws NotRemoteControlStateException, NotTurnOffStateException;
-	String getThingName();
 }

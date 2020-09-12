@@ -11,7 +11,7 @@ public interface IThingEmulator extends IThing, Externalizable {
 	void setBatteryPower(int batteryPower) ;
 	void powerChanged(PowerEvent event);
 	void reset();
-	AbstractThingEmulatorPanel getPanel();
+	AbstractThingEmulatorPanel<?> getPanel();
 	String getThingName();
 	String getThingStatus();
 }
