@@ -1,4 +1,4 @@
-package com.firstlinecode.sand.emulators.lora.gateway.xmpp;
+package com.firstlinecode.sand.emulators.things.ui;
 
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;

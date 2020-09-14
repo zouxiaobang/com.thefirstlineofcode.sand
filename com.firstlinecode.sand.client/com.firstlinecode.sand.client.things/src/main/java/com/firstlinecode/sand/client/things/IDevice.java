@@ -8,4 +8,6 @@ public interface IDevice {
 	void powerOn();
 	void powerOff();
 	boolean isPowered();
+	void addDeviceListener(IDeviceListener listener);
+	boolean removeDeviceListener(IDeviceListener listener);
 }

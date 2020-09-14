@@ -8,10 +8,10 @@ import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 
 import com.firstlinecode.sand.client.things.BatteryPowerEvent;
-import com.firstlinecode.sand.client.things.IThingListener;
+import com.firstlinecode.sand.client.things.IDeviceListener;
 import com.firstlinecode.sand.emulators.things.emulators.IThingEmulator;
 
-public abstract class AbstractThingEmulatorPanel<T extends IThingEmulator> extends JPanel implements IThingListener {	
+public abstract class AbstractThingEmulatorPanel<T extends IThingEmulator> extends JPanel implements IDeviceListener {	
 	private static final long serialVersionUID = 388916038961904955L;
 	
 	protected T thingEmulator;

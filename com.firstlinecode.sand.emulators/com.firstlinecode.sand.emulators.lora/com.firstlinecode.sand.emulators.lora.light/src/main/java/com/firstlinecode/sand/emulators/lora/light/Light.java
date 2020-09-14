@@ -14,7 +14,7 @@ import com.firstlinecode.sand.emulators.lora.network.LoraCommunicator;
 import com.firstlinecode.sand.emulators.lora.things.AbstractLoraThingEmulator;
 import com.firstlinecode.sand.emulators.modes.Le01ModeDescriptor;
 import com.firstlinecode.sand.emulators.things.NotRemoteControlStateException;
-import com.firstlinecode.sand.emulators.things.NotTurnOffStateException;
+import com.firstlinecode.sand.emulators.things.NotTurnedOffStateException;
 import com.firstlinecode.sand.emulators.things.PowerEvent;
 import com.firstlinecode.sand.emulators.things.emulators.ILightEmulator;
 import com.firstlinecode.sand.emulators.things.ui.AbstractThingEmulatorPanel;
@@ -118,12 +118,12 @@ public class Light extends AbstractLoraThingEmulator implements ILightEmulator, 
 	}
 
 	@Override
-	public void flash() throws NotRemoteControlStateException, NotTurnOffStateException {
+	public void flash() throws NotRemoteControlStateException, NotTurnedOffStateException {
 		if (switchState != SwitchState.CONTROL)
 			throw new NotRemoteControlStateException(switchState);
 		
 		if (lightState != LightState.OFF)
-			throw new NotTurnOffStateException();
+			throw new NotTurnedOffStateException();
 		
 		panel.flash();
 	}
@@ -239,7 +239,7 @@ public class Light extends AbstractLoraThingEmulator implements ILightEmulator, 
 				} catch (NotRemoteControlStateException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
-				} catch (NotTurnOffStateException e) {
+				} catch (NotTurnedOffStateException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}

@@ -5,17 +5,12 @@ import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import com.firstlinecode.basalt.protocol.core.Protocol;
-import com.firstlinecode.gem.protocols.bxmpp.BinaryMessageProtocolReader;
 import com.firstlinecode.sand.client.things.BatteryPowerEvent;
-import com.firstlinecode.sand.client.things.IThingListener;
+import com.firstlinecode.sand.client.things.IDeviceListener;
 import com.firstlinecode.sand.client.things.ThingsUtils;
-import com.firstlinecode.sand.client.things.obm.IObmFactory;
-import com.firstlinecode.sand.client.things.obm.ObmFactory;
 import com.firstlinecode.sand.emulators.things.PowerEvent;
 
 public abstract class AbstractThingEmulator implements IThingEmulator {
@@ -25,15 +20,7 @@ public abstract class AbstractThingEmulator implements IThingEmulator {
 	protected String mode;
 	protected int batteryPower;
 	protected boolean powered;
-	protected List<IThingListener> thingListeners;
-	
-	protected IObmFactory obmFactory = ObmFactory.createInstance();
-	
-	protected BinaryMessageProtocolReader bMessageProtocolReader;
-	
-	protected boolean isDataReceiving;
-	
-	protected Map<Protocol, Class<?>> supportedActions;
+	protected List<IDeviceListener> deviceListeners;
 	
 	public AbstractThingEmulator(String mode) {
 		if (mode == null)
@@ -46,7 +33,7 @@ public abstract class AbstractThingEmulator implements IThingEmulator {
 		batteryPower = 100;
 		powered = false;
 		
-		thingListeners = new ArrayList<>();
+		deviceListeners = new ArrayList<>();
 		
 		BatteryTimer timer = new BatteryTimer();
 		timer.start();
@@ -94,7 +81,7 @@ public abstract class AbstractThingEmulator implements IThingEmulator {
 						batteryPower = 100;
 					}
 					
-					for (IThingListener deviceListener : thingListeners) {
+					for (IDeviceListener deviceListener : deviceListeners) {
 						deviceListener.batteryPowerChanged(new BatteryPowerEvent(AbstractThingEmulator.this, batteryPower));
 					}
 				}
@@ -165,7 +152,7 @@ public abstract class AbstractThingEmulator implements IThingEmulator {
 
 	private List<IThingEmulatorListener> getThingEmulatorListeners() {
 		List<IThingEmulatorListener> thingEmulatorListeners = new ArrayList<>();
-		for (IThingListener listener : thingListeners) {
+		for (IDeviceListener listener : deviceListeners) {
 			if (listener instanceof IThingEmulatorListener) {
 				thingEmulatorListeners.add((IThingEmulatorListener)listener);
 			}
@@ -209,13 +196,13 @@ public abstract class AbstractThingEmulator implements IThingEmulator {
 	}
 	
 	@Override
-	public void addThingListener(IThingListener listener) {
-		thingListeners.add(listener);
+	public void addDeviceListener(IDeviceListener listener) {
+		deviceListeners.add(listener);
 	}
 	
 	@Override
-	public boolean removeThingListener(IThingListener listener) {
-		return thingListeners.remove(listener);
+	public boolean removeDeviceListener(IDeviceListener listener) {
+		return deviceListeners.remove(listener);
 	}
 
 	protected abstract void doWriteExternal(ObjectOutput out) throws IOException;

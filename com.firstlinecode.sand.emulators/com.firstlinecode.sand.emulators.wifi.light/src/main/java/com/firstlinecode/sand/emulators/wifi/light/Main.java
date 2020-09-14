@@ -7,7 +7,7 @@ public class Main {
 
 	private void run() {
 		configureLogDir();
-		new Light().setVisible(true);
+		new LightFrame().setVisible(true);
 	}
 	
 	private void configureLogDir() {

@@ -60,6 +60,7 @@ import com.firstlinecode.sand.client.ibdr.IbdrPlugin;
 import com.firstlinecode.sand.client.ibdr.RegistrationException;
 import com.firstlinecode.sand.client.lora.DynamicAddressConfigurator;
 import com.firstlinecode.sand.client.lora.IDualLoraChipsCommunicator;
+import com.firstlinecode.sand.client.things.IDeviceListener;
 import com.firstlinecode.sand.client.things.ThingsUtils;
 import com.firstlinecode.sand.client.things.autuator.IActuator;
 import com.firstlinecode.sand.client.things.commuication.ParamsMap;
@@ -70,8 +71,6 @@ import com.firstlinecode.sand.emulators.lora.gateway.log.LogConsolesDialog;
 import com.firstlinecode.sand.emulators.lora.gateway.things.DeviceIdentityInfo;
 import com.firstlinecode.sand.emulators.lora.gateway.things.ThingInfo;
 import com.firstlinecode.sand.emulators.lora.gateway.things.ThingInternalFrame;
-import com.firstlinecode.sand.emulators.lora.gateway.xmpp.StreamConfigDialog;
-import com.firstlinecode.sand.emulators.lora.gateway.xmpp.StreamConfigInfo;
 import com.firstlinecode.sand.emulators.lora.network.ILoraNetwork;
 import com.firstlinecode.sand.emulators.lora.network.LoraCommunicator;
 import com.firstlinecode.sand.emulators.lora.things.AbstractLoraThingEmulator;
@@ -86,6 +85,8 @@ import com.firstlinecode.sand.emulators.things.emulators.IThingEmulatorFactory;
 import com.firstlinecode.sand.emulators.things.ui.AboutDialog;
 import com.firstlinecode.sand.emulators.things.ui.AbstractThingEmulatorPanel;
 import com.firstlinecode.sand.emulators.things.ui.StatusBar;
+import com.firstlinecode.sand.emulators.things.ui.StreamConfigDialog;
+import com.firstlinecode.sand.emulators.things.ui.StreamConfigInfo;
 import com.firstlinecode.sand.protocols.concentrator.NodeAddress;
 import com.firstlinecode.sand.protocols.core.CommunicationNet;
 import com.firstlinecode.sand.protocols.core.DeviceIdentity;
@@ -1383,5 +1384,15 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 		nodes.put(node.getLanId(), node);
 		
 		concentrator.createNode(deviceId, node.getLanId(), new NodeAddress<LoraAddress>(CommunicationNet.LORA, address.toString()));
+	}
+
+	@Override
+	public void addDeviceListener(IDeviceListener listener) {
+		throw new UnsupportedOperationException("Not supported.");
+	}
+
+	@Override
+	public boolean removeDeviceListener(IDeviceListener listener) {
+		throw new UnsupportedOperationException("Not supported.");
 	}
 }
