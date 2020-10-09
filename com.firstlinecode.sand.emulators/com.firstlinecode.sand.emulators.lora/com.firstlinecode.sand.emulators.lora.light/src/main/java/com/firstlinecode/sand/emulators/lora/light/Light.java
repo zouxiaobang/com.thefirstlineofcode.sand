@@ -12,19 +12,19 @@ import java.util.concurrent.ExecutionException;
 import com.firstlinecode.basalt.protocol.core.Protocol;
 import com.firstlinecode.sand.emulators.lora.network.LoraCommunicator;
 import com.firstlinecode.sand.emulators.lora.things.AbstractLoraThingEmulator;
-import com.firstlinecode.sand.emulators.modes.Le01ModeDescriptor;
+import com.firstlinecode.sand.emulators.models.Le01ModelDescriptor;
+import com.firstlinecode.sand.emulators.things.ILight;
 import com.firstlinecode.sand.emulators.things.NotRemoteControlStateException;
 import com.firstlinecode.sand.emulators.things.NotTurnedOffStateException;
 import com.firstlinecode.sand.emulators.things.PowerEvent;
 import com.firstlinecode.sand.emulators.things.emulators.ILightEmulator;
 import com.firstlinecode.sand.emulators.things.ui.AbstractThingEmulatorPanel;
-import com.firstlinecode.sand.emulators.things.ui.ISwitchStateListener;
 import com.firstlinecode.sand.emulators.things.ui.LightEmulatorPanel;
 import com.firstlinecode.sand.protocols.emulators.light.Flash;
 
-public class Light extends AbstractLoraThingEmulator implements ILightEmulator, ISwitchStateListener {
+public class Light extends AbstractLoraThingEmulator implements ILightEmulator {
 	public static final String THING_NAME = "Light Emulator";
-	public static final String THING_MODE = "LE01";
+	public static final String THING_MODEL = "LE01";
 	public static final String SOFTWARE_VERSION = "0.1.0.RELEASE";
 	
 	private static final SwitchState DEFAULT_SWITCH_STATE = SwitchState.OFF;
@@ -48,7 +48,7 @@ public class Light extends AbstractLoraThingEmulator implements ILightEmulator, 
 	}
 	
 	public Light(LoraCommunicator communicator, SwitchState switchState, LightState lightState) {
-		super(THING_MODE, communicator);
+		super(THING_MODEL, communicator);
 		
 		if (switchState == null)
 			throw new IllegalArgumentException("Null switch state.");
@@ -113,7 +113,6 @@ public class Light extends AbstractLoraThingEmulator implements ILightEmulator, 
 	}
 
 	private void doTurnOff() {
-		switchState = SwitchState.OFF;
 		panel.turnOff();
 	}
 
@@ -132,7 +131,6 @@ public class Light extends AbstractLoraThingEmulator implements ILightEmulator, 
 	public AbstractThingEmulatorPanel<?> getPanel() {
 		if (panel == null) {
 			panel = new LightEmulatorPanel(this);
-			panel.setSwitchStateListener(this);
 		}
 		
 		return panel;
@@ -141,6 +139,7 @@ public class Light extends AbstractLoraThingEmulator implements ILightEmulator, 
 	@Override
 	protected void doReset() {
 		doTurnOff();
+		
 		super.doReset();
 	}
 
@@ -155,7 +154,7 @@ public class Light extends AbstractLoraThingEmulator implements ILightEmulator, 
 	}
 
 	@Override
-	protected void doPowerOff() {		
+	protected void doPowerOff() {
 		lightState = LightState.ON;
 		panel.turnOff();
 		
@@ -249,11 +248,23 @@ public class Light extends AbstractLoraThingEmulator implements ILightEmulator, 
 
 	@Override
 	protected Map<Protocol, Class<?>> createSupportedActions() {
-		return new Le01ModeDescriptor().getSupportedActions();
+		return new Le01ModelDescriptor().getSupportedActions();
 	}
-
+	
 	@Override
-	public void switchStateChanged(SwitchState oldState, SwitchState newState) {
-		switchState = newState;
+	public boolean changeSwitchState(SwitchState switchState) {
+		if (this.switchState == switchState)
+			return false;
+		
+		this.switchState = switchState;
+		if (switchState == ILight.SwitchState.ON && lightState == ILight.LightState.OFF) {
+			panel.turnOn();
+			lightState = ILight.LightState.ON;
+		} else if (switchState == ILight.SwitchState.OFF && lightState == ILight.LightState.ON) {
+			panel.turnOff();
+			lightState = ILight.LightState.OFF;
+		}
+		
+		return true;
 	}
 }

@@ -1,17 +1,17 @@
-package com.firstlinecode.sand.emulators.modes;
+package com.firstlinecode.sand.emulators.models;
 
 import java.util.HashMap;
 import java.util.Map;
 
 import com.firstlinecode.basalt.protocol.core.Protocol;
-import com.firstlinecode.sand.protocols.core.ModeDescriptor;
+import com.firstlinecode.sand.protocols.core.ModelDescriptor;
 import com.firstlinecode.sand.protocols.emulators.light.Flash;
 
-public class Le01ModeDescriptor extends ModeDescriptor {
-	private static final String MODE_NAME = "LE01";
+public class Le02ModelDescriptor extends ModelDescriptor {
+	private static final String MODEL_NAME = "LE02";
 
-	public Le01ModeDescriptor() {
-		super(MODE_NAME, false, createSupportedActions(), null);
+	public Le02ModelDescriptor() {
+		super(MODEL_NAME, false, createSupportedActions(), null);
 	}
 
 	private static Map<Protocol, Class<?>> createSupportedActions() {

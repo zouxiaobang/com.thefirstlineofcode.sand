@@ -5,19 +5,21 @@ import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.util.Map;
 
+import javax.naming.OperationNotSupportedException;
+
+import com.firstlinecode.sand.emulators.things.ILight;
 import com.firstlinecode.sand.emulators.things.NotRemoteControlStateException;
 import com.firstlinecode.sand.emulators.things.NotTurnedOffStateException;
 import com.firstlinecode.sand.emulators.things.PowerEvent;
 import com.firstlinecode.sand.emulators.things.emulators.AbstractThingEmulator;
 import com.firstlinecode.sand.emulators.things.emulators.ILightEmulator;
 import com.firstlinecode.sand.emulators.things.ui.AbstractThingEmulatorPanel;
-import com.firstlinecode.sand.emulators.things.ui.ISwitchStateListener;
 import com.firstlinecode.sand.emulators.things.ui.LightEmulatorPanel;
 import com.firstlinecode.sand.protocols.core.DeviceIdentity;
 
-public class Light extends AbstractThingEmulator implements ILightEmulator, ISwitchStateListener {
+public class Light extends AbstractThingEmulator implements ILightEmulator {
 	public static final String THING_NAME = "WIFI Light Emulator";
-	public static final String THING_MODE = "LE02";
+	public static final String THING_MODEL = "LE02";
 	public static final String SOFTWARE_VERSION = "0.1.0.RELEASE";
 	
 	private static final SwitchState DEFAULT_SWITCH_STATE = SwitchState.OFF;
@@ -30,8 +32,8 @@ public class Light extends AbstractThingEmulator implements ILightEmulator, ISwi
 	
 	private LightEmulatorPanel panel;
 	
-	public Light(String mode) {
-		super(mode);
+	public Light(String model) {
+		super(model);
 		
 		deviceId = generateDeviceId();
 		switchState = DEFAULT_SWITCH_STATE;
@@ -50,29 +52,38 @@ public class Light extends AbstractThingEmulator implements ILightEmulator, ISwi
 	public SwitchState getSwitchState() {
 		return switchState;
 	}
+	
 	@Override
 	public LightState getLightState() {
 		return lightState;
 	}
+	
 	@Override
 	public void turnOn() throws NotRemoteControlStateException {
-		// TODO Auto-generated method stub
+		if (switchState != SwitchState.CONTROL)
+			throw new RuntimeException(new NotRemoteControlStateException(switchState));
 		
+		panel.turnOn();
 	}
+	
 	@Override
 	public void turnOff() throws NotRemoteControlStateException {
-		// TODO Auto-generated method stub
+		if (switchState != SwitchState.CONTROL)
+			throw new NotRemoteControlStateException(switchState);
 		
+		panel.turnOn();
 	}
-	@Override
+	
 	public void flash() throws NotRemoteControlStateException, NotTurnedOffStateException {
 		// TODO Auto-generated method stub
 		
 	}
+	
 	@Override
 	public String getSoftwareVersion() {
 		return SOFTWARE_VERSION;
 	}
+	
 	@Override
 	public void powerChanged(PowerEvent event) {
 		// TODO Auto-generated method stub
@@ -82,53 +93,72 @@ public class Light extends AbstractThingEmulator implements ILightEmulator, ISwi
 	public AbstractThingEmulatorPanel<?> getPanel() {
 		if (panel == null) {
 			panel = new LightEmulatorPanel(this);
-			panel.setSwitchStateListener(this);
 		}
 		
 		return panel;
 	}
+	
 	@Override
 	public String getThingName() {
 		return THING_NAME;
 	}
+	
 	@Override
 	public void configure(String key, Object value) {
 		// TODO Auto-generated method stub
 		
 	}
+	
 	@Override
 	public Map<String, Object> getConfiguration() {
 		// TODO Auto-generated method stub
 		return null;
 	}
+	
 	@Override
 	protected void doWriteExternal(ObjectOutput out) throws IOException {
 		// TODO Auto-generated method stub
 		
 	}
+	
 	@Override
 	protected void doReadExternal(ObjectInput in) throws IOException, ClassNotFoundException {
 		// TODO Auto-generated method stub
 		
 	}
+	
 	@Override
 	protected void doPowerOn() {
-		// TODO Auto-generated method stub
-		
+		if (lightState == LightState.ON) {
+			panel.turnOn();
+		}
 	}
+	
 	@Override
 	protected void doPowerOff() {
-		// TODO Auto-generated method stub
-		
+		if (lightState == LightState.OFF)
+			panel.turnOff();
 	}
+	
 	@Override
 	protected void doReset() {
-		// TODO Auto-generated method stub
-		 
+		throw new RuntimeException(new OperationNotSupportedException("Can't reset WIFI light."));
 	}
 
 	@Override
-	public void switchStateChanged(SwitchState oldState, SwitchState newState) {
-		switchState = newState;
+	public boolean changeSwitchState(SwitchState switchState) {
+		if (this.switchState == switchState)
+			return false;
+		
+		this.switchState = switchState;
+		if (switchState == ILight.SwitchState.ON && lightState == ILight.LightState.OFF) {
+			panel.turnOn();
+			lightState = ILight.LightState.ON;
+		} else if (switchState == ILight.SwitchState.OFF && lightState == ILight.LightState.ON) {
+			panel.turnOff();
+			lightState = ILight.LightState.OFF;
+		}
+		
+		return true;
 	}
 }

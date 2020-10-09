@@ -2,7 +2,7 @@ package com.firstlinecode.sand.server.concentrator;
 
 public class Node {
 	private String deviceId;
-	private String mode;
+	private String model;
 	private String lanId;
 	private String communicationNet;
 	private String address;
@@ -15,12 +15,12 @@ public class Node {
 		this.deviceId = node;
 	}
 	
-	public String getMode() {
-		return mode;
+	public String getModel() {
+		return model;
 	}
 
-	public void setMode(String mode) {
-		this.mode = mode;
+	public void setModel(String model) {
+		this.model = model;
 	}
 
 	public String getLanId() {

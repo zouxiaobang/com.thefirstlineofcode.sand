@@ -12,8 +12,8 @@
 	</parent>
 
 	<groupId>com.firstlinecode.sand.emulators</groupId>
-	<artifactId>com.firstlinecode.sand.emulators.modes</artifactId>
-	<name>com.firstlinecode.sand.emulators.modes</name>
+	<artifactId>com.firstlinecode.sand.emulators.models</artifactId>
+	<name>com.firstlinecode.sand.emulators.models</name>
 	<packaging>bundle</packaging>
 	
 	<dependencies>

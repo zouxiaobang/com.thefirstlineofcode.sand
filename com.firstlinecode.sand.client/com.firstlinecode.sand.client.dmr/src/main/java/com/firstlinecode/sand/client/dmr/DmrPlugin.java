@@ -9,12 +9,12 @@ public class DmrPlugin implements IPlugin {
 
 	@Override
 	public void init(IChatSystem chatSystem, Properties properties) {
-		chatSystem.registerApi(IModeRegistrar.class, ModeRegistrar.class);
+		chatSystem.registerApi(IModelRegistrar.class, ModelRegistrar.class);
 	}
 
 	@Override
 	public void destroy(IChatSystem chatSystem) {
-		chatSystem.unregisterApi(IModeRegistrar.class);
+		chatSystem.unregisterApi(IModelRegistrar.class);
 	}
 
 }

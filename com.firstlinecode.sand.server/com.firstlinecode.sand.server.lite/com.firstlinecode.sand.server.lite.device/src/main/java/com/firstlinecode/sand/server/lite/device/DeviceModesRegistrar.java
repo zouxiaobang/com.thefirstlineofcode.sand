@@ -14,9 +14,9 @@ import org.osgi.framework.ServiceReference;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.firstlinecode.sand.protocols.core.ModeDescriptor;
+import com.firstlinecode.sand.protocols.core.ModelDescriptor;
 import com.firstlinecode.sand.server.device.IDeviceManager;
-import com.firstlinecode.sand.server.device.IDeviceModesProvider;
+import com.firstlinecode.sand.server.device.IDeviceModelsProvider;
 
 @Component
 public class DeviceModesRegistrar implements BundleContextAware {
@@ -28,10 +28,10 @@ public class DeviceModesRegistrar implements BundleContextAware {
 	@PostConstruct
 	public void init() {
 		try {
-			ServiceReference<?>[] srs = bundleContext.getAllServiceReferences(IDeviceModesProvider.class.getName(), null);
+			ServiceReference<?>[] srs = bundleContext.getAllServiceReferences(IDeviceModelsProvider.class.getName(), null);
 			for (ServiceReference<?> sr : srs) {
-				IDeviceModesProvider modesProvider = (IDeviceModesProvider)bundleContext.getService(sr);
-				registerModes(modesProvider);
+				IDeviceModelsProvider modelsProvider = (IDeviceModelsProvider)bundleContext.getService(sr);
+				registerModes(modelsProvider);
 			}
 		} catch (InvalidSyntaxException e) {
 			throw new RuntimeException(e);
@@ -44,34 +44,34 @@ public class DeviceModesRegistrar implements BundleContextAware {
 				@Override
 				public void serviceChanged(ServiceEvent event) {
 					if (event.getType() == ServiceEvent.REGISTERED) {
-						ServiceReference<IDeviceModesProvider> sr = (ServiceReference<IDeviceModesProvider>)event.getServiceReference();
-						IDeviceModesProvider modesProvider = bundleContext.getService(sr);
-						registerModes(modesProvider);
+						ServiceReference<IDeviceModelsProvider> sr = (ServiceReference<IDeviceModelsProvider>)event.getServiceReference();
+						IDeviceModelsProvider modelsProvider = bundleContext.getService(sr);
+						registerModes(modelsProvider);
 					} else if (event.getType() == ServiceEvent.UNREGISTERING) {
-						ServiceReference<IDeviceModesProvider> sr = (ServiceReference<IDeviceModesProvider>)event.getServiceReference();
-						IDeviceModesProvider modesProvider = bundleContext.getService(sr);
-						unregisterModes(modesProvider);
+						ServiceReference<IDeviceModelsProvider> sr = (ServiceReference<IDeviceModelsProvider>)event.getServiceReference();
+						IDeviceModelsProvider modelsProvider = bundleContext.getService(sr);
+						unregisterModels(modelsProvider);
 					} else {
 						// NO-OP
 					}
 				}
-			}, String.format("(%s=%s)", Constants.OBJECTCLASS, IDeviceModesProvider.class.getName()));
+			}, String.format("(%s=%s)", Constants.OBJECTCLASS, IDeviceModelsProvider.class.getName()));
 		} catch (InvalidSyntaxException e) {
 			throw new RuntimeException(e);
 		}
 	}
 	
-	private void registerModes(IDeviceModesProvider modesProvider) {
-		Map<String, ModeDescriptor> modes = modesProvider.provide();
+	private void registerModes(IDeviceModelsProvider modesProvider) {
+		Map<String, ModelDescriptor> modes = modesProvider.provide();
 		for (String mode : modes.keySet()) {
-			deviceManager.registerMode(mode, modes.get(mode));
+			deviceManager.registerModel(mode, modes.get(mode));
 		}
 	}
 	
-	private void unregisterModes(IDeviceModesProvider modesProvider) {
-		Map<String, ModeDescriptor> modes = modesProvider.provide();
-		for (String mode : modes.keySet()) {
-			deviceManager.unregisterMode(mode);
+	private void unregisterModels(IDeviceModelsProvider modelsProvider) {
+		Map<String, ModelDescriptor> models = modelsProvider.provide();
+		for (String model : models.keySet()) {
+			deviceManager.unregisterMode(model);
 		}
 	}
 	

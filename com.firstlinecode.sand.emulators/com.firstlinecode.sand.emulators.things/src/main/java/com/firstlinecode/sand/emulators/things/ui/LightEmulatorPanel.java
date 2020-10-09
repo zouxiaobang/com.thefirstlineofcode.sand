@@ -15,9 +15,9 @@ import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.SwingUtilities;
 
+import com.firstlinecode.sand.emulators.things.ILight;
 import com.firstlinecode.sand.emulators.things.ILight.LightState;
 import com.firstlinecode.sand.emulators.things.ILight.SwitchState;
-import com.firstlinecode.sand.emulators.things.NotRemoteControlStateException;
 import com.firstlinecode.sand.emulators.things.emulators.ILightEmulator;
 
 public class LightEmulatorPanel extends AbstractThingEmulatorPanel<ILightEmulator> implements ActionListener  {
@@ -102,8 +102,10 @@ public class LightEmulatorPanel extends AbstractThingEmulatorPanel<ILightEmulato
 		control.setMnemonic(KeyEvent.VK_R);
 		control.setActionCommand("Remote Control");
 		control.setSelected(true);
+		
 		if (light.getSwitchState() == SwitchState.CONTROL)
 			control.setSelected(true);
+		
 		return control;
 	}
 
@@ -111,8 +113,10 @@ public class LightEmulatorPanel extends AbstractThingEmulatorPanel<ILightEmulato
 		JRadioButton on = new JRadioButton("Turn On");
 		on.setMnemonic(KeyEvent.VK_N);
 		on.setActionCommand("on");
+		
 		if (light.getSwitchState() == SwitchState.ON)
 			on.setSelected(true);
+		
 		return on;
 	}
 
@@ -120,8 +124,10 @@ public class LightEmulatorPanel extends AbstractThingEmulatorPanel<ILightEmulato
 		JRadioButton off = new JRadioButton("Turn Off");
 		off.setMnemonic(KeyEvent.VK_F);
 		off.setActionCommand("off");
+		
 		if (light.getSwitchState() == SwitchState.OFF)
 			off.setSelected(true);
+		
 		return off;
 	}
 
@@ -167,7 +173,7 @@ public class LightEmulatorPanel extends AbstractThingEmulatorPanel<ILightEmulato
 			}
 		});
 		
-		new Thread(new Runnable() {		
+		new Thread(new Runnable() {
 			@Override
 			public void run() {
 				try {
@@ -212,45 +218,22 @@ public class LightEmulatorPanel extends AbstractThingEmulatorPanel<ILightEmulato
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		String actionCommand = e.getActionCommand();
+		
+		boolean changed = false;
 		if (actionCommand.equals("off")) {
-			switchToTurnOff();
+			changed = light.changeSwitchState(ILight.SwitchState.OFF);
 		} else if (actionCommand.equals("on")) {
-			switchToTurnOn();
+			changed = light.changeSwitchState(ILight.SwitchState.ON);
 		} else {
-			switchToRemoteControl();
+			changed = light.changeSwitchState(ILight.SwitchState.CONTROL);
+		}
+		
+		if (changed && switchStateListener != null) {
+			refreshFlashButtionStatus();
+			switchStateListener.switchStateChanged(light.getSwitchState(), SwitchState.CONTROL);
 		}
 	}
-
-	private void switchToRemoteControl() {
-		if (light.isPowered())
-			lightImage.setIcon(getLightImageIcon(LightState.OFF));
-		
-		if (switchStateListener != null)
-			switchStateListener.switchStateChanged(light.getSwitchState(), SwitchState.CONTROL);
-		
-		refreshFlashButtionStatus();
-	}
-
-	private void switchToTurnOn() {
-		if (light.isPowered())
-			lightImage.setIcon(getLightImageIcon(LightState.ON));
-		
-		if (switchStateListener != null)
-			switchStateListener.switchStateChanged(light.getSwitchState(), SwitchState.ON);
-		
-		refreshFlashButtionStatus();
-	}
-
-	private void switchToTurnOff() {
-		if (light.isPowered())
-			lightImage.setIcon(getLightImageIcon(LightState.OFF));
-		
-		if (switchStateListener != null)
-			switchStateListener.switchStateChanged(light.getSwitchState(), SwitchState.OFF);
-		
-		refreshFlashButtionStatus();
-	}
-
+	
 	public void updateStatus() {
 		updateStatus(light.getThingStatus());
 	}
@@ -260,18 +243,16 @@ public class LightEmulatorPanel extends AbstractThingEmulatorPanel<ILightEmulato
 	}
 	
 	public void turnOn() {
-		if (light.getSwitchState() != SwitchState.CONTROL)
-			throw new RuntimeException(new NotRemoteControlStateException(light.getSwitchState()));
-		
-		lightImage.setIcon(getLightImageIcon(LightState.ON));
 		refreshFlashButtionStatus();
+		
+		if (light.isPowered())
+			lightImage.setIcon(getLightImageIcon(LightState.ON));
 	}
 	
 	public void turnOff() {
-		if (light.getSwitchState() != SwitchState.CONTROL)
-			throw new RuntimeException(new NotRemoteControlStateException(light.getSwitchState()));
-		
-		lightImage.setIcon(getLightImageIcon(LightState.OFF));
 		refreshFlashButtionStatus();
+		
+		if (light.isPowered())
+			lightImage.setIcon(getLightImageIcon(LightState.OFF));
 	}
 }

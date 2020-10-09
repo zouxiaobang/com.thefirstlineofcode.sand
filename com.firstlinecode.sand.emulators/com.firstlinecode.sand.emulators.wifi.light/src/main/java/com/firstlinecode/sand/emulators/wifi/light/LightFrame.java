@@ -10,8 +10,6 @@ import java.awt.event.KeyEvent;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import java.util.Enumeration;
-import java.util.Timer;
-import java.util.TimerTask;
 
 import javax.swing.JFrame;
 import javax.swing.JMenu;
@@ -21,13 +19,19 @@ import javax.swing.KeyStroke;
 import javax.swing.UIManager;
 import javax.swing.plaf.FontUIResource;
 
+import com.firstlinecode.chalk.AuthFailureException;
 import com.firstlinecode.chalk.IChatClient;
 import com.firstlinecode.chalk.StandardChatClient;
 import com.firstlinecode.chalk.core.stream.StandardStreamConfig;
+import com.firstlinecode.chalk.core.stream.UsernamePasswordToken;
+import com.firstlinecode.chalk.network.ConnectionException;
 import com.firstlinecode.chalk.network.IConnectionListener;
+import com.firstlinecode.sand.client.actuator.ActuatorPlugin;
 import com.firstlinecode.sand.client.ibdr.IRegistration;
 import com.firstlinecode.sand.client.ibdr.IbdrPlugin;
 import com.firstlinecode.sand.client.ibdr.RegistrationException;
+import com.firstlinecode.sand.client.things.BatteryPowerEvent;
+import com.firstlinecode.sand.client.things.IDeviceListener;
 import com.firstlinecode.sand.client.things.obm.IObmFactory;
 import com.firstlinecode.sand.client.things.obm.ObmFactory;
 import com.firstlinecode.sand.emulators.things.UiUtils;
@@ -35,7 +39,7 @@ import com.firstlinecode.sand.emulators.things.ui.AboutDialog;
 import com.firstlinecode.sand.emulators.things.ui.LightEmulatorPanel;
 import com.firstlinecode.sand.emulators.things.ui.StreamConfigDialog;
 
-public class LightFrame extends JFrame implements ActionListener, WindowListener {
+public class LightFrame extends JFrame implements ActionListener, WindowListener, IDeviceListener {
 	private static final long serialVersionUID = 6734911253434942398L;
 	
 	// File Menu
@@ -101,42 +105,13 @@ public class LightFrame extends JFrame implements ActionListener, WindowListener
 			this.light = light;
 			dirty = false;
 		} else {
-			this.light = new Light(Light.THING_MODE);
+			this.light = new Light(Light.THING_MODEL);
 			this.light.powerOn();
 			dirty = true;
 		}
-				
-		setupUi();
 		
-		BatteryTimer timer = new BatteryTimer();
-		timer.start();
-	}
-	
-	private class BatteryTimer {
-		private Timer timer = new Timer(String.format("%s-%s '%s' Battery Timer", Light.THING_NAME,
-				Light.THING_MODE, light.getDeviceId()));
-		
-		public void start() {
-			timer.schedule(new BatteryPowerTimerTask(), 1000 * 10, 1000 * 10);
-		}
-	}
-	
-	private class BatteryPowerTimerTask extends TimerTask {
-		@Override
-		public void run() {
-			synchronized (LightFrame.this) {
-				if (light.isPowered()) {
-					if (light.getBatteryPower() == 0)
-						return;
-					
-					if (light.getBatteryPower() != 10) {
-						light.setBatteryPower(light.getBatteryPower() - 2);
-					} else {
-						light.setBatteryPower(100);
-					}
-				}
-			}
-		}
+		setupUi();		
+		refreshPowerRelativedMenus();
 	}
 
 	private void setupUi() {
@@ -254,9 +229,9 @@ public class LightFrame extends JFrame implements ActionListener, WindowListener
 		} else if (MENU_ITEM_NAME_QUIT.equals(actionCommand)) {
 			quit();
 		} else if (MENU_ITEM_NAME_POWER_ON.equals(actionCommand)) {
-			// powerOn();
+			powerOn();
 		} else if (MENU_ITEM_NAME_POWER_OFF.equals(actionCommand)) {
-			// powerOff();
+			powerOff();
 		} else if (MENU_ITEM_NAME_REGISTER.equals(actionCommand)) {
 			register();
 		} else if (MENU_ITEM_NAME_CONNECT.equals(actionCommand)) {
@@ -269,6 +244,34 @@ public class LightFrame extends JFrame implements ActionListener, WindowListener
 			showAboutDialog();
 		} else {
 			throw new IllegalArgumentException("Illegal action command: " + actionCommand);
+		}
+	}
+	
+	private void powerOn() {
+		if (light.isPowered())
+			return;
+		
+		light.powerOn();
+		dirty = true;
+	}
+	
+	private void powerOff() {
+		if (light.isPowered())
+			return;
+		
+		light.powerOff();
+		dirty = true;
+		
+		refreshPowerRelativedMenus();
+	}
+	
+	private void refreshPowerRelativedMenus() {
+		if (light.isPowered()) {
+			UiUtils.getMenuItem(menuBar, MENU_NAME_EDIT, MENU_ITEM_NAME_POWER_ON).setEnabled(false);
+			UiUtils.getMenuItem(menuBar, MENU_NAME_EDIT, MENU_ITEM_NAME_POWER_OFF).setEnabled(true);
+		} else {
+			UiUtils.getMenuItem(menuBar, MENU_NAME_EDIT, MENU_ITEM_NAME_POWER_OFF).setEnabled(false);
+			UiUtils.getMenuItem(menuBar, MENU_NAME_EDIT, MENU_ITEM_NAME_POWER_ON).setEnabled(true);
 		}
 	}
 
@@ -366,13 +369,84 @@ public class LightFrame extends JFrame implements ActionListener, WindowListener
 	}
 
 	private void disconnect() {
-		// TODO Auto-generated method stub
+		if (chatClient == null || chatClient.isClosed())
+			throw new IllegalStateException("Light has already disconnected.");
 		
+		doDisconnect();
+		refreshConnectionStateRelativatedMenus();
+		panel.updateStatus();
+		UiUtils.showNotification(this, "Message", "Light has disconnected.");
 	}
 
 	private void connect() {
 		// TODO Auto-generated method stub
+		if (chatClient != null && chatClient.isConnected())
+			throw new IllegalStateException("Gateway has already connected.");
 		
+		try {
+			doConnect();
+			UiUtils.showNotification(this, "Message", "Gateway has connected.");
+		} catch (ConnectionException e) {
+			if (chatClient != null) {
+				chatClient.close();
+				chatClient = null;
+			}
+			
+			JOptionPane.showMessageDialog(this, "Connection error. Error type: " + e.getType(), "Connect Error", JOptionPane.ERROR_MESSAGE);
+		} catch (AuthFailureException e) {
+			JOptionPane.showMessageDialog(this, "Authentication failed.", "Authentication Error", JOptionPane.ERROR_MESSAGE);
+		}
+	}
+	
+	private void doConnect() throws ConnectionException, AuthFailureException {
+		if (chatClient == null)
+			chatClient = createChatClient();
+		
+		IConnectionListener logConsoleListener = getLogConsoleInternetConnectionListener();
+		if (logConsoleListener != null && !chatClient.getConnectionListeners().contains(logConsoleListener))
+			chatClient.addConnectionListener(getLogConsoleInternetConnectionListener());
+		
+		chatClient.connect(new UsernamePasswordToken(light.getDeviceIdentity().getDeviceName().toString(),
+				light.getDeviceIdentity().getCredentials()));
+				
+		refreshConnectionStateRelativatedMenus();
+		panel.updateStatus();
+	}
+	
+	private void refreshConnectionStateRelativatedMenus() {
+		if (chatClient != null && chatClient.isConnected()) {
+			UiUtils.getMenuItem(menuBar, MENU_NAME_TOOLS, MENU_ITEM_NAME_CONNECT).setEnabled(false);			
+			UiUtils.getMenuItem(menuBar, MENU_NAME_TOOLS, MENU_ITEM_NAME_DISCONNECT).setEnabled(true);			
+			
+			refreshLightInstanceRelativatedMenus();
+		} else {
+			UiUtils.getMenuItem(menuBar, MENU_NAME_TOOLS, MENU_ITEM_NAME_DISCONNECT).setEnabled(false);			
+			UiUtils.getMenuItem(menuBar, MENU_NAME_TOOLS, MENU_ITEM_NAME_CONNECT).setEnabled(true);
+		}
+	}
+	
+	private IChatClient createChatClient() {
+		if (light.getDeviceIdentity() == null)
+			throw new IllegalStateException("Device identity is null. Please register your light.");
+		
+		StandardStreamConfig streamConfigWithResource = createStreamConfigWithResource();
+		IChatClient chatClient = new StandardChatClient(streamConfigWithResource);
+		
+		registerPlugins(chatClient);
+		
+		return chatClient;
+	}
+	
+	private void registerPlugins(IChatClient chatClient) {
+		chatClient.register(ActuatorPlugin.class);
+	}
+	
+	private StandardStreamConfig createStreamConfigWithResource() {
+		StandardStreamConfig cloned = new StandardStreamConfig(streamConfig.getHost(), streamConfig.getPort());
+		cloned.setTlsPreferred(streamConfig.isTlsPreferred());
+		cloned.setResource(light.getThingName());
+		
+		return cloned;
 	}
 
 	private void saveAs() {
@@ -448,4 +522,9 @@ public class LightFrame extends JFrame implements ActionListener, WindowListener
 
 	@Override
 	public void windowDeactivated(WindowEvent e) {}
+
+	@Override
+	public void batteryPowerChanged(BatteryPowerEvent event) {
+		dirty = true;
+	}
 }

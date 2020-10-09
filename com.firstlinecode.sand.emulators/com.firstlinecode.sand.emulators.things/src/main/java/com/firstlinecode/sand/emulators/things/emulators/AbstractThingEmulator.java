@@ -14,33 +14,46 @@ import com.firstlinecode.sand.client.things.ThingsUtils;
 import com.firstlinecode.sand.emulators.things.PowerEvent;
 
 public abstract class AbstractThingEmulator implements IThingEmulator {
+	private static final int BATTERY_POWER_DOWN_INTERVAL = 1000 * 10;
+	
 	protected String thingName;
 	
 	protected String deviceId;
-	protected String mode;
+	protected String model;
 	protected int batteryPower;
 	protected boolean powered;
 	protected List<IDeviceListener> deviceListeners;
 	
-	public AbstractThingEmulator(String mode) {
-		if (mode == null)
-			throw new IllegalArgumentException("Null device mode.");
+	protected BatteryTimer batteryTimer;
+	
+	public AbstractThingEmulator(String model) {
+		if (model == null)
+			throw new IllegalArgumentException("Null device model.");
 		
-		this.mode = mode;
-		this.thingName = getThingName() + " - " + mode;
+		this.model = model;
+		this.thingName = getThingName() + " - " + model;
 		
 		deviceId = generateDeviceId();
 		batteryPower = 100;
 		powered = false;
 		
 		deviceListeners = new ArrayList<>();
+	}
+
+	protected void startBatteryTimer() {
+		if (batteryTimer == null)
+			batteryTimer = new BatteryTimer(getThingName(), deviceId);
 		
-		BatteryTimer timer = new BatteryTimer();
-		timer.start();
+		batteryTimer.start();
+	}
+	
+	protected void stopBatteryTimer() {
+		batteryTimer.stop();
+		batteryTimer = null;
 	}
 
 	protected String generateDeviceId() {
-		return getMode() + ThingsUtils.generateRandomId(8);
+		return getModel() + ThingsUtils.generateRandomId(8);
 	}
 	
 	public String getThingStatus() {
@@ -60,10 +73,23 @@ public abstract class AbstractThingEmulator implements IThingEmulator {
 	}
 	
 	private class BatteryTimer {
-		private Timer timer = new Timer(String.format("%s '%s' Battery Timer", getThingName(), deviceId));
+		private String thingName;
+		private String deviceId;
+		private Timer timer;
+		
+		public BatteryTimer(String thingName, String deviceId) {
+			this.thingName = thingName;
+			this.deviceId = deviceId;
+		}
 		
 		public void start() {
-			timer.schedule(new BatteryPowerTimerTask(), 1000 * 10, 1000 * 10);
+			timer = new Timer(String.format("%s '%s' Battery Timer", thingName, deviceId));
+			timer.schedule(new BatteryPowerTimerTask(), BATTERY_POWER_DOWN_INTERVAL, BATTERY_POWER_DOWN_INTERVAL);
+		}
+		
+		public void stop() {
+			timer.cancel();
+			timer = null;
 		}
 	}
 	
@@ -71,15 +97,8 @@ public abstract class AbstractThingEmulator implements IThingEmulator {
 		@Override
 		public void run() {
 			synchronized (AbstractThingEmulator.this) {
-				if (powered) {
-					if (batteryPower == 0)
-						return;
-					
-					if (batteryPower != 10) {
-						batteryPower -= 2;
-					} else {
-						batteryPower = 100;
-					}
+				if (powered && downBatteryPower()) {
+					getPanel().updateStatus(getThingStatus());
 					
 					for (IDeviceListener deviceListener : deviceListeners) {
 						deviceListener.batteryPowerChanged(new BatteryPowerEvent(AbstractThingEmulator.this, batteryPower));
@@ -87,6 +106,19 @@ public abstract class AbstractThingEmulator implements IThingEmulator {
 				}
 			}
 		}
+	}
+	
+	protected boolean downBatteryPower() {
+		if (batteryPower == 0)
+			return false;
+		
+		if (batteryPower != 10) {
+			batteryPower -= 2;
+		} else {
+			batteryPower = 100;
+		}
+		
+		return true;
 	}
 	
 	@Override
@@ -100,8 +132,8 @@ public abstract class AbstractThingEmulator implements IThingEmulator {
 	}
 	
 	@Override
-	public String getMode() {
-		return mode;
+	public String getModel() {
+		return model;
 	}
 	
 	@Override
@@ -109,7 +141,11 @@ public abstract class AbstractThingEmulator implements IThingEmulator {
 		if (batteryPower <= 0 || batteryPower > 100) {
 			throw new IllegalArgumentException("Battery power value must be in the range of 0 to 100.");
 		}
-		this.batteryPower = batteryPower;
+		
+		if (this.batteryPower != batteryPower) {			
+			this.batteryPower = batteryPower;
+			getPanel().updateStatus(getThingStatus());
+		}
 	}
 	
 	@Override
@@ -119,7 +155,7 @@ public abstract class AbstractThingEmulator implements IThingEmulator {
 
 	@Override
 	public void writeExternal(ObjectOutput out) throws IOException {
-		out.writeObject(mode);
+		out.writeObject(model);
 		out.writeObject(deviceId);
 		out.writeInt(batteryPower);
 		out.writeBoolean(powered);
@@ -129,7 +165,7 @@ public abstract class AbstractThingEmulator implements IThingEmulator {
 	
 	@Override
 	public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
-		mode = (String)in.readObject();
+		model = (String)in.readObject();
 		deviceId = (String)in.readObject();
 		batteryPower = in.readInt();
 		powered = in.readBoolean();
@@ -144,6 +180,9 @@ public abstract class AbstractThingEmulator implements IThingEmulator {
 		
 		this.powered = true;
 		doPowerOn();
+		
+		startBatteryTimer();
+		getPanel().updateStatus(getThingStatus());
 		
 		for (IThingEmulatorListener thingEmulatorListener : getThingEmulatorListeners()) {
 			thingEmulatorListener.powerChanged(new PowerEvent(this, PowerEvent.Type.POWER_ON));
@@ -168,6 +207,10 @@ public abstract class AbstractThingEmulator implements IThingEmulator {
 		
 		this.powered = false;
 		doPowerOff();
+		
+		stopBatteryTimer();
+		
+		getPanel().updateStatus(getThingStatus());
 		
 		for (IThingEmulatorListener thingEmulatorListener : getThingEmulatorListeners()) {
 			thingEmulatorListener.powerChanged(new PowerEvent(this, PowerEvent.Type.POWER_OFF));

@@ -5,7 +5,7 @@ import java.util.Map;
 
 import com.firstlinecode.basalt.protocol.core.Protocol;
 
-public class ModeDescriptor {
+public class ModelDescriptor {
 	private String name;
 	private boolean actuator;
 	private boolean concentrator;
@@ -14,19 +14,19 @@ public class ModeDescriptor {
 	private Map<Protocol, Class<?>> supportedActions;
 	private Map<Protocol, Class<?>> supportedEvents;
 	
-	public ModeDescriptor(String name) {
+	public ModelDescriptor(String name) {
 		this(name, false);
 	}
 	
-	public ModeDescriptor(String name, boolean concentrator) {
+	public ModelDescriptor(String name, boolean concentrator) {
 		this(name, concentrator, null, null);
 	}
 	
-	public ModeDescriptor(String name, Map<Protocol, Class<?>> suppportedActions, Map<Protocol, Class<?>> supportedEvents) {
+	public ModelDescriptor(String name, Map<Protocol, Class<?>> suppportedActions, Map<Protocol, Class<?>> supportedEvents) {
 		this(name, false, suppportedActions, supportedEvents);
 	}
 	
-	public ModeDescriptor(String name, boolean concentrator, Map<Protocol, Class<?>> suppportedActions, Map<Protocol, Class<?>> supportedEvents) {
+	public ModelDescriptor(String name, boolean concentrator, Map<Protocol, Class<?>> suppportedActions, Map<Protocol, Class<?>> supportedEvents) {
 		this.name = name;
 		this.concentrator = concentrator;
 		this.supportedActions = suppportedActions;

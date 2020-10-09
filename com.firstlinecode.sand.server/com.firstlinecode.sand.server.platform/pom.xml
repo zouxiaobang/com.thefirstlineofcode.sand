@@ -45,7 +45,7 @@
 		</dependency>
 		<dependency>
 			<groupId>com.firstlinecode.sand.emulators</groupId>
-			<artifactId>com.firstlinecode.sand.emulators.modes</artifactId>
+			<artifactId>com.firstlinecode.sand.emulators.models</artifactId>
 		</dependency>
 	</dependencies>
 	

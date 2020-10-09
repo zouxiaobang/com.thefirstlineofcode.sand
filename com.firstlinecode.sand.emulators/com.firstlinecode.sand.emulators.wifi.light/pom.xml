@@ -23,7 +23,7 @@
 		</dependency>
 		<dependency>
 			<groupId>com.firstlinecode.sand.emulators</groupId>
-			<artifactId>com.firstlinecode.sand.emulators.modes</artifactId>
+			<artifactId>com.firstlinecode.sand.emulators.models</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>com.firstlinecode.chalk</groupId>
@@ -33,10 +33,14 @@
 			<groupId>com.firstlinecode.sand.client</groupId>
 			<artifactId>com.firstlinecode.sand.client.ibdr</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>com.firstlinecode.sand.client</groupId>
+			<artifactId>com.firstlinecode.sand.client.actuator</artifactId>
+		</dependency>
 	</dependencies>
 	
 	<build>
-		<finalName>light-${project.version}</finalName>
+		<finalName>wifi-light-${project.version}</finalName>
 		<plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -47,7 +51,7 @@
 						<manifest>
 							<addClasspath>true</addClasspath>
 							<classpathPrefix>lib/</classpathPrefix>
-							<mainClass>com.firstlinecode.sand.emulators.light.Main</mainClass>
+							<mainClass>com.firstlinecode.sand.emulators.wifi.light.Main</mainClass>
 						</manifest>
 					</archive>
 				</configuration>

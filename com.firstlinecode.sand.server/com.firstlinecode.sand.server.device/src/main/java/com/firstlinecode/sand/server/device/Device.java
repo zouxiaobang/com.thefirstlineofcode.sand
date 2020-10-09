@@ -4,7 +4,7 @@ import java.util.Date;
 
 public class Device {
 	private String deviceId;
-	private String mode;
+	private String model;
 	private String softwareVersion;
 	private Date registrationTime;
 	
@@ -16,12 +16,12 @@ public class Device {
 		this.deviceId = deviceId;
 	}
 
-	public String getMode() {
-		return mode;
+	public String getModel() {
+		return model;
 	}
 	
-	public void setMode(String mode) {
-		this.mode = mode;
+	public void setModel(String model) {
+		this.model = model;
 	}
 	
 	public String getSoftwareVersion() {

@@ -10,7 +10,7 @@ import com.firstlinecode.sand.protocols.core.CommunicationNet;
 public class Node implements Externalizable {
 	private String deviceId;
 	private String lanId;
-	private String mode;
+	private String model;
 	private CommunicationNet communicationNet;
 	private String address;
 	private boolean confirmed;
@@ -31,12 +31,12 @@ public class Node implements Externalizable {
 		this.lanId = lanId;
 	}
 
-	public String getMode() {
-		return mode;
+	public String getModel() {
+		return model;
 	}
 
-	public void setMode(String mode) {
-		this.mode = mode;
+	public void setModel(String model) {
+		this.model = model;
 	}
 
 	public CommunicationNet getCommunicationNet() {
@@ -67,7 +67,7 @@ public class Node implements Externalizable {
 	public void writeExternal(ObjectOutput out) throws IOException {
 		out.writeObject(deviceId);
 		out.writeObject(lanId);
-		out.writeObject(mode);
+		out.writeObject(model);
 		out.writeObject(communicationNet);
 		out.writeObject(address);
 		out.writeBoolean(confirmed);
@@ -77,7 +77,7 @@ public class Node implements Externalizable {
 	public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
 		deviceId = (String)in.readObject();
 		lanId = (String)in.readObject();
-		mode = (String)in.readObject();
+		model = (String)in.readObject();
 		communicationNet = (CommunicationNet)in.readObject();
 		address = (String)in.readObject();
 		confirmed = in.readBoolean();

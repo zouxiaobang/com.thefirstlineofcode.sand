@@ -2,7 +2,7 @@ package com.firstlinecode.sand.client.things;
 
 public interface IDevice {
 	String getDeviceId();
-	String getMode();
+	String getModel();
 	String getSoftwareVersion();
 	int getBatteryPower();
 	void powerOn();

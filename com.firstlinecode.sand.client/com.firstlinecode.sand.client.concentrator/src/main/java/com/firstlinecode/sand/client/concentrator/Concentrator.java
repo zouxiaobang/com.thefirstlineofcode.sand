@@ -173,7 +173,7 @@ public class Concentrator implements IConcentrator {
 			if (!deviceId.equals(nodeCreated.getConcentrator()) ||
 					!nodeCreated.getNode().equals(confirmingNode.getDeviceId()) ||
 					nodeCreated.getLanId() == null ||
-					nodeCreated.getMode() == null) {
+					nodeCreated.getModel() == null) {
 				if (logger.isErrorEnabled()) {
 					logger.error(String.format("Bad node created response. Confirming node is %s and created node is %s.",
 							getConfirmingNodeInfo(confirmingNode), getNodeCreatedInfo(nodeCreated)));
@@ -203,7 +203,7 @@ public class Concentrator implements IConcentrator {
 				
 			}
 			
-			confirmingNode.setMode(nodeCreated.getMode());
+			confirmingNode.setModel(nodeCreated.getModel());
 			
 			String requestedLanId = confirmingNode.getLanId();
 			synchronized (nodesLock) {

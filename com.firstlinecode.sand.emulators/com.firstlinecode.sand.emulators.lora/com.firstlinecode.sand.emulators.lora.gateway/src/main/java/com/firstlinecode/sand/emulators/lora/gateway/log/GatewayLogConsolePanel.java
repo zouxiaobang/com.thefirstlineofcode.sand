@@ -10,7 +10,7 @@ import com.firstlinecode.sand.client.things.commuication.CommunicationException;
 import com.firstlinecode.sand.client.things.commuication.ICommunicationListener;
 import com.firstlinecode.sand.client.things.obm.ObmData;
 import com.firstlinecode.sand.emulators.things.ui.AbstractLogConsolePanel;
-import com.firstlinecode.sand.protocols.core.ModeDescriptor;
+import com.firstlinecode.sand.protocols.core.ModelDescriptor;
 import com.firstlinecode.sand.protocols.lora.DualLoraAddress;
 import com.firstlinecode.sand.protocols.lora.LoraAddress;
 
@@ -19,7 +19,7 @@ public class GatewayLogConsolePanel extends AbstractLogConsolePanel implements I
 	
 	private IDualLoraChipsCommunicator communicator;
 
-	public GatewayLogConsolePanel(IDualLoraChipsCommunicator communicator, Map<String, ModeDescriptor> modes) {
+	public GatewayLogConsolePanel(IDualLoraChipsCommunicator communicator, Map<String, ModelDescriptor> modes) {
 		addProtocolToTypes(modes);
 		this.communicator = communicator;
 		communicator.addCommunicationListener(this);
@@ -30,10 +30,10 @@ public class GatewayLogConsolePanel extends AbstractLogConsolePanel implements I
 		communicator.removeCommunicationListener(this);
 	}
 
-	public void addProtocolToTypes(Map<String, ModeDescriptor> modes) {
-		Collection<ModeDescriptor> modeDescriptors = modes.values();
-		for (ModeDescriptor modeDescriptor : modeDescriptors) {
-			Map<Protocol, Class<?>> supportedActions = modeDescriptor.getSupportedActions();
+	public void addProtocolToTypes(Map<String, ModelDescriptor> models) {
+		Collection<ModelDescriptor> modelDescriptors = models.values();
+		for (ModelDescriptor modelDescriptor : modelDescriptors) {
+			Map<Protocol, Class<?>> supportedActions = modelDescriptor.getSupportedActions();
 			for (Map.Entry<Protocol, Class<?>> entry : supportedActions.entrySet()) {
 				Protocol protocol = entry.getKey();
 				if (!protocolToTypes.containsKey(protocol)) {
@@ -41,7 +41,7 @@ public class GatewayLogConsolePanel extends AbstractLogConsolePanel implements I
 				}
 			}
 
-			Map<Protocol, Class<?>> supportedEvents = modeDescriptor.getSupportedEvents();
+			Map<Protocol, Class<?>> supportedEvents = modelDescriptor.getSupportedEvents();
 			for (Map.Entry<Protocol, Class<?>> entry : supportedEvents.entrySet()) {
 				Protocol protocol = entry.getKey();
 				if (!protocolToTypes.containsKey(protocol)) {

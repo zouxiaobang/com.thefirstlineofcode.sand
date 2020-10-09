@@ -7,7 +7,7 @@ import com.firstlinecode.sand.protocols.lora.LoraAddress;
 
 public class LightEmulatorFactory extends AbstractLoraThingEmulatorFactory<Light> {
 	public LightEmulatorFactory() {
-		super(Light.THING_NAME, Light.THING_MODE);
+		super(Light.THING_NAME, Light.THING_MODEL);
 	}
 
 	@Override

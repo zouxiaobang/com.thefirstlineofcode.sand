@@ -11,7 +11,7 @@ import com.firstlinecode.sand.client.things.commuication.ICommunicationNetwork;
 import com.firstlinecode.sand.client.things.commuication.ICommunicationNetworkListener;
 import com.firstlinecode.sand.emulators.lora.things.AbstractLoraThingEmulator;
 import com.firstlinecode.sand.emulators.things.ui.AbstractLogConsolesDialog;
-import com.firstlinecode.sand.protocols.core.ModeDescriptor;
+import com.firstlinecode.sand.protocols.core.ModelDescriptor;
 import com.firstlinecode.sand.protocols.lora.LoraAddress;
 
 public class LogConsolesDialog extends AbstractLogConsolesDialog {
@@ -20,19 +20,19 @@ public class LogConsolesDialog extends AbstractLogConsolesDialog {
 	public static final String NAME_COMMUNICATION_NETWORK = "Communication Network";
 	public static final String NAME_GATEWAY = "Gateway";
 	
-	private Map<String, ModeDescriptor> modes;
+	private Map<String, ModelDescriptor> models;
 	
 	private ICommunicationNetwork<LoraAddress, byte[], ?> network;
 	private IDualLoraChipsCommunicator gatewayCommunicator;
 	private Map<String, List<AbstractLoraThingEmulator>> allThings;
 	
-	public LogConsolesDialog(JFrame parent, IChatClient chatClient, Map<String, ModeDescriptor> modes,
+	public LogConsolesDialog(JFrame parent, IChatClient chatClient, Map<String, ModelDescriptor> models,
 			ICommunicationNetwork<LoraAddress, byte[], ?> network,
 			IDualLoraChipsCommunicator gatewayCommunicator,
 			Map<String, List<AbstractLoraThingEmulator>> allThings) {
 		super(parent, chatClient);
 		
-		this.modes = modes;
+		this.models = models;
 		this.network = network;
 		this.gatewayCommunicator = gatewayCommunicator;
 		this.allThings = allThings;
@@ -56,16 +56,16 @@ public class LogConsolesDialog extends AbstractLogConsolesDialog {
 	}
 
 	public void createThingLogConsole(AbstractLoraThingEmulator thing) {
-		createLogConsole(thing.getDeviceId(), new ThingLogConsolePanel(thing, modes.get(thing.getMode())));
+		createLogConsole(thing.getDeviceId(), new ThingLogConsolePanel(thing, models.get(thing.getModel())));
 	}
 
 	private void createGatewayConsole(IDualLoraChipsCommunicator gatewayCommunicator) {
-		createLogConsole(NAME_GATEWAY, new GatewayLogConsolePanel(gatewayCommunicator, modes));
+		createLogConsole(NAME_GATEWAY, new GatewayLogConsolePanel(gatewayCommunicator, models));
 	}
 
 	@SuppressWarnings("unchecked")
 	private void createCommunicationNetworkLogConsole(ICommunicationNetwork<LoraAddress, byte[], ?> network) {
-		createLogConsole(NAME_COMMUNICATION_NETWORK, new CommunicationNetworkLogConsolePanel(network, modes));
+		createLogConsole(NAME_COMMUNICATION_NETWORK, new CommunicationNetworkLogConsolePanel(network, models));
 		network.addListener((ICommunicationNetworkListener<LoraAddress, byte[]>)logConsoles.get(NAME_COMMUNICATION_NETWORK));
 	}
 	

@@ -10,16 +10,16 @@ import com.firstlinecode.sand.client.things.commuication.ICommunicator;
 import com.firstlinecode.sand.client.things.obm.ObmData;
 import com.firstlinecode.sand.emulators.lora.things.AbstractLoraThingEmulator;
 import com.firstlinecode.sand.emulators.things.ui.AbstractLogConsolePanel;
-import com.firstlinecode.sand.protocols.core.ModeDescriptor;
+import com.firstlinecode.sand.protocols.core.ModelDescriptor;
 import com.firstlinecode.sand.protocols.lora.LoraAddress;
 
 public class ThingLogConsolePanel extends AbstractLogConsolePanel
 		implements ICommunicationListener<LoraAddress, LoraAddress, byte[]> {
 	private static final long serialVersionUID = 506009089461387655L;
 
-	public ThingLogConsolePanel(AbstractLoraThingEmulator thing, ModeDescriptor modeDescriptor) {
+	public ThingLogConsolePanel(AbstractLoraThingEmulator thing, ModelDescriptor modelDescriptor) {
 		((ICommunicator<LoraAddress, LoraAddress, byte[]>)thing.getCommunicator()).addCommunicationListener(this);
-		addProtocolToTypes(modeDescriptor);
+		addProtocolToTypes(modelDescriptor);
 	}
 
 	@Override
@@ -60,8 +60,8 @@ public class ThingLogConsolePanel extends AbstractLogConsolePanel
 		log(String.format("D(%s)<=N, D(%s)=>N", oldAddress, newAddress));
 	}
 
-	private void addProtocolToTypes(ModeDescriptor modeDescriptor) {
-		Map<Protocol, Class<?>> supportedActions = modeDescriptor.getSupportedActions();
+	private void addProtocolToTypes(ModelDescriptor modelDescriptor) {
+		Map<Protocol, Class<?>> supportedActions = modelDescriptor.getSupportedActions();
 		for (Map.Entry<Protocol, Class<?>> entry : supportedActions.entrySet()) {
 			Protocol protocol = entry.getKey();
 			if (!protocolToTypes.containsKey(protocol)) {
@@ -69,7 +69,7 @@ public class ThingLogConsolePanel extends AbstractLogConsolePanel
 			}
 		}
 
-		Map<Protocol, Class<?>> supportedEvents = modeDescriptor.getSupportedEvents();
+		Map<Protocol, Class<?>> supportedEvents = modelDescriptor.getSupportedEvents();
 		for (Map.Entry<Protocol, Class<?>> entry : supportedEvents.entrySet()) {
 			Protocol protocol = entry.getKey();
 			if (!protocolToTypes.containsKey(protocol)) {

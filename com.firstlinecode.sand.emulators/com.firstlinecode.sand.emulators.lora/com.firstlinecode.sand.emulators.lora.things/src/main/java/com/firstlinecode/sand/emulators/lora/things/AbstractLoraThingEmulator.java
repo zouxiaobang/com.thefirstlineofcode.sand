@@ -30,8 +30,8 @@ public abstract class AbstractLoraThingEmulator extends AbstractCommunicationNet
 	
 	protected BinaryMessageProtocolReader bMessageProtocolReader;
 		
-	public AbstractLoraThingEmulator(String mode, ICommunicator<LoraAddress, LoraAddress, byte[]> communicator) {
-		super(mode, communicator);
+	public AbstractLoraThingEmulator(String model, ICommunicator<LoraAddress, LoraAddress, byte[]> communicator) {
+		super(model, communicator);
 		
 		ObmFactory obmFactory = (ObmFactory)ObmFactory.createInstance();
 		bMessageProtocolReader = new BinaryMessageProtocolReader(obmFactory.getBinaryXmppProtocolConverter());

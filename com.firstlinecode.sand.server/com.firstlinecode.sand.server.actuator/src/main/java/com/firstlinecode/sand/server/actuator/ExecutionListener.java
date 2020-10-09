@@ -40,8 +40,8 @@ public class ExecutionListener implements IEventListener<ExecutionEvent>, IAppli
 			actuator = deviceManager.getByDeviceId(node.getDeviceId());
 		}
 		
-		String mode = deviceManager.getMode(actuator.getDeviceId());
-		if (!deviceManager.isActionSupported(mode, event.getExecute().getAction().getClass())) {
+		String model = deviceManager.getModel(actuator.getDeviceId());
+		if (!deviceManager.isActionSupported(model, event.getExecute().getAction().getClass())) {
 			throw new IllegalArgumentException(String.format("Unsupported action type: '%s'.", event.getExecute().getAction().getClass().getName()));
 		}
 		

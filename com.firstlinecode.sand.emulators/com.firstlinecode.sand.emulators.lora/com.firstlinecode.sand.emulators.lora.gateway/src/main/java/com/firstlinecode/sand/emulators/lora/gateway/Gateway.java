@@ -54,7 +54,7 @@ import com.firstlinecode.chalk.network.ConnectionException;
 import com.firstlinecode.chalk.network.IConnectionListener;
 import com.firstlinecode.sand.client.actuator.ActuatorPlugin;
 import com.firstlinecode.sand.client.concentrator.ConcentratorPlugin;
-import com.firstlinecode.sand.client.dmr.IModeRegistrar;
+import com.firstlinecode.sand.client.dmr.IModelRegistrar;
 import com.firstlinecode.sand.client.ibdr.IRegistration;
 import com.firstlinecode.sand.client.ibdr.IbdrPlugin;
 import com.firstlinecode.sand.client.ibdr.RegistrationException;
@@ -75,8 +75,8 @@ import com.firstlinecode.sand.emulators.lora.network.ILoraNetwork;
 import com.firstlinecode.sand.emulators.lora.network.LoraCommunicator;
 import com.firstlinecode.sand.emulators.lora.things.AbstractLoraThingEmulator;
 import com.firstlinecode.sand.emulators.lora.things.AbstractLoraThingEmulatorFactory;
-import com.firstlinecode.sand.emulators.modes.Ge01ModeDescriptor;
-import com.firstlinecode.sand.emulators.modes.Le01ModeDescriptor;
+import com.firstlinecode.sand.emulators.models.Ge01ModelDescriptor;
+import com.firstlinecode.sand.emulators.models.Le01ModelDescriptor;
 import com.firstlinecode.sand.emulators.things.Constants;
 import com.firstlinecode.sand.emulators.things.IGateway;
 import com.firstlinecode.sand.emulators.things.UiUtils;
@@ -90,7 +90,7 @@ import com.firstlinecode.sand.emulators.things.ui.StreamConfigInfo;
 import com.firstlinecode.sand.protocols.concentrator.NodeAddress;
 import com.firstlinecode.sand.protocols.core.CommunicationNet;
 import com.firstlinecode.sand.protocols.core.DeviceIdentity;
-import com.firstlinecode.sand.protocols.core.ModeDescriptor;
+import com.firstlinecode.sand.protocols.core.ModelDescriptor;
 import com.firstlinecode.sand.protocols.lora.LoraAddress;
 
 public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionListener, InternalFrameListener,
@@ -102,7 +102,7 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 	
 	private static final String DEFAULT_GATEWAY_LAN_ID = "00";
 	private static final int ALWAYS_FULL_POWER = 100;
-	private static final String THING_MODE = "GE01";
+	private static final String THING_MODEL = "GE01";
 	
 	// File Menu
 	private static final String MENU_TEXT_FILE = "File";
@@ -182,7 +182,7 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 	
 	private DynamicAddressConfigurator addressConfigurator;
 	private IConcentrator concentrator;
-	private Map<String, ModeDescriptor> registeredModes;
+	private Map<String, ModelDescriptor> registeredModels;
 	
 	public Gateway(ILoraNetwork network, IDualLoraChipsCommunicator gatewayCommunicator) {
 		super(THING_NAME);
@@ -197,7 +197,7 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 		nodes = new HashMap<>();
 		dirty = false;
 		autoReconnect = false;
-		registerModes();
+		registerModels();
 		
 		new Thread(new AutoReconnectThread(), "Gateway Auto Reconnect Thread").start();
 		
@@ -205,7 +205,7 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 	}
 
 	protected String generateDeviceId() {
-		return getMode() + ThingsUtils.generateRandomId(8);
+		return getModel() + ThingsUtils.generateRandomId(8);
 	}
 	
 	private class AutoReconnectThread implements Runnable {
@@ -462,7 +462,7 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 		IChatClient chatClient = new StandardChatClient(streamConfigWithResource);
 		
 		registerPlugins(chatClient);
-		registerModes(chatClient);
+		registerModels(chatClient);
 		
 		return chatClient;
 	}
@@ -500,18 +500,18 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 		actuator.stop();
 	}
 
-	private void registerModes(IChatClient chatClient) {
-		IModeRegistrar modeRegistrar = chatClient.createApi(IModeRegistrar.class);
-		modeRegistrar.registerModeDescriptor(new Ge01ModeDescriptor());
-		modeRegistrar.registerModeDescriptor(new Le01ModeDescriptor());
+	private void registerModels(IChatClient chatClient) {
+		IModelRegistrar modelRegistrar = chatClient.createApi(IModelRegistrar.class);
+		modelRegistrar.registerModeDescriptor(new Ge01ModelDescriptor());
+		modelRegistrar.registerModeDescriptor(new Le01ModelDescriptor());
 	}
 
-	private void registerModes() {
-		registeredModes = new HashMap<>();
-		Ge01ModeDescriptor ge01 = new Ge01ModeDescriptor();
-		registeredModes.put(ge01.getName(), ge01);
-		Le01ModeDescriptor le01 = new Le01ModeDescriptor();
-		registeredModes.put(le01.getName(), le01);
+	private void registerModels() {
+		registeredModels = new HashMap<>();
+		Ge01ModelDescriptor ge01 = new Ge01ModelDescriptor();
+		registeredModels.put(ge01.getName(), ge01);
+		Le01ModelDescriptor le01 = new Le01ModelDescriptor();
+		registeredModels.put(le01.getName(), le01);
 	}
 
 	private void registerPlugins(IChatClient chatClient) {
@@ -528,7 +528,7 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 	}
 
 	private void showLogConsoleDialog() {
-		logConsolesDialog = new LogConsolesDialog(this, chatClient, registeredModes, network, gatewayCommunicator, allThings);
+		logConsolesDialog = new LogConsolesDialog(this, chatClient, registeredModels, network, gatewayCommunicator, allThings);
 		logConsolesDialog.addWindowListener(this);
 		
 		logConsolesDialog.setVisible(true);
@@ -1289,8 +1289,8 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 	}
 	
 	@Override
-	public String getMode() {
-		return THING_MODE;
+	public String getModel() {
+		return THING_MODEL;
 	}
 
 	@Override

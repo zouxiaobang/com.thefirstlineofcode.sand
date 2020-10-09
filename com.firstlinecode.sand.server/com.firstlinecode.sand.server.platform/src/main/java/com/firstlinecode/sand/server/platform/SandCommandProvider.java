@@ -238,8 +238,8 @@ public class SandCommandProvider implements CommandProvider, IEventProducerAware
 	}
 	
 	private boolean isActionSupported(CommandInterpreter interpreter, Device device, Protocol protocol) {
-		String mode = deviceManager.getMode(device.getDeviceId());
-		if (!deviceManager.isActionSupported(mode, protocol)) {
+		String model = deviceManager.getModel(device.getDeviceId());
+		if (!deviceManager.isActionSupported(model, protocol)) {
 			interpreter.print(String.format("Error: Action which's protocol is '%s' isn't supported by device which's device ID is '%s'.\n",
 					protocol, device.getDeviceId()));
 			
@@ -253,7 +253,7 @@ public class SandCommandProvider implements CommandProvider, IEventProducerAware
 		if (!isActionSupported(interpreter, device, protocol))
 			return;
 		
-		Object actionObject = createActionObject(interpreter, device.getMode(), protocol, params);
+		Object actionObject = createActionObject(interpreter, device.getModel(), protocol, params);
 		eventProducer.fire(new ExecutionEvent(device, null, new Execute(actionObject)));
 	}
 	
@@ -265,7 +265,7 @@ public class SandCommandProvider implements CommandProvider, IEventProducerAware
 		if (!isActionSupported(interpreter, nodeDevice, protocol))
 			return;
 		
-		Object actionObject = createActionObject(interpreter, nodeDevice.getMode(), protocol, params);
+		Object actionObject = createActionObject(interpreter, nodeDevice.getModel(), protocol, params);
 		eventProducer.fire(new ExecutionEvent(concentratorDevice, lanId, new Execute(actionObject)));
 	}
 	
@@ -283,8 +283,8 @@ public class SandCommandProvider implements CommandProvider, IEventProducerAware
 		return null;
 	}
 
-	private Object createActionObject(CommandInterpreter interpreter, String mode, Protocol protocol, Map<String, String> params) {		
-		Class<?> actionType = deviceManager.getActionType(mode, protocol);
+	private Object createActionObject(CommandInterpreter interpreter, String model, Protocol protocol, Map<String, String> params) {		
+		Class<?> actionType = deviceManager.getActionType(model, protocol);
 		try {
 			Object action = actionType.newInstance();
 			if (params != null && !params.isEmpty()) {				

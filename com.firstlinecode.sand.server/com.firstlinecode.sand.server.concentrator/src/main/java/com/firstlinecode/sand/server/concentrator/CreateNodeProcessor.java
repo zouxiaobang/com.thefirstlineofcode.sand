@@ -40,7 +40,7 @@ public class CreateNodeProcessor implements IXepProcessor<Iq, CreateNode>, IConf
 			throw new ProtocolException(new ItemNotFound(String.format("Device which's device name is '%s' not be found.",
 					context.getJid().getNode())));
 		
-		if (!deviceManager.isConcentrator(device.getMode()))
+		if (!deviceManager.isConcentrator(device.getModel()))
 			throw new ProtocolException(new NotAcceptable("Device which's device name is '%s' isn't a concentrator.",
 					context.getJid().getNode()));
 		

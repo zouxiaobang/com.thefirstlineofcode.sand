@@ -17,7 +17,7 @@ import com.firstlinecode.basalt.protocol.core.ProtocolException;
 import com.firstlinecode.basalt.protocol.core.stanza.error.Conflict;
 import com.firstlinecode.basalt.protocol.core.stanza.error.NotAuthorized;
 import com.firstlinecode.sand.protocols.core.DeviceIdentity;
-import com.firstlinecode.sand.protocols.core.ModeDescriptor;
+import com.firstlinecode.sand.protocols.core.ModelDescriptor;
 import com.firstlinecode.sand.server.device.Device;
 import com.firstlinecode.sand.server.device.DeviceAuthorization;
 import com.firstlinecode.sand.server.device.IDeviceIdRuler;
@@ -32,10 +32,10 @@ public class DeviceManager implements IDeviceManager {
 	@Autowired(required = false)
 	private IDeviceIdRuler deviceIdRuler;
 	
-	private Map<String, ModeDescriptor> modeDescriptors;
+	private Map<String, ModelDescriptor> modelDescriptors;
 	
 	public DeviceManager() {
-		modeDescriptors = new HashMap<>();
+		modelDescriptors = new HashMap<>();
 	}
 	
 	@Override
@@ -85,7 +85,7 @@ public class DeviceManager implements IDeviceManager {
 		D_Device device = new D_Device();
 		device.setId(UUID.randomUUID().toString());
 		device.setDeviceId(deviceId);		
-		device.setMode(getMode(deviceId));
+		device.setModel(getModel(deviceId));
 		device.setRegistrationTime(Calendar.getInstance().getTime());
 		create(device);
 		
@@ -178,36 +178,36 @@ public class DeviceManager implements IDeviceManager {
 	}
 
 	@Override
-	public void registerMode(String mode, ModeDescriptor modeDescriptor) {
-		modeDescriptors.put(mode, modeDescriptor);
+	public void registerModel(String model, ModelDescriptor modelDescriptor) {
+		modelDescriptors.put(model, modelDescriptor);
 	}
 
 	@Override
-	public ModeDescriptor unregisterMode(String mode) {
-		return modeDescriptors.remove(mode);
+	public ModelDescriptor unregisterMode(String model) {
+		return modelDescriptors.remove(model);
 	}
 
 	@Override
-	public boolean isConcentrator(String mode) {
-		return getModeDescriptor(mode).isConcentrator();
+	public boolean isConcentrator(String model) {
+		return getModelDescriptor(model).isConcentrator();
 	}
 
-	private ModeDescriptor getModeDescriptor(String mode) {
-		ModeDescriptor modeDescriptor = modeDescriptors.get(mode);
-		if (modeDescriptor == null)
-			throw new IllegalArgumentException(String.format("Unsupported mode: %s.", mode));
+	private ModelDescriptor getModelDescriptor(String model) {
+		ModelDescriptor modelDescriptor = modelDescriptors.get(model);
+		if (modelDescriptor == null)
+			throw new IllegalArgumentException(String.format("Unsupported model: %s.", model));
 		
-		return modeDescriptor;
+		return modelDescriptor;
 	}
 
 	@Override
-	public boolean isActuator(String mode) {
-		return getModeDescriptor(mode).isActuator();
+	public boolean isActuator(String model) {
+		return getModelDescriptor(model).isActuator();
 	}
 
 	@Override
-	public boolean isSensor(String mode) {
-		return getModeDescriptor(mode).isSensor();
+	public boolean isSensor(String model) {
+		return getModelDescriptor(model).isSensor();
 	}
 
 	@Override
@@ -233,26 +233,26 @@ public class DeviceManager implements IDeviceManager {
 	}
 
 	@Override
-	public String getMode(String deviceId) {
-		String mode = null;
+	public String getModel(String deviceId) {
+		String model = null;
 		if (deviceIdRuler != null)
-			mode = deviceIdRuler.guessMode(deviceId);
+			model = deviceIdRuler.guessModel(deviceId);
 		
-		mode = deviceId.substring(0, 4);
-		if (getModeDescriptor(mode) != null)
-			return mode;
+		model = deviceId.substring(0, 4);
+		if (getModelDescriptor(model) != null)
+			return model;
 		
 		return null;
 	}
 
 	@Override
-	public boolean isActionSupported(String mode, Protocol protocol) {
-		ModeDescriptor modeDescriptor = getModeDescriptor(mode);
+	public boolean isActionSupported(String model, Protocol protocol) {
+		ModelDescriptor modelDescriptor = getModelDescriptor(model);
 		
-		if (!modeDescriptor.isActuator())
+		if (!modelDescriptor.isActuator())
 			return false;
 		
-		for (Protocol supportedActionProtocol : modeDescriptor.getSupportedActions().keySet()) {
+		for (Protocol supportedActionProtocol : modelDescriptor.getSupportedActions().keySet()) {
 			if (protocol.equals(supportedActionProtocol))
 				return true;
 		}
@@ -261,13 +261,13 @@ public class DeviceManager implements IDeviceManager {
 	}
 
 	@Override
-	public boolean isEventSupported(String mode, Protocol protocol) {
-		ModeDescriptor modeDescriptor = getModeDescriptor(mode);
+	public boolean isEventSupported(String model, Protocol protocol) {
+		ModelDescriptor modelDescriptor = getModelDescriptor(model);
 		
-		if (!modeDescriptor.isSensor())
+		if (!modelDescriptor.isSensor())
 			return false;
 		
-		for (Protocol supportedEventProtocol : modeDescriptor.getSupportedEvents().keySet()) {
+		for (Protocol supportedEventProtocol : modelDescriptor.getSupportedEvents().keySet()) {
 			if (protocol.equals(supportedEventProtocol))
 				return true;
 		}
@@ -276,23 +276,23 @@ public class DeviceManager implements IDeviceManager {
 	}
 
 	@Override
-	public Class<?> getActionType(String mode, Protocol protocol) {
-		ModeDescriptor modeDescriptor = getModeDescriptor(mode);
+	public Class<?> getActionType(String model, Protocol protocol) {
+		ModelDescriptor modelDescriptor = getModelDescriptor(model);
 		
-		if (!modeDescriptor.isActuator())
-			throw new RuntimeException(String.format("Device which's mode is '%s' isn't an actuator.", mode));
+		if (!modelDescriptor.isActuator())
+			throw new RuntimeException(String.format("Device which's model is '%s' isn't an actuator.", model));
 		
-		return modeDescriptor.getSupportedActions().get(protocol);
+		return modelDescriptor.getSupportedActions().get(protocol);
 	}
 
 	@Override
-	public Class<?> getEventType(String mode, Protocol protocol) {
-		ModeDescriptor modeDescriptor = getModeDescriptor(mode);
+	public Class<?> getEventType(String model, Protocol protocol) {
+		ModelDescriptor modelDescriptor = getModelDescriptor(model);
 		
-		if (!modeDescriptor.isSensor())
-			throw new RuntimeException(String.format("Device which's mode is '%s' isn't a sensor.", mode));
+		if (!modelDescriptor.isSensor())
+			throw new RuntimeException(String.format("Device which's model is '%s' isn't a sensor.", model));
 		
-		return modeDescriptor.getSupportedEvents().get(protocol);
+		return modelDescriptor.getSupportedEvents().get(protocol);
 	}
 
 	@Override
@@ -306,21 +306,21 @@ public class DeviceManager implements IDeviceManager {
 
 	@Override
 	public boolean isActionSupported(String mode, Class<?> actionType) {
-		ModeDescriptor modeDescriptor = getModeDescriptor(mode);
+		ModelDescriptor modelDescriptor = getModelDescriptor(mode);
 		
-		if (!modeDescriptor.isActuator())
-			throw new RuntimeException(String.format("Device which's mode is '%s' isn't an actuator.", mode));
+		if (!modelDescriptor.isActuator())
+			throw new RuntimeException(String.format("Device which's model is '%s' isn't an actuator.", mode));
 		
-		return modeDescriptor.getSupportedActions().containsValue(actionType);
+		return modelDescriptor.getSupportedActions().containsValue(actionType);
 	}
 
 	@Override
-	public boolean isEventSupported(String mode, Class<?> eventType) {
-		ModeDescriptor modeDescriptor = getModeDescriptor(mode);
+	public boolean isEventSupported(String model, Class<?> eventType) {
+		ModelDescriptor modelDescriptor = getModelDescriptor(model);
 		
-		if (!modeDescriptor.isSensor())
-			throw new RuntimeException(String.format("Device which's mode is '%s' isn't a sensor.", mode));
+		if (!modelDescriptor.isSensor())
+			throw new RuntimeException(String.format("Device which's model is '%s' isn't a sensor.", model));
 		
-		return modeDescriptor.getSupportedEvents().containsValue(eventType);
+		return modelDescriptor.getSupportedEvents().containsValue(eventType);
 	}
 }

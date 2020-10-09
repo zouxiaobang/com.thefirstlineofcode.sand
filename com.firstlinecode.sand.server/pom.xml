@@ -25,7 +25,7 @@
 		<module>com.firstlinecode.sand.server.actuator</module>
 		<module>com.firstlinecode.sand.server.operator</module>
 		<module>com.firstlinecode.sand.server.lite</module>
-		<module>com.firstlinecode.sand.server.emulators.modes</module>
+		<module>com.firstlinecode.sand.server.emulators.models</module>
 	</modules>
 
 </project>

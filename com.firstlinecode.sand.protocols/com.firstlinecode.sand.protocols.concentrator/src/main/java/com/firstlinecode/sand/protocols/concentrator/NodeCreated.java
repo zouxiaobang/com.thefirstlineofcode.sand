@@ -15,15 +15,15 @@ public class NodeCreated {
 	@NotNull
 	private String lanId;
 	@NotNull
-	private String mode;
+	private String model;
 	
 	public NodeCreated() {}
 	
-	public NodeCreated(String concentrator, String node, String lanId, String mode) {
+	public NodeCreated(String concentrator, String node, String lanId, String model) {
 		this.concentrator = concentrator;
 		this.node = node;
 		this.lanId = lanId;
-		this.mode = mode;
+		this.model = model;
 	}
 	
 	public String getConcentrator() {
@@ -52,12 +52,12 @@ public class NodeCreated {
 		this.lanId = lanId;
 	}
 	
-	public String getMode() {
-		return mode;
+	public String getModel() {
+		return model;
 	}
 	
-	public void setMode(String mode) {
-		this.mode = mode;
+	public void setModel(String model) {
+		this.model = model;
 	}
 	
 }

@@ -18,7 +18,7 @@ import com.firstlinecode.basalt.protocol.core.ProtocolChain;
 import com.firstlinecode.basalt.protocol.core.stanza.Iq;
 import com.firstlinecode.chalk.IChatServices;
 import com.firstlinecode.chalk.core.stanza.IIqListener;
-import com.firstlinecode.sand.client.dmr.IModeRegistrar;
+import com.firstlinecode.sand.client.dmr.IModelRegistrar;
 import com.firstlinecode.sand.client.things.autuator.ExecutionException;
 import com.firstlinecode.sand.client.things.autuator.ExecutionException.Reason;
 import com.firstlinecode.sand.client.things.autuator.IActuator;
@@ -32,7 +32,7 @@ import com.firstlinecode.sand.client.things.concentrator.Node;
 import com.firstlinecode.sand.protocols.actuator.Execute;
 import com.firstlinecode.sand.protocols.core.BadAddressException;
 import com.firstlinecode.sand.protocols.core.CommunicationNet;
-import com.firstlinecode.sand.protocols.core.ModeDescriptor;
+import com.firstlinecode.sand.protocols.core.ModelDescriptor;
 
 public class Actuator implements IActuator, IIqListener {
 	private static final Logger logger = LoggerFactory.getLogger(Actuator.class);
@@ -151,11 +151,11 @@ public class Actuator implements IActuator, IIqListener {
 
 	@Override
 	public void start() {
-		IModeRegistrar modeRegistrar = chatServices.createApi(IModeRegistrar.class);
-		ModeDescriptor[] modeDescriptors = modeRegistrar.getModeDescriptors();
-		for (ModeDescriptor modeDescriptor : modeDescriptors) {
-			for (Protocol protocol : modeDescriptor.getSupportedActions().keySet()) {
-				Class<?> actionType = modeDescriptor.getSupportedActions().get(protocol);
+		IModelRegistrar modelRegistrar = chatServices.createApi(IModelRegistrar.class);
+		ModelDescriptor[] modelDescriptors = modelRegistrar.getModelDescriptors();
+		for (ModelDescriptor modelDescriptor : modelDescriptors) {
+			for (Protocol protocol : modelDescriptor.getSupportedActions().keySet()) {
+				Class<?> actionType = modelDescriptor.getSupportedActions().get(protocol);
 				IParserFactory<?> actionParserFactory = createCustomActionParserFactory(actionType);
 				
 				if (actionParserFactory == null)

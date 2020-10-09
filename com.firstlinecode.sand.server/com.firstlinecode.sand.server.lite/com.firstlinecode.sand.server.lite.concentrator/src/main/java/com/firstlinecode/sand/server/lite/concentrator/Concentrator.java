@@ -58,14 +58,14 @@ public class Concentrator implements IConcentrator, IDataObjectFactoryAware {
 			throw new ProtocolException(new NotAcceptable("No node confirmation found."));
 		}
 		
-		String mode = deviceManager.getMode(nodeDeviceId);
-		if (mode == null) {
-			throw new ProtocolException(new NotAcceptable(String.format("Unsupported mode '%s'", mode)));
+		String model = deviceManager.getModel(nodeDeviceId);
+		if (model == null) {
+			throw new ProtocolException(new NotAcceptable(String.format("Unsupported model '%s'", model)));
 		}
 		
 		Device device = dataObjectFactory.create(Device.class);
 		device.setDeviceId(nodeDeviceId);
-		device.setMode(deviceManager.getMode(nodeDeviceId));
+		device.setModel(deviceManager.getModel(nodeDeviceId));
 		device.setRegistrationTime(Calendar.getInstance().getTime());
 		deviceManager.create(device);
 		
@@ -82,7 +82,7 @@ public class Concentrator implements IConcentrator, IDataObjectFactoryAware {
 		getNodeComfirmationMapper().updateConfirmed(confirmation.getId(), confirmer, concentration.getConfirmationTime());
 		
 		return new Confirmed(confirmation.getRequestId(), new NodeCreated(deviceId, nodeDeviceId,
-				confirmation.getNode().getLanId(), mode));
+				confirmation.getNode().getLanId(), model));
 	}
 	
 	private D_NodeConfirmation getNodeConfirmation(String concentrator, String node) {

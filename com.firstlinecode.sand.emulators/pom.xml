@@ -19,7 +19,7 @@
 	<modules>
 		<module>com.firstlinecode.sand.emulators.things</module>
 		<module>com.firstlinecode.sand.emulators.lora</module>
-		<module>com.firstlinecode.sand.emulators.modes</module>
+		<module>com.firstlinecode.sand.emulators.models</module>
 		<module>com.firstlinecode.sand.emulators.wifi.light</module>
 	</modules>
 

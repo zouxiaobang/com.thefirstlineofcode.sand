@@ -1,10 +1,5 @@
 package com.firstlinecode.sand.emulators.things.emulators;
 
-import java.io.IOException;
-import java.io.ObjectInput;
-import java.io.ObjectOutput;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
@@ -15,7 +10,6 @@ import com.firstlinecode.sand.client.things.commuication.ICommunicationListener;
 import com.firstlinecode.sand.client.things.commuication.ICommunicator;
 import com.firstlinecode.sand.client.things.obm.IObmFactory;
 import com.firstlinecode.sand.client.things.obm.ObmFactory;
-import com.firstlinecode.sand.emulators.things.PowerEvent;
 
 public abstract class AbstractCommunicationNetworkThingEmulator<OA, PA, D> extends AbstractThingEmulator
 		implements ICommunicationNetworkThingEmulator<OA, PA, D>, ICommunicationListener<OA, PA, D> {
@@ -25,8 +19,8 @@ public abstract class AbstractCommunicationNetworkThingEmulator<OA, PA, D> exten
 	protected Map<Protocol, Class<?>> supportedActions;
 	
 	@SuppressWarnings("unchecked")
-	public AbstractCommunicationNetworkThingEmulator(String mode, ICommunicator<?, ?, ?> communicator) {
-		super(mode);
+	public AbstractCommunicationNetworkThingEmulator(String model, ICommunicator<?, ?, ?> communicator) {
+		super(model);
 		
 		this.communicator = (ICommunicator<OA, PA, D>)communicator;	
 		isDataReceiving = false;
@@ -57,35 +51,6 @@ public abstract class AbstractCommunicationNetworkThingEmulator<OA, PA, D> exten
 	
 	protected abstract void doStartToReceiveData();
 	protected abstract void doStopDataReceiving();
-
-	private List<IThingEmulatorListener> getThingEmulatorListeners() {
-		List<IThingEmulatorListener> thingEmulatorListeners = new ArrayList<>();
-		for (IDeviceListener listener : deviceListeners) {
-			if (listener instanceof IThingEmulatorListener) {
-				thingEmulatorListeners.add((IThingEmulatorListener)listener);
-			}
-		}
-		
-		return thingEmulatorListeners;
-	}
-
-	@Override
-	public void powerOff() {
-		if (powered == false)
-			return;
-		
-		this.powered = false;
-		doPowerOff();
-		
-		for (IThingEmulatorListener thingEmulatorListener : getThingEmulatorListeners()) {
-			thingEmulatorListener.powerChanged(new PowerEvent(this, PowerEvent.Type.POWER_OFF));
-		}
-	}
-
-	@Override
-	public boolean isPowered() {
-		return powered;
-	}
 	
 	@Override
 	public void reset() {
@@ -152,11 +117,6 @@ public abstract class AbstractCommunicationNetworkThingEmulator<OA, PA, D> exten
 	public void occurred(CommunicationException e) {}
 	
 	protected abstract Map<Protocol, Class<?>> createSupportedActions();
-	protected abstract void doWriteExternal(ObjectOutput out) throws IOException;
-	protected abstract void doReadExternal(ObjectInput in) throws IOException, ClassNotFoundException;
-	protected abstract void doPowerOn();
-	protected abstract void doPowerOff();
-	protected abstract void doReset();
 	protected abstract Protocol readProtocol(D data);
 	protected abstract <A> A readAction(Class<A> actionType, D data);
 	protected abstract String getDataInfoString(D data);

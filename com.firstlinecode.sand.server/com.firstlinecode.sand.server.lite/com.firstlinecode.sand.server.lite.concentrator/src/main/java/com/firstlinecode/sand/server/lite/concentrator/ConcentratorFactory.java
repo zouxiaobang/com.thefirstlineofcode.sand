@@ -31,7 +31,7 @@ public class ConcentratorFactory implements IConcentratorFactory, IBundleContext
 			return false;
 		}
 		
-		return deviceManager.isConcentrator(device.getMode());
+		return deviceManager.isConcentrator(device.getModel());
 	}
 
 	@Override
