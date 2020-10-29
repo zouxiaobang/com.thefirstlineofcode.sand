@@ -9,6 +9,7 @@ import javax.swing.SwingConstants;
 
 import com.firstlinecode.sand.client.things.BatteryPowerEvent;
 import com.firstlinecode.sand.client.things.IDeviceListener;
+import com.firstlinecode.sand.emulators.things.emulators.ISwitchStateListener;
 import com.firstlinecode.sand.emulators.things.emulators.IThingEmulator;
 
 public abstract class AbstractThingEmulatorPanel<T extends IThingEmulator> extends JPanel implements IDeviceListener {	

@@ -3,6 +3,8 @@ package com.firstlinecode.sand.emulators.wifi.light;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import javax.naming.OperationNotSupportedException;
@@ -13,11 +15,13 @@ import com.firstlinecode.sand.emulators.things.NotTurnedOffStateException;
 import com.firstlinecode.sand.emulators.things.PowerEvent;
 import com.firstlinecode.sand.emulators.things.emulators.AbstractThingEmulator;
 import com.firstlinecode.sand.emulators.things.emulators.ILightEmulator;
+import com.firstlinecode.sand.emulators.things.emulators.ILightStateListener;
+import com.firstlinecode.sand.emulators.things.emulators.ISwitchStateListener;
 import com.firstlinecode.sand.emulators.things.ui.AbstractThingEmulatorPanel;
 import com.firstlinecode.sand.emulators.things.ui.LightEmulatorPanel;
 import com.firstlinecode.sand.protocols.core.DeviceIdentity;
 
-public class Light extends AbstractThingEmulator implements ILightEmulator {
+public class Light extends AbstractThingEmulator implements ILightEmulator, ISwitchStateListener {
 	public static final String THING_NAME = "WIFI Light Emulator";
 	public static final String THING_MODEL = "LE02";
 	public static final String SOFTWARE_VERSION = "0.1.0.RELEASE";
@@ -32,12 +36,18 @@ public class Light extends AbstractThingEmulator implements ILightEmulator {
 	
 	private LightEmulatorPanel panel;
 	
+	private List<ISwitchStateListener> switchStateListeners;
+	private List<ILightStateListener> lightStateListeners;
+	
 	public Light(String model) {
 		super(model);
 		
 		deviceId = generateDeviceId();
 		switchState = DEFAULT_SWITCH_STATE;
 		lightState = DEFAULT_LIGHT_STATE;
+		
+		switchStateListeners = new ArrayList<>();
+		lightStateListeners = new ArrayList<>();
 	}
 	
 	public DeviceIdentity getDeviceIdentity() {
@@ -94,6 +104,7 @@ public class Light extends AbstractThingEmulator implements ILightEmulator {
 		if (panel == null) {
 			panel = new LightEmulatorPanel(this);
 		}
+		panel.setSwitchStateListener(this);
 		
 		return panel;
 	}
@@ -117,21 +128,36 @@ public class Light extends AbstractThingEmulator implements ILightEmulator {
 	
 	@Override
 	protected void doWriteExternal(ObjectOutput out) throws IOException {
-		// TODO Auto-generated method stub
+		byte[] deviceNameBytes = deviceIdentity.getDeviceName().getBytes();
+		out.writeInt(deviceNameBytes.length);
+		out.write(deviceNameBytes);
 		
+		byte[] deviceCredentialsBytes = deviceIdentity.getCredentials().getBytes();
+		out.writeInt(deviceCredentialsBytes.length);
+		out.write(deviceCredentialsBytes);
+		
+		out.writeObject(switchState);
+		out.writeObject(lightState);
 	}
 	
 	@Override
 	protected void doReadExternal(ObjectInput in) throws IOException, ClassNotFoundException {
-		// TODO Auto-generated method stub
+		int deviceNameLength = in.readInt();
+		byte[] deviceNameBytes = new byte[deviceNameLength];
+		deviceIdentity.setDeviceName(new String(deviceNameBytes));
 		
+		int deviceCredentialsLength = in.readInt();
+		byte[] deviceCredentialsBytes = new byte[deviceCredentialsLength];
+		deviceIdentity.setCredentials(new String(deviceCredentialsBytes));
+		
+		switchState = (SwitchState)in.readObject();
+		lightState = (LightState)in.readObject();
 	}
 	
 	@Override
 	protected void doPowerOn() {
-		if (lightState == LightState.ON) {
+		if (switchState == SwitchState.ON || lightState == LightState.ON)
 			panel.turnOn();
-		}
 	}
 	
 	@Override
@@ -151,14 +177,57 @@ public class Light extends AbstractThingEmulator implements ILightEmulator {
 			return false;
 		
 		this.switchState = switchState;
+		LightState oldLightState = lightState;
 		if (switchState == ILight.SwitchState.ON && lightState == ILight.LightState.OFF) {
-			panel.turnOn();
 			lightState = ILight.LightState.ON;
+			panel.turnOn();
 		} else if (switchState == ILight.SwitchState.OFF && lightState == ILight.LightState.ON) {
-			panel.turnOff();
 			lightState = ILight.LightState.OFF;
+			panel.turnOff();
 		}
 		
+		if (oldLightState != lightState)
+			notifyLightStateChanged(oldLightState, lightState);
+		
 		return true;
+	}
+	
+	private void notifySwitchStateChanged(SwitchState oldState, SwitchState newState) {
+		for (ISwitchStateListener listener : switchStateListeners) {
+			listener.switchStateChanged(oldState, newState);
+		}
+	}
+	
+	private void notifyLightStateChanged(LightState oldState, LightState newState) {
+		for (ILightStateListener listener : lightStateListeners) {
+			listener.lightStateChanged(oldState, newState);
+		}
+	}
+
+	@Override
+	public void switchStateChanged(SwitchState oldState, SwitchState newState) {
+		notifySwitchStateChanged(oldState, newState);
+	}
+	
+	@Override
+	public void addSwitchStateListener(ISwitchStateListener switchStateListener) {
+		if (!switchStateListeners.contains(switchStateListener))
+			switchStateListeners.add(switchStateListener);
+	}
+
+	@Override
+	public boolean removeSwitchStateListener(ISwitchStateListener switchStateListener) {
+		return switchStateListeners.remove(switchStateListener);
+	}
+
+	@Override
+	public void addLightStateChangeListener(ILightStateListener lightStateListener) {
+		if (!lightStateListeners.contains(lightStateListener))
+			lightStateListeners.add(lightStateListener);
+	}
+
+	@Override
+	public boolean removeLightStateListener(ILightStateListener lightStateListener) {
+		return lightStateListeners.remove(lightStateListener);
 	}
 }

@@ -9,14 +9,23 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.util.Enumeration;
 
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.KeyStroke;
 import javax.swing.UIManager;
+import javax.swing.filechooser.FileFilter;
+import javax.swing.filechooser.FileSystemView;
 import javax.swing.plaf.FontUIResource;
 
 import com.firstlinecode.chalk.AuthFailureException;
@@ -34,12 +43,16 @@ import com.firstlinecode.sand.client.things.BatteryPowerEvent;
 import com.firstlinecode.sand.client.things.IDeviceListener;
 import com.firstlinecode.sand.client.things.obm.IObmFactory;
 import com.firstlinecode.sand.client.things.obm.ObmFactory;
+import com.firstlinecode.sand.emulators.things.ILight.SwitchState;
 import com.firstlinecode.sand.emulators.things.UiUtils;
+import com.firstlinecode.sand.emulators.things.emulators.ISwitchStateListener;
+import com.firstlinecode.sand.emulators.things.emulators.StreamConfigInfo;
 import com.firstlinecode.sand.emulators.things.ui.AboutDialog;
 import com.firstlinecode.sand.emulators.things.ui.LightEmulatorPanel;
 import com.firstlinecode.sand.emulators.things.ui.StreamConfigDialog;
 
-public class LightFrame extends JFrame implements ActionListener, WindowListener, IDeviceListener {
+public class LightFrame extends JFrame implements ActionListener, WindowListener,
+			IDeviceListener, ISwitchStateListener {
 	private static final long serialVersionUID = 6734911253434942398L;
 	
 	// File Menu
@@ -94,6 +107,8 @@ public class LightFrame extends JFrame implements ActionListener, WindowListener
 	private IChatClient chatClient;
 	private StandardStreamConfig streamConfig;
 	
+	private File configFile;
+	
 	public LightFrame() {
 		this(null);
 	}
@@ -109,9 +124,13 @@ public class LightFrame extends JFrame implements ActionListener, WindowListener
 			this.light.powerOn();
 			dirty = true;
 		}
+		this.light.addDeviceListener(this);
 		
-		setupUi();		
+		setupUi();
+		
+		refreshLightInstanceRelativatedMenus();
 		refreshPowerRelativedMenus();
+		refreshDirtyRelativedMenuItems();
 	}
 
 	private void setupUi() {
@@ -127,6 +146,7 @@ public class LightFrame extends JFrame implements ActionListener, WindowListener
 		
 		panel = (LightEmulatorPanel)light.getPanel();
 		add(panel, BorderLayout.CENTER);
+		((LightEmulatorPanel)panel).setSwitchStateListener(this);
 		
 		setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 		addWindowListener(this);
@@ -450,8 +470,35 @@ public class LightFrame extends JFrame implements ActionListener, WindowListener
 	}
 
 	private void saveAs() {
-		// TODO Auto-generated method stub
+		JFileChooser fileChooser = createFileChooser();
+		fileChooser.setDialogTitle("Choose a file to save your WIFI light info");
+		File defaultDirectory = FileSystemView.getFileSystemView().getDefaultDirectory();
+		fileChooser.setSelectedFile(new File(defaultDirectory, light.getDeviceId() + ".wli"));
 		
+		int result = fileChooser.showSaveDialog(this);
+		if (result == JFileChooser.APPROVE_OPTION) {
+			saveToFile(fileChooser.getSelectedFile());
+		}
+	}
+	
+	private JFileChooser createFileChooser() {
+		JFileChooser fileChooser = new JFileChooser();
+		fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+		fileChooser.setMultiSelectionEnabled(false);
+		fileChooser.setFileFilter(new FileFilter() {
+			
+			@Override
+			public boolean accept(File f) {
+				return f.getName().endsWith(".wli");
+			}
+
+			@Override
+			public String getDescription() {
+				return "WIFI light info file (.wli)";
+			}
+		});
+		
+		return fileChooser;
 	}
 
 	private void openFile() {
@@ -504,8 +551,72 @@ public class LightFrame extends JFrame implements ActionListener, WindowListener
 	}
 
 	private void save() {
-		// TODO Auto-generated method stub
+		if (configFile == null)
+			saveAs();
+		else
+			saveToFile(configFile);
+	}
+	
+	private void saveToFile(File file) {
+		if (!file.exists()) {
+			try {
+				file.createNewFile();
+			} catch (IOException e3) {
+				throw new RuntimeException("Can't create light info file " + file.getPath());
+			}
+		}
 		
+		ObjectOutputStream output = null;
+		try {
+			output = new ObjectOutputStream(new FileOutputStream(file));
+			output.writeObject(light);
+			
+			if (streamConfig != null) {
+				output.writeObject(new StreamConfigInfo(streamConfig.getHost(), streamConfig.getPort(), streamConfig.isTlsPreferred()));
+			} else {
+				output.writeObject(null);
+			}
+		} catch (FileNotFoundException e) {
+			throw new RuntimeException(String.format("Light info file %s doesn't exist.", file.getPath()));
+		} catch (IOException e) {
+			throw new RuntimeException("Can't save light info file.", e);
+		} finally {
+			if (output != null)
+				try {
+					output.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+		}
+			
+		
+		setDirty(false);
+		if (!file.equals(configFile)) {
+			setConfigFile(file);
+		}
+		refreshDirtyRelativedMenuItems();
+	}
+	
+	private void setDirty(boolean dirty) {
+		this.dirty = dirty;
+		refreshDirtyRelativedMenuItems();
+	}
+	
+	private void refreshDirtyRelativedMenuItems() {
+		JMenuItem saveMenuItem = UiUtils.getMenuItem(menuBar, MENU_NAME_FILE, MENU_ITEM_NAME_SAVE);
+		if (dirty) {
+			saveMenuItem.setEnabled(true);
+		} else {
+			saveMenuItem.setEnabled(false);
+		}
+	}
+	
+	private void setConfigFile(File file) {
+		if (configFile == null && file != null) {
+			UiUtils.getMenuItem(menuBar, MENU_NAME_FILE, MENU_ITEM_NAME_SAVE_AS).setEnabled(true);
+		}
+			
+		configFile = file;
 	}
 
 	@Override
@@ -525,6 +636,11 @@ public class LightFrame extends JFrame implements ActionListener, WindowListener
 
 	@Override
 	public void batteryPowerChanged(BatteryPowerEvent event) {
-		dirty = true;
+		setDirty(dirty);
+	}
+
+	@Override
+	public void switchStateChanged(SwitchState oldState, SwitchState newState) {
+		setDirty(dirty);
 	}
 }

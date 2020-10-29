@@ -19,6 +19,7 @@ import com.firstlinecode.sand.emulators.things.ILight;
 import com.firstlinecode.sand.emulators.things.ILight.LightState;
 import com.firstlinecode.sand.emulators.things.ILight.SwitchState;
 import com.firstlinecode.sand.emulators.things.emulators.ILightEmulator;
+import com.firstlinecode.sand.emulators.things.emulators.ISwitchStateListener;
 
 public class LightEmulatorPanel extends AbstractThingEmulatorPanel<ILightEmulator> implements ActionListener  {
 	private static final long serialVersionUID = 7660599095831708565L;
@@ -148,7 +149,7 @@ public class LightEmulatorPanel extends AbstractThingEmulatorPanel<ILightEmulato
 	}
 	
 	public void refreshFlashButtionStatus() {
-		if (light.isPowered() && light.getSwitchState() == SwitchState.OFF) {
+		if (light.isPowered() && light.getLightState() == LightState.OFF) {
 			flash.setEnabled(true);
 		} else {
 			flash.setEnabled(false);
@@ -163,7 +164,6 @@ public class LightEmulatorPanel extends AbstractThingEmulatorPanel<ILightEmulato
 			
 			@Override
 			public void run() {
-				setEnabled(false);
 				flash.setEnabled(false);
 				lightImage.setIcon(getLightImageIcon(LightState.ON));
 				
@@ -187,7 +187,6 @@ public class LightEmulatorPanel extends AbstractThingEmulatorPanel<ILightEmulato
 					
 					@Override
 					public void run() {
-						setEnabled(true);
 						refreshFlashButtionStatus();
 						lightImage.setIcon(getLightImageIcon(LightState.OFF));
 						
@@ -220,6 +219,7 @@ public class LightEmulatorPanel extends AbstractThingEmulatorPanel<ILightEmulato
 		String actionCommand = e.getActionCommand();
 		
 		boolean changed = false;
+		ILight.SwitchState oldSwitchState = light.getSwitchState();
 		if (actionCommand.equals("off")) {
 			changed = light.changeSwitchState(ILight.SwitchState.OFF);
 		} else if (actionCommand.equals("on")) {
@@ -230,7 +230,7 @@ public class LightEmulatorPanel extends AbstractThingEmulatorPanel<ILightEmulato
 		
 		if (changed && switchStateListener != null) {
 			refreshFlashButtionStatus();
-			switchStateListener.switchStateChanged(light.getSwitchState(), SwitchState.CONTROL);
+			switchStateListener.switchStateChanged(oldSwitchState, light.getSwitchState());
 		}
 	}
 	

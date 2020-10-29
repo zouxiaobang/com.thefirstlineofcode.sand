@@ -1,4 +1,4 @@
-package com.firstlinecode.sand.emulators.things.ui;
+package com.firstlinecode.sand.emulators.things.emulators;
 
 import com.firstlinecode.sand.emulators.things.ILight.SwitchState;
 

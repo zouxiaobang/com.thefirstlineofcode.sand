@@ -82,11 +82,11 @@ import com.firstlinecode.sand.emulators.things.IGateway;
 import com.firstlinecode.sand.emulators.things.UiUtils;
 import com.firstlinecode.sand.emulators.things.emulators.IThingEmulator;
 import com.firstlinecode.sand.emulators.things.emulators.IThingEmulatorFactory;
+import com.firstlinecode.sand.emulators.things.emulators.StreamConfigInfo;
 import com.firstlinecode.sand.emulators.things.ui.AboutDialog;
 import com.firstlinecode.sand.emulators.things.ui.AbstractThingEmulatorPanel;
 import com.firstlinecode.sand.emulators.things.ui.StatusBar;
 import com.firstlinecode.sand.emulators.things.ui.StreamConfigDialog;
-import com.firstlinecode.sand.emulators.things.ui.StreamConfigInfo;
 import com.firstlinecode.sand.protocols.concentrator.NodeAddress;
 import com.firstlinecode.sand.protocols.core.CommunicationNet;
 import com.firstlinecode.sand.protocols.core.DeviceIdentity;
@@ -490,7 +490,7 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 		stopActuator(chatClient);
 	}
 	
-	private void stopSensor(IChatClient chatClient2) {
+	private void stopSensor(IChatClient chatClient) {
 		// TODO Auto-generated method stub
 		
 	}
@@ -620,9 +620,9 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 
 	private void saveAs() {
 		JFileChooser fileChooser = createFileChooser();
-		fileChooser.setDialogTitle("Choose a file to save your gateway info");
+		fileChooser.setDialogTitle("Choose a file to save your LoRa gateway info");
 		File defaultDirectory = FileSystemView.getFileSystemView().getDefaultDirectory();
-		fileChooser.setSelectedFile(new File(defaultDirectory, deviceId + ".gwi"));
+		fileChooser.setSelectedFile(new File(defaultDirectory, deviceId + ".lgi"));
 		
 		int result = fileChooser.showSaveDialog(this);
 		if (result == JFileChooser.APPROVE_OPTION) {
@@ -638,12 +638,12 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 			
 			@Override
 			public boolean accept(File f) {
-				return f.getName().endsWith(".gwi");
+				return f.getName().endsWith(".lgi");
 			}
 
 			@Override
 			public String getDescription() {
-				return "Gateway info file (.gwi)";
+				return "LoRa gateway info file (.lgi)";
 			}
 		});
 		
@@ -969,6 +969,7 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 	}
 
 	private void showThing(AbstractLoraThingEmulator thing, String title, int layer, int x, int y, boolean selected) {
+		// TODO: Trace the thing's status(etc. Battery Power) and refresh dirty variable.
 		AbstractThingEmulatorPanel<?> thingPanel = thing.getPanel();
 		ThingInternalFrame internalFrame = new ThingInternalFrame(thing, title);
 		internalFrame.addComponentListener(this);
