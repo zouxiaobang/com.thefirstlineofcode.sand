@@ -272,8 +272,8 @@ public class Light extends AbstractLoraThingEmulator implements ILightEmulator, 
 		if (switchState == ILight.SwitchState.ON && lightState == ILight.LightState.OFF) {
 			lightState = ILight.LightState.ON;			
 			panel.turnOn();
-		} else if (switchState == ILight.SwitchState.OFF && lightState == ILight.LightState.ON) {
-			lightState = ILight.LightState.OFF;			
+		} else if (switchState != ILight.SwitchState.ON && lightState == ILight.LightState.ON) {
+			lightState = ILight.LightState.OFF;
 			panel.turnOff();
 		}
 		
