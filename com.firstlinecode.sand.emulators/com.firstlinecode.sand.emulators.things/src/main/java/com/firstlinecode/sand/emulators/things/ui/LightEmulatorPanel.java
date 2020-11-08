@@ -101,7 +101,7 @@ public class LightEmulatorPanel extends AbstractThingEmulatorPanel<ILightEmulato
 	private JRadioButton createControlButton(ILightEmulator light) {
 		JRadioButton control = new JRadioButton("Remote Control");
 		control.setMnemonic(KeyEvent.VK_R);
-		control.setActionCommand("Remote Control");
+		control.setActionCommand("remove_control");
 		control.setSelected(true);
 		
 		if (light.getSwitchState() == SwitchState.CONTROL)

@@ -10,9 +10,11 @@ import java.awt.event.KeyEvent;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.Enumeration;
 
@@ -120,7 +122,7 @@ public class LightFrame extends JFrame implements ActionListener, WindowListener
 			this.light = light;
 			dirty = false;
 		} else {
-			this.light = new Light(Light.THING_MODEL);
+			this.light = new Light();
 			this.light.powerOn();
 			dirty = true;
 		}
@@ -145,7 +147,7 @@ public class LightFrame extends JFrame implements ActionListener, WindowListener
 		setJMenuBar(menuBar);
 		
 		panel = (LightEmulatorPanel)light.getPanel();
-		add(panel, BorderLayout.CENTER);
+		getContentPane().add(panel, BorderLayout.CENTER);
 		((LightEmulatorPanel)panel).setSwitchStateListener(this);
 		
 		setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
@@ -502,8 +504,66 @@ public class LightFrame extends JFrame implements ActionListener, WindowListener
 	}
 
 	private void openFile() {
-		// TODO Auto-generated method stub
+		if (dirty) {
+			int result = JOptionPane.showConfirmDialog(this, "Light info has changed. Do you want to save the change?");
+			if (result == JOptionPane.CANCEL_OPTION) {
+				return;
+			} else if (result == JOptionPane.YES_OPTION) {
+				save();				
+			} else {
+				// NO-OP
+			}
+		}
 		
+		JFileChooser fileChooser = createFileChooser();
+		fileChooser.setDialogTitle("Choose a light info file you want to open");
+		File defaultDirectory = FileSystemView.getFileSystemView().getDefaultDirectory();
+		fileChooser.setCurrentDirectory(defaultDirectory);
+		
+		int result = fileChooser.showOpenDialog(this);
+		if (result == JFileChooser.APPROVE_OPTION) {
+			getContentPane().removeAll();
+			
+			loadFromFile(fileChooser.getSelectedFile());
+			
+			panel = (LightEmulatorPanel)light.getPanel();
+			getContentPane().add(panel, BorderLayout.CENTER);
+			((LightEmulatorPanel)panel).setSwitchStateListener(this);
+			
+			revalidate();
+			repaint();
+			
+			this.light.addDeviceListener(this);
+			light.powerOn();
+			
+			refreshLightInstanceRelativatedMenus();
+			refreshPowerRelativedMenus();
+			refreshDirtyRelativedMenuItems();
+			
+			dirty = false;
+		}
+	}
+
+	private void loadFromFile(File file) {
+		ObjectInputStream input = null;
+		try {
+			input = new ObjectInputStream(new FileInputStream(file));
+			light = (Light)input.readObject();
+			streamConfig = (StandardStreamConfig)input.readObject();
+		} catch (FileNotFoundException e) {
+			throw new RuntimeException(String.format("Light info file %s doesn't exist.", file.getPath()));
+		} catch (IOException e) {
+			throw new RuntimeException("Can't read light info file.", e);
+		} catch (ClassNotFoundException e) {
+			throw new RuntimeException("Invalid light info file.", e);
+		} finally {
+			if (input != null)
+				try {
+					input.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+		}
 	}
 
 	@Override
@@ -636,11 +696,11 @@ public class LightFrame extends JFrame implements ActionListener, WindowListener
 
 	@Override
 	public void batteryPowerChanged(BatteryPowerEvent event) {
-		setDirty(dirty);
+		setDirty(true);
 	}
 
 	@Override
 	public void switchStateChanged(SwitchState oldState, SwitchState newState) {
-		setDirty(dirty);
+		setDirty(true);
 	}
 }

@@ -82,6 +82,10 @@ public abstract class AbstractThingEmulator implements IThingEmulator {
 			this.deviceId = deviceId;
 		}
 		
+		public boolean isWorking() {
+			return timer != null;
+		}
+		
 		public void start() {
 			timer = new Timer(String.format("%s '%s' Battery Timer", thingName, deviceId));
 			timer.schedule(new BatteryPowerTimerTask(), BATTERY_POWER_DOWN_INTERVAL, BATTERY_POWER_DOWN_INTERVAL);
@@ -175,13 +179,14 @@ public abstract class AbstractThingEmulator implements IThingEmulator {
 	
 	@Override
 	public void powerOn() {
-		if (powered)
-			return;
+		if (batteryTimer == null || !batteryTimer.isWorking())
+			startBatteryTimer();
 		
-		this.powered = true;
-		doPowerOn();
+		if (!powered) {
+			this.powered = true;
+			doPowerOn();
+		}
 		
-		startBatteryTimer();
 		getPanel().updateStatus(getThingStatus());
 		
 		for (IThingEmulatorListener thingEmulatorListener : getThingEmulatorListeners()) {

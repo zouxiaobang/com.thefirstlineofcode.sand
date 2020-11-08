@@ -39,8 +39,8 @@ public class Light extends AbstractThingEmulator implements ILightEmulator, ISwi
 	private List<ISwitchStateListener> switchStateListeners;
 	private List<ILightStateListener> lightStateListeners;
 	
-	public Light(String model) {
-		super(model);
+	public Light() {
+		super(THING_MODEL);
 		
 		deviceId = generateDeviceId();
 		switchState = DEFAULT_SWITCH_STATE;
@@ -128,13 +128,11 @@ public class Light extends AbstractThingEmulator implements ILightEmulator, ISwi
 	
 	@Override
 	protected void doWriteExternal(ObjectOutput out) throws IOException {
-		byte[] deviceNameBytes = deviceIdentity.getDeviceName().getBytes();
-		out.writeInt(deviceNameBytes.length);
-		out.write(deviceNameBytes);
-		
-		byte[] deviceCredentialsBytes = deviceIdentity.getCredentials().getBytes();
-		out.writeInt(deviceCredentialsBytes.length);
-		out.write(deviceCredentialsBytes);
+		if (deviceIdentity != null) {
+			out.writeObject(deviceIdentity);
+		} else {
+			out.writeObject(null);
+		}
 		
 		out.writeObject(switchState);
 		out.writeObject(lightState);
@@ -142,13 +140,7 @@ public class Light extends AbstractThingEmulator implements ILightEmulator, ISwi
 	
 	@Override
 	protected void doReadExternal(ObjectInput in) throws IOException, ClassNotFoundException {
-		int deviceNameLength = in.readInt();
-		byte[] deviceNameBytes = new byte[deviceNameLength];
-		deviceIdentity.setDeviceName(new String(deviceNameBytes));
-		
-		int deviceCredentialsLength = in.readInt();
-		byte[] deviceCredentialsBytes = new byte[deviceCredentialsLength];
-		deviceIdentity.setCredentials(new String(deviceCredentialsBytes));
+		deviceIdentity = (DeviceIdentity)in.readObject();
 		
 		switchState = (SwitchState)in.readObject();
 		lightState = (LightState)in.readObject();
@@ -181,7 +173,7 @@ public class Light extends AbstractThingEmulator implements ILightEmulator, ISwi
 		if (switchState == ILight.SwitchState.ON && lightState == ILight.LightState.OFF) {
 			lightState = ILight.LightState.ON;
 			panel.turnOn();
-		} else if (switchState == ILight.SwitchState.OFF && lightState == ILight.LightState.ON) {
+		} else if (switchState != ILight.SwitchState.ON && lightState == ILight.LightState.ON) {
 			lightState = ILight.LightState.OFF;
 			panel.turnOff();
 		}
