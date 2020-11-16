@@ -216,7 +216,8 @@ public class SandCommandProvider implements CommandProvider, IEventProducerAware
 		}
 		
 		deviceId = deviceId.trim();
-		lanId = lanId.trim();
+		if (lanId != null)
+			lanId = lanId.trim();
 		
 		if (!deviceManager.deviceIdExists(deviceId)) {
 			interpreter.print("Error: Device which's device ID is '%s' not existed.\n");	

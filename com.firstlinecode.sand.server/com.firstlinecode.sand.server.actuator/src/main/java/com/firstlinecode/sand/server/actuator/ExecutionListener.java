@@ -7,7 +7,6 @@ import com.firstlinecode.granite.framework.core.config.IApplicationConfiguration
 import com.firstlinecode.granite.framework.core.config.IApplicationConfigurationAware;
 import com.firstlinecode.granite.framework.core.event.IEventContext;
 import com.firstlinecode.granite.framework.core.event.IEventListener;
-import com.firstlinecode.granite.framework.im.IResourcesService;
 import com.firstlinecode.sand.server.concentrator.IConcentrator;
 import com.firstlinecode.sand.server.concentrator.IConcentratorFactory;
 import com.firstlinecode.sand.server.concentrator.Node;
@@ -20,16 +19,15 @@ public class ExecutionListener implements IEventListener<ExecutionEvent>, IAppli
 	
 	@Dependency("device.manager")
 	private IDeviceManager deviceManager;
-	
-	@Dependency("resource.service")
-	private IResourcesService resourceService;
-	
+
 	private String domain;
 	
 	@Override
 	public void process(IEventContext context, ExecutionEvent event) {
 		Device actuator = event.getDevice();
-		if (event.getNodeLanId() != null) {
+		
+		boolean isConcentrator = concentratorFactory.isConcentrator(event.getDevice());
+		if (isConcentrator && event.getNodeLanId() != null) {
 			IConcentrator concentrator = concentratorFactory.getConcentrator(event.getDevice());
 			if (!concentrator.containsLanId(event.getNodeLanId())) {
 				throw new IllegalArgumentException(String.format("Concentrator '%s' doesn't contain a node which's LAN ID is '%s'.",
@@ -48,33 +46,32 @@ public class ExecutionListener implements IEventListener<ExecutionEvent>, IAppli
 		String deviceName = deviceManager.getDeviceNameByDeviceId(event.getDevice().getDeviceId());
 		
 		Iq iq = new Iq(event.getExecute(), Iq.Type.SET);
-		iq.setTo(getTo(event, deviceName));
+		JabberId target = getTarget(event, deviceName, isConcentrator);
+		iq.setTo(target);
 		
-		context.write(getTarget(event, deviceName), iq);
+		context.write(target, iq);
 	}
 
-	private JabberId getTo(ExecutionEvent event, String deviceName) {
+	private JabberId getTarget(ExecutionEvent event, String deviceName, boolean isConcentrator) {
+		if (!isConcentrator && event.getNodeLanId() != null) {
+			throw new IllegalArgumentException("Device which's ID is %s isn't a concentrator.");
+		}
+		
 		JabberId to = new JabberId();
 		to.setNode(deviceName);
 		to.setDomain(domain);
 		
-		if (event.getNodeLanId() != null) {
-			to.setResource(event.getNodeLanId());
+		if (!isConcentrator) {
+			to.setResource(IThingEmulator.JID_RESOURCE);
+			return to;
 		}
+		
+		if (event.getNodeLanId() != null)
+			to.setResource(event.getNodeLanId());
+		else
+			to.setResource(IConcentrator.LAN_ID_CONCENTRATOR);
 		
 		return to;
-	}
-
-	private JabberId getTarget(ExecutionEvent event, String deviceName) {
-		JabberId target = new JabberId();
-		target.setNode(deviceName);
-		target.setDomain(domain);
-		
-		if (event.getNodeLanId() != null) {
-			target.setResource(IConcentrator.LAN_ID_CONCENTRATOR);
-		}
-		
-		return target;
 	}
 
 	@Override

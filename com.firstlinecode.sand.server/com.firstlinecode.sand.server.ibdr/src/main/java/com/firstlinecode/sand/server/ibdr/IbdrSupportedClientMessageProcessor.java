@@ -13,12 +13,12 @@ import com.firstlinecode.granite.framework.stream.negotiants.ResourceBindingNego
 import com.firstlinecode.granite.framework.stream.negotiants.SaslNegotiant;
 import com.firstlinecode.granite.framework.stream.negotiants.SessionEstablishmentNegotiant;
 import com.firstlinecode.granite.framework.stream.negotiants.TlsNegotiant;
-import com.firstlinecode.granite.stream.standard.StandardClientMessageProcessor;
 import com.firstlinecode.sand.protocols.ibdr.Register;
 import com.firstlinecode.sand.protocols.ibdr.oxm.RegisterTranslatorFactory;
+import com.firstlinecode.sand.server.stream.DeviceClientMessageProcessor;
 
 @Component("ibdr.supported.client.message.processor")
-public class IbdrSupportedClientMessageProcessor extends StandardClientMessageProcessor {
+public class IbdrSupportedClientMessageProcessor extends DeviceClientMessageProcessor {
 	@Dependency("registrar")
 	private IDeviceRegistrar registrar;
 	

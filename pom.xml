@@ -530,6 +530,12 @@
 
 			<dependency>
 				<groupId>com.firstlinecode.sand.server</groupId>
+				<artifactId>com.firstlinecode.sand.server.stream</artifactId>
+				<version>${sand.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>com.firstlinecode.sand.server</groupId>
 				<artifactId>com.firstlinecode.sand.server.ibdr</artifactId>
 				<version>${sand.version}</version>
 			</dependency>

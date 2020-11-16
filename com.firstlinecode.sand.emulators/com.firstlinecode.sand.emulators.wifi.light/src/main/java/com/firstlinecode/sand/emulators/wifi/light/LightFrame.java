@@ -17,6 +17,8 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
@@ -38,13 +40,16 @@ import com.firstlinecode.chalk.core.stream.UsernamePasswordToken;
 import com.firstlinecode.chalk.network.ConnectionException;
 import com.firstlinecode.chalk.network.IConnectionListener;
 import com.firstlinecode.sand.client.actuator.ActuatorPlugin;
+import com.firstlinecode.sand.client.dmr.IModelRegistrar;
 import com.firstlinecode.sand.client.ibdr.IRegistration;
 import com.firstlinecode.sand.client.ibdr.IbdrPlugin;
 import com.firstlinecode.sand.client.ibdr.RegistrationException;
 import com.firstlinecode.sand.client.things.BatteryPowerEvent;
 import com.firstlinecode.sand.client.things.IDeviceListener;
+import com.firstlinecode.sand.client.things.autuator.IActuator;
 import com.firstlinecode.sand.client.things.obm.IObmFactory;
 import com.firstlinecode.sand.client.things.obm.ObmFactory;
+import com.firstlinecode.sand.emulators.models.Le02ModelDescriptor;
 import com.firstlinecode.sand.emulators.things.ILight.SwitchState;
 import com.firstlinecode.sand.emulators.things.UiUtils;
 import com.firstlinecode.sand.emulators.things.emulators.ISwitchStateListener;
@@ -52,6 +57,7 @@ import com.firstlinecode.sand.emulators.things.emulators.StreamConfigInfo;
 import com.firstlinecode.sand.emulators.things.ui.AboutDialog;
 import com.firstlinecode.sand.emulators.things.ui.LightEmulatorPanel;
 import com.firstlinecode.sand.emulators.things.ui.StreamConfigDialog;
+import com.firstlinecode.sand.protocols.core.ModelDescriptor;
 
 public class LightFrame extends JFrame implements ActionListener, WindowListener,
 			IDeviceListener, ISwitchStateListener {
@@ -109,6 +115,8 @@ public class LightFrame extends JFrame implements ActionListener, WindowListener
 	private IChatClient chatClient;
 	private StandardStreamConfig streamConfig;
 	
+	private Map<String, ModelDescriptor> registeredModels;
+	
 	private File configFile;
 	
 	public LightFrame() {
@@ -128,11 +136,19 @@ public class LightFrame extends JFrame implements ActionListener, WindowListener
 		}
 		this.light.addDeviceListener(this);
 		
+		registerModels();
+		
 		setupUi();
 		
 		refreshLightInstanceRelativatedMenus();
 		refreshPowerRelativedMenus();
 		refreshDirtyRelativedMenuItems();
+	}
+	
+	private void registerModels() {
+		registeredModels = new HashMap<>();
+		Le02ModelDescriptor le02 = new Le02ModelDescriptor();
+		registeredModels.put(le02.getName(), le02);
 	}
 
 	private void setupUi() {
@@ -394,20 +410,21 @@ public class LightFrame extends JFrame implements ActionListener, WindowListener
 		if (chatClient == null || chatClient.isClosed())
 			throw new IllegalStateException("Light has already disconnected.");
 		
+		stopActuator(chatClient);
 		doDisconnect();
+		
 		refreshConnectionStateRelativatedMenus();
 		panel.updateStatus();
 		UiUtils.showNotification(this, "Message", "Light has disconnected.");
 	}
 
 	private void connect() {
-		// TODO Auto-generated method stub
 		if (chatClient != null && chatClient.isConnected())
-			throw new IllegalStateException("Gateway has already connected.");
+			throw new IllegalStateException("WiFi light has already connected.");
 		
 		try {
 			doConnect();
-			UiUtils.showNotification(this, "Message", "Gateway has connected.");
+			UiUtils.showNotification(this, "Message", "WiFi light has connected.");
 		} catch (ConnectionException e) {
 			if (chatClient != null) {
 				chatClient.close();
@@ -418,6 +435,19 @@ public class LightFrame extends JFrame implements ActionListener, WindowListener
 		} catch (AuthFailureException e) {
 			JOptionPane.showMessageDialog(this, "Authentication failed.", "Authentication Error", JOptionPane.ERROR_MESSAGE);
 		}
+		
+		// Don't start actuator before the time that chat client has connected to server.
+		startActuator(chatClient);
+	}
+	
+	private void startActuator(IChatClient chatClient) {
+		IActuator actuator = chatClient.createApi(IActuator.class);
+		actuator.start();
+	}
+	
+	private void stopActuator(IChatClient chatClient) {
+		IActuator actuator = chatClient.createApi(IActuator.class);
+		actuator.stop();
 	}
 	
 	private void doConnect() throws ConnectionException, AuthFailureException {
@@ -455,10 +485,16 @@ public class LightFrame extends JFrame implements ActionListener, WindowListener
 		IChatClient chatClient = new StandardChatClient(streamConfigWithResource);
 		
 		registerPlugins(chatClient);
+		registeredModels(chatClient);
 		
 		return chatClient;
 	}
 	
+	private void registeredModels(IChatClient chatClient) {
+		IModelRegistrar modelRegistrar = chatClient.createApi(IModelRegistrar.class);
+		modelRegistrar.registerModeDescriptor(new Le02ModelDescriptor());
+	}
+
 	private void registerPlugins(IChatClient chatClient) {
 		chatClient.register(ActuatorPlugin.class);
 	}
@@ -466,7 +502,7 @@ public class LightFrame extends JFrame implements ActionListener, WindowListener
 	private StandardStreamConfig createStreamConfigWithResource() {
 		StandardStreamConfig cloned = new StandardStreamConfig(streamConfig.getHost(), streamConfig.getPort());
 		cloned.setTlsPreferred(streamConfig.isTlsPreferred());
-		cloned.setResource(light.getThingName());
+		cloned.setResource(light.getModel());
 		
 		return cloned;
 	}
