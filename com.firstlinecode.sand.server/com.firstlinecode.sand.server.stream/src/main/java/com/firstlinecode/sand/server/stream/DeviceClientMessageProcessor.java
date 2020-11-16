@@ -3,6 +3,7 @@ package com.firstlinecode.sand.server.stream;
 import com.firstlinecode.granite.framework.stream.IStreamNegotiant;
 import com.firstlinecode.granite.framework.stream.negotiants.InitialStreamNegotiant;
 import com.firstlinecode.granite.framework.stream.negotiants.ResourceBindingNegotiant;
+import com.firstlinecode.granite.framework.stream.negotiants.SaslNegotiant;
 import com.firstlinecode.granite.framework.stream.negotiants.SessionEstablishmentNegotiant;
 import com.firstlinecode.granite.framework.stream.negotiants.TlsNegotiant;
 import com.firstlinecode.granite.stream.standard.StandardClientMessageProcessor;

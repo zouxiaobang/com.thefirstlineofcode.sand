@@ -14,6 +14,8 @@ import com.firstlinecode.sand.server.device.Device;
 import com.firstlinecode.sand.server.device.IDeviceManager;
 
 public class ExecutionListener implements IEventListener<ExecutionEvent>, IApplicationConfigurationAware {
+	private static final String RESOURCE_DEVICE = "device";
+	
 	@Dependency("concentrator.factory")
 	private IConcentratorFactory concentratorFactory;
 	
@@ -62,7 +64,7 @@ public class ExecutionListener implements IEventListener<ExecutionEvent>, IAppli
 		to.setDomain(domain);
 		
 		if (!isConcentrator) {
-			to.setResource(IThingEmulator.JID_RESOURCE);
+			to.setResource(RESOURCE_DEVICE);
 			return to;
 		}
 		
