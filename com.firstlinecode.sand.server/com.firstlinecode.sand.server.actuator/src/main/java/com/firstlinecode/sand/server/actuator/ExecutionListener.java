@@ -7,6 +7,7 @@ import com.firstlinecode.granite.framework.core.config.IApplicationConfiguration
 import com.firstlinecode.granite.framework.core.config.IApplicationConfigurationAware;
 import com.firstlinecode.granite.framework.core.event.IEventContext;
 import com.firstlinecode.granite.framework.core.event.IEventListener;
+import com.firstlinecode.sand.protocols.core.SandConstants;
 import com.firstlinecode.sand.server.concentrator.IConcentrator;
 import com.firstlinecode.sand.server.concentrator.IConcentratorFactory;
 import com.firstlinecode.sand.server.concentrator.Node;
@@ -14,8 +15,6 @@ import com.firstlinecode.sand.server.device.Device;
 import com.firstlinecode.sand.server.device.IDeviceManager;
 
 public class ExecutionListener implements IEventListener<ExecutionEvent>, IApplicationConfigurationAware {
-	private static final String RESOURCE_DEVICE = "device";
-	
 	@Dependency("concentrator.factory")
 	private IConcentratorFactory concentratorFactory;
 	
@@ -64,7 +63,7 @@ public class ExecutionListener implements IEventListener<ExecutionEvent>, IAppli
 		to.setDomain(domain);
 		
 		if (!isConcentrator) {
-			to.setResource(RESOURCE_DEVICE);
+			to.setResource(SandConstants.JID_RESOURCE_THING);
 			return to;
 		}
 		
