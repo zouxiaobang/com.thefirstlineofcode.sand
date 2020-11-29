@@ -85,8 +85,13 @@ public class Light extends AbstractThingEmulator implements ILightEmulator, ISwi
 	}
 	
 	public void flash() throws NotRemoteControlStateException, NotTurnedOffStateException {
-		// TODO Auto-generated method stub
+		if (switchState != SwitchState.CONTROL)
+			throw new NotRemoteControlStateException(switchState);
+			
+		if (lightState != LightState.OFF)
+			throw new NotTurnedOffStateException();
 		
+		panel.flash();
 	}
 	
 	@Override

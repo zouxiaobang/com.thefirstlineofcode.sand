@@ -1,6 +1,10 @@
 package com.firstlinecode.sand.protocols.core;
 
-public class DeviceIdentity {
+import java.io.Serializable;
+
+public class DeviceIdentity implements Serializable {
+	private static final long serialVersionUID = 2975514130104649088L;
+	
 	private String deviceName;
 	private String credentials;
 	

@@ -46,7 +46,10 @@ import com.firstlinecode.sand.client.ibdr.IbdrPlugin;
 import com.firstlinecode.sand.client.ibdr.RegistrationException;
 import com.firstlinecode.sand.client.things.BatteryPowerEvent;
 import com.firstlinecode.sand.client.things.IDeviceListener;
+import com.firstlinecode.sand.client.things.autuator.ExecutionException;
 import com.firstlinecode.sand.client.things.autuator.IActuator;
+import com.firstlinecode.sand.client.things.autuator.IExecutor;
+import com.firstlinecode.sand.client.things.autuator.IExecutorFactory;
 import com.firstlinecode.sand.client.things.obm.IObmFactory;
 import com.firstlinecode.sand.client.things.obm.ObmFactory;
 import com.firstlinecode.sand.emulators.models.Le02ModelDescriptor;
@@ -59,6 +62,7 @@ import com.firstlinecode.sand.emulators.things.ui.LightEmulatorPanel;
 import com.firstlinecode.sand.emulators.things.ui.StreamConfigDialog;
 import com.firstlinecode.sand.protocols.core.ModelDescriptor;
 import com.firstlinecode.sand.protocols.core.SandConstants;
+import com.firstlinecode.sand.protocols.emulators.light.Flash;
 
 public class LightFrame extends JFrame implements ActionListener, WindowListener,
 			IDeviceListener, ISwitchStateListener {
@@ -442,8 +446,21 @@ public class LightFrame extends JFrame implements ActionListener, WindowListener
 	}
 	
 	private void startActuator(IChatClient chatClient) {
-		IActuator actuator = chatClient.createApi(IActuator.class);
+		IActuator actuator = createActuator(chatClient);
 		actuator.start();
+	}
+
+	private IActuator createActuator(IChatClient chatClient) {
+		IActuator actuator = chatClient.createApi(IActuator.class);
+		actuator.registerExecutorFactory(Flash.class, new IExecutorFactory<Flash>() {
+
+			@Override
+			public IExecutor<Flash> create() throws ExecutionException {
+				return new FlashExecutor(LightFrame.this.light);
+			}
+		});
+		
+		return actuator;
 	}
 	
 	private void stopActuator(IChatClient chatClient) {

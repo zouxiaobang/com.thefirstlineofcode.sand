@@ -2,7 +2,6 @@ package com.firstlinecode.sand.client.actuator;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -101,47 +100,59 @@ public class Actuator implements IActuator, IIqListener {
 	}
 
 	@SuppressWarnings("unchecked")
-	private <T> IExecutor<T> createExecutor(Class<IExecutor<T>> executorType) throws ExecutionException {
+	private <T> IExecutor<T> createExecutor(Class<? extends IExecutor<T>> executorType) throws ExecutionException {
+		IExecutor<T> executor = null;
 		Constructor<T> constructor = null;
 		try {
 			constructor = (Constructor<T>)executorType.getConstructor(IChatServices.class);
-		} catch (SecurityException | NoSuchMethodException e) {
-			throw new ExecutionException(Reason.FAILED_TO_CREATE_EXECUTOR_INSTANCE);
-		}
-		
-		if (constructor != null) {
-			IExecutor<T> executor = null;
+			
 			try {
 				executor = (IExecutor<T>)constructor.newInstance(chatServices);
-			} catch (InstantiationException | IllegalAccessException | IllegalArgumentException
-					| InvocationTargetException e) {
-				throw new ExecutionException(Reason.FAILED_TO_CREATE_EXECUTOR_INSTANCE);
+			} catch (Exception e) {
+				throw new ExecutionException(Reason.FAILED_TO_CREATE_EXECUTOR_INSTANCE, e);
 			}
-			
-			for (Field field : executorType.getFields()) {
-				if (IChatServices.class.isAssignableFrom(field.getType())) {
-					boolean oldAccesssiable = field.isAccessible();
-					try {
-						field.setAccessible(true);
-						field.set(executor, chatServices);
-					} catch (IllegalAccessException | IllegalArgumentException e) {
-						throw new ExecutionException(Reason.FAILED_TO_CREATE_EXECUTOR_INSTANCE, e);
-					} finally {
-						field.setAccessible(oldAccesssiable);
-					}
-					
-					break;
-				}
+		} catch (NoSuchMethodException e) {
+			constructor = createEmptyConstructor(executorType, constructor);
+			try {
+				executor = (IExecutor<T>)constructor.newInstance();
+			} catch (Exception nie) {
+				throw new ExecutionException(Reason.FAILED_TO_CREATE_EXECUTOR_INSTANCE, nie);
 			}
-			
-			return executor;
+		} catch (SecurityException e) {
+			throw new ExecutionException(Reason.FAILED_TO_CREATE_EXECUTOR_INSTANCE);			
 		}
 		
-		try {
-			return executorType.newInstance();
-		} catch (InstantiationException | IllegalAccessException e) {
-			throw new ExecutionException(Reason.FAILED_TO_CREATE_EXECUTOR_INSTANCE);
+		for (Field field : executorType.getFields()) {
+			if (IChatServices.class.isAssignableFrom(field.getType())) {
+				boolean oldAccesssiable = field.isAccessible();
+				try {
+					field.setAccessible(true);
+					field.set(executor, chatServices);
+				} catch (IllegalAccessException | IllegalArgumentException e) {
+					throw new ExecutionException(Reason.FAILED_TO_CREATE_EXECUTOR_INSTANCE, e);
+				} finally {
+					field.setAccessible(oldAccesssiable);
+				}
+					
+				break;
+			}
 		}
+			
+		return executor;
+	}
+
+	@SuppressWarnings("unchecked")
+	private <T> Constructor<T> createEmptyConstructor(Class<? extends IExecutor<T>> executorType,
+			Constructor<T> constructor) throws ExecutionException {
+		try {
+			constructor = (Constructor<T>)executorType.getConstructor();
+		} catch (NoSuchMethodException e) {
+			throw new ExecutionException(Reason.FAILED_TO_CREATE_EXECUTOR_INSTANCE, e);			
+		} catch (SecurityException e) {
+			throw new ExecutionException(Reason.FAILED_TO_CREATE_EXECUTOR_INSTANCE, e);			
+		}
+		
+		return constructor;
 	}
 
 	@Override
@@ -191,7 +202,7 @@ public class Actuator implements IActuator, IIqListener {
 	}
 	
 	@Override
-	public <T> void registerExecutor(Class<T> actionType, Class<IExecutor<T>> executorType) {
+	public <T> void registerExecutor(Class<T> actionType, Class<? extends IExecutor<T>> executorType) {
 		if (executorFactories.containsKey(actionType))
 			throw new IllegalArgumentException(String.format("Reduplicate executors for action type '%s'.", actionType.getName()));
 		
@@ -199,9 +210,9 @@ public class Actuator implements IActuator, IIqListener {
 	}
 	
 	private class CreateByTypeExecutorFactory<T> implements IExecutorFactory<T> {
-		private Class<IExecutor<T>> executorType;
+		private Class<? extends IExecutor<T>> executorType;
 		
-		public CreateByTypeExecutorFactory(Class<IExecutor<T>> executorType) {
+		public CreateByTypeExecutorFactory(Class<? extends IExecutor<T>> executorType) {
 			this.executorType = executorType;
 		}
 
