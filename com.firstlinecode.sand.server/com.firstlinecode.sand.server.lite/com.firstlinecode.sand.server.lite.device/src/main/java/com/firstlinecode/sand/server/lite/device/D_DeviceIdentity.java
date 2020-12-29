@@ -4,6 +4,8 @@ import com.firstlinecode.granite.framework.core.supports.data.IIdProvider;
 import com.firstlinecode.sand.protocols.core.DeviceIdentity;
 
 public class D_DeviceIdentity extends DeviceIdentity implements IIdProvider<String> {
+	private static final long serialVersionUID = 6554323836858199250L;
+	
 	private String id;
 	private String deviceId;
 	
