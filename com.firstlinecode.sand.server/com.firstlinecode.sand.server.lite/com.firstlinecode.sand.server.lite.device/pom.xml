@@ -25,6 +25,10 @@
 			<groupId>com.firstlinecode.granite.framework.supports</groupId>
 			<artifactId>com.firstlinecode.granite.framework.supports.mybatis</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>javax.annotation</groupId>
+			<artifactId>javax.annotation-api</artifactId>
+		</dependency>
 	</dependencies>
 	
 </project>
