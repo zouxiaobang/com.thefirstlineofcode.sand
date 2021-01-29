@@ -20,11 +20,11 @@
 	</properties>
 
 	<modules>
-		<module>com.firstlinecode.sand.protocols</module>
-		<module>com.firstlinecode.sand.emulators</module>
-		<module>com.firstlinecode.sand.client</module>
-		<module>com.firstlinecode.sand.server</module>
-		<module>com.firstlinecode.sand.demo</module>
+		<module>protocols</module>
+		<module>emulators</module>
+		<module>client</module>
+		<module>server</module>
+		<module>demo</module>
 	</modules>
 	
 	<profiles>
@@ -357,219 +357,219 @@
 			<!-- basalt libraries -->
 			<dependency>
 				<groupId>com.firstlinecode.basalt</groupId>
-				<artifactId>com.firstlinecode.basalt.protocol</artifactId>
+				<artifactId>basalt-xmpp-core</artifactId>
 				<version>${basalt.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>com.firstlinecode.basalt</groupId>
-				<artifactId>com.firstlinecode.basalt.oxm</artifactId>
+				<artifactId>basalt-oxm</artifactId>
 				<version>${basalt.version}</version>
 			</dependency>
 			
 			<!-- chalk libraries -->
 			<dependency>
 				<groupId>com.firstlinecode.chalk</groupId>
-				<artifactId>com.firstlinecode.chalk</artifactId>
+				<artifactId>chalk-core</artifactId>
 				<version>${chalk.version}</version>
 			</dependency>
 
 			<!-- granite libraries -->
 			<dependency>
         			<groupId>com.firstlinecode.granite.framework</groupId>
-        			<artifactId>com.firstlinecode.granite.framework.core</artifactId>
+        			<artifactId>granite-framework-core</artifactId>
         			<version>${granite.version}</version>
 			</dependency>
 
 			<dependency>
         			<groupId>com.firstlinecode.granite.framework</groupId>
-        			<artifactId>com.firstlinecode.granite.framework.im</artifactId>
+        			<artifactId>granite-framework-im</artifactId>
         			<version>${granite.version}</version>
 			</dependency>
 
 			<dependency>
         			<groupId>com.firstlinecode.granite.stream</groupId>
-        			<artifactId>com.firstlinecode.granite.stream.standard</artifactId>
+        			<artifactId>granite-stream-standard</artifactId>
         			<version>${granite.version}</version>
 			</dependency>
 
 			<dependency>
 				<groupId>com.firstlinecode.granite.framework.supports</groupId>
-        			<artifactId>com.firstlinecode.granite.framework.supports.spring</artifactId>
+        			<artifactId>granite-framework-supports-spring</artifactId>
         			<version>${granite.version}</version>
 			</dependency>
 
 			<dependency>
 				<groupId>com.firstlinecode.granite.framework.supports</groupId>
-        			<artifactId>com.firstlinecode.granite.framework.supports.mybatis</artifactId>
+        			<artifactId>granite-framework-supports-mybatis</artifactId>
         			<version>${granite.version}</version>
 			</dependency>
 
 			<dependency>
 				<groupId>com.firstlinecode.granite.framework</groupId>
-        			<artifactId>com.firstlinecode.granite.framework.processing</artifactId>
+        			<artifactId>granite-framework-processing</artifactId>
         			<version>${granite.version}</version>
 			</dependency>
 
 			<!-- gem libraries -->
 			<dependency>
         			<groupId>com.firstlinecode.gem</groupId>
-        			<artifactId>com.firstlinecode.gem.protocol.bxmpp</artifactId>
+        			<artifactId>gem-protocol-bxmpp</artifactId>
         			<version>${gem.version}</version>
 			</dependency>
 
 			<!-- sand libraries -->
 			<dependency>
 				<groupId>com.firstlinecode.sand.emulators.lora</groupId>
-				<artifactId>com.firstlinecode.sand.emulators.lora.network</artifactId>
+				<artifactId>sand-emulators-lora-network</artifactId>
 				<version>${sand.version}</version>
 			</dependency>
 
 			<dependency>
 				<groupId>com.firstlinecode.sand.emulators</groupId>
-				<artifactId>com.firstlinecode.sand.emulators.things</artifactId>
+				<artifactId>sand-emulators-things</artifactId>
 				<version>${sand.version}</version>
 			</dependency>
 
 			<dependency>
 				<groupId>com.firstlinecode.sand.emulators.lora</groupId>
-				<artifactId>com.firstlinecode.sand.emulators.lora.things</artifactId>
+				<artifactId>sand-emulators-lora-things</artifactId>
 				<version>${sand.version}</version>
 			</dependency>
 
 			<dependency>
 				<groupId>com.firstlinecode.sand.emulators.lora</groupId>
-				<artifactId>com.firstlinecode.sand.emulators.lora.light</artifactId>
+				<artifactId>sand-emulators-lora-light</artifactId>
 				<version>${sand.version}</version>
 			</dependency>
 
 			<dependency>
 				<groupId>com.firstlinecode.sand.emulators</groupId>
-				<artifactId>com.firstlinecode.sand.emulators.models</artifactId>
+				<artifactId>sand-emulators-models</artifactId>
 				<version>${sand.version}</version>
 			</dependency>
 
 			<dependency>
 				<groupId>com.firstlinecode.sand.protocols</groupId>
-				<artifactId>com.firstlinecode.sand.protocols.core</artifactId>
+				<artifactId>sand-protocols-core</artifactId>
 				<version>${sand.version}</version>
 			</dependency>
 
 			<dependency>
 				<groupId>com.firstlinecode.sand.protocols</groupId>
-				<artifactId>com.firstlinecode.sand.protocols.lora</artifactId>
+				<artifactId>sand-protocols-lora</artifactId>
 				<version>${sand.version}</version>
 			</dependency>
 			
 			<dependency>
 				<groupId>com.firstlinecode.sand.protocols</groupId>
-				<artifactId>com.firstlinecode.sand.protocols.ibdr</artifactId>
+				<artifactId>sand-protocols-ibdr</artifactId>
 				<version>${sand.version}</version>
 			</dependency>
 
 			<dependency>
 				<groupId>com.firstlinecode.sand.protocols</groupId>
-				<artifactId>com.firstlinecode.sand.protocols.concentrator</artifactId>
+				<artifactId>sand-protocols-concentrator</artifactId>
 				<version>${sand.version}</version>
 			</dependency>
 
 			<dependency>
 				<groupId>com.firstlinecode.sand.protocols</groupId>
-				<artifactId>com.firstlinecode.sand.protocols.actuator</artifactId>
+				<artifactId>sand-protocols-actuator</artifactId>
 				<version>${sand.version}</version>
 			</dependency>
 
 			<dependency>
 				<groupId>com.firstlinecode.sand.protocols</groupId>
-				<artifactId>com.firstlinecode.sand.protocols.operator</artifactId>
+				<artifactId>sand-protocols-operator</artifactId>
 				<version>${sand.version}</version>
 			</dependency>
 			
 			<dependency>
 				<groupId>com.firstlinecode.sand.protocols.emulators</groupId>
-				<artifactId>com.firstlinecode.sand.protocols.emulators.gateway</artifactId>
+				<artifactId>sand-protocols-emulators-gateway</artifactId>
 				<version>${sand.version}</version>
 			</dependency>
 
 			<dependency>
 				<groupId>com.firstlinecode.sand.protocols.emulators</groupId>
-				<artifactId>com.firstlinecode.sand.protocols.emulators.light</artifactId>
+				<artifactId>sand-protocols-emulators-light</artifactId>
 				<version>${sand.version}</version>
 			</dependency>
 				
 			<dependency>
 				<groupId>com.firstlinecode.sand.client</groupId>
-				<artifactId>com.firstlinecode.sand.client.things</artifactId>
+				<artifactId>sand-client-things</artifactId>
 				<version>${sand.version}</version>
 			</dependency>
 
 			<dependency>
 				<groupId>com.firstlinecode.sand.client</groupId>
-				<artifactId>com.firstlinecode.sand.client.ibdr</artifactId>
+				<artifactId>sand-client-ibdr</artifactId>
 				<version>${sand.version}</version>
 			</dependency>
 
 			<dependency>
 				<groupId>com.firstlinecode.sand.client</groupId>
-				<artifactId>com.firstlinecode.sand.client.lora</artifactId>
+				<artifactId>sand-client-lora</artifactId>
 				<version>${sand.version}</version>
 			</dependency>
 
 			<dependency>
 				<groupId>com.firstlinecode.sand.client</groupId>
-				<artifactId>com.firstlinecode.sand.client.dmr</artifactId>
+				<artifactId>sand-client-dmr</artifactId>
 				<version>${sand.version}</version>
 			</dependency>
 
 			<dependency>
 				<groupId>com.firstlinecode.sand.client</groupId>
-				<artifactId>com.firstlinecode.sand.client.concentrator</artifactId>
+				<artifactId>sand-client-concentrator</artifactId>
 				<version>${sand.version}</version>
 			</dependency>
 
 			<dependency>
 				<groupId>com.firstlinecode.sand.client</groupId>
-				<artifactId>com.firstlinecode.sand.client.actuator</artifactId>
+				<artifactId>sand-client-actuator</artifactId>
 				<version>${sand.version}</version>
 			</dependency>
 
 			<dependency>
 				<groupId>com.firstlinecode.sand.server</groupId>
-				<artifactId>com.firstlinecode.sand.server.device</artifactId>
+				<artifactId>sand-server-device</artifactId>
 				<version>${sand.version}</version>
 			</dependency>
 
 			<dependency>
 				<groupId>com.firstlinecode.sand.server</groupId>
-				<artifactId>com.firstlinecode.sand.server.stream</artifactId>
+				<artifactId>sand-server-stream</artifactId>
 				<version>${sand.version}</version>
 			</dependency>
 
 			<dependency>
 				<groupId>com.firstlinecode.sand.server</groupId>
-				<artifactId>com.firstlinecode.sand.server.ibdr</artifactId>
+				<artifactId>sand-server-ibdr</artifactId>
 				<version>${sand.version}</version>
 			</dependency>
 
 			<dependency>
 				<groupId>com.firstlinecode.sand.server</groupId>
-				<artifactId>com.firstlinecode.sand.server.platform</artifactId>
+				<artifactId>sand-server-platform</artifactId>
 				<version>${sand.version}</version>
 			</dependency>
 
 			<dependency>
 				<groupId>com.firstlinecode.sand.server</groupId>
-				<artifactId>com.firstlinecode.sand.server.concentrator</artifactId>
+				<artifactId>sand-server-concentrator</artifactId>
 				<version>${sand.version}</version>
 			</dependency>
 
 			<dependency>
 				<groupId>com.firstlinecode.sand.server</groupId>
-				<artifactId>com.firstlinecode.sand.server.actuator</artifactId>
+				<artifactId>sand-server-actuator</artifactId>
 				<version>${sand.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>com.firstlinecode.sand.demo</groupId>
-				<artifactId>com.firstlinecode.sand.demo.protocols</artifactId>
+				<artifactId>sand-demo-protocols</artifactId>
 				<version>${sand.version}</version>
 			</dependency>
 		</dependencies>
