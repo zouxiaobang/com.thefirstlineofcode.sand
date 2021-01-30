@@ -11,11 +11,6 @@
 		<version>0.1.0.RELEASE</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
-	
-	<properties>
-		<bundle.symbolicName>com.firstlinecode.sand.server.platform</bundle.symbolicName>
-		<bundle.namespace>com.firstlinecode.sand.server.platform</bundle.namespace>
-	</properties>
 
 	<groupId>com.firstlinecode.sand.server</groupId>
 	<artifactId>sand-server-platform</artifactId>
