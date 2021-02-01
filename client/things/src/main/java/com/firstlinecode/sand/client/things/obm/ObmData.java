@@ -56,6 +56,7 @@ public class ObmData {
 	/**
 	 * Return object info string.
 	 */
+	@SuppressWarnings("deprecation")
 	private String getObjectInfoString(Object obj) {
 		if (obj == null) {
 			return "Null";

@@ -54,7 +54,7 @@ public class ExecutionTranslatorFactory implements ITranslatorFactory<Execute> {
 			actionTranslatorFactory.create().translate((T)action, writer, translatingFactory);
 		}
 
-		@SuppressWarnings("unchecked")
+		@SuppressWarnings({ "unchecked", "deprecation" })
 		private <T> ITranslatorFactory<T> createCustomActionTranslatorFactory(Class<T> actionType) {
 			String customActionTranslatorFactoryName = String.format("%s.%s.%s", actionType.getPackage().getName(),
 					actionType.getSimpleName(), "TranslatorFactory");

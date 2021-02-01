@@ -12,6 +12,7 @@ public enum CommunicationNet {
 		return getAddressInstance().parse(addressString);
 	}
 	
+	@SuppressWarnings("deprecation")
 	private Address getAddressInstance() {
 		Address address = instances.get(name());
 		if (address != null)
