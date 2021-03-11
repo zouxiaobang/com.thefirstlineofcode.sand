@@ -2,7 +2,7 @@ package com.firstlinecode.sand.demo.app.android;
 
 import android.content.Context;
 
-import com.firstlinecode.chalk.IChatClient;
+import com.firstlinecode.chalk.core.IChatClient;
 import com.firstlinecode.chalk.android.StandardChatClient;
 import com.firstlinecode.sand.client.operator.OperatorPlugin;
 import com.firstlinecode.sand.demo.client.DemoPlugin;

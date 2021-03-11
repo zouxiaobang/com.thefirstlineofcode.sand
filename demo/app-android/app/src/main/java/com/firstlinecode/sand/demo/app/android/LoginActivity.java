@@ -14,8 +14,8 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import com.firstlinecode.basalt.protocol.core.IError;
-import com.firstlinecode.chalk.AuthFailureException;
-import com.firstlinecode.chalk.IChatClient;
+import com.firstlinecode.chalk.core.AuthFailureException;
+import com.firstlinecode.chalk.core.IChatClient;
 import com.firstlinecode.chalk.core.stream.NegotiationException;
 import com.firstlinecode.chalk.core.stream.UsernamePasswordToken;
 import com.firstlinecode.chalk.network.ConnectionException;

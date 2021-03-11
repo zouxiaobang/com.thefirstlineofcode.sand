@@ -284,7 +284,6 @@ public class SandCommandProvider implements CommandProvider, IEventProducerAware
 		return null;
 	}
 
-	@SuppressWarnings("deprecation")
 	private Object createActionObject(CommandInterpreter interpreter, String model, Protocol protocol, Map<String, String> params) {		
 		Class<?> actionType = deviceManager.getActionType(model, protocol);
 		try {

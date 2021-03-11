@@ -20,7 +20,6 @@ import com.firstlinecode.chalk.core.stream.negotiants.tls.TlsNegotiant;
 import com.firstlinecode.chalk.network.IConnection;
 import com.firstlinecode.sand.protocols.ibdr.Register;
 
-@SuppressWarnings("deprecation")
 class IbdrChatClient extends AbstractChatClient {
 	
 	private IPeerCertificateTruster peerCertificateTruster;

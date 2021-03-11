@@ -38,10 +38,10 @@ dependencies {
     implementation 'com.google.android.material:material:1.1.0'
     implementation 'androidx.navigation:navigation-fragment:2.2.2'
     implementation 'androidx.navigation:navigation-ui:2.2.2'
-    implementation 'com.firstlinecode.chalk:com.firstlinecode.chalk.android:0.2.0.RELEASE'
-    implementation 'com.firstlinecode.chalk.xeps:com.firstlinecode.chalk.xeps.ibr:0.2.0.RELEASE'
-    implementation 'com.firstlinecode.sand.client:com.firstlinecode.sand.client.operator:0.1.0.RELEASE'
-    implementation 'com.firstlinecode.sand.demo:com.firstlinecode.sand.demo.client:0.1.0.RELEASE'
+    implementation 'com.firstlinecode.chalk:chalk-android:0.2.0.RELEASE'
+    implementation 'com.firstlinecode.chalk.xeps:chalk-xeps-ibr:0.2.0.RELEASE'
+    implementation 'com.firstlinecode.sand.client:sand-client-operator:0.1.0.RELEASE'
+    implementation 'com.firstlinecode.sand.demo:sand-demo-client:0.1.0.RELEASE'
     implementation ('com.journeyapps:zxing-android-embedded:4.1.0') {
         transitive = false
     }

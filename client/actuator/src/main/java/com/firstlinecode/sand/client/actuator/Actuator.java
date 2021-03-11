@@ -99,7 +99,7 @@ public class Actuator implements IActuator, IIqListener {
 		return null;
 	}
 
-	@SuppressWarnings({ "unchecked", "deprecation" })
+	@SuppressWarnings("unchecked")
 	private <T> IExecutor<T> createExecutor(Class<? extends IExecutor<T>> executorType) throws ExecutionException {
 		IExecutor<T> executor = null;
 		Constructor<T> constructor = null;
@@ -182,7 +182,7 @@ public class Actuator implements IActuator, IIqListener {
 			chatServices.getIqService().addListener(Execute.PROTOCOL, this);
 	}
 	
-	@SuppressWarnings({ "unchecked", "deprecation" })
+	@SuppressWarnings("unchecked")
 	private <T> IParserFactory<T> createCustomActionParserFactory(Class<T> actionType) {
 		String customActionParserFactoryName = String.format("%s.%s.%s", actionType.getPackage().getName(),
 				actionType.getSimpleName(), "ParserFactory");
@@ -280,7 +280,7 @@ public class Actuator implements IActuator, IIqListener {
 		return actionDeliverer;
 	}
 
-	@SuppressWarnings({ "unchecked", "deprecation" })
+	@SuppressWarnings("unchecked")
 	private <PA, D> IActionDeliverer<PA, D> createActionDeliverer(CommunicationNet communicationNet,
 			ICommunicator<?, PA, D> communicator) throws ExecutionException {
 		String actionDelivererTypeName = String.format("com.firstlinecode.sand.client.%s.ActionDeliverer",

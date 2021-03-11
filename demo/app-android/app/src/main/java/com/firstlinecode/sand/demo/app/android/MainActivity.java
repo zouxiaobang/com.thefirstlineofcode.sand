@@ -16,7 +16,7 @@ import androidx.appcompat.widget.Toolbar;
 import com.firstlinecode.basalt.protocol.core.IError;
 import com.firstlinecode.basalt.protocol.core.stanza.Iq;
 import com.firstlinecode.basalt.protocol.core.stream.error.StreamError;
-import com.firstlinecode.chalk.IChatClient;
+import com.firstlinecode.chalk.core.IChatClient;
 import com.firstlinecode.chalk.core.IErrorListener;
 import com.firstlinecode.sand.client.operator.IOperator;
 import com.firstlinecode.sand.demo.client.AclError;
