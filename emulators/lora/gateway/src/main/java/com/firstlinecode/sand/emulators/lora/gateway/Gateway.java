@@ -1310,7 +1310,7 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 	}
 
 	@Override
-	public synchronized void occurred(ConnectionException exception) {
+	public synchronized void exceptionOccurred(ConnectionException exception) {
 		if (exception.getType() == ConnectionException.Type.CONNECTION_CLOSED && chatClient.isClosed()) {
 			if (addressConfigurator != null && addressConfigurator.getState() != DynamicAddressConfigurator.State.WORKING) {				
 				addressConfigurator.stop();
@@ -1323,12 +1323,12 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 	}
 
 	@Override
-	public void received(String message) {
+	public void messageReceived(String message) {
 		// NO-OP
 	}
 
 	@Override
-	public void sent(String message) {
+	public void messageSent(String message) {
 		// NO-OP
 	}
 
@@ -1395,5 +1395,10 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 	@Override
 	public boolean removeDeviceListener(IDeviceListener listener) {
 		throw new UnsupportedOperationException("Not supported.");
+	}
+
+	@Override
+	public void heartBeatsReceived(int length) {
+		// Do nothing.
 	}
 }

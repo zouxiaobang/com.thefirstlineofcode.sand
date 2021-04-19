@@ -34,17 +34,17 @@ public class InternetLogConsolePanel extends AbstractLogConsolePanel implements 
 	}
 
 	@Override
-	public void occurred(ConnectionException exception) {
+	public void exceptionOccurred(ConnectionException exception) {
 		log(exception);
 	}
 
 	@Override
-	public void received(String message) {
+	public void messageReceived(String message) {
 		log("S-->G: " + message);
 	}
 
 	@Override
-	public void sent(String message) {
+	public void messageSent(String message) {
 		log("G-->S: " + message);
 	}
 
@@ -52,6 +52,11 @@ public class InternetLogConsolePanel extends AbstractLogConsolePanel implements 
 	protected void doWindowClosing(WindowEvent e) {
 		if (chatClient != null)
 			chatClient.removeConnectionListener(this);
+	}
+
+	@Override
+	public void heartBeatsReceived(int length) {
+		// Do nothing.	
 	}
 	
 }

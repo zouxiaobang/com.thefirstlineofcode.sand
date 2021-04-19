@@ -21,11 +21,12 @@ import com.firstlinecode.chalk.core.stream.IStreamNegotiant;
 import com.firstlinecode.chalk.core.stream.NegotiationException;
 import com.firstlinecode.chalk.core.stream.StandardStreamConfig;
 import com.firstlinecode.chalk.network.ConnectionException;
+import com.firstlinecode.chalk.network.ConnectionListenerAdapter;
 import com.firstlinecode.chalk.network.IConnectionListener;
 import com.firstlinecode.sand.protocols.core.DeviceIdentity;
 import com.firstlinecode.sand.protocols.ibdr.DeviceRegister;
 
-public class Registration implements IRegistration, IConnectionListener, INegotiationListener {
+public class Registration extends ConnectionListenerAdapter implements IRegistration, INegotiationListener {
 	private StandardStreamConfig streamConfig;
 	private List<IConnectionListener> connectionListeners = new ArrayList<>();
 	private List<INegotiationListener> negotiationListeners = new ArrayList<>();
@@ -153,26 +154,26 @@ public class Registration implements IRegistration, IConnectionListener, INegoti
 	}
 
 	@Override
-	public void occurred(ConnectionException exception) {
+	public void exceptionOccurred(ConnectionException exception) {
 		if (dontThrowConnectionException)
 			return;
 		
 		for (IConnectionListener connectionListener : connectionListeners) {
-			connectionListener.occurred(exception);
+			connectionListener.exceptionOccurred(exception);
 		}
 	}
 
 	@Override
-	public void received(String message) {
+	public void messageReceived(String message) {
 		for (IConnectionListener connectionListener : connectionListeners) {
-			connectionListener.received(message);
+			connectionListener.messageReceived(message);
 		}
 	}
 
 	@Override
-	public void sent(String message) {
+	public void messageSent(String message) {
 		for (IConnectionListener connectionListener : connectionListeners) {
-			connectionListener.sent(message);
+			connectionListener.messageSent(message);
 		}
 	}
 
