@@ -38,7 +38,7 @@ public class Registration extends ConnectionListenerAdapter implements IRegistra
 		IChatClient chatClient = new IbdrChatClient(streamConfig);
 		chatClient.register(InternalIbdrPlugin.class);
 		
-		chatClient.addConnectionListener(this);
+		chatClient.getStream().addConnectionListener(this);
 		chatClient.addNegotiationListener(this);
 		
 		try {

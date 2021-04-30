@@ -20,17 +20,17 @@ public class InternetLogConsolePanel extends AbstractLogConsolePanel implements 
 		
 		this.chatClient = chatClient;
 		if (chatClient != null) {
-			chatClient.addConnectionListener(this);
+			chatClient.getStream().addConnectionListener(this);
 		}
 	}
 	
 	public void setChatClient(IChatClient chatClient) {
 		if (chatClient != null) {
-			chatClient.removeConnectionListener(this);
+			chatClient.getStream().removeConnectionListener(this);
 		}
 		
 		this.chatClient = chatClient;
-		chatClient.addConnectionListener(this);
+		chatClient.getStream().addConnectionListener(this);
 	}
 
 	@Override
@@ -51,7 +51,7 @@ public class InternetLogConsolePanel extends AbstractLogConsolePanel implements 
 	@Override
 	protected void doWindowClosing(WindowEvent e) {
 		if (chatClient != null)
-			chatClient.removeConnectionListener(this);
+			chatClient.getStream().removeConnectionListener(this);
 	}
 
 	@Override

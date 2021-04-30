@@ -428,11 +428,11 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 			chatClient = createChatClient();
 		
 		IConnectionListener logConsoleListener = getLogConsoleInternetConnectionListener();
-		if (logConsoleListener != null && !chatClient.getConnectionListeners().contains(logConsoleListener))
-			chatClient.addConnectionListener(getLogConsoleInternetConnectionListener());
+		if (logConsoleListener != null && !hasAlreadyConnectionListenerExisted(logConsoleListener))
+			chatClient.getStream().addConnectionListener(getLogConsoleInternetConnectionListener());
 		
-		if (!chatClient.getConnectionListeners().contains(this)) {
-			chatClient.addConnectionListener(this);
+		if (!hasAlreadyConnectionListenerExisted(this)) {
+			chatClient.getStream().addConnectionListener(this);
 		}
 		
 		chatClient.connect(new UsernamePasswordToken(deviceIdentity.getDeviceName().toString(), deviceIdentity.getCredentials()));
@@ -444,6 +444,15 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 		
 		refreshConnectionStateRelativatedMenus();
 		updateStatus();
+	}
+
+	private boolean hasAlreadyConnectionListenerExisted(Object listener) {
+		for (IConnectionListener aListener : chatClient.getStream().getConnectionListeners()) {
+			if (aListener == listener)
+				return true;
+		}
+		
+		return false;
 	}
 
 	private IConcentrator createConcentrator() {

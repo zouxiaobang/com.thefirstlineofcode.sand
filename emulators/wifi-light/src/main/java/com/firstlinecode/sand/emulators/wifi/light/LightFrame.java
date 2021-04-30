@@ -473,14 +473,23 @@ public class LightFrame extends JFrame implements ActionListener, WindowListener
 			chatClient = createChatClient();
 		
 		IConnectionListener logConsoleListener = getLogConsoleInternetConnectionListener();
-		if (logConsoleListener != null && !chatClient.getConnectionListeners().contains(logConsoleListener))
-			chatClient.addConnectionListener(getLogConsoleInternetConnectionListener());
+		if (logConsoleListener != null && !hasAlreadyConnectionListenerExisted(logConsoleListener))
+			chatClient.getStream().addConnectionListener(getLogConsoleInternetConnectionListener());
 		
 		chatClient.connect(new UsernamePasswordToken(light.getDeviceIdentity().getDeviceName().toString(),
 				light.getDeviceIdentity().getCredentials()));
 				
 		refreshConnectionStateRelativatedMenus();
 		panel.updateStatus();
+	}
+	
+	private boolean hasAlreadyConnectionListenerExisted(Object listener) {
+		for (IConnectionListener aListener : chatClient.getStream().getConnectionListeners()) {
+			if (aListener == listener)
+				return true;
+		}
+		
+		return false;
 	}
 	
 	private void refreshConnectionStateRelativatedMenus() {

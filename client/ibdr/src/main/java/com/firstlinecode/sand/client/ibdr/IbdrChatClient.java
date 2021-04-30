@@ -18,6 +18,7 @@ import com.firstlinecode.chalk.core.stream.negotiants.InitialStreamNegotiant;
 import com.firstlinecode.chalk.core.stream.negotiants.tls.IPeerCertificateTruster;
 import com.firstlinecode.chalk.core.stream.negotiants.tls.TlsNegotiant;
 import com.firstlinecode.chalk.network.IConnection;
+import com.firstlinecode.chalk.network.SocketConnection;
 import com.firstlinecode.sand.protocols.ibdr.Register;
 
 class IbdrChatClient extends AbstractChatClient {
@@ -25,7 +26,11 @@ class IbdrChatClient extends AbstractChatClient {
 	private IPeerCertificateTruster peerCertificateTruster;
 
 	public IbdrChatClient(StreamConfig streamConfig) {
-		super(streamConfig);
+		this(streamConfig, new SocketConnection());
+	}
+	
+	public IbdrChatClient(StreamConfig streamConfig, IConnection connection) {
+		super(streamConfig, connection);
 	}
 	
 	public void setPeerCertificateTruster(IPeerCertificateTruster peerCertificateTruster) {
@@ -37,8 +42,8 @@ class IbdrChatClient extends AbstractChatClient {
 	}
 
 	@Override
-	protected IStreamer createStreamer(StreamConfig streamConfig) {
-		IbdrStreamer streamer = new IbdrStreamer(getStreamConfig());
+	protected IStreamer createStreamer(StreamConfig streamConfig, IConnection connection) {
+		IbdrStreamer streamer = new IbdrStreamer(getStreamConfig(), connection);
 		streamer.setConnectionListener(this);
 		streamer.setNegotiationListener(this);
 		
@@ -59,10 +64,6 @@ class IbdrChatClient extends AbstractChatClient {
 
 	private class IbdrStreamer extends AbstractStreamer {
 		private IPeerCertificateTruster certificateTruster;
-		
-		public IbdrStreamer(StreamConfig streamConfig) {
-			this(streamConfig, null);
-		}
 		
 		public IbdrStreamer(StreamConfig streamConfig, IConnection connection) {
 			super(streamConfig, connection);
