@@ -7,12 +7,12 @@
 	<parent>
 		<groupId>com.firstlinecode.sand</groupId>
 		<artifactId>com.firstlinecode.sand</artifactId>
-		<version>0.1.0.RELEASE</version>
+		<version>0.2.0-SNAPSHOT</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 
 	<groupId>com.firstlinecode.sand</groupId>
-	<artifactId>demo</artifactId>
+	<artifactId>sand-demo</artifactId>
 	<packaging>pom</packaging>
 	<name>Lithosphere IoT Demo Projects</name>
 
@@ -20,7 +20,6 @@
 		<module>protocols</module>
 		<module>client</module>
 		<module>server</module>
-		<module>server-lite</module>
 	</modules>
 
 </project>

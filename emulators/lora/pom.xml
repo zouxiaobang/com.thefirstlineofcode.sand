@@ -6,13 +6,13 @@
 	
 	<parent>
 		<groupId>com.firstlinecode.sand</groupId>
-		<artifactId>emulators</artifactId>
-		<version>0.1.0.RELEASE</version>
+		<artifactId>sand-emulators</artifactId>
+		<version>0.2.0-SNAPSHOT</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 
 	<groupId>com.firstlinecode.sand.emulators</groupId>
-	<artifactId>lora</artifactId>
+	<artifactId>sand-emulators-lora</artifactId>
 	<packaging>pom</packaging>
 	<name>Lithosphere IoT LoRa emulators</name>
 

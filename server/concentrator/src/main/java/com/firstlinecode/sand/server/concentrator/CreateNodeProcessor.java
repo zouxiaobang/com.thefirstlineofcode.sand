@@ -8,25 +8,25 @@ import com.firstlinecode.basalt.protocol.core.stanza.Iq;
 import com.firstlinecode.basalt.protocol.core.stanza.error.Conflict;
 import com.firstlinecode.basalt.protocol.core.stanza.error.ItemNotFound;
 import com.firstlinecode.basalt.protocol.core.stanza.error.NotAcceptable;
-import com.firstlinecode.granite.framework.core.annotations.Dependency;
+import com.firstlinecode.granite.framework.core.adf.data.IDataObjectFactory;
+import com.firstlinecode.granite.framework.core.adf.data.IDataObjectFactoryAware;
+import com.firstlinecode.granite.framework.core.annotations.BeanDependency;
 import com.firstlinecode.granite.framework.core.config.IConfiguration;
 import com.firstlinecode.granite.framework.core.config.IConfigurationAware;
-import com.firstlinecode.granite.framework.core.supports.data.IDataObjectFactory;
-import com.firstlinecode.granite.framework.core.supports.data.IDataObjectFactoryAware;
-import com.firstlinecode.granite.framework.processing.IProcessingContext;
-import com.firstlinecode.granite.framework.processing.IXepProcessor;
+import com.firstlinecode.granite.framework.core.pipeline.stages.processing.IProcessingContext;
+import com.firstlinecode.granite.framework.core.pipeline.stages.processing.IXepProcessor;
 import com.firstlinecode.sand.protocols.concentrator.CreateNode;
-import com.firstlinecode.sand.server.device.Device;
-import com.firstlinecode.sand.server.device.IDeviceManager;
+import com.firstlinecode.sand.server.devices.Device;
+import com.firstlinecode.sand.server.devices.IDeviceManager;
 
 public class CreateNodeProcessor implements IXepProcessor<Iq, CreateNode>, IConfigurationAware, IDataObjectFactoryAware {
 	private static final String CONFIGURATION_KEY_NODE_CONFIRMATION_VALIDITY_TIME = "node.confirmation.validity.time";
-	private static final int DEFAULT_VALIDITY_TIME = 1000 * 60 * 60 * 5;
+	private static final int DEFAULT_VALIDITY_TIME = 60 * 60 * 5;
 	
-	@Dependency("device.manager")
+	@BeanDependency
 	private IDeviceManager deviceManager;
 	
-	@Dependency("concentrator.factory")
+	@BeanDependency
 	private IConcentratorFactory concentratorFactory;
 	
 	private IDataObjectFactory dataObjectFactory;
@@ -74,9 +74,9 @@ public class CreateNodeProcessor implements IXepProcessor<Iq, CreateNode>, IConf
 		concentrator.requestConfirmation(confirmation);
 	}
 
-	private Date getExpiredTime(long currentTime, long validityTime) {
+	private Date getExpiredTime(long currentTime, int validityTime) {
 		Calendar expiredTime = Calendar.getInstance();
-		expiredTime.setTimeInMillis(currentTime + validityTime);
+		expiredTime.setTimeInMillis(currentTime + (validityTime * 1000));
 		
 		return expiredTime.getTime();
 	}

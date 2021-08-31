@@ -6,18 +6,18 @@
 	
 	<parent>
 		<groupId>com.firstlinecode.sand</groupId>
-		<artifactId>server</artifactId>
-		<version>0.1.0.RELEASE</version>
+		<artifactId>sand-server</artifactId>
+		<version>0.2.0-SNAPSHOT</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 
 	<groupId>com.firstlinecode.sand.server</groupId>
-	<artifactId>lite</artifactId>
+	<artifactId>sand-server-lite</artifactId>
 	<packaging>pom</packaging>
 	<name>Lithosphere IoT server deploy lite plugins</name>
 
 	<modules>
-		<module>device</module>
+		<module>devices</module>
 		<module>ibdr</module>
 		<module>concentrator</module>
 	</modules>

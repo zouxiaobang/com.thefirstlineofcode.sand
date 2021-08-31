@@ -7,20 +7,19 @@
 
 	<parent>
 		<groupId>com.firstlinecode.sand</groupId>
-		<artifactId>server</artifactId>
-		<version>0.1.0.RELEASE</version>
+		<artifactId>sand-server</artifactId>
+		<version>0.2.0-SNAPSHOT</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 
 	<groupId>com.firstlinecode.sand.server</groupId>
 	<artifactId>sand-server-operator</artifactId>
 	<name>Sand server operator implementation</name>
-	<packaging>bundle</packaging>
 
 	<dependencies>
 		<dependency>
 			<groupId>com.firstlinecode.granite.framework</groupId>
-			<artifactId>granite-framework-processing</artifactId>
+			<artifactId>granite-framework-core</artifactId>
 		</dependency>	
 		<dependency>
 			<groupId>com.firstlinecode.sand.protocols</groupId>
@@ -28,7 +27,7 @@
 		</dependency>
 		<dependency>
 			<groupId>com.firstlinecode.sand.server</groupId>
-			<artifactId>sand-server-device</artifactId>
+			<artifactId>sand-server-devices</artifactId>
 		</dependency>
 	</dependencies>
 </project>

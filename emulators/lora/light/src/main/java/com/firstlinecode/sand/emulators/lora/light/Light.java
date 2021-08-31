@@ -24,7 +24,7 @@ import com.firstlinecode.sand.emulators.things.emulators.ILightStateListener;
 import com.firstlinecode.sand.emulators.things.emulators.ISwitchStateListener;
 import com.firstlinecode.sand.emulators.things.ui.AbstractThingEmulatorPanel;
 import com.firstlinecode.sand.emulators.things.ui.LightEmulatorPanel;
-import com.firstlinecode.sand.protocols.emulators.light.Flash;
+import com.firstlinecode.sand.protocols.devices.light.Flash;
 
 public class Light extends AbstractLoraThingEmulator implements ILightEmulator, ISwitchStateListener {
 	public static final String THING_NAME = "Light Emulator";

@@ -1,23 +1,20 @@
 package com.firstlinecode.sand.server.lite.concentrator;
 
 import org.apache.ibatis.session.SqlSession;
-import org.osgi.framework.BundleContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.firstlinecode.granite.framework.core.commons.osgi.IBundleContextAware;
-import com.firstlinecode.granite.framework.core.supports.IApplicationComponentService;
-import com.firstlinecode.granite.framework.core.supports.IApplicationComponentServiceAware;
+import com.firstlinecode.granite.framework.core.adf.IApplicationComponentService;
+import com.firstlinecode.granite.framework.core.adf.IApplicationComponentServiceAware;
 import com.firstlinecode.sand.server.concentrator.IConcentrator;
 import com.firstlinecode.sand.server.concentrator.IConcentratorFactory;
-import com.firstlinecode.sand.server.device.Device;
-import com.firstlinecode.sand.server.device.IDeviceManager;
+import com.firstlinecode.sand.server.devices.Device;
+import com.firstlinecode.sand.server.devices.IDeviceManager;
 
 @Component
 @Transactional
-public class ConcentratorFactory implements IConcentratorFactory, IBundleContextAware, IApplicationComponentServiceAware {
-	private BundleContext bundleContext;
+public class ConcentratorFactory implements IConcentratorFactory, IApplicationComponentServiceAware {
 	private IApplicationComponentService appComponentService;
 	
 	@Autowired
@@ -40,7 +37,7 @@ public class ConcentratorFactory implements IConcentratorFactory, IBundleContext
 			throw new IllegalArgumentException(String.format("Device[%s] isn't a concentrator.", device.getDeviceId()));
 		
 		Concentrator concentrator = new Concentrator(device.getDeviceId(), sqlSession);
-		appComponentService.inject(concentrator, bundleContext);
+		appComponentService.inject(concentrator);
 		
 		return concentrator;
 		
@@ -49,11 +46,6 @@ public class ConcentratorFactory implements IConcentratorFactory, IBundleContext
 	@Override
 	public void setApplicationComponentService(IApplicationComponentService appComponentService) {
 		this.appComponentService = appComponentService;
-	}
-
-	@Override
-	public void setBundleContext(BundleContext bundleContext) {
-		this.bundleContext = bundleContext;
 	}
 
 }

@@ -3,18 +3,18 @@ package com.firstlinecode.sand.server.actuator;
 import com.firstlinecode.basalt.protocol.core.JabberId;
 import com.firstlinecode.basalt.protocol.core.stanza.Iq;
 import com.firstlinecode.granite.framework.core.annotations.Dependency;
-import com.firstlinecode.granite.framework.core.config.IApplicationConfiguration;
-import com.firstlinecode.granite.framework.core.config.IApplicationConfigurationAware;
-import com.firstlinecode.granite.framework.core.event.IEventContext;
-import com.firstlinecode.granite.framework.core.event.IEventListener;
+import com.firstlinecode.granite.framework.core.config.IServerConfiguration;
+import com.firstlinecode.granite.framework.core.config.IServerConfigurationAware;
+import com.firstlinecode.granite.framework.core.pipeline.stages.event.IEventContext;
+import com.firstlinecode.granite.framework.core.pipeline.stages.event.IEventListener;
 import com.firstlinecode.sand.protocols.core.SandConstants;
 import com.firstlinecode.sand.server.concentrator.IConcentrator;
 import com.firstlinecode.sand.server.concentrator.IConcentratorFactory;
 import com.firstlinecode.sand.server.concentrator.Node;
-import com.firstlinecode.sand.server.device.Device;
-import com.firstlinecode.sand.server.device.IDeviceManager;
+import com.firstlinecode.sand.server.devices.Device;
+import com.firstlinecode.sand.server.devices.IDeviceManager;
 
-public class ExecutionListener implements IEventListener<ExecutionEvent>, IApplicationConfigurationAware {
+public class ExecutionListener implements IEventListener<ExecutionEvent>, IServerConfigurationAware {
 	@Dependency("concentrator.factory")
 	private IConcentratorFactory concentratorFactory;
 	
@@ -76,8 +76,8 @@ public class ExecutionListener implements IEventListener<ExecutionEvent>, IAppli
 	}
 
 	@Override
-	public void setApplicationConfiguration(IApplicationConfiguration appConfiguration) {
-		domain = appConfiguration.getDomainName();
+	public void setServerConfiguration(IServerConfiguration serverConfiguration) {
+		domain = serverConfiguration.getDomainName();
 	}
 
 }

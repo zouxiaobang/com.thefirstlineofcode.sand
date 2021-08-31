@@ -1,43 +1,25 @@
-<?xml version="1.0" encoding="UTF-8"?>
-
-<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xmlns="http://maven.apache.org/POM/4.0.0"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+		http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-
+	
 	<parent>
 		<groupId>com.firstlinecode.sand</groupId>
-		<artifactId>demo</artifactId>
-		<version>0.1.0.RELEASE</version>
+		<artifactId>sand-demo</artifactId>
+		<version>0.2.0-SNAPSHOT</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 
-	<groupId>com.firstlinecode.sand.demo</groupId>
+	<groupId>com.firstlinecode.sand.demo.server</groupId>
 	<artifactId>sand-demo-server</artifactId>
-	<name>Sand demo server</name>
-	<packaging>jar</packaging>
-	
-	<dependencies>
-		<dependency>
-			<groupId>com.firstlinecode.granite.framework</groupId>
-			<artifactId>granite-framework-processing</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>com.firstlinecode.granite.framework</groupId>
-			<artifactId>granite-framework-im</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>com.firstlinecode.sand.server</groupId>
-			<artifactId>sand-server-device</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>com.firstlinecode.sand.server</groupId>
-			<artifactId>sand-server-ibdr</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>com.firstlinecode.sand.demo</groupId>
-			<artifactId>sand-demo-protocols</artifactId>
-			<version>0.1.0.RELEASE</version>
-		</dependency>
-	</dependencies>
+	<packaging>pom</packaging>
+	<name>Lithosphere demo IoT server Plugins</name>
+
+	<modules>
+		<module>models</module>
+		<module>acl</module>
+		<module>lite</module>
+	</modules>
+
 </project>

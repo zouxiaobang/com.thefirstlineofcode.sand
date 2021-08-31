@@ -7,8 +7,8 @@
 
 	<parent>
 		<groupId>com.firstlinecode.sand.server</groupId>
-		<artifactId>lite</artifactId>
-		<version>0.1.0.RELEASE</version>
+		<artifactId>sand-server-lite</artifactId>
+		<version>0.2.0-SNAPSHOT</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 
@@ -22,8 +22,8 @@
 			<artifactId>sand-server-ibdr</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>com.firstlinecode.granite.framework.supports</groupId>
-			<artifactId>granite-framework-supports-spring</artifactId>
+			<groupId>com.firstlinecode.granite.framework.adf</groupId>
+			<artifactId>granite-framework-adf-spring</artifactId>
 		</dependency>
 	</dependencies>
 	

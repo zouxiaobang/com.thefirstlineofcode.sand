@@ -1,6 +1,6 @@
 package com.firstlinecode.sand.server.ibdr;
 
-import com.firstlinecode.granite.framework.core.event.IEvent;
+import com.firstlinecode.granite.framework.core.pipeline.stages.event.IEvent;
 import com.firstlinecode.sand.protocols.core.DeviceIdentity;
 
 public class DeviceRegistrationEvent implements IEvent {
@@ -30,5 +30,10 @@ public class DeviceRegistrationEvent implements IEvent {
 	
 	public void setCustomizedTaskResult(Object customizedTaskResult) {
 		this.customizedTaskResult = customizedTaskResult;
+	}
+	
+	@Override
+	public Object clone() {
+		return new DeviceRegistrationEvent(identity, customizedTaskResult);
 	}
 }

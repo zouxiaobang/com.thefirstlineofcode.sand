@@ -1,6 +1,6 @@
 package com.firstlinecode.sand.server.concentrator;
 
-import com.firstlinecode.granite.framework.core.event.IEvent;
+import com.firstlinecode.granite.framework.core.pipeline.stages.event.IEvent;
 import com.firstlinecode.sand.protocols.concentrator.NodeCreated;
 
 public class ConfirmedEvent implements IEvent {
@@ -26,6 +26,11 @@ public class ConfirmedEvent implements IEvent {
 	
 	public void setNodeCreated(NodeCreated nodeCreated) {
 		this.nodeCreated = nodeCreated;
+	}
+	
+	@Override
+	public Object clone() {
+		return new ConfirmedEvent(requestId, nodeCreated);
 	}
 	
 }

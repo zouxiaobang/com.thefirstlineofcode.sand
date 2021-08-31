@@ -4,25 +4,25 @@ import java.util.List;
 
 import com.firstlinecode.basalt.protocol.core.stream.Feature;
 import com.firstlinecode.basalt.protocol.core.stream.Features;
+import com.firstlinecode.granite.framework.core.annotations.BeanDependency;
 import com.firstlinecode.granite.framework.core.annotations.Component;
-import com.firstlinecode.granite.framework.core.annotations.Dependency;
 import com.firstlinecode.granite.framework.core.connection.IClientConnectionContext;
-import com.firstlinecode.granite.framework.stream.IStreamNegotiant;
-import com.firstlinecode.granite.framework.stream.negotiants.InitialStreamNegotiant;
-import com.firstlinecode.granite.framework.stream.negotiants.ResourceBindingNegotiant;
-import com.firstlinecode.granite.framework.stream.negotiants.SaslNegotiant;
-import com.firstlinecode.granite.framework.stream.negotiants.SessionEstablishmentNegotiant;
-import com.firstlinecode.granite.framework.stream.negotiants.TlsNegotiant;
+import com.firstlinecode.granite.pipeline.stages.stream.IStreamNegotiant;
+import com.firstlinecode.granite.pipeline.stages.stream.negotiants.InitialStreamNegotiant;
+import com.firstlinecode.granite.pipeline.stages.stream.negotiants.ResourceBindingNegotiant;
+import com.firstlinecode.granite.pipeline.stages.stream.negotiants.SaslNegotiant;
+import com.firstlinecode.granite.pipeline.stages.stream.negotiants.SessionEstablishmentNegotiant;
+import com.firstlinecode.granite.pipeline.stages.stream.negotiants.TlsNegotiant;
 import com.firstlinecode.sand.protocols.ibdr.Register;
 import com.firstlinecode.sand.protocols.ibdr.oxm.RegisterTranslatorFactory;
 import com.firstlinecode.sand.server.stream.DeviceClientMessageProcessor;
 
 @Component("ibdr.supported.client.message.processor")
 public class IbdrSupportedClientMessageProcessor extends DeviceClientMessageProcessor {
-	@Dependency("registrar")
+	@BeanDependency
 	private IDeviceRegistrar registrar;
 	
-	@Dependency(value = "registration.customizer.proxy")
+	@BeanDependency
 	private IDeviceRegistrationCustomizerProxy registrationCustomizerProxy;
 	
 	@Override

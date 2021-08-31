@@ -9,7 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.firstlinecode.basalt.protocol.core.ProtocolException;
 import com.firstlinecode.basalt.protocol.core.stanza.error.NotAcceptable;
 import com.firstlinecode.sand.protocols.core.DeviceIdentity;
-import com.firstlinecode.sand.server.device.IDeviceManager;
+import com.firstlinecode.sand.server.devices.IDeviceManager;
 import com.firstlinecode.sand.server.ibdr.DeviceRegistrationEvent;
 import com.firstlinecode.sand.server.ibdr.IDeviceRegistrar;
 import com.firstlinecode.sand.server.ibdr.IDeviceRegistrationCustomizerProxy;

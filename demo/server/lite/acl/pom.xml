@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns="http://maven.apache.org/POM/4.0.0"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<parent>
+		<groupId>com.firstlinecode.sand.demo.server</groupId>
+		<artifactId>sand-demo-server-lite</artifactId>
+		<version>0.2.0-SNAPSHOT</version>
+		<relativePath>../pom.xml</relativePath>
+	</parent>
+
+	<groupId>com.firstlinecode.sand.demo.lite</groupId>
+	<artifactId>sand-demo-server-lite-acl</artifactId>
+	<name>Sand demo server</name>
+	
+	<dependencies>
+		<dependency>
+			<groupId>com.firstlinecode.granite.framework</groupId>
+			<artifactId>granite-framework-im</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.firstlinecode.sand.server</groupId>
+			<artifactId>sand-server-device</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.firstlinecode.sand.server</groupId>
+			<artifactId>sand-server-ibdr</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.firstlinecode.sand.demo</groupId>
+			<artifactId>sand-demo-protocols</artifactId>
+		</dependency>
+	</dependencies>
+</project>

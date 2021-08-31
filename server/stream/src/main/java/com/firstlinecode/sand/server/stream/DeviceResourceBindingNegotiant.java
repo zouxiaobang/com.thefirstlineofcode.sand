@@ -9,10 +9,10 @@ import com.firstlinecode.basalt.protocol.core.stream.Stream;
 import com.firstlinecode.basalt.protocol.core.stream.error.Conflict;
 import com.firstlinecode.basalt.protocol.core.stream.error.InternalServerError;
 import com.firstlinecode.granite.framework.core.connection.IClientConnectionContext;
-import com.firstlinecode.granite.framework.core.integration.IMessage;
+import com.firstlinecode.granite.framework.core.pipeline.IMessage;
 import com.firstlinecode.granite.framework.core.session.ISessionManager;
-import com.firstlinecode.granite.framework.stream.StreamConstants;
-import com.firstlinecode.granite.framework.stream.negotiants.ResourceBindingNegotiant;
+import com.firstlinecode.granite.pipeline.stages.stream.StreamConstants;
+import com.firstlinecode.granite.pipeline.stages.stream.negotiants.ResourceBindingNegotiant;
 
 public class DeviceResourceBindingNegotiant extends ResourceBindingNegotiant {
 	private static final String RESOURCE_DEVICE = "device";
@@ -33,8 +33,8 @@ public class DeviceResourceBindingNegotiant extends ResourceBindingNegotiant {
 				JabberId jid = generatedDeviceJidByServer(context, authorizationId);
 				
 				if (sessionManager.exists(jid)) {
-					context.write(new Conflict(), true);
-					context.write(new Stream(true), true);
+					context.write(new Conflict());
+					context.write(new Stream(true));
 					context.close(true);
 					
 					return true;

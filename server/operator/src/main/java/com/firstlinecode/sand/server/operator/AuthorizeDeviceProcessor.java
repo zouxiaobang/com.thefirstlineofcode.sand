@@ -7,23 +7,21 @@ import com.firstlinecode.basalt.protocol.core.ProtocolException;
 import com.firstlinecode.basalt.protocol.core.stanza.Iq;
 import com.firstlinecode.basalt.protocol.core.stanza.error.BadRequest;
 import com.firstlinecode.basalt.protocol.core.stream.error.Conflict;
-import com.firstlinecode.granite.framework.core.annotations.Component;
-import com.firstlinecode.granite.framework.core.annotations.Dependency;
+import com.firstlinecode.granite.framework.core.annotations.BeanDependency;
 import com.firstlinecode.granite.framework.core.config.IConfiguration;
 import com.firstlinecode.granite.framework.core.config.IConfigurationAware;
-import com.firstlinecode.granite.framework.processing.IProcessingContext;
-import com.firstlinecode.granite.framework.processing.IXepProcessor;
+import com.firstlinecode.granite.framework.core.pipeline.stages.processing.IProcessingContext;
+import com.firstlinecode.granite.framework.core.pipeline.stages.processing.IXepProcessor;
 import com.firstlinecode.sand.protocols.operator.AuthorizeDevice;
-import com.firstlinecode.sand.server.device.IDeviceManager;
+import com.firstlinecode.sand.server.devices.IDeviceManager;
 
-@Component("authorize.device.processor")
 public class AuthorizeDeviceProcessor implements IXepProcessor<Iq, AuthorizeDevice>, IConfigurationAware {
 	private static final String DEVICE_AUTHORIZATION_VALIDITY_TIME = "authorize.device.validity.time";
 	private static final int DEFAULT_DEVICE_AUTHORIZATION_VALIDITY_TIME = 1000 * 60 * 30;
 	
 	private Logger logger = LoggerFactory.getLogger(AuthorizeDeviceProcessor.class);
 	
-	@Dependency("device.manager")
+	@BeanDependency
 	private IDeviceManager deviceManager;
 	
 	private int deviceAuthorizationValidityTime;

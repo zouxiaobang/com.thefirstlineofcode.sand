@@ -7,15 +7,14 @@
 
 	<parent>
 		<groupId>com.firstlinecode.sand</groupId>
-		<artifactId>client</artifactId>
-		<version>0.1.0.RELEASE</version>
+		<artifactId>sand-client</artifactId>
+		<version>0.2.0-SNAPSHOT</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 
 	<groupId>com.firstlinecode.sand.client</groupId>
 	<artifactId>sand-client-operator</artifactId>
 	<name>Sand client operator library</name>
-	<packaging>jar</packaging>
 	
 	<dependencies>
 		<dependency>

@@ -7,28 +7,19 @@
 
 	<parent>
 		<groupId>com.firstlinecode.sand</groupId>
-		<artifactId>server</artifactId>
-		<version>0.1.0.RELEASE</version>
+		<artifactId>sand-server</artifactId>
+		<version>0.2.0-SNAPSHOT</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 
 	<groupId>com.firstlinecode.sand.server</groupId>
 	<artifactId>sand-server-platform</artifactId>
 	<name>Sand server platform implementation</name>
-	<packaging>bundle</packaging>
 	
 	<dependencies>
 		<dependency>
-			<groupId>org.eclipse.platform</groupId>
-			<artifactId>org.eclipse.osgi</artifactId>
-		</dependency>
-		<dependency>
 			<groupId>com.firstlinecode.granite.framework</groupId>
 			<artifactId>granite-framework-core</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>com.firstlinecode.sand.server</groupId>
-			<artifactId>sand-server-device</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>com.firstlinecode.sand.server</groupId>
@@ -37,10 +28,6 @@
 		<dependency>
 			<groupId>com.firstlinecode.sand.server</groupId>
 			<artifactId>sand-server-actuator</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>com.firstlinecode.sand.emulators</groupId>
-			<artifactId>sand-emulators-models</artifactId>
 		</dependency>
 	</dependencies>
 	

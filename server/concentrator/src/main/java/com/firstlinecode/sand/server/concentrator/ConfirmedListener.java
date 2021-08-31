@@ -2,15 +2,15 @@ package com.firstlinecode.sand.server.concentrator;
 
 import com.firstlinecode.basalt.protocol.core.JabberId;
 import com.firstlinecode.basalt.protocol.core.stanza.Iq;
-import com.firstlinecode.granite.framework.core.annotations.Dependency;
-import com.firstlinecode.granite.framework.core.config.IApplicationConfiguration;
-import com.firstlinecode.granite.framework.core.config.IApplicationConfigurationAware;
-import com.firstlinecode.granite.framework.core.event.IEventContext;
-import com.firstlinecode.granite.framework.core.event.IEventListener;
-import com.firstlinecode.sand.server.device.IDeviceManager;
+import com.firstlinecode.granite.framework.core.annotations.BeanDependency;
+import com.firstlinecode.granite.framework.core.config.IServerConfiguration;
+import com.firstlinecode.granite.framework.core.config.IServerConfigurationAware;
+import com.firstlinecode.granite.framework.core.pipeline.stages.event.IEventContext;
+import com.firstlinecode.granite.framework.core.pipeline.stages.event.IEventListener;
+import com.firstlinecode.sand.server.devices.IDeviceManager;
 
-public class ConfirmedListener implements IEventListener<ConfirmedEvent>, IApplicationConfigurationAware {
-	@Dependency("device.manager")
+public class ConfirmedListener implements IEventListener<ConfirmedEvent>, IServerConfigurationAware {
+	@BeanDependency
 	private IDeviceManager deviceManager;
 	
 	private String domainName;
@@ -38,8 +38,8 @@ public class ConfirmedListener implements IEventListener<ConfirmedEvent>, IAppli
 	}
 
 	@Override
-	public void setApplicationConfiguration(IApplicationConfiguration appConfiguration) {
-		domainName = appConfiguration.getDomainName();
+	public void setServerConfiguration(IServerConfiguration serverConfiguration) {
+		domainName = serverConfiguration.getDomainName();
 	}
 
 }

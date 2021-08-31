@@ -7,12 +7,12 @@
 	<parent>
 		<groupId>com.firstlinecode.sand</groupId>
 		<artifactId>com.firstlinecode.sand</artifactId>
-		<version>0.1.0.RELEASE</version>
+		<version>0.2.0-SNAPSHOT</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 
 	<groupId>com.firstlinecode.sand</groupId>
-	<artifactId>client</artifactId>
+	<artifactId>sand-client</artifactId>
 	<packaging>pom</packaging>
 	<name>Lithosphere IoT client plugins</name>
 

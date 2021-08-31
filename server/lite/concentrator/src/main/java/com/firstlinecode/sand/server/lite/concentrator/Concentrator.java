@@ -9,22 +9,22 @@ import org.apache.ibatis.session.SqlSession;
 import com.firstlinecode.basalt.protocol.core.ProtocolException;
 import com.firstlinecode.basalt.protocol.core.stanza.error.Conflict;
 import com.firstlinecode.basalt.protocol.core.stanza.error.NotAcceptable;
-import com.firstlinecode.granite.framework.core.annotations.Dependency;
-import com.firstlinecode.granite.framework.core.supports.data.IDataObjectFactory;
-import com.firstlinecode.granite.framework.core.supports.data.IDataObjectFactoryAware;
+import com.firstlinecode.granite.framework.core.adf.data.IDataObjectFactory;
+import com.firstlinecode.granite.framework.core.adf.data.IDataObjectFactoryAware;
+import com.firstlinecode.granite.framework.core.annotations.BeanDependency;
 import com.firstlinecode.sand.protocols.concentrator.NodeCreated;
 import com.firstlinecode.sand.server.concentrator.Confirmed;
 import com.firstlinecode.sand.server.concentrator.IConcentrator;
 import com.firstlinecode.sand.server.concentrator.Node;
 import com.firstlinecode.sand.server.concentrator.NodeConfirmation;
-import com.firstlinecode.sand.server.device.Device;
-import com.firstlinecode.sand.server.device.IDeviceManager;
+import com.firstlinecode.sand.server.devices.Device;
+import com.firstlinecode.sand.server.devices.IDeviceManager;
 
 public class Concentrator implements IConcentrator, IDataObjectFactoryAware {
 	private String deviceId;
 	private SqlSession sqlSession;
 	
-	@Dependency("device.manager")
+	@BeanDependency
 	private IDeviceManager deviceManager;
 	
 	private IDataObjectFactory dataObjectFactory;

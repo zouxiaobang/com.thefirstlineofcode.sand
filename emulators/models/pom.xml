@@ -7,23 +7,22 @@
 
 	<parent>
 		<groupId>com.firstlinecode.sand</groupId>
-		<artifactId>emulators</artifactId>
-		<version>0.1.0.RELEASE</version>
+		<artifactId>sand-emulators</artifactId>
+		<version>0.2.0-SNAPSHOT</version>
 	</parent>
 
 	<groupId>com.firstlinecode.sand.emulators</groupId>
 	<artifactId>sand-emulators-models</artifactId>
 	<name>Sand emulator models module</name>
-	<packaging>bundle</packaging>
 	
 	<dependencies>
 		<dependency>
-			<groupId>com.firstlinecode.sand.protocols.emulators</groupId>
-			<artifactId>sand-protocols-emulators-gateway</artifactId>
+			<groupId>com.firstlinecode.sand.protocols.devices</groupId>
+			<artifactId>sand-protocols-devices-gateway</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>com.firstlinecode.sand.protocols.emulators</groupId>
-			<artifactId>sand-protocols-emulators-light</artifactId>
+			<groupId>com.firstlinecode.sand.protocols.devices</groupId>
+			<artifactId>sand-protocols-devices-light</artifactId>
 		</dependency>
 	</dependencies>
 </project>

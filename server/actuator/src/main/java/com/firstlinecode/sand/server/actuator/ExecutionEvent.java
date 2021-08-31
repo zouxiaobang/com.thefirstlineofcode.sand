@@ -1,8 +1,8 @@
 package com.firstlinecode.sand.server.actuator;
 
-import com.firstlinecode.granite.framework.core.event.IEvent;
+import com.firstlinecode.granite.framework.core.pipeline.stages.event.IEvent;
 import com.firstlinecode.sand.protocols.actuator.Execute;
-import com.firstlinecode.sand.server.device.Device;
+import com.firstlinecode.sand.server.devices.Device;
 
 public class ExecutionEvent implements IEvent {
 	private Device device;
@@ -29,5 +29,10 @@ public class ExecutionEvent implements IEvent {
 	
 	public Execute getExecute() {
 		return execute;
+	}
+	
+	@Override
+	public Object clone() {
+		return new ExecutionEvent(device, nodeLanId, execute);
 	}
 }

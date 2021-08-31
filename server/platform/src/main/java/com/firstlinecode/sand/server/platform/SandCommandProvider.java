@@ -1,73 +1,49 @@
 package com.firstlinecode.sand.server.platform;
 
-import java.beans.PropertyDescriptor;
-import java.math.BigDecimal;
-import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.StringTokenizer;
 
-import org.eclipse.osgi.framework.console.CommandInterpreter;
-import org.eclipse.osgi.framework.console.CommandProvider;
+import org.pf4j.Extension;
 
 import com.firstlinecode.basalt.protocol.core.Protocol;
-import com.firstlinecode.granite.framework.core.annotations.Dependency;
+import com.firstlinecode.granite.framework.core.annotations.BeanDependency;
 import com.firstlinecode.granite.framework.core.auth.IAccountManager;
-import com.firstlinecode.granite.framework.core.config.IApplicationConfiguration;
-import com.firstlinecode.granite.framework.core.config.IApplicationConfigurationAware;
 import com.firstlinecode.granite.framework.core.config.IConfiguration;
 import com.firstlinecode.granite.framework.core.config.IConfigurationAware;
-import com.firstlinecode.granite.framework.core.event.IEventProducer;
-import com.firstlinecode.granite.framework.core.event.IEventProducerAware;
-import com.firstlinecode.sand.protocols.actuator.Execute;
-import com.firstlinecode.sand.protocols.emulators.light.Flash;
-import com.firstlinecode.sand.server.actuator.ExecutionEvent;
-import com.firstlinecode.sand.server.concentrator.Confirmed;
-import com.firstlinecode.sand.server.concentrator.ConfirmedEvent;
-import com.firstlinecode.sand.server.concentrator.IConcentrator;
+import com.firstlinecode.granite.framework.core.config.IServerConfiguration;
+import com.firstlinecode.granite.framework.core.config.IServerConfigurationAware;
+import com.firstlinecode.granite.framework.core.console.AbstractCommandsProcessor;
+import com.firstlinecode.granite.framework.core.console.IConsoleSystem;
+import com.firstlinecode.granite.framework.core.pipeline.stages.event.IEventFirer;
+import com.firstlinecode.granite.framework.core.pipeline.stages.event.IEventFirerAware;
+import com.firstlinecode.sand.protocols.devices.light.Flash;
 import com.firstlinecode.sand.server.concentrator.IConcentratorFactory;
-import com.firstlinecode.sand.server.concentrator.Node;
-import com.firstlinecode.sand.server.device.Device;
-import com.firstlinecode.sand.server.device.IDeviceManager;
+import com.firstlinecode.sand.server.devices.Device;
+import com.firstlinecode.sand.server.devices.IDeviceManager;
 
-public class SandCommandProvider implements CommandProvider, IEventProducerAware,
-			IApplicationConfigurationAware, IConfigurationAware {
-	private static final String COMMAND_SAND = "sand";
-	private static final String PARAM_AUTHORIZE = "authorize";
-	private static final String PARAM_DEVICES = "devices";
-	private static final String PARAM_CONFIRM = "confirm";
-	private static final String PARAM_EXECUTE = "execute";
-	private static final String PARAM_HELP = "help";
+@Extension
+public class SandCommandProvider extends AbstractCommandsProcessor implements IEventFirerAware,
+			IServerConfigurationAware, IConfigurationAware {
+	private static final String COMMANDS_GROUP_INTRODUCTION = "Granite 'sand' commands group - Monitoring and managing sand application.";
 
-	private static final String MSG_HELP = "sand - Monitoring and managing sand application.\r\n";
-	
-	private static final String MSG_DETAIL_HELP =
-			"\tsand authorize <device_id> [authorizier] - Authorize a device to register.\r\n" +
-			"\tsand devices [start_index] - Display registered devices. Twenty items each page.\r\n" +
-			"\tsand confirm <concentrator_device_id> <node_device_id> - Confirm to add a node to concentrator.\r\n" +
-			"\tsand execute <device_location> <action_name> [params...] - Execute an action on the specified device.\r\n" +
-			"\tsand help - Display help information.\r\n";
-	
 	private static final String ACTION_NAME_FLASH = "flash";
 	
 	private static final String AUTHORIZE_DEVICE_VALIDITY_TIME = "authorize.device.validity.time";
 	private static final int DEFAULT_AUTHORIZE_DEVICE_VALIDITY_TIME = 1000 * 60 * 30;
 	
-	@Dependency("account.manager")
+	@BeanDependency
 	private IAccountManager accountManager;
 	
-	@Dependency("device.manager")
+	@BeanDependency
 	private IDeviceManager deviceManager;
 	
-	@Dependency("concentrator.factory")
+	@BeanDependency
 	private IConcentratorFactory concentratorFactory;
 	
 	private String domainName;
 	
-	private IEventProducer eventProducer;
-	
+	private IEventFirer eventFirer;
 	private Map<String, Protocol> actionNameToProtocols;
-	
 	private int deviceAuthorizationValidityTime;
 	
 	public SandCommandProvider() {
@@ -82,23 +58,15 @@ public class SandCommandProvider implements CommandProvider, IEventProducerAware
 	}
 
 	@Override
-	public String getHelp() {
-		return MSG_HELP;
+	public void printHelp(IConsoleSystem consoleSystem) {
+		consoleSystem.printMessageLine("sand help - Display help information.");
+		consoleSystem.printMessageLine("sand authorize <DEVICE_ID> [AUTHORIZIER] - Authorize a device to register.");
+		consoleSystem.printMessageLine("sand devices [START_INDEX] - Display registered devices. Twenty items each page.");
+		consoleSystem.printMessageLine("sand confirm <CONCENTRATOR_DEVICE_ID> <NODE_DEVICE_ID> - Confirm to add a node to concentrator.");
+		consoleSystem.printMessageLine("sand execute <DEVICE_LOCATION> <ACTION_NAME> [PARAMS...] - Execute an action on the specified device.");
 	}
 	
-	public Object _help(CommandInterpreter interpreter) {
-		String commandName = interpreter.nextArgument();
-		if (COMMAND_SAND.equals(commandName))
-			return getDetailHelp();
-		
-		return false;
-	}
-	
-	private String getDetailHelp() {
-		return MSG_DETAIL_HELP;
-	}
-	
-	public void _sand(CommandInterpreter interpreter) {
+/*	public void _sand(CommandInterpreter interpreter) {
 		String nextArg = interpreter.nextArgument();
 		
 		if (nextArg == null || PARAM_HELP.equals(nextArg)) {
@@ -150,7 +118,7 @@ public class SandCommandProvider implements CommandProvider, IEventProducerAware
 			}
 			
 			Confirmed confirmed = concentratorFactory.getConcentrator(device).confirm(nodeDeviceId, domainName);
-			eventProducer.fire(new ConfirmedEvent(confirmed.getRequestId(), confirmed.getNodeCreated()));
+			eventFirer.fire(new ConfirmedEvent(confirmed.getRequestId(), confirmed.getNodeCreated()));
 			
 			interpreter.print(String.format("Device '%s' has already been confirmed to be a node of concentrator '%s'.\n", device.getDeviceId(), nodeDeviceId));
 		} else if (PARAM_EXECUTE.equals(nextArg)) {
@@ -236,12 +204,13 @@ public class SandCommandProvider implements CommandProvider, IEventProducerAware
 		} else {
 			executeOnNode(interpreter, device, lanId, protocol, params);			
 		}
-	}
+	} */
 	
-	private boolean isActionSupported(CommandInterpreter interpreter, Device device, Protocol protocol) {
+	private boolean isActionSupported(IConsoleSystem consoleSystem, Device device, Protocol protocol) {
 		String model = deviceManager.getModel(device.getDeviceId());
 		if (!deviceManager.isActionSupported(model, protocol)) {
-			interpreter.print(String.format("Error: Action which's protocol is '%s' isn't supported by device which's device ID is '%s'.\n",
+			consoleSystem.printBlankLine();
+			consoleSystem.printMessageLine(String.format("Error: Action which's protocol is '%s' isn't supported by device which's device ID is '%s'.",
 					protocol, device.getDeviceId()));
 			
 			return false;
@@ -250,12 +219,12 @@ public class SandCommandProvider implements CommandProvider, IEventProducerAware
 		return true;
 	}
 	
-	private void executeOnDevice(CommandInterpreter interpreter, Device device, Protocol protocol, Map<String, String> params) {
-		if (!isActionSupported(interpreter, device, protocol))
+	/*private void executeOnDevice(IConsoleSystem consoleSystem, Device device, Protocol protocol, Map<String, String> params) {
+		if (!isActionSupported(consoleSystem, device, protocol))
 			return;
 		
-		Object actionObject = createActionObject(interpreter, device.getModel(), protocol, params);
-		eventProducer.fire(new ExecutionEvent(device, null, new Execute(actionObject)));
+		Object actionObject = createActionObject(consoleSystem, device.getModel(), protocol, params);
+		eventFirer.fire(new ExecutionEvent(device, null, new Execute(actionObject)));
 	}
 	
 	private void executeOnNode(CommandInterpreter interpreter, Device concentratorDevice, String lanId, Protocol protocol, Map<String, String> params) {
@@ -267,7 +236,7 @@ public class SandCommandProvider implements CommandProvider, IEventProducerAware
 			return;
 		
 		Object actionObject = createActionObject(interpreter, nodeDevice.getModel(), protocol, params);
-		eventProducer.fire(new ExecutionEvent(concentratorDevice, lanId, new Execute(actionObject)));
+		eventFirer.fire(new ExecutionEvent(concentratorDevice, lanId, new Execute(actionObject)));
 	}
 	
 	private Device getNodeDevice(CommandInterpreter interpreter, Device concentratorDevice, String lanId) {
@@ -301,7 +270,7 @@ public class SandCommandProvider implements CommandProvider, IEventProducerAware
 		
 		return null;
 	}
-
+	
 	private void populateProperties(Object action, Map<String, String> params) {
 		for (String paramName : params.keySet()) {
 			try {
@@ -367,10 +336,11 @@ public class SandCommandProvider implements CommandProvider, IEventProducerAware
 		// TODO Auto-generated method stub
 		
 	}
-
-	private void authorize(CommandInterpreter interpreter, String deviceId, String authorizer) {
+	
+	public void processAuthorize(IConsoleSystem consoleSystem, String deviceId, String authorizer) {
 		if (!deviceManager.isValid(deviceId)) {
-			interpreter.print(String.format("Error: Invalid device ID '%s'.\n", deviceId));
+			consoleSystem.printBlankLine();
+			consoleSystem.printMessageLine(String.format("Error: Invalid device ID '%s'.", deviceId));
 			return;
 		}
 		
@@ -390,25 +360,37 @@ public class SandCommandProvider implements CommandProvider, IEventProducerAware
 		} else {
 			interpreter.print(String.format("Device which's ID is '%s' has authorized by unknown user in server console.\n", deviceId));
 		}
-	}
-
-	private void printDetailHelp(CommandInterpreter interpreter) {
-		interpreter.print(getDetailHelp());
-	}
-
+	} */
+	
 	@Override
-	public void setEventProducer(IEventProducer eventProducer) {
-		this.eventProducer = eventProducer;
-	}
-
-	@Override
-	public void setApplicationConfiguration(IApplicationConfiguration appConfiguration) {
-		domainName = appConfiguration.getDomainName();
+	public void setServerConfiguration(IServerConfiguration serverConfiguration) {
+		domainName = serverConfiguration.getDomainName();
 	}
 
 	@Override
 	public void setConfiguration(IConfiguration configuration) {
 		deviceAuthorizationValidityTime = configuration.getInteger(AUTHORIZE_DEVICE_VALIDITY_TIME, DEFAULT_AUTHORIZE_DEVICE_VALIDITY_TIME);
 	}
+	
+	@Override
+	public void setEventFirer(IEventFirer evenetFirer) {
+		this.eventFirer = evenetFirer;
+	}
+	
+	@Override
+	public String getGroup() {
+		return "sand";
+	}
 
+	@Override
+	public String[] getCommands() {
+		return new String[] {
+			"authorize", "devices", "confirm", "execute", "help"				
+		};
+	}
+
+	@Override
+	public String getIntroduction() {
+		return COMMANDS_GROUP_INTRODUCTION;
+	}
 }

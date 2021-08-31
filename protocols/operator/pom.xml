@@ -7,15 +7,14 @@
 
 	<parent>
 		<groupId>com.firstlinecode.sand</groupId>
-		<artifactId>protocols</artifactId>
-		<version>0.1.0.RELEASE</version>
+		<artifactId>sand-protocols</artifactId>
+		<version>0.2.0-SNAPSHOT</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 
 	<groupId>com.firstlinecode.sand.protocols</groupId>
 	<artifactId>sand-protocols-operator</artifactId>
-	<name>Sand operator protocol</name>
-	<packaging>bundle</packaging>
+	<name>Sand Operator protocol</name>
 	
 	<dependencies>
 		<dependency>

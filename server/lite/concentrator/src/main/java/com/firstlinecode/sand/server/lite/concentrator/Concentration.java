@@ -2,7 +2,7 @@ package com.firstlinecode.sand.server.lite.concentrator;
 
 import java.util.Date;
 
-import com.firstlinecode.granite.framework.core.supports.data.IIdProvider;
+import com.firstlinecode.granite.framework.core.adf.data.IIdProvider;
 
 public class Concentration implements IIdProvider<String> {
 	private String id;
