@@ -24,7 +24,7 @@
 		<module>client</module>
 		<module>emulators</module>
 		<module>server</module>
-		<!--	<module>demo</module> -->
+		<module>demo</module>
 	</modules>
 	
 	<build>
@@ -370,9 +370,15 @@
 				<artifactId>sand-server-actuator</artifactId>
 				<version>${sand.version}</version>
 			</dependency>
+			
 			<dependency>
 				<groupId>com.firstlinecode.sand.demo</groupId>
 				<artifactId>sand-demo-protocols</artifactId>
+				<version>${sand.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.firstlinecode.sand.demo.server</groupId>
+				<artifactId>sand-demo-server-acl</artifactId>
 				<version>${sand.version}</version>
 			</dependency>
 		</dependencies>

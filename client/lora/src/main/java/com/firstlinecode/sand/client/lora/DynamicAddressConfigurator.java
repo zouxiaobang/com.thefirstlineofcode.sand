@@ -1,5 +1,11 @@
 package com.firstlinecode.sand.client.lora;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.firstlinecode.basalt.protocol.core.ProtocolException;
 import com.firstlinecode.basalt.protocol.core.stanza.error.Conflict;
 import com.firstlinecode.sand.client.things.commuication.CommunicationException;
@@ -13,11 +19,6 @@ import com.firstlinecode.sand.protocols.lora.LoraAddress;
 import com.firstlinecode.sand.protocols.lora.dac.Allocated;
 import com.firstlinecode.sand.protocols.lora.dac.Allocation;
 import com.firstlinecode.sand.protocols.lora.dac.Introduction;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class DynamicAddressConfigurator implements IAddressConfigurator<IDualLoraChipsCommunicator,
 			LoraAddress, byte[]>, ICommunicationListener<DualLoraAddress, LoraAddress, byte[]> {
@@ -137,8 +138,8 @@ public class DynamicAddressConfigurator implements IAddressConfigurator<IDualLor
 	@Override
 	public synchronized void negotiate(LoraAddress peerAddress, byte[] data) {
 		if (state == State.WORKING) {
-			if (logger.isDebugEnabled()) {
-				logger.debug(String.format("Receiving address configuration request from %s in working state.", peerAddress));
+			if (logger.isWarnEnabled()) {
+				logger.warn(String.format("Receiving address configuration request from %s in working state.", peerAddress));
 			}
 
 			return;

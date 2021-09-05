@@ -1,4 +1,4 @@
-package com.firstlinecode.sand.demo.server;
+package com.firstlinecode.sand.demo.server.acl;
 
 import com.firstlinecode.basalt.protocol.datetime.DateTime;
 import com.firstlinecode.sand.demo.protocols.AccessControlEntry;

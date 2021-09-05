@@ -6,15 +6,15 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<parent>
-		<groupId>com.firstlinecode.sand</groupId>
-		<artifactId>sand-demo</artifactId>
+		<groupId>com.firstlinecode.sand.demo</groupId>
+		<artifactId>sand-demo-server</artifactId>
 		<version>0.2.0-SNAPSHOT</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 
-	<groupId>com.firstlinecode.sand.demo</groupId>
-	<artifactId>sand-demo-server</artifactId>
-	<name>Sand demo server</name>
+	<groupId>com.firstlinecode.sand.demo.server</groupId>
+	<artifactId>sand-demo-server-acl</artifactId>
+	<name>Sand demo server ACL module</name>
 	
 	<dependencies>
 		<dependency>
@@ -23,7 +23,7 @@
 		</dependency>
 		<dependency>
 			<groupId>com.firstlinecode.sand.server</groupId>
-			<artifactId>sand-server-device</artifactId>
+			<artifactId>sand-server-devices</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>com.firstlinecode.sand.server</groupId>
@@ -32,7 +32,7 @@
 		<dependency>
 			<groupId>com.firstlinecode.sand.demo</groupId>
 			<artifactId>sand-demo-protocols</artifactId>
-			<version>0.1.0.RELEASE</version>
+			<version>0.2.0-SNAPSHOT</version>
 		</dependency>
 	</dependencies>
 </project>

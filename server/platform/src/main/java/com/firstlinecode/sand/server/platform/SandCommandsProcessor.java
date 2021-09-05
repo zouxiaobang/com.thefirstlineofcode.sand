@@ -22,14 +22,14 @@ import com.firstlinecode.sand.server.devices.Device;
 import com.firstlinecode.sand.server.devices.IDeviceManager;
 
 @Extension
-public class SandCommandProvider extends AbstractCommandsProcessor implements IEventFirerAware,
+public class SandCommandsProcessor extends AbstractCommandsProcessor implements IEventFirerAware,
 			IServerConfigurationAware, IConfigurationAware {
-	private static final String COMMANDS_GROUP_INTRODUCTION = "Granite 'sand' commands group - Monitoring and managing sand application.";
+	private static final String COMMANDS_GROUP_INTRODUCTION = "Monitoring and managing sand application.";
 
 	private static final String ACTION_NAME_FLASH = "flash";
 	
 	private static final String AUTHORIZE_DEVICE_VALIDITY_TIME = "authorize.device.validity.time";
-	private static final int DEFAULT_AUTHORIZE_DEVICE_VALIDITY_TIME = 1000 * 60 * 30;
+	private static final int DEFAULT_AUTHORIZE_DEVICE_VALIDITY_TIME = 60 * 30;
 	
 	@BeanDependency
 	private IAccountManager accountManager;
@@ -46,7 +46,7 @@ public class SandCommandProvider extends AbstractCommandsProcessor implements IE
 	private Map<String, Protocol> actionNameToProtocols;
 	private int deviceAuthorizationValidityTime;
 	
-	public SandCommandProvider() {
+	public SandCommandsProcessor() {
 		actionNameToProtocols = createActionNameToProtocols();
 	}
 	
@@ -59,11 +59,12 @@ public class SandCommandProvider extends AbstractCommandsProcessor implements IE
 
 	@Override
 	public void printHelp(IConsoleSystem consoleSystem) {
-		consoleSystem.printMessageLine("sand help - Display help information.");
-		consoleSystem.printMessageLine("sand authorize <DEVICE_ID> [AUTHORIZIER] - Authorize a device to register.");
-		consoleSystem.printMessageLine("sand devices [START_INDEX] - Display registered devices. Twenty items each page.");
-		consoleSystem.printMessageLine("sand confirm <CONCENTRATOR_DEVICE_ID> <NODE_DEVICE_ID> - Confirm to add a node to concentrator.");
-		consoleSystem.printMessageLine("sand execute <DEVICE_LOCATION> <ACTION_NAME> [PARAMS...] - Execute an action on the specified device.");
+		consoleSystem.printTitleLine(String.format("%s Available commands:", getIntroduction()));
+		consoleSystem.printContentLine("sand help - Display help information for sand application.");
+		consoleSystem.printContentLine("sand authorize <DEVICE_ID> [AUTHORIZIER] - Authorize a device to register.");
+		consoleSystem.printContentLine("sand devices [START_INDEX] - Display registered devices. Twenty items each page.");
+		consoleSystem.printContentLine("sand confirm <CONCENTRATOR_DEVICE_ID> <NODE_DEVICE_ID> - Confirm to add a node to concentrator.");
+		consoleSystem.printContentLine("sand execute <DEVICE_LOCATION> <ACTION_NAME> [PARAMS...] - Execute an action on the specified device.");
 	}
 	
 /*	public void _sand(CommandInterpreter interpreter) {

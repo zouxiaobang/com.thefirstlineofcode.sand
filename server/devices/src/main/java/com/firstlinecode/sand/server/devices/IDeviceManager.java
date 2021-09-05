@@ -6,7 +6,7 @@ import com.firstlinecode.sand.protocols.core.DeviceIdentity;
 import com.firstlinecode.sand.protocols.core.ModelDescriptor;
 
 public interface IDeviceManager {
-	void authorize(String deviceId, String authorizer, long validityTime);
+	void authorize(String deviceId, String authorizer, int validityTime);
 	DeviceAuthorization getAuthorization(String deviceId);
 	void cancelAuthorization(String deviceId);
 	DeviceIdentity register(String deviceId);

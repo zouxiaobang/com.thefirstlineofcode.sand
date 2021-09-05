@@ -80,13 +80,15 @@ public abstract class AbstractLoraThingEmulator extends AbstractCommunicationNet
 			// Node has added to concentrator. Start to receive data from concentrator.
 			startToReceiveData();			
 		} else {			
-			if (!isAddressConfigured()) {
-				if (addressConfigurator == null) {
-					addressConfigurator = new DynamicAddressConfigurator(this, (LoraCommunicator)communicator);
-				}
-				
-				addressConfigurator.introduce();
+			if (isAddressConfigured()) {
+				throw new RuntimeException("Address has already configured. But LAN ID is still null.");
 			}
+			
+			if (addressConfigurator == null) {
+				addressConfigurator = new DynamicAddressConfigurator(this, (LoraCommunicator)communicator);
+			}
+			
+			addressConfigurator.introduce();
 		}
 	}
 	

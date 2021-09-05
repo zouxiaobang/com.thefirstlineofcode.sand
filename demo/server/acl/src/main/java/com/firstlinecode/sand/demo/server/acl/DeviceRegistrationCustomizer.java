@@ -1,27 +1,23 @@
-package com.firstlinecode.sand.demo.server;
+package com.firstlinecode.sand.demo.server.acl;
 
-import org.eclipse.gemini.blueprint.context.BundleContextAware;
-import org.osgi.framework.BundleContext;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
+import org.pf4j.Extension;
 
-import com.firstlinecode.granite.framework.core.commons.osgi.OsgiUtils;
-import com.firstlinecode.granite.framework.core.supports.data.IDataObjectFactory;
+import com.firstlinecode.granite.framework.core.adf.data.IDataObjectFactory;
+import com.firstlinecode.granite.framework.core.adf.data.IDataObjectFactoryAware;
+import com.firstlinecode.granite.framework.core.annotations.BeanDependency;
 import com.firstlinecode.sand.demo.protocols.AccessControlEntry;
 import com.firstlinecode.sand.demo.protocols.AccessControlList.Role;
 import com.firstlinecode.sand.protocols.core.DeviceIdentity;
-import com.firstlinecode.sand.server.device.Device;
-import com.firstlinecode.sand.server.device.DeviceAuthorization;
-import com.firstlinecode.sand.server.device.IDeviceManager;
+import com.firstlinecode.sand.server.devices.Device;
+import com.firstlinecode.sand.server.devices.DeviceAuthorization;
+import com.firstlinecode.sand.server.devices.IDeviceManager;
 import com.firstlinecode.sand.server.ibdr.IDeviceRegistrationCustomizer;
 
-@Component
-@Transactional
-public class DeviceRegistrationCustomizer implements IDeviceRegistrationCustomizer, BundleContextAware {
-	@Autowired
+@Extension
+public class DeviceRegistrationCustomizer implements IDeviceRegistrationCustomizer, IDataObjectFactoryAware {
+	@BeanDependency
 	private IDeviceManager deviceManager;
-	@Autowired
+	@BeanDependency
 	private IAccessControlListService aclService;
 	
 	private IDataObjectFactory dataObjectFactory;
@@ -50,8 +46,7 @@ public class DeviceRegistrationCustomizer implements IDeviceRegistrationCustomiz
 	}
 
 	@Override
-	public void setBundleContext(BundleContext bundleContext) {
-		dataObjectFactory = OsgiUtils.getService(bundleContext, IDataObjectFactory.class);
+	public void setDataObjectFactory(IDataObjectFactory dataObjectFactory) {
+		this.dataObjectFactory = dataObjectFactory;
 	}
-
 }

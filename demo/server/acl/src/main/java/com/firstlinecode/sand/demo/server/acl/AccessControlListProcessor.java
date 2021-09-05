@@ -1,12 +1,12 @@
-package com.firstlinecode.sand.demo.server;
+package com.firstlinecode.sand.demo.server.acl;
 
 import com.firstlinecode.basalt.protocol.core.ProtocolException;
 import com.firstlinecode.basalt.protocol.core.stanza.Iq;
 import com.firstlinecode.basalt.protocol.core.stanza.error.BadRequest;
 import com.firstlinecode.basalt.protocol.core.stanza.error.Forbidden;
 import com.firstlinecode.granite.framework.core.annotations.Dependency;
-import com.firstlinecode.granite.framework.processing.IProcessingContext;
-import com.firstlinecode.granite.framework.processing.IXepProcessor;
+import com.firstlinecode.granite.framework.core.pipeline.stages.processing.IProcessingContext;
+import com.firstlinecode.granite.framework.core.pipeline.stages.processing.IXepProcessor;
 import com.firstlinecode.sand.demo.protocols.AccessControlList;
 import com.firstlinecode.sand.demo.protocols.AccessControlList.Role;
 

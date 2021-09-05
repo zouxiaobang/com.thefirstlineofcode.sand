@@ -6,15 +6,15 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<parent>
-		<groupId>com.firstlinecode.sand</groupId>
-		<artifactId>server</artifactId>
+		<groupId>com.firstlinecode.sand.demo</groupId>
+		<artifactId>sand-demo-server</artifactId>
 		<version>0.2.0-SNAPSHOT</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 
-	<groupId>com.firstlinecode.sand.server</groupId>
-	<artifactId>sand-server-emulators-models</artifactId>
-	<name>Sand server emulators models module</name>
+	<groupId>com.firstlinecode.sand.demo.server</groupId>
+	<artifactId>sand-demo-server-models</artifactId>
+	<name>Sand demo server models module</name>
 
 	<dependencies>
 		<dependency>
@@ -23,7 +23,7 @@
 		</dependency>
 		<dependency>
 			<groupId>com.firstlinecode.sand.server</groupId>
-			<artifactId>sand-server-device</artifactId>
+			<artifactId>sand-server-devices</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>com.firstlinecode.sand.emulators</groupId>

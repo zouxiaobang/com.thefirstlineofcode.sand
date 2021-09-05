@@ -11,7 +11,7 @@
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 
-	<groupId>com.firstlinecode.sand.demo.server</groupId>
+	<groupId>com.firstlinecode.sand.demo</groupId>
 	<artifactId>sand-demo-server</artifactId>
 	<packaging>pom</packaging>
 	<name>Lithosphere demo IoT server Plugins</name>

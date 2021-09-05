@@ -12,26 +12,14 @@
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 
-	<groupId>com.firstlinecode.sand.demo.lite</groupId>
+	<groupId>com.firstlinecode.sand.demo.server.lite</groupId>
 	<artifactId>sand-demo-server-lite-acl</artifactId>
-	<name>Sand demo server</name>
+	<name>Sand demo server ACL deploy lite implementation</name>
 	
 	<dependencies>
 		<dependency>
-			<groupId>com.firstlinecode.granite.framework</groupId>
-			<artifactId>granite-framework-im</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>com.firstlinecode.sand.server</groupId>
-			<artifactId>sand-server-device</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>com.firstlinecode.sand.server</groupId>
-			<artifactId>sand-server-ibdr</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>com.firstlinecode.sand.demo</groupId>
-			<artifactId>sand-demo-protocols</artifactId>
+			<groupId>com.firstlinecode.sand.demo.server</groupId>
+			<artifactId>sand-demo-server-acl</artifactId>
 		</dependency>
 	</dependencies>
 </project>

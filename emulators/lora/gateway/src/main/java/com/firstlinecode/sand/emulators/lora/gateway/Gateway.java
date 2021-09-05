@@ -481,7 +481,7 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 		startSensor(chatClient);
 	}
 
-	private void startSensor(IChatClient chatClient2) {
+	private void startSensor(IChatClient chatClient) {
 		// TODO Auto-generated method stub
 		
 	}
@@ -1246,7 +1246,7 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 		
 		UiUtils.getMenuItem(menuBar, MENU_NAME_EDIT, MENU_ITEM_NAME_RESET).setEnabled(true);
 		
-		if (!UiUtils.getMenuItem(menuBar, MENU_NAME_TOOLS, MENU_ITEM_NAME_ADDRESS_CONFIGURATION_MODE).isEnabled())
+		if (isConnected() && !UiUtils.getMenuItem(menuBar, MENU_NAME_TOOLS, MENU_ITEM_NAME_ADDRESS_CONFIGURATION_MODE).isEnabled())
 			UiUtils.getMenuItem(menuBar, MENU_NAME_TOOLS, MENU_ITEM_NAME_RECONFIGURE_ADDRESS).setEnabled(true);
 	}
 

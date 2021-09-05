@@ -39,7 +39,7 @@ public class DeviceManager implements IDeviceManager {
 	}
 	
 	@Override
-	public void authorize(String deviceId, String authorizer, long validityTime) {
+	public void authorize(String deviceId, String authorizer, int validityTime) {
 		if (!isValid(deviceId))
 			throw new RuntimeException(String.format("Invalid device ID '%s'.", deviceId));
 		
@@ -61,9 +61,9 @@ public class DeviceManager implements IDeviceManager {
 		getDeviceAuthorizationMapper().updateCanceled(deviceId, true);
 	}
 
-	private Date getExpiredTime(long currentTime, long validityTime) {
+	private Date getExpiredTime(long currentTime, int validityTime) {
 		Calendar expiredTime = Calendar.getInstance();
-		expiredTime.setTimeInMillis(currentTime + validityTime);
+		expiredTime.setTimeInMillis(currentTime + validityTime * 1000);
 		
 		return expiredTime.getTime();
 	}

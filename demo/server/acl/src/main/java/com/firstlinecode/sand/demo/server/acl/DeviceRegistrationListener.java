@@ -1,4 +1,4 @@
-package com.firstlinecode.sand.demo.server;
+package com.firstlinecode.sand.demo.server.acl;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -6,17 +6,17 @@ import org.slf4j.LoggerFactory;
 import com.firstlinecode.basalt.protocol.core.JabberId;
 import com.firstlinecode.basalt.protocol.core.stanza.Iq;
 import com.firstlinecode.granite.framework.core.annotations.Dependency;
-import com.firstlinecode.granite.framework.core.config.IApplicationConfiguration;
-import com.firstlinecode.granite.framework.core.config.IApplicationConfigurationAware;
-import com.firstlinecode.granite.framework.core.event.IEventContext;
-import com.firstlinecode.granite.framework.core.event.IEventListener;
+import com.firstlinecode.granite.framework.core.config.IServerConfiguration;
+import com.firstlinecode.granite.framework.core.config.IServerConfigurationAware;
+import com.firstlinecode.granite.framework.core.pipeline.stages.event.IEventContext;
+import com.firstlinecode.granite.framework.core.pipeline.stages.event.IEventListener;
 import com.firstlinecode.granite.framework.im.IResource;
 import com.firstlinecode.granite.framework.im.IResourcesService;
 import com.firstlinecode.sand.demo.protocols.AccessControlEntry;
 import com.firstlinecode.sand.demo.protocols.AccessControlList;
 import com.firstlinecode.sand.server.ibdr.DeviceRegistrationEvent;
 
-public class DeviceRegistrationListener implements IEventListener<DeviceRegistrationEvent>, IApplicationConfigurationAware {
+public class DeviceRegistrationListener implements IEventListener<DeviceRegistrationEvent>, IServerConfigurationAware {
 	private static final Logger logger = LoggerFactory.getLogger(DeviceRegistrationListener.class);
 	
 	@Dependency("resources.service")
@@ -53,8 +53,8 @@ public class DeviceRegistrationListener implements IEventListener<DeviceRegistra
 	}
 
 	@Override
-	public void setApplicationConfiguration(IApplicationConfiguration appConfiguration) {
-		this.domainName = appConfiguration.getDomainName();
+	public void setServerConfiguration(IServerConfiguration serverConfiguration) {
+		this.domainName = serverConfiguration.getDomainName();
 	}
 
 }
