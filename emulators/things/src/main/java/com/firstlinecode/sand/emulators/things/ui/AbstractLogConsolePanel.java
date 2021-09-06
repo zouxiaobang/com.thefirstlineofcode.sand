@@ -29,7 +29,7 @@ import javax.swing.JTextArea;
 public abstract class AbstractLogConsolePanel extends JPanel implements ILogger, WindowListener {
 	private static final long serialVersionUID = 2661118467157999059L;
 	
-	private static final String LINE_SEPARATOR = System.getProperty("line.separator");
+	protected static final String LINE_SEPARATOR = System.getProperty("line.separator");
 
 	protected final Map<Protocol, Class<?>> protocolToTypes = new HashMap<>();
 	

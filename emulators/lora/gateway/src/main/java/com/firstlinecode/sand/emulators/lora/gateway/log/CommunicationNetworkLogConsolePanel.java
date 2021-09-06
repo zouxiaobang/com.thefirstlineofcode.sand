@@ -4,6 +4,9 @@ import java.awt.event.WindowEvent;
 import java.util.Collection;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.firstlinecode.basalt.protocol.core.Protocol;
 import com.firstlinecode.sand.client.things.commuication.ICommunicationNetwork;
 import com.firstlinecode.sand.client.things.obm.ObmData;
@@ -14,6 +17,8 @@ import com.firstlinecode.sand.protocols.lora.LoraAddress;
 
 public class CommunicationNetworkLogConsolePanel extends AbstractLogConsolePanel implements ILoraNetworkListener {
 	private static final long serialVersionUID = 4598974878913796627L;
+	
+	private static final Logger logger = LoggerFactory.getLogger(CommunicationNetworkLogConsolePanel.class);
 	
 	private ICommunicationNetwork<LoraAddress, byte[], ?> network;
 	
@@ -50,44 +55,90 @@ public class CommunicationNetworkLogConsolePanel extends AbstractLogConsolePanel
 
 	@Override
 	public void sent(LoraAddress from, LoraAddress to, byte[] data) {
-		ObmData obmData = new ObmData(parseProtocol(data), data);
-		log(String.format("D(%s)-->N-->D(%s): \n" +
-						"    O: %s\n" +
+		String logMessage = createSentLogMessage(from, to, new ObmData(parseProtocol(data), data));
+		
+		if (logger.isDebugEnabled()) {
+			logger.debug(logMessage);
+		}
+		
+		log(logMessage);
+	}
+
+	private String createSentLogMessage(LoraAddress from, LoraAddress to, ObmData obmData) {
+		return String.format("D(%s)-->N-->D(%s):" + LINE_SEPARATOR +
+						"    O: %s" + LINE_SEPARATOR +
 						"    B: %s",
-				from, to, obmData.getProtocolObjectInfoString(), obmData.getHexString()));
+				from, to, obmData.getProtocolObjectInfoString(), obmData.getHexString());
 	}
 
 	@Override
 	public void received(LoraAddress from, LoraAddress to, byte[] data) {
-		ObmData obmData = new ObmData(parseProtocol(data), data);
-		log(String.format("D(%s)<--N<--D(%s)\n" +
-						"    O: %s\n" +
-						"    B: %s",
-				to, from, obmData.getProtocolObjectInfoString(), obmData.getHexString()));
+		String logMessage = createReceivedLogMessage(from, to, new ObmData(parseProtocol(data), data));
 		
+		if (logger.isDebugEnabled()) {
+			logger.debug(logMessage);
+		}
+		
+		log(logMessage);
+		
+	}
+
+	private String createReceivedLogMessage(LoraAddress from, LoraAddress to, ObmData obmData) {
+		return String.format("D(%s)<--N<--D(%s)" + LINE_SEPARATOR +
+						"    O: %s" + LINE_SEPARATOR +
+						"    B: %s",
+				to, from, obmData.getProtocolObjectInfoString(), obmData.getHexString());
 	}
 
 	@Override
 	public void addressChanged(LoraAddress newAddress, LoraAddress oldAddress) {
-		log(String.format("D(%s)<=N, D(%s)=>N", oldAddress, newAddress));
+		String logMessage = createAddressChangedLogMessage(oldAddress, newAddress);
+		
+		if (logger.isInfoEnabled()) {
+			logger.info(logMessage);
+		}
+		
+		log(logMessage);
+	}
+
+	private String createAddressChangedLogMessage(LoraAddress oldAddress, LoraAddress newAddress) {
+		return String.format("D(%s)<=N, D(%s)=>N", oldAddress, newAddress);
 	}
 
 	@Override
 	public void collided(LoraAddress from, LoraAddress to, byte[] data) {
-		ObmData obmData = new ObmData(parseProtocol(data), data);
-		log(String.format("?* D(%s)-->N-->D(%s)\n" +
-						"    O: %s\n" +
+		String logMessage = createCollidedLogMessage(from, to, new ObmData(parseProtocol(data), data));
+		
+		if (logger.isWarnEnabled()) {
+			logger.warn(logMessage);
+		}
+		
+		log(logMessage);
+	}
+
+	private String createCollidedLogMessage(LoraAddress from, LoraAddress to, ObmData obmData) {
+		return String.format("?* D(%s)-->N-->D(%s)" + LINE_SEPARATOR +
+						"    O: %s" + LINE_SEPARATOR +
 						"    B: %s",
-				from, to, obmData.getProtocolObjectInfoString(), obmData.getHexString()));
+						from, to, obmData.getProtocolObjectInfoString(), obmData.getHexString());
 	}
 
 	@Override
 	public void lost(LoraAddress from, LoraAddress to, byte[] data) {
-		ObmData obmData = new ObmData(parseProtocol(data), data);
-		log(String.format("?& D(%s)->N-->D(%s)\n" +
-						"    O: %s\n" +
-						"    B: %s",
-				from, to, obmData.getProtocolObjectInfoString(), obmData.getHexString()));
+		String logMessage = createLostLogMessage(from, to, new ObmData(parseProtocol(data), data));
+		
+		if (logger.isWarnEnabled()) {
+			logger.warn(logMessage);
+		}
+		
+		log(logMessage);
+	}
+
+	private String createLostLogMessage(LoraAddress from, LoraAddress to, ObmData obmData) {
+		return String.format("?& D(%s)->N-->D(%s)" + LINE_SEPARATOR +
+				"    O: %s" + LINE_SEPARATOR +
+				"    B: %s",
+				from, to, obmData.getProtocolObjectInfoString(), obmData.getHexString());
 	}
 
 }
