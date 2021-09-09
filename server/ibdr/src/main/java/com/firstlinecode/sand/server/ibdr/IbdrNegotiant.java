@@ -128,19 +128,37 @@ public class IbdrNegotiant extends InitialStreamNegotiant {
 	}
 
 	private void processException(Iq iq, RuntimeException e) {
+		ProtocolException pe = null;
+		
 		if (e instanceof ProtocolException) {
-			ProtocolException pe = (ProtocolException)e;
+			pe = (ProtocolException)e;
+		} else {
+			pe = findProtocolException(e);
+		}
+		
+		if (pe != null) {
 			if (pe.getError() instanceof StanzaError) {
 				StanzaError error = (StanzaError)pe.getError();
 				error.setId(iq.getId());
 			}
 			
-			throw e;
-		} else {
-			StanzaError error = new InternalServerError("Unexpected error. Error message: " + e.getMessage());
-			error.setId(iq.getId());
-			
-			throw new ProtocolException(error);
+			throw pe;
 		}
+		
+		StanzaError error = new InternalServerError("Unexpected error. Error message: " + e.getMessage());
+		error.setId(iq.getId());
+		
+		throw new ProtocolException(error);
+	}
+
+	private ProtocolException findProtocolException(Throwable t) {
+		while (t.getCause() != null) {
+			t = t.getCause();
+			
+			if (t instanceof ProtocolException)
+				return (ProtocolException)t;
+		}
+		
+		return null;
 	}
 }

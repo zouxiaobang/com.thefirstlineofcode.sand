@@ -45,7 +45,7 @@ public class InternetLogConsolePanel extends AbstractLogConsolePanel implements 
 
 	@Override
 	public void messageReceived(String message) {
-		String logMessage = "S-->G: " + message;
+		String logMessage = "G<--S: " + message;
 		
 		if (logger.isDebugEnabled())
 			logger.debug(logMessage);

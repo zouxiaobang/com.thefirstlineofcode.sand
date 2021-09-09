@@ -4,7 +4,7 @@ import java.util.List;
 
 import com.firstlinecode.basalt.protocol.core.stream.Feature;
 import com.firstlinecode.basalt.protocol.core.stream.Features;
-import com.firstlinecode.granite.framework.core.annotations.BeanDependency;
+import com.firstlinecode.granite.framework.core.adf.IApplicationComponentService;
 import com.firstlinecode.granite.framework.core.annotations.Component;
 import com.firstlinecode.granite.framework.core.connection.IClientConnectionContext;
 import com.firstlinecode.granite.pipeline.stages.stream.IStreamNegotiant;
@@ -19,11 +19,9 @@ import com.firstlinecode.sand.server.stream.DeviceClientMessageProcessor;
 
 @Component("ibdr.supported.client.message.processor")
 public class IbdrSupportedClientMessageProcessor extends DeviceClientMessageProcessor {
-	@BeanDependency
-	private IDeviceRegistrar registrar;
+	private static final String APP_COMPONENT_NAME_DEVICE_REGISTRAR = "device.registrar";
 	
-	@BeanDependency
-	private IDeviceRegistrationCustomizerProxy registrationCustomizerProxy;
+	private IDeviceRegistrar registrar;
 	
 	@Override
 	protected IStreamNegotiant createNegotiant() {
@@ -34,7 +32,7 @@ public class IbdrSupportedClientMessageProcessor extends DeviceClientMessageProc
 			IStreamNegotiant tls = new IbdrSupportedTlsNegotiant(hostName, tlsRequired,
 					getTlsNegotiantAdvertisements());
 			
-			IStreamNegotiant ibrAfterTls = new IbdrNegotiant(hostName, getTlsNegotiantAdvertisements(),
+			IStreamNegotiant ibdrAfterTls = new IbdrNegotiant(hostName, getTlsNegotiantAdvertisements(),
 					registrar, eventMessageChannel);
 			
 			IStreamNegotiant sasl = new SaslNegotiant(hostName,
@@ -48,8 +46,8 @@ public class IbdrSupportedClientMessageProcessor extends DeviceClientMessageProc
 			
 			resourceBinding.setNext(sessionEstablishment);
 			sasl.setNext(resourceBinding);
-			ibrAfterTls.setNext(sasl);
-			tls.setNext(ibrAfterTls);
+			ibdrAfterTls.setNext(sasl);
+			tls.setNext(ibdrAfterTls);
 			initialStream.setNext(tls);
 			
 			return initialStream;
@@ -63,7 +61,7 @@ public class IbdrSupportedClientMessageProcessor extends DeviceClientMessageProc
 			IStreamNegotiant tls = new IbdrSupportedTlsNegotiant(hostName, tlsRequired,
 					getTlsNegotiantAdvertisements());
 			
-			IStreamNegotiant ibrAfterTls = new IbdrNegotiant(hostName, getTlsNegotiantAdvertisements(),
+			IStreamNegotiant ibdrAfterTls = new IbdrNegotiant(hostName, getTlsNegotiantAdvertisements(),
 					registrar, eventMessageChannel);
 			
 			IStreamNegotiant sasl = new SaslNegotiant(hostName,
@@ -77,8 +75,8 @@ public class IbdrSupportedClientMessageProcessor extends DeviceClientMessageProc
 			
 			resourceBinding.setNext(sessionEstablishment);
 			sasl.setNext(resourceBinding);
-			ibrAfterTls.setNext(sasl);
-			tls.setNext(ibrAfterTls);
+			ibdrAfterTls.setNext(sasl);
+			tls.setNext(ibdrAfterTls);
 			ibdrBeforeTls.setNext(tls);
 			initialStream.setNext(ibdrBeforeTls);
 			
@@ -117,5 +115,12 @@ public class IbdrSupportedClientMessageProcessor extends DeviceClientMessageProc
 			
 			return features;
 		}
+	}
+	
+	@Override
+	public void setApplicationComponentService(IApplicationComponentService appComponentService) {
+		super.setApplicationComponentService(appComponentService);
+		
+		registrar = appComponentService.getAppComponent(APP_COMPONENT_NAME_DEVICE_REGISTRAR, IDeviceRegistrar.class);
 	}
 }

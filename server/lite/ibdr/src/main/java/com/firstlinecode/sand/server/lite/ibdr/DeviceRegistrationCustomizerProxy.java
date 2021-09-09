@@ -17,7 +17,7 @@ import com.firstlinecode.sand.server.ibdr.IDeviceRegistrationCustomizerProxy;
 @Component
 @Transactional
 public class DeviceRegistrationCustomizerProxy implements IDeviceRegistrationCustomizerProxy,
-			IInitializable, IApplicationComponentServiceAware {
+			IApplicationComponentServiceAware, IInitializable {
 	private static final Logger logger = LoggerFactory.getLogger(DeviceRegistrationCustomizerProxy.class);
 	
 	private IApplicationComponentService appComponentService;
@@ -50,7 +50,7 @@ public class DeviceRegistrationCustomizerProxy implements IDeviceRegistrationCus
 			return;
 		}
 		
-		real = appComponentService.createExtension(IDeviceRegistrationCustomizer.class);
+		real = appComponentService.createExtension(registrationCustomizerClasses.get(0));
 		
 		if (logger.isInfoEnabled()) {
 			logger.info("Found a device registration customizer which's type is {}.", real.getClass().getName());
