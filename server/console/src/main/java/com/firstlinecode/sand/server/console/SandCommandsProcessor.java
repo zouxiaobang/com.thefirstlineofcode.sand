@@ -1,4 +1,4 @@
-package com.firstlinecode.sand.server.platform;
+package com.firstlinecode.sand.server.console;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -7,9 +7,8 @@ import org.pf4j.Extension;
 
 import com.firstlinecode.basalt.protocol.core.Protocol;
 import com.firstlinecode.granite.framework.core.annotations.BeanDependency;
+import com.firstlinecode.granite.framework.core.annotations.Dependency;
 import com.firstlinecode.granite.framework.core.auth.IAccountManager;
-import com.firstlinecode.granite.framework.core.config.IConfiguration;
-import com.firstlinecode.granite.framework.core.config.IConfigurationAware;
 import com.firstlinecode.granite.framework.core.config.IServerConfiguration;
 import com.firstlinecode.granite.framework.core.config.IServerConfigurationAware;
 import com.firstlinecode.granite.framework.core.console.AbstractCommandsProcessor;
@@ -19,17 +18,19 @@ import com.firstlinecode.granite.framework.core.pipeline.stages.event.IEventFire
 import com.firstlinecode.sand.protocols.devices.light.Flash;
 import com.firstlinecode.sand.server.concentrator.IConcentratorFactory;
 import com.firstlinecode.sand.server.devices.Device;
+import com.firstlinecode.sand.server.devices.DeviceAuthorizationDelegator;
 import com.firstlinecode.sand.server.devices.IDeviceManager;
 
 @Extension
 public class SandCommandsProcessor extends AbstractCommandsProcessor implements IEventFirerAware,
-			IServerConfigurationAware, IConfigurationAware {
+			IServerConfigurationAware {
+	private static final String COMMAND_GROUP_SAND = "sand";
 	private static final String COMMANDS_GROUP_INTRODUCTION = "Monitoring and managing sand application.";
 
 	private static final String ACTION_NAME_FLASH = "flash";
 	
-	private static final String AUTHORIZE_DEVICE_VALIDITY_TIME = "authorize.device.validity.time";
-	private static final int DEFAULT_AUTHORIZE_DEVICE_VALIDITY_TIME = 60 * 30;
+	@Dependency("device.authorization.delegator")
+	private DeviceAuthorizationDelegator deviceAuthorizationDelegator;
 	
 	@BeanDependency
 	private IAccountManager accountManager;
@@ -44,7 +45,6 @@ public class SandCommandsProcessor extends AbstractCommandsProcessor implements 
 	
 	private IEventFirer eventFirer;
 	private Map<String, Protocol> actionNameToProtocols;
-	private int deviceAuthorizationValidityTime;
 	
 	public SandCommandsProcessor() {
 		actionNameToProtocols = createActionNameToProtocols();
@@ -60,7 +60,7 @@ public class SandCommandsProcessor extends AbstractCommandsProcessor implements 
 	@Override
 	public void printHelp(IConsoleSystem consoleSystem) {
 		consoleSystem.printTitleLine(String.format("%s Available commands:", getIntroduction()));
-		consoleSystem.printContentLine("sand help - Display help information for sand application.");
+		consoleSystem.printContentLine("sand help - Display the help information for sand application management.");
 		consoleSystem.printContentLine("sand authorize <DEVICE_ID> [AUTHORIZIER] - Authorize a device to register.");
 		consoleSystem.printContentLine("sand devices [START_INDEX] - Display registered devices. Twenty items each page.");
 		consoleSystem.printContentLine("sand confirm <CONCENTRATOR_DEVICE_ID> <NODE_DEVICE_ID> - Confirm to add a node to concentrator.");
@@ -336,41 +336,35 @@ public class SandCommandsProcessor extends AbstractCommandsProcessor implements 
 	private void displayDevices(int startIndex) {
 		// TODO Auto-generated method stub
 		
-	}
+	} */
 	
-	public void processAuthorize(IConsoleSystem consoleSystem, String deviceId, String authorizer) {
+	void processAuthorize(IConsoleSystem consoleSystem, String deviceId, String authorizer) {
 		if (!deviceManager.isValid(deviceId)) {
-			consoleSystem.printBlankLine();
 			consoleSystem.printMessageLine(String.format("Error: Invalid device ID '%s'.", deviceId));
 			return;
 		}
 		
 		if (deviceManager.deviceIdExists(deviceId)) {
-			interpreter.print(String.format("Error: Device which's ID is '%s' has already registered.\n", deviceId));
+			consoleSystem.printMessageLine(String.format("Error: Device which's ID is '%s' has already registered.", deviceId));
 			return;
 		}
 		
 		if (authorizer != null && !accountManager.exists(authorizer)) {
-			interpreter.print(String.format("Error: '%s' isn't a valid user.\n", authorizer));
+			consoleSystem.printMessageLine(String.format("Error: '%s' isn't a valid user.", authorizer));
 			return;
 		}
 		
-		deviceManager.authorize(deviceId, authorizer, deviceAuthorizationValidityTime);
+		deviceAuthorizationDelegator.authorize(deviceId, authorizer);
 		if (authorizer != null) {
-			interpreter.print(String.format("Device which's ID is '%s' has authorized by '%s' in server console.\n", deviceId, authorizer));
+			consoleSystem.printMessageLine(String.format("Device which's ID is '%s' has authorized by '%s' in server console.", deviceId, authorizer));
 		} else {
-			interpreter.print(String.format("Device which's ID is '%s' has authorized by unknown user in server console.\n", deviceId));
+			consoleSystem.printMessageLine(String.format("Device which's ID is '%s' has authorized by unknown user in server console.", deviceId));
 		}
-	} */
+	}
 	
 	@Override
 	public void setServerConfiguration(IServerConfiguration serverConfiguration) {
 		domainName = serverConfiguration.getDomainName();
-	}
-
-	@Override
-	public void setConfiguration(IConfiguration configuration) {
-		deviceAuthorizationValidityTime = configuration.getInteger(AUTHORIZE_DEVICE_VALIDITY_TIME, DEFAULT_AUTHORIZE_DEVICE_VALIDITY_TIME);
 	}
 	
 	@Override
@@ -380,13 +374,13 @@ public class SandCommandsProcessor extends AbstractCommandsProcessor implements 
 	
 	@Override
 	public String getGroup() {
-		return "sand";
+		return COMMAND_GROUP_SAND;
 	}
 
 	@Override
 	public String[] getCommands() {
 		return new String[] {
-			"authorize", "devices", "confirm", "execute", "help"				
+			"authorize", "devices", "confirm", "execute", "help"
 		};
 	}
 

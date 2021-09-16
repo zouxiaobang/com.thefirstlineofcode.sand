@@ -1,7 +1,6 @@
 package com.firstlinecode.sand.server.concentrator;
 
-import com.firstlinecode.basalt.protocol.core.ProtocolChain;
-import com.firstlinecode.basalt.protocol.core.stanza.Iq;
+import com.firstlinecode.basalt.protocol.core.IqProtocolChain;
 import com.firstlinecode.granite.framework.core.pipeline.stages.PipelineExtendersContributorAdapter;
 import com.firstlinecode.granite.framework.core.pipeline.stages.event.EventListenerFactory;
 import com.firstlinecode.granite.framework.core.pipeline.stages.event.IEventListenerFactory;
@@ -21,7 +20,7 @@ public class PipelineExtendersContributor extends PipelineExtendersContributorAd
 	public IXepProcessorFactory<?, ?>[] getXepProcessorFactories() {
 		return new IXepProcessorFactory<?, ?>[] {
 			new SingletonXepProcessorFactory<>(
-				ProtocolChain.first(Iq.PROTOCOL).next(CreateNode.PROTOCOL),
+				new IqProtocolChain(CreateNode.PROTOCOL),
 				new CreateNodeProcessor())
 		};
 	}

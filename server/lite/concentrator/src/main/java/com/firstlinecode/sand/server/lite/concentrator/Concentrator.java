@@ -60,8 +60,12 @@ public class Concentrator implements IConcentrator, IDataObjectFactoryAware {
 		
 		String model = deviceManager.getModel(nodeDeviceId);
 		if (model == null) {
-			throw new ProtocolException(new NotAcceptable(String.format("Unsupported model '%s'", model)));
+			throw new ProtocolException(new NotAcceptable(String.format("Unsupported model '%s'.", model)));
 		}
+		
+		if (containsLanId(nodeDeviceId))
+			throw new ProtocolException(new Conflict(String.format("Duplicated LAN ID('%'). The node's ID is '%s'.",
+					confirmation.getNode().getLanId(), nodeDeviceId)));
 		
 		Device device = dataObjectFactory.create(Device.class);
 		device.setDeviceId(nodeDeviceId);
@@ -93,7 +97,9 @@ public class Concentrator implements IConcentrator, IDataObjectFactoryAware {
 		Date currentTime = Calendar.getInstance().getTime();
 		for (NodeConfirmation confirmation : confirmations) {
 			if (confirmation.getExpiredTime().after(currentTime) &&
-					!confirmation.isCanceled()) {
+					!confirmation.isCanceled() &&
+					!confirmation.isCanceled() &&
+					confirmation.getConfirmedTime() == null) {
 				return (D_NodeConfirmation)confirmation;
 			}
 		}
@@ -107,7 +113,7 @@ public class Concentrator implements IConcentrator, IDataObjectFactoryAware {
 	}
 
 	@Override
-	public void requestConfirmation(NodeConfirmation confirmation) {
+	public void requestToConfirm(NodeConfirmation confirmation) {
 		if (!deviceId.equals(confirmation.getConcentrator())) {
 			throw new ProtocolException(new NotAcceptable("Wrong device ID of concentrator. Your program maybe has a bug."));
 		}

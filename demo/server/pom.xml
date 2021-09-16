@@ -17,6 +17,7 @@
 	<name>Lithosphere demo IoT server Plugins</name>
 
 	<modules>
+		<module>console</module>
 		<module>models</module>
 		<module>acl</module>
 		<module>lite</module>

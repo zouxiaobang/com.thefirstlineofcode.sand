@@ -72,7 +72,9 @@ import com.firstlinecode.sand.emulators.lora.gateway.things.DeviceIdentityInfo;
 import com.firstlinecode.sand.emulators.lora.gateway.things.ThingInfo;
 import com.firstlinecode.sand.emulators.lora.gateway.things.ThingInternalFrame;
 import com.firstlinecode.sand.emulators.lora.network.ILoraNetwork;
+import com.firstlinecode.sand.emulators.lora.network.LoraChipCreationParams;
 import com.firstlinecode.sand.emulators.lora.network.LoraCommunicator;
+import com.firstlinecode.sand.emulators.lora.network.LoraCommunicatorFactory;
 import com.firstlinecode.sand.emulators.lora.things.AbstractLoraThingEmulator;
 import com.firstlinecode.sand.emulators.lora.things.AbstractLoraThingEmulatorFactory;
 import com.firstlinecode.sand.emulators.models.Ge01ModelDescriptor;
@@ -198,6 +200,8 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 		dirty = false;
 		autoReconnect = false;
 		registerModels();
+		
+		LoraCommunicatorFactory.create(network);
 		
 		new Thread(new AutoReconnectThread(), "Gateway Auto Reconnect Thread").start();
 		
@@ -429,10 +433,10 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 		
 		IConnectionListener logConsoleListener = getLogConsoleInternetConnectionListener();
 		if (logConsoleListener != null && !hasAlreadyConnectionListenerExisted(logConsoleListener))
-			chatClient.getStream().addConnectionListener(getLogConsoleInternetConnectionListener());
+			chatClient.getConnection().addListener(getLogConsoleInternetConnectionListener());
 		
 		if (!hasAlreadyConnectionListenerExisted(this)) {
-			chatClient.getStream().addConnectionListener(this);
+			chatClient.getConnection().addListener(this);
 		}
 		
 		chatClient.connect(new UsernamePasswordToken(deviceIdentity.getDeviceName().toString(), deviceIdentity.getCredentials()));
@@ -447,7 +451,7 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 	}
 
 	private boolean hasAlreadyConnectionListenerExisted(Object listener) {
-		for (IConnectionListener aListener : chatClient.getStream().getConnectionListeners()) {
+		for (IConnectionListener aListener : chatClient.getConnection().getListeners()) {
 			if (aListener == listener)
 				return true;
 		}
@@ -807,10 +811,13 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 		streamConfig = gatewayInfo.streamConfig;
 		deviceIdentity = gatewayInfo.deviceIdentity;
 		autoReconnect = gatewayInfo.autoReconnect;
+		nodes = gatewayInfo.nodes;
 		
 		if (gatewayInfo.thingInfos != null) {
 			for (ThingInfo thingInfo : gatewayInfo.thingInfos) {
-				showThing(thingInfo.getThing(), thingInfo.getTitle(), thingInfo.getLayer(), thingInfo.getX(), thingInfo.getY(), thingInfo.isSelected());
+				addThingToAllThings(getThingFactory(thingInfo.getThing().getThingName()), thingInfo.getThing());
+				showThing(thingInfo.getThing(), thingInfo.getTitle(), thingInfo.getLayer(),
+						thingInfo.getX(), thingInfo.getY(), thingInfo.isSelected());
 			}
 		}
 		refreshGatewayInstanceRelativatedMenus();
@@ -940,18 +947,16 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 	
 	private AbstractLoraThingEmulator createThing(String thingName) {
 		AbstractLoraThingEmulatorFactory<?> thingFactory = getThingFactory(thingName);
-		IThingEmulator thing = thingFactory.create(new LoraCommunicator(network.createChip(LoraAddress.randomLoraAddress(
-				LoraAddress.DEFAULT_THING_COMMUNICATION_FREQUENCE_BAND))));
+		LoraCommunicator communicator = LoraCommunicatorFactory.getInstance().createLoraCommunicator(
+				new LoraChipCreationParams(createNewLoraAddress()));
+		IThingEmulator thing = thingFactory.create(communicator);
 		
 		if (!(thing instanceof AbstractLoraThingEmulator)) {
 			throw new RuntimeException("Not a lora thing emulator.");
 		}
 		
 		AbstractLoraThingEmulator loraThing = (AbstractLoraThingEmulator)thing;
-		List<AbstractLoraThingEmulator> things = getThings(thingFactory);
-		
-		int instanceIndex = things.size();
-		things.add(loraThing);
+		int instanceIndex = addThingToAllThings(thingFactory, loraThing);
 		
 		showThing(loraThing, getThingInstanceName(thingFactory, instanceIndex), -1, 30 * instanceIndex, 30 * instanceIndex);
 		changeGatewayStatusAndRefreshUiThread(true);				
@@ -971,6 +976,38 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 		thing.powerOn();
 		
 		return loraThing;
+	}
+
+	private int addThingToAllThings(AbstractLoraThingEmulatorFactory<?> thingFactory,
+			AbstractLoraThingEmulator loraThing) {
+		List<AbstractLoraThingEmulator> things = getThings(thingFactory);
+		
+		int instanceIndex = things.size();
+		things.add(loraThing);
+		return instanceIndex;
+	}
+
+	private LoraAddress createNewLoraAddress() {
+		LoraAddress loraAddress = null;
+		for (;;) {	
+			loraAddress = LoraAddress.randomLoraAddress(LoraAddress.
+					DEFAULT_THING_COMMUNICATION_FREQUENCE_BAND);
+			
+			for (List<AbstractLoraThingEmulator> things : allThings.values()) {
+				for (AbstractLoraThingEmulator thing : things) {
+					if (isAddressConflicted(thing, loraAddress))
+						continue;
+				}
+			}
+			
+			break;
+		}
+		
+		return loraAddress;
+	}
+
+	private boolean isAddressConflicted(AbstractLoraThingEmulator thing, LoraAddress loraAddress) {
+		return ((LoraCommunicator)thing.getCommunicator()).getAddress().equals(loraAddress);
 	}
 
 	private void showThing(AbstractLoraThingEmulator thing, String title, int layer, int x, int y) {
@@ -1255,12 +1292,18 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 		if (thingFrame == null)
 			return;
 		
-		if (thingFrame.getThing().isPowered()) {			
+		if (thingFrame.getThing().isPowered()) {
 			UiUtils.getMenuItem(menuBar, MENU_NAME_EDIT, MENU_ITEM_NAME_POWER_ON).setEnabled(false);
-			UiUtils.getMenuItem(menuBar, MENU_NAME_EDIT, MENU_ITEM_NAME_POWER_OFF).setEnabled(true);			
+			UiUtils.getMenuItem(menuBar, MENU_NAME_EDIT, MENU_ITEM_NAME_POWER_OFF).setEnabled(true);
+			
+			if (chatClient != null && chatClient.isConnected()) {
+				UiUtils.getMenuItem(menuBar, MENU_NAME_TOOLS, MENU_ITEM_NAME_RECONFIGURE_ADDRESS).setEnabled(true);
+			}
 		} else {
-			UiUtils.getMenuItem(menuBar, MENU_NAME_EDIT, MENU_ITEM_NAME_POWER_OFF).setEnabled(false);			
+			UiUtils.getMenuItem(menuBar, MENU_NAME_EDIT, MENU_ITEM_NAME_POWER_OFF).setEnabled(false);
 			UiUtils.getMenuItem(menuBar, MENU_NAME_EDIT, MENU_ITEM_NAME_POWER_ON).setEnabled(true);
+			
+			UiUtils.getMenuItem(menuBar, MENU_NAME_TOOLS, MENU_ITEM_NAME_RECONFIGURE_ADDRESS).setEnabled(false);
 		}
 	}
 	

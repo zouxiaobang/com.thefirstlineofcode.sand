@@ -12,7 +12,11 @@ import java.util.TimerTask;
 import java.util.concurrent.ExecutionException;
 
 import com.firstlinecode.basalt.protocol.core.Protocol;
+import com.firstlinecode.sand.client.lora.ILoraChip;
+import com.firstlinecode.sand.client.lora.ILoraChip.PowerType;
+import com.firstlinecode.sand.emulators.lora.network.LoraChipCreationParams;
 import com.firstlinecode.sand.emulators.lora.network.LoraCommunicator;
+import com.firstlinecode.sand.emulators.lora.network.LoraCommunicatorFactory;
 import com.firstlinecode.sand.emulators.lora.things.AbstractLoraThingEmulator;
 import com.firstlinecode.sand.emulators.models.Le01ModelDescriptor;
 import com.firstlinecode.sand.emulators.things.ILight;
@@ -25,6 +29,7 @@ import com.firstlinecode.sand.emulators.things.emulators.ISwitchStateListener;
 import com.firstlinecode.sand.emulators.things.ui.AbstractThingEmulatorPanel;
 import com.firstlinecode.sand.emulators.things.ui.LightEmulatorPanel;
 import com.firstlinecode.sand.protocols.devices.light.Flash;
+import com.firstlinecode.sand.protocols.lora.LoraAddress;
 
 public class Light extends AbstractLoraThingEmulator implements ILightEmulator, ISwitchStateListener {
 	public static final String THING_NAME = "Light Emulator";
@@ -43,18 +48,20 @@ public class Light extends AbstractLoraThingEmulator implements ILightEmulator, 
 	
 	private Timer dataReceivingTimer;
 	
-	private List<ISwitchStateListener> switchStateListeners;
-	private List<ILightStateListener> lightStateListeners;
+	private List<ISwitchStateListener> switchStateListeners = new ArrayList<>();
+	private List<ILightStateListener> lightStateListeners= new ArrayList<>();
 	
-	public Light(LoraCommunicator communicator) {
+	private Light() {}
+	
+	private Light(LoraCommunicator communicator) {
 		this(communicator, DEFAULT_SWITCH_STATE, DEFAULT_LIGHT_STATE);
 	}
 	
-	public Light(LoraCommunicator communicator, SwitchState switchState) {
+	private Light(LoraCommunicator communicator, SwitchState switchState) {
 		this(communicator, switchState, switchState == SwitchState.ON ? LightState.ON : LightState.OFF);
 	}
 	
-	public Light(LoraCommunicator communicator, SwitchState switchState, LightState lightState) {
+	private Light(LoraCommunicator communicator, SwitchState switchState, LightState lightState) {
 		super(THING_MODEL, communicator);
 		
 		if (switchState == null)
@@ -70,9 +77,6 @@ public class Light extends AbstractLoraThingEmulator implements ILightEmulator, 
 		
 		this.switchState = switchState;
 		this.lightState = lightState;
-		
-		switchStateListeners = new ArrayList<>();
-		lightStateListeners = new ArrayList<>();
 	}
 	
 	@Override
@@ -82,14 +86,31 @@ public class Light extends AbstractLoraThingEmulator implements ILightEmulator, 
 
 	@Override
 	protected void doWriteExternal(ObjectOutput out) throws IOException {
+		super.doWriteExternal(out);
+		
 		out.writeObject(lightState);
 		out.writeObject(switchState);
+		
+		ILoraChip chip = ((LoraCommunicator)communicator).getChip();
+		out.writeObject(chip.getPowerType());
+		
+		LoraAddress loraAddress = chip.getAddress();
+		out.writeLong(loraAddress.getAddress());
+		out.writeInt(loraAddress.getFrequencyBand());
 	}
 
 	@Override
 	protected void doReadExternal(ObjectInput in) throws IOException, ClassNotFoundException {
+		super.doReadExternal(in);
+		
 		lightState = (LightState)in.readObject();
 		switchState = (SwitchState)in.readObject();
+		
+		PowerType powerType = (PowerType)in.readObject();
+		LoraAddress address = LoraAddress.create(in.readLong(), in.readInt());
+		
+		communicator = (LoraCommunicator)LoraCommunicatorFactory.getInstance().createCommunicator(
+				new LoraChipCreationParams(powerType, address));
 	}
 	
 	public SwitchState getSwitchState() {
@@ -320,5 +341,9 @@ public class Light extends AbstractLoraThingEmulator implements ILightEmulator, 
 		for (ILightStateListener listener : lightStateListeners) {
 			listener.lightStateChanged(oldState, newState);
 		}
+	}
+	
+	public static Light createInstance(LoraCommunicator communicator) {
+		return new Light(communicator);
 	}
 }

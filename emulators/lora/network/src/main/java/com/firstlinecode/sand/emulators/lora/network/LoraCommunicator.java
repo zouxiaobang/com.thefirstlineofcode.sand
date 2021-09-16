@@ -9,7 +9,7 @@ import com.firstlinecode.sand.protocols.lora.LoraAddress;
 public class LoraCommunicator extends AbstractCommunicator<LoraAddress, LoraAddress, byte[]> {
 	protected ILoraChip chip;
 	
-	public LoraCommunicator(ILoraChip chip) {
+	LoraCommunicator(ILoraChip chip) {
 		this.chip = chip;
 	}
 	
@@ -34,5 +34,9 @@ public class LoraCommunicator extends AbstractCommunicator<LoraAddress, LoraAddr
 			received(data.getAddress(), data.getData());
 		}
 		return data;
+	}
+	
+	public ILoraChip getChip() {
+		return chip;
 	}
 }

@@ -31,7 +31,7 @@ public class Main {
 	private Gateway<ICommunicator<DualLoraAddress, LoraAddress, byte[]>, LoraChipCreationParams> createGateway(LoraNetwork network) {
 		IDualLoraChipsCommunicator gatewayCommunicator = DualLoraChipsCommunicator.createInstance(
 				network, DualLoraAddress.randomDualLoraAddress(0), new LoraChipCreationParams(
-						LoraChip.Type.HIGH_POWER));
+						LoraChip.PowerType.HIGH_POWER));
 		return new Gateway<ICommunicator<DualLoraAddress, LoraAddress, byte[]>, LoraChipCreationParams>(network, gatewayCommunicator);
 	}
 	

@@ -4,8 +4,7 @@ import java.util.Properties;
 
 import com.firstlinecode.basalt.oxm.convention.NamingConventionParserFactory;
 import com.firstlinecode.basalt.oxm.convention.NamingConventionTranslatorFactory;
-import com.firstlinecode.basalt.protocol.core.ProtocolChain;
-import com.firstlinecode.basalt.protocol.core.stanza.Iq;
+import com.firstlinecode.basalt.protocol.core.IqProtocolChain;
 import com.firstlinecode.chalk.core.IChatSystem;
 import com.firstlinecode.chalk.core.IPlugin;
 import com.firstlinecode.sand.client.dmr.DmrPlugin;
@@ -25,7 +24,7 @@ public class ConcentratorPlugin implements IPlugin {
 				)
 		);
 		chatSystem.registerParser(
-				ProtocolChain.first(Iq.PROTOCOL).next(NodeCreated.PROTOCOL),
+				new IqProtocolChain(NodeCreated.PROTOCOL),
 				new NamingConventionParserFactory<NodeCreated>(
 						NodeCreated.class
 				)
@@ -38,7 +37,7 @@ public class ConcentratorPlugin implements IPlugin {
 	public void destroy(IChatSystem chatSystem) {
 		chatSystem.unregisterApi(IConcentrator.class);
 		
-		chatSystem.unregisterParser(ProtocolChain.first(Iq.PROTOCOL).next(NodeCreated.PROTOCOL));
+		chatSystem.unregisterParser(new IqProtocolChain(NodeCreated.PROTOCOL));
 		chatSystem.unregisterTranslator(CreateNode.class);
 		
 		chatSystem.unregister(DmrPlugin.class);

@@ -1,12 +1,14 @@
 package com.firstlinecode.sand.server.devices;
 
+import java.util.Date;
+
 import com.firstlinecode.basalt.protocol.core.JabberId;
 import com.firstlinecode.basalt.protocol.core.Protocol;
 import com.firstlinecode.sand.protocols.core.DeviceIdentity;
 import com.firstlinecode.sand.protocols.core.ModelDescriptor;
 
 public interface IDeviceManager {
-	void authorize(String deviceId, String authorizer, int validityTime);
+	void authorize(String deviceId, String authorizer, Date expiredTime);
 	DeviceAuthorization getAuthorization(String deviceId);
 	void cancelAuthorization(String deviceId);
 	DeviceIdentity register(String deviceId);

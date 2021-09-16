@@ -9,7 +9,7 @@ import com.firstlinecode.basalt.oxm.translating.ITranslatingFactory;
 import com.firstlinecode.basalt.oxm.translators.core.stanza.IqTranslatorFactory;
 import com.firstlinecode.basalt.oxm.translators.core.stream.StreamTranslatorFactory;
 import com.firstlinecode.basalt.oxm.translators.error.StanzaErrorTranslatorFactory;
-import com.firstlinecode.basalt.protocol.core.ProtocolChain;
+import com.firstlinecode.basalt.protocol.core.IqProtocolChain;
 import com.firstlinecode.basalt.protocol.core.ProtocolException;
 import com.firstlinecode.basalt.protocol.core.stanza.Iq;
 import com.firstlinecode.basalt.protocol.core.stanza.error.BadRequest;
@@ -34,12 +34,11 @@ public class IbdrNegotiant extends InitialStreamNegotiant {
 	
 	static {
 		parsingFactory.register(
-				ProtocolChain.first(Iq.PROTOCOL),
+				new IqProtocolChain(),
 				new IqParserFactory()
 		);
 		parsingFactory.register(
-				ProtocolChain.first(Iq.PROTOCOL).
-					next(DeviceRegister.PROTOCOL),
+				new IqProtocolChain(DeviceRegister.PROTOCOL),
 				new DeviceRegisterParserFactory()
 		);
 		

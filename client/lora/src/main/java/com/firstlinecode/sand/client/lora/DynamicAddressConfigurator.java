@@ -150,24 +150,24 @@ public class DynamicAddressConfigurator implements IAddressConfigurator<IDualLor
 				Introduction introduction = (Introduction)obmFactory.toObject(Introduction.class, data);
 
 				nodeDeviceId = introduction.getDeviceId();
-				LoraAddress introductedAddress = new LoraAddress(introduction.getAddress(), introduction.getFrequencyBand());
-
+				LoraAddress introductedAddress = LoraAddress.create(introduction.getAddress(), introduction.getFrequencyBand());
+				
 				if (logger.isDebugEnabled()) {
 					logger.debug(String.format("Receving an intrduction request from %s, %s.", introduction.getAddress(), introduction.getFrequencyBand()));
 				}
-
+				
 				Allocation allocation = new Allocation();
 				allocation.setGatewayAddress(workingAddress.getSlaveChipAddress().getAddress());
 				allocation.setGatewayChannel(workingAddress.getChannel());
-
+				
 				String nodeLanId = concentrator.getBestSuitedNewLanId();
-				nodeAddress = new LoraAddress(Long.parseLong(nodeLanId), LoraAddress.DEFAULT_THING_COMMUNICATION_FREQUENCE_BAND);
+				nodeAddress = LoraAddress.create(Long.parseLong(nodeLanId), LoraAddress.DEFAULT_THING_COMMUNICATION_FREQUENCE_BAND);
 				allocation.setAllocatedAddress(nodeAddress.getAddress());
 				allocation.setAllocatedFrequencyBand(nodeAddress.getFrequencyBand());
 
 				if (logger.isDebugEnabled()) {
 					logger.debug(String.format("Node allocation: %s: %s => %s.",
-							nodeDeviceId, peerAddress, new LoraAddress(allocation.getAllocatedAddress(),
+							nodeDeviceId, peerAddress, LoraAddress.create(allocation.getAllocatedAddress(),
 									allocation.getAllocatedFrequencyBand())));
 				}
 

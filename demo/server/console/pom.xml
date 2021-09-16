@@ -1,21 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
+
 <project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xmlns="http://maven.apache.org/POM/4.0.0"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-
 	<modelVersion>4.0.0</modelVersion>
 
 	<parent>
-		<groupId>com.firstlinecode.sand</groupId>
-		<artifactId>sand-server</artifactId>
+		<groupId>com.firstlinecode.sand.demo</groupId>
+		<artifactId>sand-demo-server</artifactId>
 		<version>0.2.0-SNAPSHOT</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 
-	<groupId>com.firstlinecode.sand.server</groupId>
-	<artifactId>sand-server-platform</artifactId>
-	<name>Sand server platform implementation</name>
-	
+	<groupId>com.firstlinecode.sand.demo.server</groupId>
+	<artifactId>sand-demo-server-console</artifactId>
+	<name>Sand demo server console plugin</name>
+
 	<dependencies>
 		<dependency>
 			<groupId>com.firstlinecode.granite.framework</groupId>
@@ -23,13 +23,11 @@
 		</dependency>
 		<dependency>
 			<groupId>com.firstlinecode.sand.server</groupId>
-			<artifactId>sand-server-concentrator</artifactId>
+			<artifactId>sand-server-devices</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>com.firstlinecode.sand.server</groupId>
-			<artifactId>sand-server-actuator</artifactId>
+			<groupId>com.firstlinecode.sand.emulators</groupId>
+			<artifactId>sand-emulators-models</artifactId>
 		</dependency>
 	</dependencies>
-	
 </project>
-

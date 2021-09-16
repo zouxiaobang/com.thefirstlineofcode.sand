@@ -9,6 +9,7 @@ import com.firstlinecode.basalt.oxm.binary.IBinaryXmppProtocolConverter;
 import com.firstlinecode.basalt.oxm.convention.NamingConventionParserFactory;
 import com.firstlinecode.basalt.oxm.convention.NamingConventionTranslatorFactory;
 import com.firstlinecode.basalt.oxm.convention.annotations.ProtocolObject;
+import com.firstlinecode.basalt.protocol.core.MessageProtocolChain;
 import com.firstlinecode.basalt.protocol.core.Protocol;
 import com.firstlinecode.basalt.protocol.core.ProtocolChain;
 import com.firstlinecode.basalt.protocol.im.stanza.Message;
@@ -60,7 +61,7 @@ public class ObmFactory implements IObmFactory {
 	private void registerTypeIfNeed(Class<?> type) {
 		if (!registeredObjects.contains(type)) {
 			ProtocolObject projectObject = type.getAnnotation(ProtocolObject.class);
-			ProtocolChain protocolChain = ProtocolChain.first(Message.PROTOCOL).next(
+			ProtocolChain protocolChain = new MessageProtocolChain(
 					new Protocol(projectObject.namespace(), projectObject.localName()));
 			oxmFactory.register(protocolChain, new NamingConventionParserFactory<>(type));
 			oxmFactory.register(type, new NamingConventionTranslatorFactory(type));

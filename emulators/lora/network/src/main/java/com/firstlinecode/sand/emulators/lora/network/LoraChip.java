@@ -16,37 +16,33 @@ import com.firstlinecode.sand.protocols.lora.LoraAddress;
 public class LoraChip implements ILoraChip {
 	private static final Logger logger = LoggerFactory.getLogger(LoraChip.class);
 	
-	public enum Type {
-		HIGH_POWER,
-		NORMAL
-	}
-	
 	protected ILoraNetwork network;
-	protected Type type;
+	protected PowerType powerType;
 	protected LoraAddress address;
 	protected volatile boolean slept;
 	
 	protected List<ICommunicationListener<LoraAddress, LoraAddress, byte[]>> listeners;
 	
-	public LoraChip(ILoraNetwork network, Type type, LoraAddress address) {
+	public LoraChip(ILoraNetwork network, PowerType powerType, LoraAddress address) {
 		if (network == null)
 			throw new IllegalArgumentException("Null network.");
 		
-		if (type == null)
-			throw new IllegalArgumentException("Null lora chip type.");
+		if (powerType == null)
+			throw new IllegalArgumentException("Null lora chip power type.");
 		
 		if (address == null)
 			throw new IllegalArgumentException("Null address.");
 		
 		this.network = network;
-		this.type = type;
+		this.powerType = powerType;
 		this.address = address;
 		
 		listeners = new ArrayList<>();
 	}
 	
-	public Type getType() {
-		return type;
+	@Override
+	public PowerType getPowerType() {
+		return powerType;
 	}
 	
 	@Override
@@ -75,7 +71,7 @@ public class LoraChip implements ILoraChip {
 	public int hashCode() {
 		int hash = 7;
 		hash += 31 * network.hashCode();
-		hash += 31 * type.hashCode();
+		hash += 31 * powerType.hashCode();
 		hash += 31 * address.hashCode();
 		
 		return hash;
@@ -93,7 +89,7 @@ public class LoraChip implements ILoraChip {
 	
 	@Override
 	public String toString() {
-		return String.format("LoraChip[%s, %s, %s]", network, type, address);
+		return String.format("LoraChip[%s, %s, %s]", network, powerType, address);
 	}
 
 	@Override

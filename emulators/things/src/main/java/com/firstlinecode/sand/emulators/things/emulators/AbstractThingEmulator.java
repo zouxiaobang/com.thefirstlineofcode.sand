@@ -22,22 +22,21 @@ public abstract class AbstractThingEmulator implements IThingEmulator {
 	protected String model;
 	protected int batteryPower;
 	protected boolean powered;
-	protected List<IDeviceListener> deviceListeners;
+	protected List<IDeviceListener> deviceListeners = new ArrayList<>();
 	
 	protected BatteryTimer batteryTimer;
 	
-	public AbstractThingEmulator(String model) {
-		if (model == null)
-			throw new IllegalArgumentException("Null device model.");
+	protected AbstractThingEmulator() {}
+	
+	protected AbstractThingEmulator(String model) {
+		if (model != null)
+			this.model = model;
 		
-		this.model = model;
 		this.thingName = getThingName() + " - " + model;
 		
 		deviceId = generateDeviceId();
 		batteryPower = 100;
 		powered = false;
-		
-		deviceListeners = new ArrayList<>();
 	}
 
 	protected void startBatteryTimer() {
@@ -160,6 +159,7 @@ public abstract class AbstractThingEmulator implements IThingEmulator {
 	@Override
 	public void writeExternal(ObjectOutput out) throws IOException {
 		out.writeObject(model);
+		out.writeObject(thingName);
 		out.writeObject(deviceId);
 		out.writeInt(batteryPower);
 		out.writeBoolean(powered);
@@ -170,6 +170,7 @@ public abstract class AbstractThingEmulator implements IThingEmulator {
 	@Override
 	public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
 		model = (String)in.readObject();
+		thingName = (String)in.readObject();
 		deviceId = (String)in.readObject();
 		batteryPower = in.readInt();
 		powered = in.readBoolean();

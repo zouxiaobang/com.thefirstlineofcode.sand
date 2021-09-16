@@ -13,7 +13,7 @@ public class LightEmulatorFactory extends AbstractLoraThingEmulatorFactory<Light
 	@Override
 	public Light create(ICommunicator<LoraAddress, LoraAddress, byte[]> communicator) {
 		if (communicator instanceof LoraCommunicator) {			
-			return new Light((LoraCommunicator)communicator);
+			return Light.createInstance((LoraCommunicator)communicator);
 		}
 		
 		throw new RuntimeException("Lora light needs a lora Communicator.");

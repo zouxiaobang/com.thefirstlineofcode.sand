@@ -102,7 +102,7 @@ public class DynamicAddressConfigurator implements IAddressConfigurator<ICommuni
 				Allocation allocation = (Allocation)obmFactory.toObject(Allocation.class, data);
 
 				gatewayAddress = new DualLoraAddress(allocation.getGatewayAddress(), allocation.getGatewayChannel());
-				allocatedAddress = new LoraAddress(allocation.getAllocatedAddress(), allocation.getAllocatedFrequencyBand());
+				allocatedAddress = LoraAddress.create(allocation.getAllocatedAddress(), allocation.getAllocatedFrequencyBand());
 				
 				communicator.changeAddress(allocatedAddress);
 				

@@ -1,5 +1,8 @@
 package com.firstlinecode.sand.emulators.things.emulators;
 
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
@@ -15,38 +18,40 @@ public abstract class AbstractCommunicationNetworkThingEmulator<OA, PA, D> exten
 		implements ICommunicationNetworkThingEmulator<OA, PA, D>, ICommunicationListener<OA, PA, D> {
 	protected ICommunicator<OA, PA, D> communicator;
 	protected IObmFactory obmFactory = ObmFactory.createInstance();
-	protected boolean isDataReceiving;
+	protected boolean dataReceiving;
 	protected Map<Protocol, Class<?>> supportedActions;
 	
+	protected AbstractCommunicationNetworkThingEmulator() {}
+	
 	@SuppressWarnings("unchecked")
-	public AbstractCommunicationNetworkThingEmulator(String model, ICommunicator<?, ?, ?> communicator) {
+	protected AbstractCommunicationNetworkThingEmulator(String model, ICommunicator<?, ?, ?> communicator) {
 		super(model);
 		
 		this.communicator = (ICommunicator<OA, PA, D>)communicator;	
-		isDataReceiving = false;
+		dataReceiving = false;
 		
 		supportedActions = createSupportedActions();
 	}
 	
 	@Override
 	public void startToReceiveData() {
-		if (isDataReceiving)
+		if (dataReceiving)
 			return;
 		
 		communicator.addCommunicationListener(this);
 		doStartToReceiveData();
-		isDataReceiving = true;
+		dataReceiving = true;
 	}
 	
 	@Override
 	public void stopDataReceving() {
-		if (!isDataReceiving)
+		if (!dataReceiving)
 			return;
 		
 		doStopDataReceiving();
 		communicator.removeCommunicationListener(this);
 		
-		isDataReceiving = false;
+		dataReceiving = false;
 	}
 	
 	protected abstract void doStartToReceiveData();
@@ -111,6 +116,22 @@ public abstract class AbstractCommunicationNetworkThingEmulator<OA, PA, D> exten
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+	}
+	
+	@Override
+	protected void doWriteExternal(ObjectOutput out) throws IOException {
+		out.writeBoolean(dataReceiving);
+	}
+	
+	@Override
+	protected void doReadExternal(ObjectInput in) throws IOException, ClassNotFoundException {
+		dataReceiving = in.readBoolean();
+		
+		supportedActions = createSupportedActions();
+	}
+	
+	public boolean isDataReceiving() {
+		return dataReceiving;
 	}
 
 	@Override

@@ -4,8 +4,7 @@ import java.util.Properties;
 
 import com.firstlinecode.basalt.oxm.convention.NamingConventionParserFactory;
 import com.firstlinecode.basalt.oxm.convention.NamingConventionTranslatorFactory;
-import com.firstlinecode.basalt.protocol.core.ProtocolChain;
-import com.firstlinecode.basalt.protocol.core.stanza.Iq;
+import com.firstlinecode.basalt.protocol.core.IqProtocolChain;
 import com.firstlinecode.chalk.core.IChatSystem;
 import com.firstlinecode.chalk.core.IPlugin;
 import com.firstlinecode.sand.demo.protocols.AccessControlList;
@@ -14,7 +13,7 @@ public class DemoPlugin implements IPlugin {
 
 	@Override
 	public void init(IChatSystem chatSystem, Properties properties) {
-		chatSystem.registerParser(ProtocolChain.first(Iq.PROTOCOL).next(AccessControlList.PROTOCOL),
+		chatSystem.registerParser(new IqProtocolChain(AccessControlList.PROTOCOL),
 				new NamingConventionParserFactory<AccessControlList>(AccessControlList.class));
 		chatSystem.registerTranslator(AccessControlList.class,
 				new NamingConventionTranslatorFactory<AccessControlList>(AccessControlList.class));
@@ -25,7 +24,7 @@ public class DemoPlugin implements IPlugin {
 	public void destroy(IChatSystem chatSystem) {
 		chatSystem.unregisterApi(IAclService.class);
 		chatSystem.unregisterTranslator(AccessControlList.class);
-		chatSystem.unregisterParser(ProtocolChain.first(Iq.PROTOCOL).next(AccessControlList.PROTOCOL));
+		chatSystem.unregisterParser(new IqProtocolChain(AccessControlList.PROTOCOL));
 	}
 
 }

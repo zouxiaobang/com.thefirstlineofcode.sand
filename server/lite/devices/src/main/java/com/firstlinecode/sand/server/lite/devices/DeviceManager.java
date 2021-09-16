@@ -39,12 +39,11 @@ public class DeviceManager implements IDeviceManager {
 	}
 	
 	@Override
-	public void authorize(String deviceId, String authorizer, int validityTime) {
+	public void authorize(String deviceId, String authorizer, Date expiredTime) {
 		if (!isValid(deviceId))
 			throw new RuntimeException(String.format("Invalid device ID '%s'.", deviceId));
 		
 		Date authorizedTime = Calendar.getInstance().getTime();
-		Date expiredTime = getExpiredTime(authorizedTime.getTime(), validityTime);
 		
 		D_DeviceAuthorization authrozation = new D_DeviceAuthorization();
 		authrozation.setId(UUID.randomUUID().toString());
@@ -60,14 +59,7 @@ public class DeviceManager implements IDeviceManager {
 	public void cancelAuthorization(String deviceId) {
 		getDeviceAuthorizationMapper().updateCanceled(deviceId, true);
 	}
-
-	private Date getExpiredTime(long currentTime, int validityTime) {
-		Calendar expiredTime = Calendar.getInstance();
-		expiredTime.setTimeInMillis(currentTime + validityTime * 1000);
-		
-		return expiredTime.getTime();
-	}
-
+	
 	@Override
 	public DeviceIdentity register(String deviceId) {
 		if (!isValid(deviceId))

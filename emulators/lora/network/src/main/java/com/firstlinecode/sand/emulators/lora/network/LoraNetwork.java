@@ -51,24 +51,24 @@ public class LoraNetwork implements ILoraNetwork {
 	
 	@Override
 	public ILoraChip createChip(LoraAddress address) {
-		return createChip(address, LoraChip.Type.NORMAL);
+		return createChip(address, LoraChip.PowerType.NORMAL);
 	}
 	
 	@Override
 	public ILoraChip createChip(LoraAddress address, LoraChipCreationParams params) {
-		LoraChip.Type type = null;
+		LoraChip.PowerType type = null;
 		if (params != null) {
 			type = params.getType();
 		}
 		
 		if (type == null) {
-			type = LoraChip.Type.NORMAL;
+			type = LoraChip.PowerType.NORMAL;
 		}
 		
 		return createChip(address, type);
 	}
 
-	public synchronized LoraChip createChip(LoraAddress address, LoraChip.Type type) {
+	public synchronized LoraChip createChip(LoraAddress address, LoraChip.PowerType type) {
 		if (address == null)
 			throw new IllegalArgumentException("Null lora address.");
 		
@@ -224,7 +224,7 @@ public class LoraNetwork implements ILoraNetwork {
 	
 	private synchronized boolean isLost(LoraSignal received) {
 		SignalQuality quality = signalQualities.get(new LoraChipPair(received.from, received.to));
-		if (received.from.getType() == LoraChip.Type.HIGH_POWER) {
+		if (received.from.getPowerType() == LoraChip.PowerType.HIGH_POWER) {
 			quality = adjustHighPowerDeviceSignalQuality(quality);
 		}
 		
@@ -389,7 +389,7 @@ public class LoraNetwork implements ILoraNetwork {
 	
 	public synchronized void doChangeAddress(LoraChip chip, LoraAddress address) {
 		LoraAddress oldAddress = chip.getAddress();
-		LoraChip newChip = createChip(address, chip.getType());
+		LoraChip newChip = createChip(address, chip.getPowerType());
 		
 		LoraChipPair oldPair = null;
 		LoraChipPair newPair = null;

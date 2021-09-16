@@ -12,8 +12,8 @@ import org.slf4j.LoggerFactory;
 
 import com.firstlinecode.basalt.oxm.convention.NamingConventionParserFactory;
 import com.firstlinecode.basalt.oxm.parsing.IParserFactory;
+import com.firstlinecode.basalt.protocol.core.IqProtocolChain;
 import com.firstlinecode.basalt.protocol.core.Protocol;
-import com.firstlinecode.basalt.protocol.core.ProtocolChain;
 import com.firstlinecode.basalt.protocol.core.stanza.Iq;
 import com.firstlinecode.chalk.core.IChatServices;
 import com.firstlinecode.chalk.core.stanza.IIqListener;
@@ -173,7 +173,7 @@ public class Actuator implements IActuator, IIqListener {
 					actionParserFactory = new NamingConventionParserFactory<>(actionType);
 				
 					chatServices.getStream().getOxmFactory().register(
-							ProtocolChain.first(Iq.PROTOCOL).next(Execute.PROTOCOL).next(protocol),
+							new IqProtocolChain().next(Execute.PROTOCOL).next(protocol),
 							actionParserFactory);
 			}
 		}

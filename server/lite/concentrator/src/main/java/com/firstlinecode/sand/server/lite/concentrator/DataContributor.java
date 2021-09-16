@@ -19,7 +19,7 @@ public class DataContributor extends DataContributorAdapter {
 	protected String[] getMapperFileNames() {
 		return new String[] {
 			"ConcentratorMapper.xml",
-			"NodeConfirmationMapper.xml"
+			"ConfirmRequestMapper.xml"
 		};
 	}
 }

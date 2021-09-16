@@ -7,11 +7,14 @@ import java.io.ObjectOutput;
 import com.firstlinecode.basalt.oxm.binary.BinaryUtils;
 import com.firstlinecode.basalt.protocol.core.Protocol;
 import com.firstlinecode.gem.protocols.bxmpp.BinaryMessageProtocolReader;
+import com.firstlinecode.sand.client.lora.ILoraChip.PowerType;
 import com.firstlinecode.sand.client.things.commuication.CommunicationException;
 import com.firstlinecode.sand.client.things.commuication.ICommunicator;
 import com.firstlinecode.sand.client.things.obm.IObmFactory;
 import com.firstlinecode.sand.client.things.obm.ObmFactory;
+import com.firstlinecode.sand.emulators.lora.network.LoraChipCreationParams;
 import com.firstlinecode.sand.emulators.lora.network.LoraCommunicator;
+import com.firstlinecode.sand.emulators.lora.network.LoraCommunicatorFactory;
 import com.firstlinecode.sand.emulators.things.emulators.AbstractCommunicationNetworkThingEmulator;
 import com.firstlinecode.sand.protocols.lora.LoraAddress;
 
@@ -29,10 +32,16 @@ public abstract class AbstractLoraThingEmulator extends AbstractCommunicationNet
 	protected IObmFactory obmFactory = ObmFactory.createInstance();
 	
 	protected BinaryMessageProtocolReader bMessageProtocolReader;
-		
-	public AbstractLoraThingEmulator(String model, ICommunicator<LoraAddress, LoraAddress, byte[]> communicator) {
+	
+	protected AbstractLoraThingEmulator() {}
+	
+	protected AbstractLoraThingEmulator(String model, ICommunicator<LoraAddress, LoraAddress, byte[]> communicator) {
 		super(model, communicator);
 		
+		init();
+	}
+
+	private void init() {
 		ObmFactory obmFactory = (ObmFactory)ObmFactory.createInstance();
 		bMessageProtocolReader = new BinaryMessageProtocolReader(obmFactory.getBinaryXmppProtocolConverter());
 	}
@@ -62,16 +71,27 @@ public abstract class AbstractLoraThingEmulator extends AbstractCommunicationNet
 
 	@Override
 	protected void doWriteExternal(ObjectOutput out) throws IOException {
-		out.writeObject(gatewayUplinkAddress);
+		super.writeExternal(out);
+		
+		LoraCommunicator loraCommunicator = (LoraCommunicator)communicator;
+		out.writeObject(loraCommunicator.getChip().getPowerType());
+		out.writeObject(loraCommunicator.getChip().getAddress());
+		out.writeObject(gatewayUplinkAddress);		
 		out.writeObject(gatewayDownlinkAddress);
 		out.writeObject(thingAddress);
 	}
 	
 	@Override
 	protected void doReadExternal(ObjectInput in) throws IOException, ClassNotFoundException {
+		super.doReadExternal(in);
+		
+		communicator = LoraCommunicatorFactory.getInstance().createLoraCommunicator(new LoraChipCreationParams(
+				(PowerType)in.readObject(), (LoraAddress)in.readObject()));
 		gatewayUplinkAddress = (LoraAddress)in.readObject();
 		gatewayDownlinkAddress = (LoraAddress)in.readObject();
 		thingAddress = (LoraAddress)in.readObject();
+		
+		init();
 	}
 	
 	@Override
@@ -102,23 +122,23 @@ public abstract class AbstractLoraThingEmulator extends AbstractCommunicationNet
 	
 	@Override
 	public void startToReceiveData() {
-		if (isDataReceiving)
+		if (dataReceiving)
 			return;
 		
 		communicator.addCommunicationListener(this);
 		doStartToReceiveData();
-		isDataReceiving = true;
+		dataReceiving = true;
 	}
 	
 	@Override
 	public void stopDataReceving() {
-		if (!isDataReceiving)
+		if (!dataReceiving)
 			return;
 		
 		doStopDataReceiving();
 		communicator.removeCommunicationListener(this);
 		
-		isDataReceiving = false;
+		dataReceiving = false;
 	}
 	
 	protected abstract void doStartToReceiveData();

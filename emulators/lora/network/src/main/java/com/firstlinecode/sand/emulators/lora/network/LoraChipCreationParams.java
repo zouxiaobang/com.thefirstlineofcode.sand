@@ -8,11 +8,11 @@ public class LoraChipCreationParams extends ParamsMap {
 	public static final String PARAM_NAME_ADDRESS = "address";	
 	
 	public LoraChipCreationParams() {
-		addParams(PARAM_NAME_TYPE, LoraChip.Type.NORMAL);
+		addParams(PARAM_NAME_TYPE, LoraChip.PowerType.NORMAL);
 		addParams(PARAM_NAME_ADDRESS, LoraAddress.randomLoraAddress());
 	}
 	
-	public LoraChipCreationParams(LoraChip.Type type) {
+	public LoraChipCreationParams(LoraChip.PowerType type) {
 		this(type, null);
 	}
 	
@@ -21,7 +21,7 @@ public class LoraChipCreationParams extends ParamsMap {
 	}
 
 	
-	public LoraChipCreationParams(LoraChip.Type type, LoraAddress address) {
+	public LoraChipCreationParams(LoraChip.PowerType type, LoraAddress address) {
 		if (type != null)
 			addParams(PARAM_NAME_TYPE, type);
 		
@@ -29,11 +29,11 @@ public class LoraChipCreationParams extends ParamsMap {
 			addParams(PARAM_NAME_ADDRESS, address);
 	}
 
-	public void setType(LoraChip.Type type) {
+	public void setType(LoraChip.PowerType type) {
 		addParams(PARAM_NAME_TYPE, type);
 	}
 	
-	public LoraChip.Type getType() {
+	public LoraChip.PowerType getType() {
 		return getParam(PARAM_NAME_TYPE);
 	}
 

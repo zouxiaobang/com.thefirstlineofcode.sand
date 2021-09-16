@@ -2,8 +2,7 @@ package com.firstlinecode.sand.client.actuator;
 
 import java.util.Properties;
 
-import com.firstlinecode.basalt.protocol.core.ProtocolChain;
-import com.firstlinecode.basalt.protocol.core.stanza.Iq;
+import com.firstlinecode.basalt.protocol.core.IqProtocolChain;
 import com.firstlinecode.chalk.core.IChatSystem;
 import com.firstlinecode.chalk.core.IPlugin;
 import com.firstlinecode.sand.client.dmr.DmrPlugin;
@@ -17,7 +16,7 @@ public class ActuatorPlugin implements IPlugin {
 	public void init(IChatSystem chatSystem, Properties properties) {
 		chatSystem.register(DmrPlugin.class);
 		chatSystem.registerParser(
-				ProtocolChain.first(Iq.PROTOCOL).next(Execute.PROTOCOL),
+				new IqProtocolChain(Execute.PROTOCOL),
 				new ExecutionParserFactory());
 		chatSystem.registerApi(IActuator.class, Actuator.class);
 	}
@@ -25,7 +24,7 @@ public class ActuatorPlugin implements IPlugin {
 	@Override
 	public void destroy(IChatSystem chatSystem) {
 		chatSystem.unregisterApi(IActuator.class);
-		chatSystem.unregisterParser(ProtocolChain.first(Iq.PROTOCOL).next(Execute.PROTOCOL));
+		chatSystem.unregisterParser(new IqProtocolChain(Execute.PROTOCOL));
 		chatSystem.unregister(DmrPlugin.class);
 	}
 

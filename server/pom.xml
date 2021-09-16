@@ -17,7 +17,7 @@
 	<name>Lithosphere IoT server Plugins</name>
 
 	<modules>
-		<module>platform</module>
+		<module>console</module>
 		<module>stream</module>
 		<module>devices</module>
 		<module>ibdr</module>

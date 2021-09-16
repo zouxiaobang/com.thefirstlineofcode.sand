@@ -18,7 +18,9 @@ public class DualLoraChipsCommunicator implements IDualLoraChipsCommunicator {
 	private ILoraChip masterChip;
 	private ILoraChip slaveChip;
 	private List<ICommunicationListener<DualLoraAddress, LoraAddress, byte[]>> listeners;
-
+	
+	private DualLoraChipsCommunicator() {}
+	
 	private DualLoraChipsCommunicator(ILoraNetwork network, LoraAddress masterChipAddress,
 			LoraAddress slaveChipAddress, LoraChipCreationParams params) {
 		this(network.createChip(masterChipAddress, params), network.createChip(slaveChipAddress, params));
@@ -50,7 +52,7 @@ public class DualLoraChipsCommunicator implements IDualLoraChipsCommunicator {
 	}
 	
 	protected static ILoraChip createLoraChip(ILoraNetwork network, LoraAddress address) {
-		return (ILoraChip)network.createChip(address, new LoraChipCreationParams(LoraChip.Type.HIGH_POWER, null));
+		return (ILoraChip)network.createChip(address, new LoraChipCreationParams(LoraChip.PowerType.HIGH_POWER, null));
 	}
 	
 	@Override

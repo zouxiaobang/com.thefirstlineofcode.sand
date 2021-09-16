@@ -2,8 +2,7 @@ package com.firstlinecode.sand.server.operator;
 
 import org.pf4j.Extension;
 
-import com.firstlinecode.basalt.protocol.core.ProtocolChain;
-import com.firstlinecode.basalt.protocol.core.stanza.Iq;
+import com.firstlinecode.basalt.protocol.core.IqProtocolChain;
 import com.firstlinecode.granite.framework.core.pipeline.stages.PipelineExtendersContributorAdapter;
 import com.firstlinecode.granite.framework.core.pipeline.stages.processing.IXepProcessorFactory;
 import com.firstlinecode.granite.framework.core.pipeline.stages.processing.SingletonXepProcessorFactory;
@@ -15,7 +14,7 @@ public class PipelineExtendersContributor extends PipelineExtendersContributorAd
 	protected NamingConventionParsableProtocolObject[] getNamingConventionParsableProtocolObjects() {
 		return new NamingConventionParsableProtocolObject[] {
 				new NamingConventionParsableProtocolObject(
-						ProtocolChain.first(Iq.PROTOCOL).next(AuthorizeDevice.PROTOCOL),
+						new IqProtocolChain(AuthorizeDevice.PROTOCOL),
 						AuthorizeDevice.class
 				)
 		};
@@ -32,8 +31,8 @@ public class PipelineExtendersContributor extends PipelineExtendersContributorAd
 	public IXepProcessorFactory<?, ?>[] getXepProcessorFactories() {
 		return new IXepProcessorFactory<?, ?>[] {
 			new SingletonXepProcessorFactory<>(
-					ProtocolChain.first(Iq.PROTOCOL).next(AuthorizeDevice.PROTOCOL),
-					new AuthorizeDeviceProcessor()
+					new IqProtocolChain(AuthorizeDevice.PROTOCOL),
+					new DeviceAuthorizationProcessor()
 			)
 		};
 	}
