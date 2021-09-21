@@ -58,7 +58,7 @@ import com.firstlinecode.sand.client.dmr.IModelRegistrar;
 import com.firstlinecode.sand.client.ibdr.IRegistration;
 import com.firstlinecode.sand.client.ibdr.IbdrPlugin;
 import com.firstlinecode.sand.client.ibdr.RegistrationException;
-import com.firstlinecode.sand.client.lora.DynamicAddressConfigurator;
+import com.firstlinecode.sand.client.lora.ConcentratorAddressConfigurator;
 import com.firstlinecode.sand.client.lora.IDualLoraChipsCommunicator;
 import com.firstlinecode.sand.client.things.IDeviceListener;
 import com.firstlinecode.sand.client.things.ThingsUtils;
@@ -96,7 +96,7 @@ import com.firstlinecode.sand.protocols.core.ModelDescriptor;
 import com.firstlinecode.sand.protocols.lora.LoraAddress;
 
 public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionListener, InternalFrameListener,
-		ComponentListener, WindowListener, IGateway, IConnectionListener, DynamicAddressConfigurator.Listener,
+		ComponentListener, WindowListener, IGateway, IConnectionListener, ConcentratorAddressConfigurator.Listener,
 		IConcentrator.Listener {
 	private static final long serialVersionUID = -7894418812878036627L;
 	
@@ -182,7 +182,7 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 	private IChatClient chatClient;
 	private boolean autoReconnect;
 	
-	private DynamicAddressConfigurator addressConfigurator;
+	private ConcentratorAddressConfigurator addressConfigurator;
 	private IConcentrator concentrator;
 	private Map<String, ModelDescriptor> registeredModels;
 	
@@ -290,13 +290,13 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 	private String getStatus() {
 		StringBuilder sb = new StringBuilder();
 		if (deviceIdentity == null) {
-			sb.append("Unregistered").append(", ");
+			sb.append("Unregistered. ");
 		} else {
-			sb.append("Registered: ").append(deviceIdentity.getDeviceName()).append(", ");
+			sb.append("Registered: ").append(deviceIdentity.getDeviceName()).append(". ");
 			if (chatClient != null && chatClient.isConnected()) {
-				sb.append("Connected, ");
+				sb.append("Connected. ");
 			} else {
-				sb.append("Disconnected, ");
+				sb.append("Disconnected. ");
 			}
 		}
 		
@@ -361,12 +361,12 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 		
 		UiUtils.getMenuItem(menuBar, MENU_NAME_TOOLS, MENU_ITEM_NAME_WORKING_MODE).setEnabled(false);
 		UiUtils.getMenuItem(menuBar, MENU_NAME_TOOLS, MENU_ITEM_NAME_ADDRESS_CONFIGURATION_MODE).setEnabled(true);	
-		UiUtils.getMenuItem(menuBar, MENU_NAME_TOOLS, MENU_ITEM_NAME_RECONFIGURE_ADDRESS).setEnabled(false);	
+		UiUtils.getMenuItem(menuBar, MENU_NAME_TOOLS, MENU_ITEM_NAME_RECONFIGURE_ADDRESS).setEnabled(false);
 	}
 
 	private synchronized void setToAddressConfigurationMode() {
-		addressConfigurator.start();
 		stopWorking(chatClient);
+		addressConfigurator.start();
 		
 		UiUtils.getMenuItem(menuBar, MENU_NAME_TOOLS, MENU_ITEM_NAME_ADDRESS_CONFIGURATION_MODE).setEnabled(false);
 		UiUtils.getMenuItem(menuBar, MENU_NAME_TOOLS, MENU_ITEM_NAME_WORKING_MODE).setEnabled(true);
@@ -394,7 +394,7 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 			chatClient.close();
 		}
 		
-		if (addressConfigurator != null && DynamicAddressConfigurator.State.WORKING != addressConfigurator.getState()) {
+		if (addressConfigurator != null && ConcentratorAddressConfigurator.State.STOPPED != addressConfigurator.getState()) {
 			addressConfigurator.stop();
 		}
 		addressConfigurator = null;
@@ -443,7 +443,7 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 		
 		autoReconnect = true;
 		concentrator = createConcentrator();
-		addressConfigurator = new DynamicAddressConfigurator(gatewayCommunicator, concentrator);
+		addressConfigurator = new ConcentratorAddressConfigurator(gatewayCommunicator, concentrator);
 		addressConfigurator.addListener(this);
 		
 		refreshConnectionStateRelativatedMenus();
@@ -491,7 +491,7 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 	}
 
 	private void startActuator(IChatClient chatClient) {
-		if (addressConfigurator.getState() != DynamicAddressConfigurator.State.WORKING)
+		if (addressConfigurator.getState() != ConcentratorAddressConfigurator.State.STOPPED)
 			return;
 		
 		IActuator actuator = chatClient.createApi(IActuator.class);
@@ -612,6 +612,7 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 		
 		powerOff();
 		selectedFrame.getThing().reset();
+		refreshThingSelectionRelativedMenuItems();
 	}
 	
 	@Override
@@ -1364,7 +1365,7 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 	@Override
 	public synchronized void exceptionOccurred(ConnectionException exception) {
 		if (exception.getType() == ConnectionException.Type.CONNECTION_CLOSED && chatClient.isClosed()) {
-			if (addressConfigurator != null && addressConfigurator.getState() != DynamicAddressConfigurator.State.WORKING) {				
+			if (addressConfigurator != null && addressConfigurator.getState() != ConcentratorAddressConfigurator.State.STOPPED) {				
 				addressConfigurator.stop();
 			}
 			

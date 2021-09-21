@@ -13,13 +13,13 @@ import com.firstlinecode.sand.protocols.lora.dac.Allocated;
 import com.firstlinecode.sand.protocols.lora.dac.Allocation;
 import com.firstlinecode.sand.protocols.lora.dac.Introduction;
 
-public class DynamicAddressConfigurator implements IAddressConfigurator<ICommunicator<LoraAddress, LoraAddress, byte[]>,
+public class NodeDynamicAddressConfigurator implements IAddressConfigurator<ICommunicator<LoraAddress, LoraAddress, byte[]>,
 		LoraAddress, byte[]>, ICommunicationListener<LoraAddress, LoraAddress, byte[]> {
 	private static final int DEFAULT_ADDRESS_CONFIGURATION_DATA_RETRIVE_INTERVAL = 1000;
 	
 	private enum State {
 		INITIAL,
-		INTRUDUCED,
+		INTRODUCED,
 		ALLOCATED
 	}
 	
@@ -34,16 +34,16 @@ public class DynamicAddressConfigurator implements IAddressConfigurator<ICommuni
 	
 	private DataReceiver dataReceiver = new DataReceiver();
 	
-	private boolean working;
+	private boolean configurating;
 	
-	public DynamicAddressConfigurator(AbstractLoraThingEmulator thing, LoraCommunicator communicator) {
+	public NodeDynamicAddressConfigurator(AbstractLoraThingEmulator thing, LoraCommunicator communicator) {
 		this.thing = thing;
 		obmFactory = ObmFactory.createInstance();
 
 		this.communicator = communicator;
 		communicator.addCommunicationListener(this);
 
-		working = false;
+		configurating = false;
 	}
 
 	@Override
@@ -62,7 +62,7 @@ public class DynamicAddressConfigurator implements IAddressConfigurator<ICommuni
 	private synchronized void doIntroduce() {
 		resetToInitialState();
 		
-		working = true;
+		configurating = true;
 		
 		dataReceiver = new DataReceiver();
 		new Thread(dataReceiver, String.format("Data Receiver Thread for %s of %s '%s'",
@@ -79,10 +79,12 @@ public class DynamicAddressConfigurator implements IAddressConfigurator<ICommuni
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		
+		state = State.INTRODUCED;
 	}
 	
 	public void stop() {
-		working = false;
+		configurating = false;
 		dataReceiver = null;
 	}
 
@@ -97,34 +99,32 @@ public class DynamicAddressConfigurator implements IAddressConfigurator<ICommuni
 	
 	@Override
 	public synchronized void negotiate(LoraAddress peerAddress, byte[] data) {
+		if (state != State.INTRODUCED)
+			throw new IllegalStateException(String.format("Current state is %s, But it should be State.INTRODUCED.", state));
+		
 		try {
-			if (state == State.INITIAL) {
-				Allocation allocation = (Allocation)obmFactory.toObject(Allocation.class, data);
+			Allocation allocation = (Allocation)obmFactory.toObject(Allocation.class, data);
 
-				gatewayAddress = new DualLoraAddress(allocation.getGatewayAddress(), allocation.getGatewayChannel());
-				allocatedAddress = LoraAddress.create(allocation.getAllocatedAddress(), allocation.getAllocatedFrequencyBand());
-				
-				communicator.changeAddress(allocatedAddress);
-				
-				Allocated allocated = new Allocated();
-				allocated.setDeviceId(thing.getDeviceId());
-				
-				byte[] response = obmFactory.toBinary(allocated);
-				communicator.send(LoraAddress.DEFAULT_DYNAMIC_ADDRESS_CONFIGURATOR_NEGOTIATION_LORAADDRESS, response);
-				state = State.ALLOCATED;
-				
-				// Waiting for data receiver to stop.
-				try {
-					Thread.sleep(DEFAULT_ADDRESS_CONFIGURATION_DATA_RETRIVE_INTERVAL);
-				} catch (InterruptedException e) {
-					// Ignore
-				}
-				
-				done(gatewayAddress, communicator.getAddress());				
-			} else { // state == State.ALLOCATED
-				// Code shouldn't go to here.
-				throw new IllegalStateException("Thing address has allocated.");
+			gatewayAddress = new DualLoraAddress(allocation.getGatewayAddress(), allocation.getGatewayChannel());
+			allocatedAddress = LoraAddress.create(allocation.getAllocatedAddress(), allocation.getAllocatedFrequencyBand());
+			
+			communicator.changeAddress(allocatedAddress);
+			
+			Allocated allocated = new Allocated();
+			allocated.setDeviceId(thing.getDeviceId());
+			
+			byte[] response = obmFactory.toBinary(allocated);
+			communicator.send(LoraAddress.DEFAULT_DYNAMIC_ADDRESS_CONFIGURATOR_NEGOTIATION_LORAADDRESS, response);
+			state = State.ALLOCATED;
+			
+			// Waiting for data receiver to stop.
+			try {
+				Thread.sleep(DEFAULT_ADDRESS_CONFIGURATION_DATA_RETRIVE_INTERVAL);
+			} catch (InterruptedException e) {
+				// Ignore
 			}
+			
+			done(gatewayAddress, communicator.getAddress());
 		} catch (ClassCastException e) {
 			// ignore
 		} catch (CommunicationException e) {
@@ -136,7 +136,7 @@ public class DynamicAddressConfigurator implements IAddressConfigurator<ICommuni
 	private class DataReceiver implements Runnable {
 		@Override
 		public void run() {
-			while (working && state != State.ALLOCATED) {
+			while (configurating && state != State.ALLOCATED) {
 				communicator.receive();
 
 				try {
@@ -161,7 +161,7 @@ public class DynamicAddressConfigurator implements IAddressConfigurator<ICommuni
 
 	@Override
 	public void received(LoraAddress from, byte[] data) {
-		if (working) {
+		if (configurating) {
 			negotiate(from, data);
 		}
 	}

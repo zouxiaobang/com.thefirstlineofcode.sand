@@ -20,15 +20,15 @@ import com.firstlinecode.sand.protocols.lora.dac.Allocated;
 import com.firstlinecode.sand.protocols.lora.dac.Allocation;
 import com.firstlinecode.sand.protocols.lora.dac.Introduction;
 
-public class DynamicAddressConfigurator implements IAddressConfigurator<IDualLoraChipsCommunicator,
+public class ConcentratorAddressConfigurator implements IAddressConfigurator<IDualLoraChipsCommunicator,
 			LoraAddress, byte[]>, ICommunicationListener<DualLoraAddress, LoraAddress, byte[]> {
-	private static final Logger logger = LoggerFactory.getLogger(DynamicAddressConfigurator.class);
+	private static final Logger logger = LoggerFactory.getLogger(ConcentratorAddressConfigurator.class);
 	
 	private static final DualLoraAddress ADDRESS_CONFIGURATION_MODE_DUAL_LORA_ADDRESS = new DualLoraAddress(
 			LoraAddress.MAX_TWO_BYTES_ADDRESS, DualLoraAddress.MAX_CHANNEL);
 
 	public enum State {
-		WORKING,
+		STOPPED,
 		WAITING,
 		ALLOCATING,
 		ALLOCATED
@@ -46,13 +46,13 @@ public class DynamicAddressConfigurator implements IAddressConfigurator<IDualLor
 	
 	private List<Listener> listeners;
 	
-	public DynamicAddressConfigurator(IDualLoraChipsCommunicator communicator, IConcentrator concentrator) {
+	public ConcentratorAddressConfigurator(IDualLoraChipsCommunicator communicator, IConcentrator concentrator) {
 		this.communicator = communicator;
 		this.concentrator =  concentrator;
 
 		obmFactory = ObmFactory.createInstance();
 		workingAddress = communicator.getAddress();
-		state = State.WORKING;
+		state = State.STOPPED;
 		
 		listeners = new ArrayList<>();
 	}
@@ -63,7 +63,7 @@ public class DynamicAddressConfigurator implements IAddressConfigurator<IDualLor
 		}
 		
 		try {
-			if (state != State.WORKING || communicator.getAddress().equals(ADDRESS_CONFIGURATION_MODE_DUAL_LORA_ADDRESS)) {				
+			if (state != State.STOPPED) {
 				return;
 			}
 			
@@ -88,14 +88,16 @@ public class DynamicAddressConfigurator implements IAddressConfigurator<IDualLor
 			logger.debug("Stopping dynamic address configurator.");
 		}
 		
-		if (state == State.WORKING || !communicator.getAddress().equals(ADDRESS_CONFIGURATION_MODE_DUAL_LORA_ADDRESS)) {				
-			logger.warn("It seemed that device has already is being in working mode.");
+		if (state == State.STOPPED || !communicator.getAddress().equals(ADDRESS_CONFIGURATION_MODE_DUAL_LORA_ADDRESS)) {				
+			logger.warn("It seemed that device has already is being in stopped mode.");
 			return;
 		}
 		
 		communicator.removeCommunicationListener(this);
 		
-		state = State.WORKING;
+		nodeDeviceId = null;
+		nodeAddress = null;
+		state = State.STOPPED;
 		if (communicator.getAddress().equals(ADDRESS_CONFIGURATION_MODE_DUAL_LORA_ADDRESS)) {
 			try {
 				communicator.changeAddress(workingAddress);
@@ -111,9 +113,10 @@ public class DynamicAddressConfigurator implements IAddressConfigurator<IDualLor
 	
 	@Override
 	public void introduce() {
-		if (state == State.WORKING)
+		if (state == State.STOPPED)
 			return;
 		
+		state = State.WAITING;
 		new Thread(new DataReceiver(), String.format("Data Receiver Thread for %s of %s '%s'",
 				this.getClass().getSimpleName(), concentrator.getClass().getSimpleName(),
 				concentrator.getDeviceId())).start();
@@ -123,7 +126,7 @@ public class DynamicAddressConfigurator implements IAddressConfigurator<IDualLor
 
 		@Override
 		public void run() {
-			while (state != State.WORKING) {
+			while (state != State.STOPPED) {
 				communicator.receive();
 				
 				try {
@@ -137,14 +140,18 @@ public class DynamicAddressConfigurator implements IAddressConfigurator<IDualLor
 
 	@Override
 	public synchronized void negotiate(LoraAddress peerAddress, byte[] data) {
-		if (state == State.WORKING) {
+		if (state == State.STOPPED) {
 			if (logger.isWarnEnabled()) {
-				logger.warn(String.format("Receiving address configuration request from %s in working state.", peerAddress));
+				logger.warn(String.format("Receiving address configuration request from '%s' in State.STOPPED state.", peerAddress));
 			}
 
 			return;
 		}
-
+		
+		if (nodeAddress != null && !nodeAddress.equals(peerAddress)) {
+			processParallelAddressConfigurationRequest(peerAddress);
+		}
+		
 		try {
 			if (state == State.WAITING) {
 				Introduction introduction = (Introduction)obmFactory.toObject(Introduction.class, data);
@@ -152,8 +159,8 @@ public class DynamicAddressConfigurator implements IAddressConfigurator<IDualLor
 				nodeDeviceId = introduction.getDeviceId();
 				LoraAddress introductedAddress = LoraAddress.create(introduction.getAddress(), introduction.getFrequencyBand());
 				
-				if (logger.isDebugEnabled()) {
-					logger.debug(String.format("Receving an intrduction request from %s, %s.", introduction.getAddress(), introduction.getFrequencyBand()));
+				if (logger.isInfoEnabled()) {
+					logger.info(String.format("Receving an intrduction request from %s, %s.", introduction.getAddress(), introduction.getFrequencyBand()));
 				}
 				
 				Allocation allocation = new Allocation();
@@ -165,56 +172,60 @@ public class DynamicAddressConfigurator implements IAddressConfigurator<IDualLor
 				allocation.setAllocatedAddress(nodeAddress.getAddress());
 				allocation.setAllocatedFrequencyBand(nodeAddress.getFrequencyBand());
 
-				if (logger.isDebugEnabled()) {
-					logger.debug(String.format("Node allocation: %s: %s => %s.",
+				if (logger.isInfoEnabled()) {
+					logger.info(String.format("Node allocation: %s: %s => %s.",
 							nodeDeviceId, peerAddress, LoraAddress.create(allocation.getAllocatedAddress(),
 									allocation.getAllocatedFrequencyBand())));
-				}
+				};
 
 				byte[] response = obmFactory.toBinary(allocation);
 				communicator.send(introductedAddress, response);
 
 				state = State.ALLOCATING;
 				return;
-			}
-
-			if (!nodeAddress.equals(peerAddress)) {
-				processParallelAddressConfigurationRequest(peerAddress);
-			}
-
-			if (state == State.ALLOCATING) {
+			} else if (state == State.ALLOCATING) {
+				if (nodeDeviceId == null || nodeAddress == null)
+					throw new IllegalStateException("Null node device ID or Null node address.");
+				
 				Allocated allocated = (Allocated)obmFactory.toObject(Allocated.class, data);
 
-				if (logger.isDebugEnabled()) {
-					logger.debug(String.format("Node which's device ID is '%s' has allocated.", allocated.getDeviceId()));
+				if (logger.isInfoEnabled()) {
+					logger.info(String.format("Node which's device ID is '%s' has allocated.", allocated.getDeviceId()));
 				}
 				
 				if (!nodeDeviceId.equals(allocated.getDeviceId())) {
-					processParallelAddressConfigurationRequest(peerAddress);
+					if (logger.isWarnEnabled()) {
+						logger.warn("Illegal allocated device. Current device ID of configured device is '{}'." +
+								" But device ID of requested device is '{}'.", nodeDeviceId, allocated.getDeviceId());
+					}
+					
+					throw new RuntimeException(String.format("Illegal allocated device. Current device ID of configured device is '%s'." +
+							" But device ID of requested device is '%s'.", nodeDeviceId, allocated.getDeviceId()));
 				}
+				
 				state = State.ALLOCATED;
 				
 				for (Listener listener : listeners) {
 					listener.addressConfigured(nodeDeviceId, nodeAddress);
 				}
+				
+				nodeDeviceId = null;
+				nodeAddress = null;
+				state = State.WAITING;
+			} else {
+				throw new IllegalStateException(String.format("Illegal configuration state: %s.", state));
 			}
 
-		} catch (CommunicationException e) {
-			// TODO: handle exception
-			System.out.println(e);
-		} catch (ClassCastException e) {
-			// TODO: handle exception
-			System.out.println(e);
 		} catch (Exception e) {
-			// TODO: handle exception
-			System.out.println(e);
+			if (logger.isErrorEnabled())
+				logger.error("Catch an exception when the concentrator configures the node.", e);
 		}
 	}
 
 
 	private void processParallelAddressConfigurationRequest(LoraAddress peerAddress) {
-		if (logger.isDebugEnabled()) {
-			logger.debug(String.format("Parallel address configuration request from %s.", peerAddress.getAddress()));
+		if (logger.isWarnEnabled()) {
+			logger.warn(String.format("Parallel address configuration request from '%s'.", peerAddress.getAddress()));
 		}
 		
 		throw new ProtocolException(new Conflict(String.format("Parallel address configuration request from %s.", peerAddress.getAddress())));

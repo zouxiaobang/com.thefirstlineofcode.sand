@@ -235,12 +235,22 @@ public class Concentrator implements IConcentrator {
 		@Override
 		public boolean processError(IUnidirectionalStream<Iq> stream, StanzaError error) {
 			if (logger.isErrorEnabled()) {
-				logger.error(String.format("Some errors occurred while creating node. Error defined condition is %s.",
-						error.getDefinedCondition()));
+				logger.error(String.format("Some errors occurred while creating node. Error defined condition: '%s'. Error text: '%s'.",
+						error.getDefinedCondition(), error.getText()));
 			}
 			
-			for (IConcentrator.Listener listener : listeners) {
-				listener.occurred(error, node);
+			try {
+				for (IConcentrator.Listener listener : listeners) {
+					listener.occurred(error, node);
+				}				
+			} catch (Exception e) {
+				if (logger.isErrorEnabled()) {
+					logger.error("Exception was thrown while processing error.", e);
+				}
+			} finally {				
+				synchronized (nodesLock) {
+					nodes.remove(error.getId());
+				}
 			}
 			
 			return true;

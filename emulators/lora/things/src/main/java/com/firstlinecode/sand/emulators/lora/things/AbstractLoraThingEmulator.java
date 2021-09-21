@@ -21,7 +21,7 @@ import com.firstlinecode.sand.protocols.lora.LoraAddress;
 public abstract class AbstractLoraThingEmulator extends AbstractCommunicationNetworkThingEmulator<LoraAddress, LoraAddress, byte[]> {
 	private static final String PATTERN_LAN_ID = "%02d";
 	
-	protected DynamicAddressConfigurator addressConfigurator;
+	protected NodeDynamicAddressConfigurator addressConfigurator;
 		
 	protected LoraAddress gatewayUplinkAddress;
 	protected LoraAddress gatewayDownlinkAddress;
@@ -97,15 +97,16 @@ public abstract class AbstractLoraThingEmulator extends AbstractCommunicationNet
 	@Override
 	protected void doPowerOn() {
 		if (lanId != null) {
-			// Node has added to concentrator. Start to receive data from concentrator.
+			// Node has already added to concentrator. Start to receive data from concentrator.
 			startToReceiveData();			
 		} else {			
 			if (isAddressConfigured()) {
-				throw new RuntimeException("Address has already configured. But LAN ID is still null.");
+				throw new IllegalStateException(String.format("Node device which's device ID is '%s' is in a illegal state. Address has already configured, but LAN ID is still null.",
+						deviceId));
 			}
 			
 			if (addressConfigurator == null) {
-				addressConfigurator = new DynamicAddressConfigurator(this, (LoraCommunicator)communicator);
+				addressConfigurator = new NodeDynamicAddressConfigurator(this, (LoraCommunicator)communicator);
 			}
 			
 			addressConfigurator.introduce();
