@@ -98,7 +98,6 @@ public class Concentrator implements IConcentrator, IDataObjectFactoryAware {
 		for (NodeConfirmation confirmation : confirmations) {
 			if (confirmation.getExpiredTime().after(currentTime) &&
 					!confirmation.isCanceled() &&
-					!confirmation.isCanceled() &&
 					confirmation.getConfirmedTime() == null) {
 				return (D_NodeConfirmation)confirmation;
 			}

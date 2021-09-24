@@ -7,15 +7,15 @@
     </insert>
     
     <update id="updateCanceled">
-		UPDATE NODE_CONFIRMATIONS SET canceled=#{1} WHERE concentrator = #{0} AND node=#{1}
+		UPDATE NODE_CONFIRMATIONS SET canceled=#{1} WHERE concentrator = #{arg0} AND node=#{arg1}
     </update>
     
     <update id="updateConfirmed">
-		UPDATE NODE_CONFIRMATIONS SET confirmer=#{1}, confirmed_time=#{2} WHERE id = #{0}
+		UPDATE NODE_CONFIRMATIONS SET confirmer=#{arg1}, confirmed_time=#{arg2} WHERE id = #{arg0}
     </update>
     
 	<select id="selectByConcentratorAndNode" resultMap="nodeConfirmationResultMap">
-		SELECT * FROM NODE_CONFIRMATIONS WHERE concentrator = #{0} AND node = #{1}
+		SELECT * FROM NODE_CONFIRMATIONS WHERE concentrator = #{arg0} AND node = #{arg1}
 	</select>
 	
 	<resultMap id="nodeConfirmationResultMap" type="com.firstlinecode.sand.server.lite.concentrator.D_NodeConfirmation">

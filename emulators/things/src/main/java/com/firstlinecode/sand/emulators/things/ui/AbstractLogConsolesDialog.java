@@ -33,7 +33,7 @@ public abstract class AbstractLogConsolesDialog extends JDialog {
 		tabbedPane = new JTabbedPane();
 		getContentPane().add(tabbedPane);
 		
-		setBounds(50, 50, 800, 480);
+		setBounds(50, 50, 640, 480);
 	}
 
 	protected abstract void createPreinstlledLogConsoles();

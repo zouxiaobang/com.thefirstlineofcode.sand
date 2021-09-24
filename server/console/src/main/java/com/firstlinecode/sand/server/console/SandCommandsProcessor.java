@@ -16,6 +16,8 @@ import com.firstlinecode.granite.framework.core.console.IConsoleSystem;
 import com.firstlinecode.granite.framework.core.pipeline.stages.event.IEventFirer;
 import com.firstlinecode.granite.framework.core.pipeline.stages.event.IEventFirerAware;
 import com.firstlinecode.sand.protocols.devices.light.Flash;
+import com.firstlinecode.sand.server.concentrator.Confirmed;
+import com.firstlinecode.sand.server.concentrator.ConfirmedEvent;
 import com.firstlinecode.sand.server.concentrator.IConcentratorFactory;
 import com.firstlinecode.sand.server.devices.Device;
 import com.firstlinecode.sand.server.devices.DeviceAuthorizationDelegator;
@@ -63,7 +65,7 @@ public class SandCommandsProcessor extends AbstractCommandsProcessor implements 
 		consoleSystem.printContentLine("sand help - Display the help information for sand application management.");
 		consoleSystem.printContentLine("sand authorize <DEVICE_ID> [AUTHORIZIER] - Authorize a device to register.");
 		consoleSystem.printContentLine("sand devices [START_INDEX] - Display registered devices. Twenty items each page.");
-		consoleSystem.printContentLine("sand confirm <CONCENTRATOR_DEVICE_ID> <NODE_DEVICE_ID> - Confirm to add a node to concentrator.");
+		consoleSystem.printContentLine("sand confirm <CONCENTRATOR_DEVICE_ID> <NODE_DEVICE_ID> [CONFIRMER] - Confirm to add a node to concentrator.");
 		consoleSystem.printContentLine("sand execute <DEVICE_LOCATION> <ACTION_NAME> [PARAMS...] - Execute an action on the specified device.");
 	}
 	
@@ -338,6 +340,10 @@ public class SandCommandsProcessor extends AbstractCommandsProcessor implements 
 		
 	} */
 	
+	void processAuthorize(IConsoleSystem consoleSystem, String deviceId) {
+		this.processAuthorize(consoleSystem, deviceId, domainName);
+	}
+	
 	void processAuthorize(IConsoleSystem consoleSystem, String deviceId, String authorizer) {
 		if (!deviceManager.isValid(deviceId)) {
 			consoleSystem.printMessageLine(String.format("Error: Invalid device ID '%s'.", deviceId));
@@ -349,8 +355,8 @@ public class SandCommandsProcessor extends AbstractCommandsProcessor implements 
 			return;
 		}
 		
-		if (authorizer != null && !accountManager.exists(authorizer)) {
-			consoleSystem.printMessageLine(String.format("Error: '%s' isn't a valid user.", authorizer));
+		if (authorizer != null && !domainName.equals(authorizer) && !accountManager.exists(authorizer)) {
+			consoleSystem.printMessageLine(String.format("Error: '%s' isn't a valid authorizer.", authorizer));
 			return;
 		}
 		
@@ -360,6 +366,44 @@ public class SandCommandsProcessor extends AbstractCommandsProcessor implements 
 		} else {
 			consoleSystem.printMessageLine(String.format("Device which's ID is '%s' has authorized by unknown user in server console.", deviceId));
 		}
+	}
+	
+	void processConfirm(IConsoleSystem consoleSystem, String[] args) {
+		if (args.length != 2 && args.length != 3)
+			throw new IllegalArgumentException("Command 'sand confirm' needs two or three args. Please call 'sand help' to read more info.");
+		
+		String concentratorDeviceId = args[0];		
+		Device device = deviceManager.getByDeviceId(concentratorDeviceId);
+		if (device == null) {
+			consoleSystem.printMessageLine(String.format("Error: Concentrator which's device ID is '%s' not existed.", concentratorDeviceId));	
+			return;
+		}
+		
+		if (!concentratorFactory.isConcentrator(device)) {
+			consoleSystem.printMessageLine(String.format("Error: Device which's device ID is '%s' isn't a concentrator.", concentratorDeviceId));
+			return;
+		}
+		
+		String nodeDeviceId = args[1];
+		if (!deviceManager.isValid(nodeDeviceId)) {
+			consoleSystem.printMessageLine(String.format("Error: Invalid node device ID '%s'.", nodeDeviceId));
+			return;
+		}
+		
+		String confirmer = null;
+		if (args.length == 3) {
+			confirmer = args[2];
+			
+			if (!accountManager.exists(confirmer)) {
+				consoleSystem.printMessageLine(String.format("Error: '%s' isn't a valid user.", confirmer));
+			}
+		}
+		
+		if (confirmer == null)
+			confirmer = domainName;
+		
+		Confirmed confirmed = concentratorFactory.getConcentrator(device).confirm(nodeDeviceId, confirmer);
+		eventFirer.fire(new ConfirmedEvent(confirmed.getRequestId(), confirmed.getNodeCreated()));
 	}
 	
 	@Override

@@ -145,7 +145,7 @@ public class Concentrator implements IConcentrator {
 		public void processResponse(IUnidirectionalStream<Iq> stream, Iq iq) {
 			if (iq.getType() != Iq.Type.RESULT || iq.getObject() == null) {
 				if (logger.isErrorEnabled()) {
-					logger.error(String.format("Server returns an bad response. Result is %s.", iq));
+					logger.error(String.format("Server returns a bad response. Result is %s.", iq));
 				}
 				
 				for (IConcentrator.Listener listener : listeners) {

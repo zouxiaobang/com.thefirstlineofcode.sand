@@ -56,8 +56,8 @@ public class GatewayLogConsolePanel extends AbstractLogConsolePanel implements I
 		ObmData obmData = new ObmData(parseProtocol(data), data);
 		log(String.format("-->%s\n" +
 						"    O: %s\n" +
-						"    B: %s",
-				to, obmData.getProtocolObjectInfoString(), obmData.getHexString()));
+						"    B(%d bytes): %s",
+				to, obmData.getProtocolObjectInfoString(), obmData.getBinary().length, obmData.getHexString()));
 	}
 
 	@Override
@@ -65,8 +65,8 @@ public class GatewayLogConsolePanel extends AbstractLogConsolePanel implements I
 		ObmData obmData = new ObmData(parseProtocol(data), data);
 		log(String.format("<--%s\n" +
 						"    O: %s\n" +
-						"    B: %s",
-				from, obmData.getProtocolObjectInfoString(), obmData.getHexString()));
+						"    B(%d bytes): %s",
+				from, obmData.getProtocolObjectInfoString(), obmData.getBinary().length, obmData.getHexString()));
 	}
 
 	@Override

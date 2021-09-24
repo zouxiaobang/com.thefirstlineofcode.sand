@@ -49,20 +49,20 @@ public abstract class AbstractLoraThingEmulator extends AbstractCommunicationNet
 	public String getThingStatus() {
 		StringBuilder sb = new StringBuilder();
 		if (powered) {
-			sb.append("Power On, ");
+			sb.append("Power On. ");
 		} else {
-			sb.append("Power Off, ");
+			sb.append("Power Off. ");
 		}
 		
 		if (!isAddressConfigured()) {
-			sb.append("Unconfigured").append(", ");
+			sb.append("Unconfigured").append(". ");
 		} else if (lanId == null) {
-			sb.append("Configured: ").append(String.format(PATTERN_LAN_ID, thingAddress.getAddress())).append(", ");
+			sb.append("Configured: ").append(String.format(PATTERN_LAN_ID, thingAddress.getAddress())).append(". ");
 		} else {
-			sb.append("Controlled: ").append(lanId).append(", ");			
+			sb.append("Controlled: ").append(lanId).append(". ");
 		}
 		
-		sb.append("Battery: ").append(batteryPower).append("%, ");
+		sb.append("Battery: ").append(batteryPower).append("%. ");
 		
 		sb.append("Device ID: ").append(deviceId);
 		

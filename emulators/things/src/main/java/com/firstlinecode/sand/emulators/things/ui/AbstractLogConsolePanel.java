@@ -1,15 +1,6 @@
 package com.firstlinecode.sand.emulators.things.ui;
 
-import com.firstlinecode.basalt.oxm.binary.BinaryUtils;
-import com.firstlinecode.basalt.protocol.core.Protocol;
-import com.firstlinecode.gem.protocols.bxmpp.BinaryMessageProtocolReader;
-import com.firstlinecode.sand.client.things.obm.IObmFactory;
-import com.firstlinecode.sand.client.things.obm.ObmFactory;
-import com.firstlinecode.sand.emulators.things.ILogger;
-import com.firstlinecode.sand.protocols.lora.dac.Allocated;
-import com.firstlinecode.sand.protocols.lora.dac.Allocation;
-import com.firstlinecode.sand.protocols.lora.dac.Introduction;
-
+import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowEvent;
@@ -25,6 +16,16 @@ import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
+
+import com.firstlinecode.basalt.oxm.binary.BinaryUtils;
+import com.firstlinecode.basalt.protocol.core.Protocol;
+import com.firstlinecode.gem.protocols.bxmpp.BinaryMessageProtocolReader;
+import com.firstlinecode.sand.client.things.obm.IObmFactory;
+import com.firstlinecode.sand.client.things.obm.ObmFactory;
+import com.firstlinecode.sand.emulators.things.ILogger;
+import com.firstlinecode.sand.protocols.lora.dac.Allocated;
+import com.firstlinecode.sand.protocols.lora.dac.Allocation;
+import com.firstlinecode.sand.protocols.lora.dac.Introduction;
 
 public abstract class AbstractLogConsolePanel extends JPanel implements ILogger, WindowListener {
 	private static final long serialVersionUID = 2661118467157999059L;
@@ -47,8 +48,11 @@ public abstract class AbstractLogConsolePanel extends JPanel implements ILogger,
 		
 		logConsole = new JTextArea();
 		logConsole.setAutoscrolls(true);
-		JScrollPane logConsoleScrollPane = new JScrollPane(logConsole);
-		add(logConsoleScrollPane);
+		Font font = logConsole.getFont();
+		if (font.getSize() > 8)
+			logConsole.setFont(new Font("LogFont", font.getStyle(), font.getSize() - 8));
+		
+		add(new JScrollPane(logConsole));
 		
 		clear = new JButton("Clear Console");
 		clear.addActionListener(new ActionListener() {

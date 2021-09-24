@@ -4,6 +4,7 @@ import java.util.Calendar;
 import java.util.Date;
 
 import com.firstlinecode.basalt.protocol.core.ProtocolException;
+import com.firstlinecode.basalt.protocol.core.stanza.error.BadRequest;
 import com.firstlinecode.basalt.protocol.core.stanza.error.ItemNotFound;
 import com.firstlinecode.basalt.protocol.core.stanza.error.NotAcceptable;
 import com.firstlinecode.granite.framework.core.annotations.AppComponent;
@@ -11,11 +12,13 @@ import com.firstlinecode.granite.framework.core.annotations.BeanDependency;
 import com.firstlinecode.granite.framework.core.auth.IAccountManager;
 import com.firstlinecode.granite.framework.core.config.IConfiguration;
 import com.firstlinecode.granite.framework.core.config.IConfigurationAware;
+import com.firstlinecode.granite.framework.core.config.IServerConfiguration;
+import com.firstlinecode.granite.framework.core.config.IServerConfigurationAware;
 import com.firstlinecode.sand.server.devices.Device;
 import com.firstlinecode.sand.server.devices.IDeviceManager;
 
 @AppComponent("node.confirmation.delegator")
-public class NodeConfirmationDelegator implements IConfigurationAware {
+public class NodeConfirmationDelegator implements IServerConfigurationAware, IConfigurationAware {
 	private static final String CONFIGURATION_KEY_NODE_CONFIRMATION_VALIDITY_TIME = "node.confirmation.validity.time";	
 	private static final int DEFAULT_NODE_CONFIRMATION_VALIDITY_TIME = 60 * 5;
 	
@@ -27,6 +30,8 @@ public class NodeConfirmationDelegator implements IConfigurationAware {
 	
 	@BeanDependency
 	private IConcentratorFactory concentratorFactory;
+	
+	private String domainName;
 		
 	private int nodeConfirmationValidityTime;
 	
@@ -72,7 +77,17 @@ public class NodeConfirmationDelegator implements IConfigurationAware {
 		if (concentrator == null)
 			throw new RuntimeException("Can't get the concentrator.");
 		
+		if (confirmer != null && !domainName.contains(confirmer) && !accountManager.exists(confirmer)) {
+			throw new ProtocolException(new BadRequest(String.format(
+					"Can't confirm the concentration. '%s' isn't a valid confirmer.", confirmer)));
+		}
+		
 		return concentrator.confirm(nodeId, confirmer);
+	}
+	
+	@Override
+	public void setServerConfiguration(IServerConfiguration serverConfiguration) {
+		domainName = serverConfiguration.getDomainName();
 	}
 	
 	@Override
@@ -80,5 +95,4 @@ public class NodeConfirmationDelegator implements IConfigurationAware {
 		nodeConfirmationValidityTime = configuration.getInteger(CONFIGURATION_KEY_NODE_CONFIRMATION_VALIDITY_TIME,
 				DEFAULT_NODE_CONFIRMATION_VALIDITY_TIME);
 	}
-	
 }

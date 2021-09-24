@@ -67,8 +67,9 @@ public class CommunicationNetworkLogConsolePanel extends AbstractLogConsolePanel
 	private String createSentLogMessage(LoraAddress from, LoraAddress to, ObmData obmData) {
 		return String.format("D(%s)-->N-->D(%s):" + LINE_SEPARATOR +
 						"    O: %s" + LINE_SEPARATOR +
-						"    B: %s",
-				from, to, obmData.getProtocolObjectInfoString(), obmData.getHexString());
+						"    B(%d bytes): %s",
+				from, to, obmData.getProtocolObjectInfoString(), obmData.getBinary().length,
+					obmData.getHexString());
 	}
 
 	@Override
@@ -86,8 +87,9 @@ public class CommunicationNetworkLogConsolePanel extends AbstractLogConsolePanel
 	private String createReceivedLogMessage(LoraAddress from, LoraAddress to, ObmData obmData) {
 		return String.format("D(%s)<--N<--D(%s)" + LINE_SEPARATOR +
 						"    O: %s" + LINE_SEPARATOR +
-						"    B: %s",
-				to, from, obmData.getProtocolObjectInfoString(), obmData.getHexString());
+						"    B(%d bytes): %s",
+				to, from, obmData.getProtocolObjectInfoString(), obmData.getBinary().length,
+				obmData.getHexString());
 	}
 
 	@Override
@@ -119,8 +121,9 @@ public class CommunicationNetworkLogConsolePanel extends AbstractLogConsolePanel
 	private String createCollidedLogMessage(LoraAddress from, LoraAddress to, ObmData obmData) {
 		return String.format("?* D(%s)-->N-->D(%s)" + LINE_SEPARATOR +
 						"    O: %s" + LINE_SEPARATOR +
-						"    B: %s",
-						from, to, obmData.getProtocolObjectInfoString(), obmData.getHexString());
+						"    B(%d bytes): %s",
+						from, to, obmData.getProtocolObjectInfoString(), obmData.getBinary().length,
+						obmData.getHexString());
 	}
 
 	@Override
@@ -137,8 +140,9 @@ public class CommunicationNetworkLogConsolePanel extends AbstractLogConsolePanel
 	private String createLostLogMessage(LoraAddress from, LoraAddress to, ObmData obmData) {
 		return String.format("?& D(%s)->N-->D(%s)" + LINE_SEPARATOR +
 				"    O: %s" + LINE_SEPARATOR +
-				"    B: %s",
-				from, to, obmData.getProtocolObjectInfoString(), obmData.getHexString());
+				"    B(%d bytes): %s",
+				from, to, obmData.getProtocolObjectInfoString(), obmData.getBinary().length,
+				obmData.getHexString());
 	}
 
 }

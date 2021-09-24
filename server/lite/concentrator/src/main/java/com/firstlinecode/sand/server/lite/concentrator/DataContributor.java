@@ -1,7 +1,10 @@
 package com.firstlinecode.sand.server.lite.concentrator;
 
+import org.pf4j.Extension;
+
 import com.firstlinecode.granite.framework.adf.mybatis.DataContributorAdapter;
 
+@Extension
 public class DataContributor extends DataContributorAdapter {
 	@Override
 	protected Class<?>[] getDataObjects() {
@@ -18,8 +21,8 @@ public class DataContributor extends DataContributorAdapter {
 	@Override
 	protected String[] getMapperFileNames() {
 		return new String[] {
-			"ConcentratorMapper.xml",
-			"ConfirmRequestMapper.xml"
+			"ConcentrationMapper.xml",
+			"NodeConfirmationMapper.xml"
 		};
 	}
 }
