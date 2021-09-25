@@ -419,4 +419,20 @@ public class LoraNetwork implements ILoraNetwork {
 			listener.addressChanged(address, oldAddress);
 		}
 	}
+
+	@Override
+	public void removeChip(LoraAddress address) {
+		int removed = 0;
+		for (LoraChipPair pair : signalQualities.keySet()) {
+			if (pair.chip1.getAddress().equals(address)) {
+				signalQualities.remove(pair);
+				removed++;
+			}
+			
+			if (removed == 2)
+				break;
+		}
+		
+		chips.remove(address);
+	}
 }

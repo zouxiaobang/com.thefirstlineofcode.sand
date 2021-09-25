@@ -56,7 +56,7 @@ public class LogConsolesDialog extends AbstractLogConsolesDialog {
 	}
 
 	public void createThingLogConsole(AbstractLoraThingEmulator thing) {
-		createLogConsole(thing.getDeviceId(), new ThingLogConsolePanel(thing, models.get(thing.getModel())));
+		createLogConsole(thing.getDeviceId(), new ThingLogConsolePanel(thing, models.get(thing.getThingModel())));
 	}
 
 	private void createGatewayConsole(IDualLoraChipsCommunicator gatewayCommunicator) {

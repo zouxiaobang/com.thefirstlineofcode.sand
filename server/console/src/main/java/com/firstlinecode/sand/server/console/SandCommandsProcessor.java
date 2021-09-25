@@ -368,10 +368,11 @@ public class SandCommandsProcessor extends AbstractCommandsProcessor implements 
 		}
 	}
 	
+	void processConfirm(IConsoleSystem consoleSystem, String concentratorDeviceId, String nodeDeviceId) {
+		this.processConfirm(consoleSystem, new String[] {concentratorDeviceId, nodeDeviceId, domainName});
+	}
+	
 	void processConfirm(IConsoleSystem consoleSystem, String[] args) {
-		if (args.length != 2 && args.length != 3)
-			throw new IllegalArgumentException("Command 'sand confirm' needs two or three args. Please call 'sand help' to read more info.");
-		
 		String concentratorDeviceId = args[0];		
 		Device device = deviceManager.getByDeviceId(concentratorDeviceId);
 		if (device == null) {
@@ -390,20 +391,17 @@ public class SandCommandsProcessor extends AbstractCommandsProcessor implements 
 			return;
 		}
 		
-		String confirmer = null;
-		if (args.length == 3) {
-			confirmer = args[2];
-			
-			if (!accountManager.exists(confirmer)) {
-				consoleSystem.printMessageLine(String.format("Error: '%s' isn't a valid user.", confirmer));
-			}
+		String confirmer = args[2];
+		if (!confirmer.equals(domainName) && !accountManager.exists(confirmer)) {
+			consoleSystem.printMessageLine(String.format("Error: '%s' isn't a valid user.", confirmer));
+			return;
 		}
-		
-		if (confirmer == null)
-			confirmer = domainName;
 		
 		Confirmed confirmed = concentratorFactory.getConcentrator(device).confirm(nodeDeviceId, confirmer);
 		eventFirer.fire(new ConfirmedEvent(confirmed.getRequestId(), confirmed.getNodeCreated()));
+		
+		consoleSystem.printMessageLine(String.format("Node device which's ID is '%s' has confirmed to add to concentrator " +
+				"device which's ID is '%s' by user '%s' in server console.", nodeDeviceId, concentratorDeviceId, confirmer));
 	}
 	
 	@Override

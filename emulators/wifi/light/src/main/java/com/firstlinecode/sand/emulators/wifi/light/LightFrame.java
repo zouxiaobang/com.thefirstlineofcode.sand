@@ -129,7 +129,7 @@ public class LightFrame extends JFrame implements ActionListener, WindowListener
 	}
 	
 	public LightFrame(Light light) {
-		super(Light.THING_NAME);
+		super(Light.THING_TYPE);
 		
 		if (light != null) {
 			this.light = light;
@@ -319,7 +319,7 @@ public class LightFrame extends JFrame implements ActionListener, WindowListener
 	}
 
 	private void showAboutDialog() {
-		UiUtils.showDialog(this, new AboutDialog(this, Light.THING_NAME, Light.SOFTWARE_VERSION));
+		UiUtils.showDialog(this, new AboutDialog(this, Light.THING_TYPE, Light.SOFTWARE_VERSION));
 	}
 
 	private void showLogConsoleDialog() {

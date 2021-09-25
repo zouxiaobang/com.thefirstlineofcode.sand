@@ -20,9 +20,9 @@ import com.firstlinecode.sand.protocols.lora.dac.Allocated;
 import com.firstlinecode.sand.protocols.lora.dac.Allocation;
 import com.firstlinecode.sand.protocols.lora.dac.Introduction;
 
-public class ConcentratorAddressConfigurator implements IAddressConfigurator<IDualLoraChipsCommunicator,
+public class ConcentratorDynamicalAddressConfigurator implements IAddressConfigurator<IDualLoraChipsCommunicator,
 			LoraAddress, byte[]>, ICommunicationListener<DualLoraAddress, LoraAddress, byte[]> {
-	private static final Logger logger = LoggerFactory.getLogger(ConcentratorAddressConfigurator.class);
+	private static final Logger logger = LoggerFactory.getLogger(ConcentratorDynamicalAddressConfigurator.class);
 	
 	private static final DualLoraAddress ADDRESS_CONFIGURATION_MODE_DUAL_LORA_ADDRESS = new DualLoraAddress(
 			LoraAddress.MAX_TWO_BYTES_ADDRESS, DualLoraAddress.MAX_CHANNEL);
@@ -46,7 +46,7 @@ public class ConcentratorAddressConfigurator implements IAddressConfigurator<IDu
 	
 	private List<Listener> listeners;
 	
-	public ConcentratorAddressConfigurator(IDualLoraChipsCommunicator communicator, IConcentrator concentrator) {
+	public ConcentratorDynamicalAddressConfigurator(IDualLoraChipsCommunicator communicator, IConcentrator concentrator) {
 		this.communicator = communicator;
 		this.concentrator =  concentrator;
 

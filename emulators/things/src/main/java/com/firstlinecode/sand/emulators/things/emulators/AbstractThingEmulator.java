@@ -1,5 +1,6 @@
 package com.firstlinecode.sand.emulators.things.emulators;
 
+import java.io.Externalizable;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
@@ -13,12 +14,15 @@ import com.firstlinecode.sand.client.things.IDeviceListener;
 import com.firstlinecode.sand.client.things.ThingsUtils;
 import com.firstlinecode.sand.emulators.things.PowerEvent;
 
-public abstract class AbstractThingEmulator implements IThingEmulator {
+public abstract class AbstractThingEmulator implements IThingEmulator, Externalizable {
+	private static final long serialVersionUID = 5777576412420781910L;
+
 	private static final int BATTERY_POWER_DOWN_INTERVAL = 1000 * 10;
 	
-	protected String thingName;
+	protected String name;
 	
 	protected String deviceId;
+	protected String type;
 	protected String model;
 	protected int batteryPower;
 	protected boolean powered;
@@ -26,13 +30,16 @@ public abstract class AbstractThingEmulator implements IThingEmulator {
 	
 	protected BatteryTimer batteryTimer;
 	
-	protected AbstractThingEmulator() {}
+	public AbstractThingEmulator() {}
 	
-	protected AbstractThingEmulator(String model) {
-		if (model != null)
-			this.model = model;
+	public AbstractThingEmulator(String type, String model) {
+		if (type == null || model == null)
+			throw new IllegalArgumentException("Null type of model.");
 		
-		this.thingName = getThingName() + " - " + model;
+		this.type = type;
+		this.model = model;
+		
+		this.name = type + " - " + model;
 		
 		deviceId = generateDeviceId();
 		batteryPower = 100;
@@ -52,7 +59,7 @@ public abstract class AbstractThingEmulator implements IThingEmulator {
 	}
 
 	protected String generateDeviceId() {
-		return getModel() + ThingsUtils.generateRandomId(8);
+		return getThingModel() + ThingsUtils.generateRandomId(8);
 	}
 	
 	public String getThingStatus() {
@@ -135,11 +142,6 @@ public abstract class AbstractThingEmulator implements IThingEmulator {
 	}
 	
 	@Override
-	public String getModel() {
-		return model;
-	}
-	
-	@Override
 	public synchronized void setBatteryPower(int batteryPower) {
 		if (batteryPower <= 0 || batteryPower > 100) {
 			throw new IllegalArgumentException("Battery power value must be in the range of 0 to 100.");
@@ -158,8 +160,9 @@ public abstract class AbstractThingEmulator implements IThingEmulator {
 
 	@Override
 	public void writeExternal(ObjectOutput out) throws IOException {
+		out.writeObject(type);
 		out.writeObject(model);
-		out.writeObject(thingName);
+		out.writeObject(name);
 		out.writeObject(deviceId);
 		out.writeInt(batteryPower);
 		out.writeBoolean(powered);
@@ -169,15 +172,21 @@ public abstract class AbstractThingEmulator implements IThingEmulator {
 	
 	@Override
 	public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
+		type = (String)in.readObject();
 		model = (String)in.readObject();
-		thingName = (String)in.readObject();
+		name = (String)in.readObject();
 		deviceId = (String)in.readObject();
 		batteryPower = in.readInt();
 		powered = in.readBoolean();
 		
 		doReadExternal(in);
+		
+		if (powered) {
+			startBatteryTimer();
+		}
+		
 	}
-	
+
 	@Override
 	public void powerOn() {
 		if (batteryTimer == null || !batteryTimer.isWorking())
@@ -252,6 +261,21 @@ public abstract class AbstractThingEmulator implements IThingEmulator {
 	@Override
 	public boolean removeDeviceListener(IDeviceListener listener) {
 		return deviceListeners.remove(listener);
+	}
+	
+	@Override
+	public String getThingType() {
+		return type;
+	}
+	
+	@Override
+	public String getThingModel() {
+		return model;
+	}
+	
+	@Override
+	public String getThingName() {
+		return name;
 	}
 
 	protected abstract void doWriteExternal(ObjectOutput out) throws IOException;

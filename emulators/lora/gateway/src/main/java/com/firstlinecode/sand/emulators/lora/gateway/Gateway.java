@@ -58,7 +58,7 @@ import com.firstlinecode.sand.client.dmr.IModelRegistrar;
 import com.firstlinecode.sand.client.ibdr.IRegistration;
 import com.firstlinecode.sand.client.ibdr.IbdrPlugin;
 import com.firstlinecode.sand.client.ibdr.RegistrationException;
-import com.firstlinecode.sand.client.lora.ConcentratorAddressConfigurator;
+import com.firstlinecode.sand.client.lora.ConcentratorDynamicalAddressConfigurator;
 import com.firstlinecode.sand.client.lora.IDualLoraChipsCommunicator;
 import com.firstlinecode.sand.client.things.IDeviceListener;
 import com.firstlinecode.sand.client.things.ThingsUtils;
@@ -96,15 +96,15 @@ import com.firstlinecode.sand.protocols.core.ModelDescriptor;
 import com.firstlinecode.sand.protocols.lora.LoraAddress;
 
 public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionListener, InternalFrameListener,
-		ComponentListener, WindowListener, IGateway, IConnectionListener, ConcentratorAddressConfigurator.Listener,
+		ComponentListener, WindowListener, IGateway, IConnectionListener, ConcentratorDynamicalAddressConfigurator.Listener,
 		IConcentrator.Listener {
 	private static final long serialVersionUID = -7894418812878036627L;
 	
 	private static final String THING_NAME = "Lora Gateway Emulator";
+	private static final String THING_MODEL = "GE01";
 	
 	private static final String DEFAULT_GATEWAY_LAN_ID = "00";
 	private static final int ALWAYS_FULL_POWER = 100;
-	private static final String THING_MODEL = "GE01";
 	
 	// File Menu
 	private static final String MENU_TEXT_FILE = "File";
@@ -182,7 +182,7 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 	private IChatClient chatClient;
 	private boolean autoReconnect;
 	
-	private ConcentratorAddressConfigurator addressConfigurator;
+	private ConcentratorDynamicalAddressConfigurator addressConfigurator;
 	private IConcentrator concentrator;
 	private Map<String, ModelDescriptor> registeredModels;
 	
@@ -209,7 +209,7 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 	}
 
 	protected String generateDeviceId() {
-		return getModel() + ThingsUtils.generateRandomId(8);
+		return getThingModel() + ThingsUtils.generateRandomId(8);
 	}
 	
 	private class AutoReconnectThread implements Runnable {
@@ -394,7 +394,7 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 			chatClient.close();
 		}
 		
-		if (addressConfigurator != null && ConcentratorAddressConfigurator.State.STOPPED != addressConfigurator.getState()) {
+		if (addressConfigurator != null && ConcentratorDynamicalAddressConfigurator.State.STOPPED != addressConfigurator.getState()) {
 			addressConfigurator.stop();
 		}
 		addressConfigurator = null;
@@ -443,7 +443,7 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 		
 		autoReconnect = true;
 		concentrator = createConcentrator();
-		addressConfigurator = new ConcentratorAddressConfigurator(gatewayCommunicator, concentrator);
+		addressConfigurator = new ConcentratorDynamicalAddressConfigurator(gatewayCommunicator, concentrator);
 		addressConfigurator.addListener(this);
 		
 		refreshConnectionStateRelativatedMenus();
@@ -491,7 +491,7 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 	}
 
 	private void startActuator(IChatClient chatClient) {
-		if (addressConfigurator.getState() != ConcentratorAddressConfigurator.State.STOPPED)
+		if (addressConfigurator.getState() != ConcentratorDynamicalAddressConfigurator.State.STOPPED)
 			return;
 		
 		IActuator actuator = chatClient.createApi(IActuator.class);
@@ -777,7 +777,7 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 		
 		int result = fileChooser.showOpenDialog(this);
 		if (result == JFileChooser.APPROVE_OPTION) {
-			removeThings();
+			resetStatus();
 			loadFromFile(fileChooser.getSelectedFile());
 			changeGatewayStatusAndRefreshUiThread(false);
 			
@@ -797,7 +797,33 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 		}
 	}
 
+	private void resetStatus() {
+		closeConnnection();
+		removeThings();
+	}
+
+	private void closeConnnection() {
+		if (chatClient != null && chatClient.isConnected()) {
+			autoReconnect = false;
+			chatClient.close();
+			chatClient = null;
+		}
+	}
+
 	private void removeThings() {
+		// Remove devices from network.
+		for (String thingName : allThings.keySet()) {
+			List<AbstractLoraThingEmulator> things = allThings.get(thingName);
+			if (things == null || things.size() == 0)
+				continue;
+			
+			for (AbstractLoraThingEmulator thing : things) {
+				LoraCommunicator communicator = (LoraCommunicator)thing.getCommunicator();
+				network.removeChip(communicator.getAddress());
+			}
+		}
+		
+		// Remove all internal frames for thing's UI from desktop.
 		desktop.removeAll();
 		
 		// Refresh desktop
@@ -1343,11 +1369,6 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 	}
 	
 	@Override
-	public String getModel() {
-		return THING_MODEL;
-	}
-
-	@Override
 	public int getBatteryPower() {
 		return ALWAYS_FULL_POWER;
 	}
@@ -1365,7 +1386,7 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 	@Override
 	public synchronized void exceptionOccurred(ConnectionException exception) {
 		if (exception.getType() == ConnectionException.Type.CONNECTION_CLOSED && chatClient.isClosed()) {
-			if (addressConfigurator != null && addressConfigurator.getState() != ConcentratorAddressConfigurator.State.STOPPED) {				
+			if (addressConfigurator != null && addressConfigurator.getState() != ConcentratorDynamicalAddressConfigurator.State.STOPPED) {				
 				addressConfigurator.stop();
 			}
 			
@@ -1453,5 +1474,20 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 	@Override
 	public void heartBeatsReceived(int length) {
 		// Do nothing.
+	}
+
+	@Override
+	public String getThingType() {
+		return THING_NAME;
+	}
+
+	@Override
+	public String getThingModel() {
+		return THING_MODEL;
+	}
+
+	@Override
+	public String getThingName() {
+		return THING_NAME + "-" + THING_MODEL;
 	}
 }

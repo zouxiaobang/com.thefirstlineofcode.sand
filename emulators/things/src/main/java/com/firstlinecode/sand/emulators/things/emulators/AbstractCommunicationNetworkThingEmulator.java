@@ -21,11 +21,11 @@ public abstract class AbstractCommunicationNetworkThingEmulator<OA, PA, D> exten
 	protected boolean dataReceiving;
 	protected Map<Protocol, Class<?>> supportedActions;
 	
-	protected AbstractCommunicationNetworkThingEmulator() {}
+	public AbstractCommunicationNetworkThingEmulator() {}
 	
 	@SuppressWarnings("unchecked")
-	protected AbstractCommunicationNetworkThingEmulator(String model, ICommunicator<?, ?, ?> communicator) {
-		super(model);
+	public AbstractCommunicationNetworkThingEmulator(String type, String model, ICommunicator<?, ?, ?> communicator) {
+		super(type, model);
 		
 		this.communicator = (ICommunicator<OA, PA, D>)communicator;	
 		dataReceiving = false;

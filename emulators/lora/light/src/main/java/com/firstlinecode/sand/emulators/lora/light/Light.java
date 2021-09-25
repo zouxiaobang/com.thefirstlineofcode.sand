@@ -12,11 +12,7 @@ import java.util.TimerTask;
 import java.util.concurrent.ExecutionException;
 
 import com.firstlinecode.basalt.protocol.core.Protocol;
-import com.firstlinecode.sand.client.lora.ILoraChip;
-import com.firstlinecode.sand.client.lora.ILoraChip.PowerType;
-import com.firstlinecode.sand.emulators.lora.network.LoraChipCreationParams;
 import com.firstlinecode.sand.emulators.lora.network.LoraCommunicator;
-import com.firstlinecode.sand.emulators.lora.network.LoraCommunicatorFactory;
 import com.firstlinecode.sand.emulators.lora.things.AbstractLoraThingEmulator;
 import com.firstlinecode.sand.emulators.models.Le01ModelDescriptor;
 import com.firstlinecode.sand.emulators.things.ILight;
@@ -29,10 +25,9 @@ import com.firstlinecode.sand.emulators.things.emulators.ISwitchStateListener;
 import com.firstlinecode.sand.emulators.things.ui.AbstractThingEmulatorPanel;
 import com.firstlinecode.sand.emulators.things.ui.LightEmulatorPanel;
 import com.firstlinecode.sand.protocols.devices.light.Flash;
-import com.firstlinecode.sand.protocols.lora.LoraAddress;
 
 public class Light extends AbstractLoraThingEmulator implements ILightEmulator, ISwitchStateListener {
-	public static final String THING_NAME = "Light Emulator";
+	public static final String THING_TYPE = "Light Emulator";
 	public static final String THING_MODEL = "LE01";
 	public static final String SOFTWARE_VERSION = "0.1.0.RELEASE";
 	
@@ -51,18 +46,18 @@ public class Light extends AbstractLoraThingEmulator implements ILightEmulator, 
 	private List<ISwitchStateListener> switchStateListeners = new ArrayList<>();
 	private List<ILightStateListener> lightStateListeners= new ArrayList<>();
 	
-	private Light() {}
+	public Light() {}
 	
-	private Light(LoraCommunicator communicator) {
-		this(communicator, DEFAULT_SWITCH_STATE, DEFAULT_LIGHT_STATE);
+	public Light(LoraCommunicator communicator) {
+		this(communicator, DEFAULT_SWITCH_STATE);
 	}
 	
-	private Light(LoraCommunicator communicator, SwitchState switchState) {
-		this(communicator, switchState, switchState == SwitchState.ON ? LightState.ON : LightState.OFF);
+	public Light(LoraCommunicator communicator, SwitchState switchState) {
+		this(communicator, switchState, (switchState == SwitchState.ON) ? LightState.ON : LightState.OFF);
 	}
 	
-	private Light(LoraCommunicator communicator, SwitchState switchState, LightState lightState) {
-		super(THING_MODEL, communicator);
+	public Light(LoraCommunicator communicator, SwitchState switchState, LightState lightState) {
+		super(THING_TYPE, THING_MODEL, communicator);
 		
 		if (switchState == null)
 			throw new IllegalArgumentException("Null switch state.");
@@ -72,7 +67,7 @@ public class Light extends AbstractLoraThingEmulator implements ILightEmulator, 
 		
 		if (switchState == SwitchState.ON && lightState == LightState.OFF ||
 				switchState == SwitchState.OFF && lightState == LightState.ON) {
-			throw new IllegalStateException(String.format("Invalid light states. Switch state: %s. Light state: %s.", switchState, lightState));
+			throw new IllegalStateException(String.format("Invalid light state. Switch state: %s. Light state: %s.", switchState, lightState));
 		}
 		
 		this.switchState = switchState;
@@ -90,13 +85,6 @@ public class Light extends AbstractLoraThingEmulator implements ILightEmulator, 
 		
 		out.writeObject(lightState);
 		out.writeObject(switchState);
-		
-		ILoraChip chip = ((LoraCommunicator)communicator).getChip();
-		out.writeObject(chip.getPowerType());
-		
-		LoraAddress loraAddress = chip.getAddress();
-		out.writeLong(loraAddress.getAddress());
-		out.writeInt(loraAddress.getFrequencyBand());
 	}
 
 	@Override
@@ -105,12 +93,6 @@ public class Light extends AbstractLoraThingEmulator implements ILightEmulator, 
 		
 		lightState = (LightState)in.readObject();
 		switchState = (SwitchState)in.readObject();
-		
-		PowerType powerType = (PowerType)in.readObject();
-		LoraAddress address = LoraAddress.create(in.readLong(), in.readInt());
-		
-		communicator = (LoraCommunicator)LoraCommunicatorFactory.getInstance().createCommunicator(
-				new LoraChipCreationParams(powerType, address));
 	}
 	
 	public SwitchState getSwitchState() {
@@ -204,11 +186,6 @@ public class Light extends AbstractLoraThingEmulator implements ILightEmulator, 
 	@Override
 	public Map<String, Object> getConfiguration() {
 		return Collections.emptyMap();
-	}
-
-	@Override
-	public String getThingName() {
-		return THING_NAME;
 	}
 
 	@Override
@@ -341,9 +318,5 @@ public class Light extends AbstractLoraThingEmulator implements ILightEmulator, 
 		for (ILightStateListener listener : lightStateListeners) {
 			listener.lightStateChanged(oldState, newState);
 		}
-	}
-	
-	public static Light createInstance(LoraCommunicator communicator) {
-		return new Light(communicator);
 	}
 }

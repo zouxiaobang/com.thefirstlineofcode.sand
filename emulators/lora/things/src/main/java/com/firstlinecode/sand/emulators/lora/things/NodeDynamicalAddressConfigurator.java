@@ -13,7 +13,7 @@ import com.firstlinecode.sand.protocols.lora.dac.Allocated;
 import com.firstlinecode.sand.protocols.lora.dac.Allocation;
 import com.firstlinecode.sand.protocols.lora.dac.Introduction;
 
-public class NodeDynamicAddressConfigurator implements IAddressConfigurator<ICommunicator<LoraAddress, LoraAddress, byte[]>,
+public class NodeDynamicalAddressConfigurator implements IAddressConfigurator<ICommunicator<LoraAddress, LoraAddress, byte[]>,
 		LoraAddress, byte[]>, ICommunicationListener<LoraAddress, LoraAddress, byte[]> {
 	private static final int DEFAULT_ADDRESS_CONFIGURATION_DATA_RETRIVE_INTERVAL = 1000;
 	
@@ -36,7 +36,7 @@ public class NodeDynamicAddressConfigurator implements IAddressConfigurator<ICom
 	
 	private boolean configurating;
 	
-	public NodeDynamicAddressConfigurator(AbstractLoraThingEmulator thing, LoraCommunicator communicator) {
+	public NodeDynamicalAddressConfigurator(AbstractLoraThingEmulator thing, LoraCommunicator communicator) {
 		this.thing = thing;
 		obmFactory = ObmFactory.createInstance();
 

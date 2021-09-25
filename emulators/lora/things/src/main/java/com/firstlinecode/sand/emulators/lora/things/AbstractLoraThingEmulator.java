@@ -21,8 +21,8 @@ import com.firstlinecode.sand.protocols.lora.LoraAddress;
 public abstract class AbstractLoraThingEmulator extends AbstractCommunicationNetworkThingEmulator<LoraAddress, LoraAddress, byte[]> {
 	private static final String PATTERN_LAN_ID = "%02d";
 	
-	protected NodeDynamicAddressConfigurator addressConfigurator;
-		
+	protected NodeDynamicalAddressConfigurator addressConfigurator;
+	
 	protected LoraAddress gatewayUplinkAddress;
 	protected LoraAddress gatewayDownlinkAddress;
 	protected LoraAddress thingAddress;
@@ -33,10 +33,10 @@ public abstract class AbstractLoraThingEmulator extends AbstractCommunicationNet
 	
 	protected BinaryMessageProtocolReader bMessageProtocolReader;
 	
-	protected AbstractLoraThingEmulator() {}
+	public AbstractLoraThingEmulator() {}
 	
-	protected AbstractLoraThingEmulator(String model, ICommunicator<LoraAddress, LoraAddress, byte[]> communicator) {
-		super(model, communicator);
+	public AbstractLoraThingEmulator(String type, String model, ICommunicator<LoraAddress, LoraAddress, byte[]> communicator) {
+		super(type, model, communicator);
 		
 		init();
 	}
@@ -44,6 +44,11 @@ public abstract class AbstractLoraThingEmulator extends AbstractCommunicationNet
 	private void init() {
 		ObmFactory obmFactory = (ObmFactory)ObmFactory.createInstance();
 		bMessageProtocolReader = new BinaryMessageProtocolReader(obmFactory.getBinaryXmppProtocolConverter());
+		
+		if (dataReceiving) {
+			dataReceiving = false;
+			startToReceiveData();
+		}
 	}
 	
 	public String getThingStatus() {
@@ -71,7 +76,7 @@ public abstract class AbstractLoraThingEmulator extends AbstractCommunicationNet
 
 	@Override
 	protected void doWriteExternal(ObjectOutput out) throws IOException {
-		super.writeExternal(out);
+		super.doWriteExternal(out);
 		
 		LoraCommunicator loraCommunicator = (LoraCommunicator)communicator;
 		out.writeObject(loraCommunicator.getChip().getPowerType());
@@ -79,6 +84,7 @@ public abstract class AbstractLoraThingEmulator extends AbstractCommunicationNet
 		out.writeObject(gatewayUplinkAddress);		
 		out.writeObject(gatewayDownlinkAddress);
 		out.writeObject(thingAddress);
+		out.writeObject(lanId);
 	}
 	
 	@Override
@@ -90,6 +96,7 @@ public abstract class AbstractLoraThingEmulator extends AbstractCommunicationNet
 		gatewayUplinkAddress = (LoraAddress)in.readObject();
 		gatewayDownlinkAddress = (LoraAddress)in.readObject();
 		thingAddress = (LoraAddress)in.readObject();
+		lanId = (String)in.readObject();
 		
 		init();
 	}
@@ -106,7 +113,7 @@ public abstract class AbstractLoraThingEmulator extends AbstractCommunicationNet
 			}
 			
 			if (addressConfigurator == null) {
-				addressConfigurator = new NodeDynamicAddressConfigurator(this, (LoraCommunicator)communicator);
+				addressConfigurator = new NodeDynamicalAddressConfigurator(this, (LoraCommunicator)communicator);
 			}
 			
 			addressConfigurator.introduce();

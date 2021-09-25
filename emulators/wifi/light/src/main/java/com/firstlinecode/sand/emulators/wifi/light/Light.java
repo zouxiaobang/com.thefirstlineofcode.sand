@@ -22,7 +22,9 @@ import com.firstlinecode.sand.emulators.things.ui.LightEmulatorPanel;
 import com.firstlinecode.sand.protocols.core.DeviceIdentity;
 
 public class Light extends AbstractThingEmulator implements ILightEmulator, ISwitchStateListener {
-	public static final String THING_NAME = "WIFI Light Emulator";
+	private static final long serialVersionUID = 272824587125544136L;
+	
+	public static final String THING_TYPE = "Light Emulator";
 	public static final String THING_MODEL = "LE02";
 	public static final String SOFTWARE_VERSION = "0.1.0.RELEASE";
 	
@@ -40,7 +42,7 @@ public class Light extends AbstractThingEmulator implements ILightEmulator, ISwi
 	private List<ILightStateListener> lightStateListeners;
 	
 	public Light() {
-		super(THING_MODEL);
+		super(THING_TYPE, THING_MODEL);
 		
 		deviceId = generateDeviceId();
 		switchState = DEFAULT_SWITCH_STATE;
@@ -112,11 +114,6 @@ public class Light extends AbstractThingEmulator implements ILightEmulator, ISwi
 		panel.setSwitchStateListener(this);
 		
 		return panel;
-	}
-	
-	@Override
-	public String getThingName() {
-		return THING_NAME;
 	}
 	
 	@Override

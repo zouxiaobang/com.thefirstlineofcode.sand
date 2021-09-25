@@ -8,6 +8,8 @@ import java.io.ObjectOutput;
 import com.firstlinecode.sand.emulators.lora.things.AbstractLoraThingEmulator;
 
 public class ThingInfo implements Externalizable {
+	private static final long serialVersionUID = -8252473654249635901L;
+	
 	private int layer;
 	private int x;
 	private int y;

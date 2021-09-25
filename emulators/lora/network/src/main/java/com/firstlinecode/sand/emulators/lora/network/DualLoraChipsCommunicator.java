@@ -19,14 +19,14 @@ public class DualLoraChipsCommunicator implements IDualLoraChipsCommunicator {
 	private ILoraChip slaveChip;
 	private List<ICommunicationListener<DualLoraAddress, LoraAddress, byte[]>> listeners;
 	
-	private DualLoraChipsCommunicator() {}
+	protected DualLoraChipsCommunicator() {}
 	
-	private DualLoraChipsCommunicator(ILoraNetwork network, LoraAddress masterChipAddress,
+	protected DualLoraChipsCommunicator(ILoraNetwork network, LoraAddress masterChipAddress,
 			LoraAddress slaveChipAddress, LoraChipCreationParams params) {
 		this(network.createChip(masterChipAddress, params), network.createChip(slaveChipAddress, params));
 	}
 	
-	private DualLoraChipsCommunicator(ILoraChip masterChip, ILoraChip slaveChip) {
+	protected DualLoraChipsCommunicator(ILoraChip masterChip, ILoraChip slaveChip) {
 		this.listeners = new ArrayList<>();
 		this.masterChip = masterChip;
 		this.slaveChip = slaveChip;
