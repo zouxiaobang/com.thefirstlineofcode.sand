@@ -38,6 +38,7 @@ public class LightEmulatorPanel extends AbstractThingEmulatorPanel<ILightEmulato
 	
 	public LightEmulatorPanel(ILightEmulator light) {
 		super(light);
+		setPreferredSize(new Dimension(760, 480));
 		
 		this.light = light;
 		
@@ -71,7 +72,7 @@ public class LightEmulatorPanel extends AbstractThingEmulatorPanel<ILightEmulato
 		customizedUi.add(lightImage, BorderLayout.CENTER);			
 		customizedUi.add(createFlashPanel(), BorderLayout.SOUTH);
 		
-		customizedUi.setPreferredSize(new Dimension(360, 320));
+		customizedUi.setPreferredSize(new Dimension(640, 480));
 		
 		return customizedUi;
 	}
@@ -229,9 +230,10 @@ public class LightEmulatorPanel extends AbstractThingEmulatorPanel<ILightEmulato
 		}
 		
 		if (changed && switchStateListener != null) {
-			refreshFlashButtionStatus();
 			switchStateListener.switchStateChanged(oldSwitchState, light.getSwitchState());
 		}
+		
+		refreshFlashButtionStatus();
 	}
 	
 	public void updateStatus() {

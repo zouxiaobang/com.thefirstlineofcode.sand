@@ -18,14 +18,14 @@ public class StatusBar extends JPanel {
 		super(new BorderLayout());
 		
 		JPanel statusBarPanel = new JPanel();
+		statusBarPanel.add(new CopyDeviceIdOrShowQrCodeButton(device));
+		
 		text = new JLabel();
 		text.setHorizontalAlignment(SwingConstants.RIGHT);
 		statusBarPanel.add(text);
 		
-		statusBarPanel.add(new CopyDeviceIdOrShowQrCodeButton(device));
-		
-		add(statusBarPanel, BorderLayout.EAST);	
-		setPreferredSize(new Dimension(640, 48));
+		add(statusBarPanel, BorderLayout.WEST);	
+		setPreferredSize(new Dimension(800, 48));
 	}
 	
 	public void setText(String status) {

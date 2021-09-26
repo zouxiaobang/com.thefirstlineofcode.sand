@@ -31,15 +31,14 @@ public abstract class AbstractThingEmulatorPanel<T extends IThingEmulator> exten
 	}
 	
 	private JPanel creatStatusBarPanel() {
-		JPanel statusBarPanel = new JPanel(new BorderLayout());
+		JPanel statusBarPanel = new JPanel();
+		statusBarPanel.add(new CopyDeviceIdOrShowQrCodeButton(thingEmulator));
 		
 		statusBar = new JLabel();
-		statusBar.setHorizontalAlignment(SwingConstants.RIGHT);
-		statusBarPanel.add(statusBar, BorderLayout.CENTER);
+		statusBar.setHorizontalAlignment(SwingConstants.LEFT);
+		statusBarPanel.add(statusBar);
 		
-		statusBarPanel.add(new CopyDeviceIdOrShowQrCodeButton(thingEmulator), BorderLayout.EAST);
-		
-		statusBarPanel.setPreferredSize(new Dimension(800, 32));
+		statusBarPanel.setPreferredSize(new Dimension(760, 48));
 		
 		return statusBarPanel;
 	}

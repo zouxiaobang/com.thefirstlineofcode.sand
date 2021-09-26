@@ -163,6 +163,7 @@ public class Light extends AbstractLoraThingEmulator implements ILightEmulator, 
 			lightState = LightState.ON;					
 			panel.turnOn();
 		}
+		panel.refreshFlashButtionStatus();
 		
 		super.doPowerOn();
 	}
@@ -171,6 +172,7 @@ public class Light extends AbstractLoraThingEmulator implements ILightEmulator, 
 	protected void doPowerOff() {
 		if (lightState == LightState.OFF)
 			panel.turnOff();
+		panel.refreshFlashButtionStatus();
 		
 		super.doPowerOff();
 	}

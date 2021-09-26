@@ -248,7 +248,7 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 		setDefaultUiFont(new javax.swing.plaf.FontUIResource("Serif", Font.PLAIN, 20));
 		
 		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-		setBounds((screenSize.width - 800) / 2, (screenSize.height - 600) / 2, 800, 600);
+		setBounds((screenSize.width - 1024) / 2, (screenSize.height - 600) / 2, 1024, 600);
 		
 		desktop = new JDesktopPane();
 		desktop.setDragMode(JDesktopPane.OUTLINE_DRAG_MODE);
