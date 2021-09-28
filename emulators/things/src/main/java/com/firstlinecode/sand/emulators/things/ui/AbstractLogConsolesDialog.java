@@ -1,5 +1,7 @@
 package com.firstlinecode.sand.emulators.things.ui;
 
+import java.awt.Dimension;
+import java.awt.Toolkit;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -7,7 +9,6 @@ import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JTabbedPane;
 
-import com.firstlinecode.chalk.core.IChatClient;
 import com.firstlinecode.chalk.network.IConnectionListener;
 
 public abstract class AbstractLogConsolesDialog extends JDialog {
@@ -18,12 +19,9 @@ public abstract class AbstractLogConsolesDialog extends JDialog {
 	protected JTabbedPane tabbedPane;
 	protected Map<String, AbstractLogConsolePanel> logConsoles;
 	
-	protected IChatClient chatClient;
-	
-	public AbstractLogConsolesDialog(JFrame parent, IChatClient chatClient) {
+	public AbstractLogConsolesDialog(JFrame parent) {
 		super(parent, "Log Console");
 		
-		this.chatClient = chatClient;
 		logConsoles = new HashMap<>();
 		
 		setUi();
@@ -33,13 +31,14 @@ public abstract class AbstractLogConsolesDialog extends JDialog {
 		tabbedPane = new JTabbedPane();
 		getContentPane().add(tabbedPane);
 		
-		setBounds(50, 50, 640, 480);
+		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+		setBounds((screenSize.width - 640) / 2 + 240, (screenSize.height - 600) / 2, 640, 480);
 	}
-
+	
 	protected abstract void createPreinstlledLogConsoles();
 	
-	protected void createInternetLogConsole(IChatClient chatClient) {
-		createLogConsole(NAME_INTERNET, new InternetLogConsolePanel(chatClient));
+	protected void createInternetLogConsole() {
+		createLogConsole(NAME_INTERNET, new InternetLogConsolePanel());
 	}
 	
 	public void createLogConsole(String name, AbstractLogConsolePanel logConsole) {

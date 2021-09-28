@@ -1,10 +1,14 @@
 package com.firstlinecode.sand.server.console;
 
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.StringTokenizer;
 
 import org.pf4j.Extension;
 
+import com.firstlinecode.basalt.oxm.convention.PropertyDescriptor;
 import com.firstlinecode.basalt.protocol.core.Protocol;
 import com.firstlinecode.granite.framework.core.annotations.BeanDependency;
 import com.firstlinecode.granite.framework.core.annotations.Dependency;
@@ -15,10 +19,14 @@ import com.firstlinecode.granite.framework.core.console.AbstractCommandsProcesso
 import com.firstlinecode.granite.framework.core.console.IConsoleSystem;
 import com.firstlinecode.granite.framework.core.pipeline.stages.event.IEventFirer;
 import com.firstlinecode.granite.framework.core.pipeline.stages.event.IEventFirerAware;
+import com.firstlinecode.sand.protocols.actuator.Execute;
 import com.firstlinecode.sand.protocols.devices.light.Flash;
+import com.firstlinecode.sand.server.actuator.ExecutionEvent;
 import com.firstlinecode.sand.server.concentrator.Confirmed;
 import com.firstlinecode.sand.server.concentrator.ConfirmedEvent;
+import com.firstlinecode.sand.server.concentrator.IConcentrator;
 import com.firstlinecode.sand.server.concentrator.IConcentratorFactory;
+import com.firstlinecode.sand.server.concentrator.Node;
 import com.firstlinecode.sand.server.devices.Device;
 import com.firstlinecode.sand.server.devices.DeviceAuthorizationDelegator;
 import com.firstlinecode.sand.server.devices.IDeviceManager;
@@ -26,9 +34,12 @@ import com.firstlinecode.sand.server.devices.IDeviceManager;
 @Extension
 public class SandCommandsProcessor extends AbstractCommandsProcessor implements IEventFirerAware,
 			IServerConfigurationAware {
+	private static final char SEPARATOR_PARAM_NAME_AND_VALUE = '=';
+	private static final String SEPARATOR_PARAMS = ",";
 	private static final String COMMAND_GROUP_SAND = "sand";
 	private static final String COMMANDS_GROUP_INTRODUCTION = "Monitoring and managing sand application.";
 
+	private static final String COMMAND_EXECUTE = "execute";
 	private static final String ACTION_NAME_FLASH = "flash";
 	
 	@Dependency("device.authorization.delegator")
@@ -69,116 +80,24 @@ public class SandCommandsProcessor extends AbstractCommandsProcessor implements 
 		consoleSystem.printContentLine("sand execute <DEVICE_LOCATION> <ACTION_NAME> [PARAMS...] - Execute an action on the specified device.");
 	}
 	
-/*	public void _sand(CommandInterpreter interpreter) {
-		String nextArg = interpreter.nextArgument();
+	@Override
+	protected boolean isArgumentsMatched(String command, String[] args) {
+		if (COMMAND_EXECUTE.equals(command)) {
+			return args.length == 2 || args.length == 3;
+		}
 		
-		if (nextArg == null || PARAM_HELP.equals(nextArg)) {
-			printDetailHelp(interpreter);
-		} else if (PARAM_AUTHORIZE.equals(nextArg)) {
-			String deviceId = interpreter.nextArgument();
-			if (deviceId == null) {
-				interpreter.print("Error: You must provide a device ID.\n");	
-				return;
-			}
-			String authorizer = interpreter.nextArgument();
-			
-			authorize(interpreter, deviceId, authorizer);
-		} else if (PARAM_DEVICES.equals(nextArg)) {
-			String sStartIndex = interpreter.nextArgument();
-			
-			int startIndex = 0;
-			if (sStartIndex != null) {
-				try {					
-					startIndex = Integer.parseInt(sStartIndex);
-				} catch (NumberFormatException e) {
-					interpreter.print("Invalid start index. Start index must be a number.\n");
-					return;
-				}
-			}
-			
-			displayDevices(startIndex);
-		} else if (PARAM_CONFIRM.equals(nextArg)) {
-			String concentratorDeviceId = interpreter.nextArgument();
-			String nodeDeviceId = null;
-			if (concentratorDeviceId != null) {
-				nodeDeviceId = interpreter.nextArgument();				
-			}
-			
-			if (nodeDeviceId == null) {
-				interpreter.print("Error: You must provide a concentrator device ID and a node device ID.\n");	
-				return;
-			}
-			
-			Device device = deviceManager.getByDeviceId(concentratorDeviceId);
-			if (device == null) {
-				interpreter.print(String.format("Error: Concentrator which's device ID is '%s' not existed.\n", concentratorDeviceId));	
-				return;
-			}
-			
-			if (!concentratorFactory.isConcentrator(device)) {				
-				interpreter.print(String.format("Error: Device which's device ID is '%s' isn't a concentrator.", concentratorDeviceId));	
-				return;
-			}
-			
-			Confirmed confirmed = concentratorFactory.getConcentrator(device).confirm(nodeDeviceId, domainName);
-			eventFirer.fire(new ConfirmedEvent(confirmed.getRequestId(), confirmed.getNodeCreated()));
-			
-			interpreter.print(String.format("Device '%s' has already been confirmed to be a node of concentrator '%s'.\n", device.getDeviceId(), nodeDeviceId));
-		} else if (PARAM_EXECUTE.equals(nextArg)) {
-			String deviceLocation = interpreter.nextArgument();
-			
-			if (deviceLocation == null) {
-				interpreter.print("Error: You must provide device location of the device which should execute the action.\n");	
-				return;
-			}
-			
-			String actionName = interpreter.nextArgument();
-			if (actionName == null) {
-				interpreter.print("Error: You must provide the action name and parameters to be executed on the device.\n");	
-				return;
-			}
-			
-			String sParams = interpreter.nextArgument();
-			Map<String, String> params = null;
-			if (sParams != null) {
-				params = new HashMap<>();
-				
-				StringTokenizer tokenizer = new StringTokenizer(sParams, ",");
-				while (tokenizer.hasMoreTokens()) {
-					String param = tokenizer.nextToken();
-					int equalMarkIndex = param.indexOf('=');
-					
-					if (equalMarkIndex == -1) {
-						interpreter.print(String.format("Error: Illegal parameter: %s.\n", param));
-						return;
-					}
-					
-					if (equalMarkIndex == param.length() - 1) {
-						interpreter.print(String.format("Error: Illegal parameter: %s.\n", param));
-						return;
-					}
-					
-					String paramName = param.substring(0, equalMarkIndex).trim();
-					String paramValue = param.substring(equalMarkIndex + 1, param.length()).trim();
-					params.put(paramName, paramValue);
-				}
-			}
-			
-			execute(interpreter, deviceLocation, actionName, params);
-		} else {
-			printDetailHelp(interpreter);
-		}	
+		return true;
 	}
 	
-	private void execute(CommandInterpreter interpreter, String deviceLocation, String actionName, Map<String, String> params) {
-		String deviceId = null;
-		String lanId = null;
-		
+	void processExecute(IConsoleSystem consoleSystem, String[] args) {
+		String deviceLocation = args[0];
 		int slashIndex = deviceLocation.indexOf('/');
 		
 		if (slashIndex == deviceLocation.length() - 1)
-			interpreter.print("Error: Invalid device location.\n");
-			
+			consoleSystem.printMessageLine("Error: Invalid device location.");
+		
+		String deviceId = null;
+		String lanId = null;
 		if (slashIndex == -1) {
 			deviceId = deviceLocation;
 		} else {
@@ -191,58 +110,98 @@ public class SandCommandsProcessor extends AbstractCommandsProcessor implements 
 			lanId = lanId.trim();
 		
 		if (!deviceManager.deviceIdExists(deviceId)) {
-			interpreter.print(String.format("Error: Device which's device ID is '%s' not existed.\n", deviceId));	
+			consoleSystem.printMessageLine(String.format("Error: Device which's device ID is '%s' not existed.", deviceId));	
 			return;
 		}
 		
-		Device device = deviceManager.getByDeviceId(deviceId);
+		String actionName = args[1];
 		Protocol protocol = actionNameToProtocols.get(actionName);
-		if (protocol == null) {			
-			interpreter.print("Error: Unsupported action name '%s'.\n");	
+		if (protocol == null) {
+			consoleSystem.printMessageLine("Error: Unsupported action name '%s'.");	
+			return;
 		}
 		
+		Map<String, String> params = null;
+		if (args.length == 3) {
+			params = getActionParams(args[2]);
+			
+			if (params == null) {
+				consoleSystem.printMessageLine(String.format("Error: Illegal action parameters '%s' for action '%s'.",
+						args[2], actionName));
+			}
+		}
+		
+		Device device = deviceManager.getByDeviceId(deviceId);
 		if (!concentratorFactory.isConcentrator(device) || lanId == null ||
 				IConcentrator.LAN_ID_CONCENTRATOR.equals(lanId)) {
-			executeOnDevice(interpreter, device, protocol, params);
+			executeOnDevice(consoleSystem, device, protocol, params);
 		} else {
-			executeOnNode(interpreter, device, lanId, protocol, params);			
+			executeOnNode(consoleSystem, device, lanId, protocol, params);			
 		}
-	} */
+	}
 	
+	private Map<String, String> getActionParams(String sParams) {
+		Map<String, String> params = new HashMap<>();
+		
+		StringTokenizer tokenizer = new StringTokenizer(sParams, SEPARATOR_PARAMS);
+		while (tokenizer.hasMoreTokens()) {
+			String param = tokenizer.nextToken();
+			int equalMarkIndex = param.indexOf(SEPARATOR_PARAM_NAME_AND_VALUE);
+			
+			if (equalMarkIndex == -1) {
+				return null;
+			}
+			
+			if (equalMarkIndex == param.length() - 1) {
+				return null;
+			}
+			
+			String paramName = param.substring(0, equalMarkIndex).trim();
+			String paramValue = param.substring(equalMarkIndex + 1, param.length()).trim();
+			params.put(paramName, paramValue);
+		}
+		
+		return params;
+	}
+
 	private boolean isActionSupported(IConsoleSystem consoleSystem, Device device, Protocol protocol) {
 		String model = deviceManager.getModel(device.getDeviceId());
 		if (!deviceManager.isActionSupported(model, protocol)) {
-			consoleSystem.printBlankLine();
 			consoleSystem.printMessageLine(String.format("Error: Action which's protocol is '%s' isn't supported by device which's device ID is '%s'.",
 					protocol, device.getDeviceId()));
-			
 			return false;
 		}
 		
 		return true;
 	}
 	
-	/*private void executeOnDevice(IConsoleSystem consoleSystem, Device device, Protocol protocol, Map<String, String> params) {
-		if (!isActionSupported(consoleSystem, device, protocol))
+	private void executeOnDevice(IConsoleSystem consoleSystem, Device device, Protocol protocol,
+			Map<String, String> params) {
+		if (!isActionSupported(consoleSystem, device, protocol)) {
 			return;
+		}
 		
 		Object actionObject = createActionObject(consoleSystem, device.getModel(), protocol, params);
 		eventFirer.fire(new ExecutionEvent(device, null, new Execute(actionObject)));
 	}
 	
-	private void executeOnNode(CommandInterpreter interpreter, Device concentratorDevice, String lanId, Protocol protocol, Map<String, String> params) {
-		Device nodeDevice = getNodeDevice(interpreter, concentratorDevice, lanId);
-		if (nodeDevice == null)
+	private void executeOnNode(IConsoleSystem consoleSystem, Device concentratorDevice, String lanId, Protocol protocol, Map<String, String> params) {
+		Device nodeDevice = getNodeDevice(concentratorDevice, lanId);
+		if (nodeDevice == null) {
+			consoleSystem.printMessageLine(String.format("Error: Node not existed. Concentrator's device ID is '%s'. Lan ID is '%s'.\n",
+					concentratorDevice.getDeviceId(), lanId));
 			return;
+		}
 		
-		if (!isActionSupported(interpreter, nodeDevice, protocol))
+		if (!isActionSupported(consoleSystem, nodeDevice, protocol)) {
 			return;
+		}
 		
-		Object actionObject = createActionObject(interpreter, nodeDevice.getModel(), protocol, params);
+		Object actionObject = createActionObject(consoleSystem, nodeDevice.getModel(), protocol, params);
 		eventFirer.fire(new ExecutionEvent(concentratorDevice, lanId, new Execute(actionObject)));
 	}
 	
-	private Device getNodeDevice(CommandInterpreter interpreter, Device concentratorDevice, String lanId) {
+	private Device getNodeDevice(Device concentratorDevice, String lanId) {
 		IConcentrator concentrator = concentratorFactory.getConcentrator(concentratorDevice);
 		Node node = concentrator.getNode(lanId);
 		
@@ -250,13 +209,10 @@ public class SandCommandsProcessor extends AbstractCommandsProcessor implements 
 			return deviceManager.getByDeviceId(node.getDeviceId());
 		}
 		
-		interpreter.print(String.format("Error: Node not existed. Concentrator's device ID is '%s'. Lan ID is '%s'.\n",
-				concentratorDevice.getDeviceId(), lanId));
-		
 		return null;
 	}
 
-	private Object createActionObject(CommandInterpreter interpreter, String model, Protocol protocol, Map<String, String> params) {		
+	private Object createActionObject(IConsoleSystem consoleSystem, String model, Protocol protocol, Map<String, String> params) {		
 		Class<?> actionType = deviceManager.getActionType(model, protocol);
 		try {
 			Object action = actionType.newInstance();
@@ -266,9 +222,9 @@ public class SandCommandsProcessor extends AbstractCommandsProcessor implements 
 			
 			return action;
 		} catch (InstantiationException | IllegalAccessException e) {
-			interpreter.print(String.format("Error: Can't initialize action object. Action type is %s.\n", actionType));
+			consoleSystem.printMessageLine(String.format("Error: Can't initialize action object. Action type is %s.\n", actionType));
 		} catch (IllegalArgumentException e) {
-			interpreter.print(String.format("Error: Can't populate action's properties. Detail info is: %s.\n", e.getMessage()));
+			consoleSystem.printMessageLine(String.format("Error: Can't populate action's properties. Detail info is: %s.\n", e.getMessage()));
 		}
 		
 		return null;
@@ -334,11 +290,6 @@ public class SandCommandsProcessor extends AbstractCommandsProcessor implements 
 				fieldType.equals(BigDecimal.class) ||
 				fieldType.isEnum();
 	}
-
-	private void displayDevices(int startIndex) {
-		// TODO Auto-generated method stub
-		
-	} */
 	
 	void processAuthorize(IConsoleSystem consoleSystem, String deviceId) {
 		this.processAuthorize(consoleSystem, deviceId, domainName);
@@ -422,7 +373,7 @@ public class SandCommandsProcessor extends AbstractCommandsProcessor implements 
 	@Override
 	public String[] getCommands() {
 		return new String[] {
-			"authorize", "devices", "confirm", "execute", "help"
+			"authorize", "devices", "confirm", COMMAND_EXECUTE, "help"
 		};
 	}
 

@@ -48,6 +48,7 @@ import com.firstlinecode.basalt.protocol.core.stanza.error.StanzaError;
 import com.firstlinecode.chalk.core.AuthFailureException;
 import com.firstlinecode.chalk.core.IChatClient;
 import com.firstlinecode.chalk.core.StandardChatClient;
+import com.firstlinecode.chalk.core.stream.IStream;
 import com.firstlinecode.chalk.core.stream.StandardStreamConfig;
 import com.firstlinecode.chalk.core.stream.UsernamePasswordToken;
 import com.firstlinecode.chalk.network.ConnectionException;
@@ -158,8 +159,6 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 	private static final String MENU_ITEM_TEXT_ABOUT = "About";
 	private static final String MENU_ITEM_NAME_ABOUT = "about";
 	
-	private static final String RESOURCE_NAME_GATEWAY = "00";
-	
 	private String deviceId;
 	private DeviceIdentity deviceIdentity;
 	private StandardStreamConfig streamConfig;
@@ -205,7 +204,7 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 		
 		new Thread(new AutoReconnectThread(), "Gateway Auto Reconnect Thread").start();
 		
-		setupUi();
+		setUi();
 	}
 
 	protected String generateDeviceId() {
@@ -216,12 +215,12 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 		@Override
 		public void run() {
 			while (true) {
-				if (autoReconnect && (chatClient == null || !chatClient.isConnected())) {
+				if (autoReconnect && !isConnected()) {
 					connect(false);
 				}
 				
 				try {
-					Thread.sleep(200);
+					Thread.sleep(1000);
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
@@ -242,7 +241,7 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 		return null;
 	}
 	
-	private void setupUi() {
+	private void setUi() {
 		JFrame.setDefaultLookAndFeelDecorated(true);
 		
 		setDefaultUiFont(new javax.swing.plaf.FontUIResource("Serif", Font.PLAIN, 20));
@@ -378,21 +377,34 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 	}
 	
 	private synchronized void disconnect() {
-		if (chatClient == null || chatClient.isClosed())
-			throw new IllegalStateException("Gateway has already disconnected.");
+		boolean dirty = false;
 		
-		doDisconnect();
-		setDirty(true);
-		refreshConnectionStateRelativatedMenus();
-		updateStatus();
-		UiUtils.showNotification(this, "Message", "Gateway has disconnected.");
+		if (autoReconnect) {
+			autoReconnect = false;
+			dirty = true;
+		}
+		
+		if (isConnected()) {
+			doDisconnect();
+			dirty = true;
+		}
+		
+		setDirty(dirty);
+		
+		if (dirty) {
+			refreshConnectionStateRelativatedMenus();
+			updateStatus();
+			UiUtils.showNotification(this, "Message", "Gateway has disconnected.");
+		}
 	}
 
 	private void doDisconnect() {
 		if (chatClient != null) {
-			autoReconnect = false;
+			removeConnectionListenerFromStream(chatClient);
 			chatClient.close();
 		}
+		
+		stopListeningInLogConsole(chatClient);
 		
 		if (addressConfigurator != null && ConcentratorDynamicalAddressConfigurator.State.STOPPED != addressConfigurator.getState()) {
 			addressConfigurator.stop();
@@ -400,6 +412,11 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 		addressConfigurator = null;
 	}
 	
+	private void stopListeningInLogConsole(IChatClient chatClient) {
+		if (chatClient != null && hasAlreadyConnectionListenerExisted(chatClient, getLogConsoleInternetConnectionListener()))
+			chatClient.getConnection().removeListener(getLogConsoleInternetConnectionListener());
+	}
+
 	private void connect() {
 		connect(true);
 		
@@ -428,29 +445,39 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 	}
 	
 	private void doConnect() throws ConnectionException, AuthFailureException {
-		if (chatClient == null)
+		autoReconnect = false;
+		
+		if (chatClient == null) {
 			chatClient = createChatClient();
-		
-		IConnectionListener logConsoleListener = getLogConsoleInternetConnectionListener();
-		if (logConsoleListener != null && !hasAlreadyConnectionListenerExisted(logConsoleListener))
-			chatClient.getConnection().addListener(getLogConsoleInternetConnectionListener());
-		
-		if (!hasAlreadyConnectionListenerExisted(this)) {
-			chatClient.getConnection().addListener(this);
 		}
 		
-		chatClient.connect(new UsernamePasswordToken(deviceIdentity.getDeviceName().toString(), deviceIdentity.getCredentials()));
+		listenInternetInLogConsole(chatClient);
 		
-		autoReconnect = true;
-		concentrator = createConcentrator();
-		addressConfigurator = new ConcentratorDynamicalAddressConfigurator(gatewayCommunicator, concentrator);
-		addressConfigurator.addListener(this);
+		if (!isConnected()) {
+			chatClient.connect(new UsernamePasswordToken(deviceIdentity.getDeviceName().toString(), deviceIdentity.getCredentials()));	
+		}
 		
 		refreshConnectionStateRelativatedMenus();
 		updateStatus();
+		
+		if (!isConnected())
+			return;
+		
+		autoReconnect = true;
+		chatClient.getStream().addConnectionListener(this);
+		concentrator = createConcentrator();
+		addressConfigurator = new ConcentratorDynamicalAddressConfigurator(gatewayCommunicator, concentrator);
+		addressConfigurator.addListener(this);
 	}
 
-	private boolean hasAlreadyConnectionListenerExisted(Object listener) {
+	private void listenInternetInLogConsole(IChatClient chatClient) {
+		IConnectionListener logConsoleListener = getLogConsoleInternetConnectionListener();
+		if (logConsoleListener != null && chatClient != null &&
+				!hasAlreadyConnectionListenerExisted(chatClient, logConsoleListener))
+			chatClient.getConnection().addListener(logConsoleListener);
+	}
+
+	private boolean hasAlreadyConnectionListenerExisted(IChatClient chatClient, IConnectionListener listener) {
 		for (IConnectionListener aListener : chatClient.getConnection().getListeners()) {
 			if (aListener == listener)
 				return true;
@@ -535,16 +562,17 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 	private StandardStreamConfig createStreamConfigWithResource() {
 		StandardStreamConfig cloned = new StandardStreamConfig(streamConfig.getHost(), streamConfig.getPort());
 		cloned.setTlsPreferred(streamConfig.isTlsPreferred());
-		cloned.setResource(RESOURCE_NAME_GATEWAY);
+		cloned.setResource(IConcentrator.LAN_ID_CONCENTRATOR);
 		
 		return cloned;
 	}
 
 	private void showLogConsoleDialog() {
-		logConsolesDialog = new LogConsolesDialog(this, chatClient, registeredModels, network, gatewayCommunicator, allThings);
+		logConsolesDialog = new LogConsolesDialog(this, registeredModels, network, gatewayCommunicator, allThings);			
 		logConsolesDialog.addWindowListener(this);
-		
 		logConsolesDialog.setVisible(true);
+		
+		listenInternetInLogConsole(chatClient);
 		
 		UiUtils.getMenuItem(menuBar, MENU_NAME_TOOLS, MENU_ITEM_NAME_SHOW_LOG_CONSOLE).setEnabled(false);
 	}
@@ -575,7 +603,7 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 		IChatClient chatClient = new StandardChatClient(streamConfig);
 		chatClient.register(IbdrPlugin.class);
 		IRegistration registration = chatClient.createApi(IRegistration.class);
-		adddInternetLogListener(registration);
+		listenRegisrationInLogConsole(registration);
 		
 		try {
 			deviceIdentity = registration.register(deviceId);
@@ -591,7 +619,7 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 		updateStatus();
 	}
 
-	private void adddInternetLogListener(IRegistration registration) {
+	private void listenRegisrationInLogConsole(IRegistration registration) {
 		IConnectionListener logListener = getLogConsoleInternetConnectionListener();
 		if (logListener != null) {
 			registration.addConnectionListener(logListener);
@@ -742,6 +770,7 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 	}
 
 	private void quit() {
+		autoReconnect = false;
 		doDisconnect();
 		
 		if (!dirty)
@@ -803,8 +832,8 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 	}
 
 	private void closeConnnection() {
-		if (chatClient != null && chatClient.isConnected()) {
-			autoReconnect = false;
+		autoReconnect = false;
+		if (isConnected()) {
 			chatClient.close();
 			chatClient = null;
 		}
@@ -853,9 +882,9 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 	}
 	
 	private void refreshConnectionStateRelativatedMenus() {
-		if (chatClient != null && chatClient.isConnected()) {
-			UiUtils.getMenuItem(menuBar, MENU_NAME_TOOLS, MENU_ITEM_NAME_CONNECT).setEnabled(false);			
-			UiUtils.getMenuItem(menuBar, MENU_NAME_TOOLS, MENU_ITEM_NAME_DISCONNECT).setEnabled(true);			
+		if (isConnected()) {
+			UiUtils.getMenuItem(menuBar, MENU_NAME_TOOLS, MENU_ITEM_NAME_CONNECT).setEnabled(false);
+			UiUtils.getMenuItem(menuBar, MENU_NAME_TOOLS, MENU_ITEM_NAME_DISCONNECT).setEnabled(true);
 			
 			UiUtils.getMenuItem(menuBar, MENU_NAME_TOOLS, MENU_ITEM_NAME_ADDRESS_CONFIGURATION_MODE).setEnabled(true);
 			UiUtils.getMenuItem(menuBar, MENU_NAME_TOOLS, MENU_ITEM_NAME_WORKING_MODE).setEnabled(false);
@@ -1249,6 +1278,8 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 		if (e.getSource() instanceof JFrame) {
 			quit();
 		} else if (e.getSource() instanceof LogConsolesDialog) {
+			stopListeningInLogConsole(chatClient);
+			
 			logConsolesDialog.setVisible(false);
 			logConsolesDialog.dispose();
 			logConsolesDialog = null;
@@ -1385,14 +1416,25 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 
 	@Override
 	public synchronized void exceptionOccurred(ConnectionException exception) {
-		if (exception.getType() == ConnectionException.Type.CONNECTION_CLOSED && chatClient.isClosed()) {
+		if (exception.getType() == ConnectionException.Type.CONNECTION_CLOSED && !isConnected()) {
+			removeConnectionListenerFromStream(chatClient);
+			
 			if (addressConfigurator != null && addressConfigurator.getState() != ConcentratorDynamicalAddressConfigurator.State.STOPPED) {				
 				addressConfigurator.stop();
 			}
 			
 			refreshConnectionStateRelativatedMenus();
 			updateStatus();
+			
 			UiUtils.showNotification(this, "Message", "Gateway has disconnected.");
+		}
+	}
+
+	private void removeConnectionListenerFromStream(IChatClient chatClient) {
+		if (chatClient != null) {
+			IStream stream = chatClient.getStream();
+			if (stream != null)
+				stream.removeConnectionListener(this);
 		}
 	}
 

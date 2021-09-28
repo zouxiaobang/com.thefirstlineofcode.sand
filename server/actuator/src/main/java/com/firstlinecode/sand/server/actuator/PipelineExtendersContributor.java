@@ -1,5 +1,7 @@
 package com.firstlinecode.sand.server.actuator;
 
+import org.pf4j.Extension;
+
 import com.firstlinecode.basalt.protocol.core.IqProtocolChain;
 import com.firstlinecode.granite.framework.core.pipeline.stages.PipelineExtendersContributorAdapter;
 import com.firstlinecode.granite.framework.core.pipeline.stages.event.EventListenerFactory;
@@ -8,6 +10,7 @@ import com.firstlinecode.granite.framework.core.pipeline.stages.processing.IXepP
 import com.firstlinecode.granite.framework.core.pipeline.stages.processing.SingletonXepProcessorFactory;
 import com.firstlinecode.sand.protocols.actuator.Execute;
 
+@Extension
 public class PipelineExtendersContributor extends PipelineExtendersContributorAdapter {
 	@Override
 	protected Class<?>[] getNamingConventionTranslatableProtocolObjects() {

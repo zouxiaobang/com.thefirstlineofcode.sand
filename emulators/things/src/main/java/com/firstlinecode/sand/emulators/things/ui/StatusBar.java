@@ -21,11 +21,11 @@ public class StatusBar extends JPanel {
 		statusBarPanel.add(new CopyDeviceIdOrShowQrCodeButton(device));
 		
 		text = new JLabel();
-		text.setHorizontalAlignment(SwingConstants.RIGHT);
+		text.setHorizontalAlignment(SwingConstants.LEFT);
 		statusBarPanel.add(text);
 		
 		add(statusBarPanel, BorderLayout.WEST);	
-		setPreferredSize(new Dimension(800, 48));
+		setPreferredSize(new Dimension(720, 48));
 	}
 	
 	public void setText(String status) {

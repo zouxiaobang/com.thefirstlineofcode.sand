@@ -18,6 +18,9 @@ public class Flash {
 	}
 
 	public void setRepeat(int repeat) {
+		if (repeat < 1)
+			throw new IllegalArgumentException("Attribute repeat must be a positive integer.");
+		
 		this.repeat = repeat;
 	}
 	

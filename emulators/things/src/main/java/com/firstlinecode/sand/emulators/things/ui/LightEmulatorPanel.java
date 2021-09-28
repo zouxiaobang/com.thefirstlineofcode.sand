@@ -38,7 +38,7 @@ public class LightEmulatorPanel extends AbstractThingEmulatorPanel<ILightEmulato
 	
 	public LightEmulatorPanel(ILightEmulator light) {
 		super(light);
-		setPreferredSize(new Dimension(760, 480));
+		setPreferredSize(new Dimension(720, 360));
 		
 		this.light = light;
 		
@@ -66,15 +66,22 @@ public class LightEmulatorPanel extends AbstractThingEmulatorPanel<ILightEmulato
 	protected JPanel createThingCustomizedUi(ILightEmulator light) {			
 		JPanel customizedUi = new JPanel(new BorderLayout());
 		
-		lightImage = new JLabel(getLightImageIcon(light.getLightState()));
-		
 		customizedUi.add(createSwitchsPanel(light), BorderLayout.NORTH);
-		customizedUi.add(lightImage, BorderLayout.CENTER);			
-		customizedUi.add(createFlashPanel(), BorderLayout.SOUTH);
+		customizedUi.add(createLightPanel(light), BorderLayout.WEST);			
 		
 		customizedUi.setPreferredSize(new Dimension(640, 480));
 		
 		return customizedUi;
+	}
+
+	private JPanel createLightPanel(ILightEmulator light) {
+		JPanel panel = new JPanel(new BorderLayout());
+		
+		lightImage = new JLabel(getLightImageIcon(light.getLightState()));
+		panel.add(lightImage, BorderLayout.CENTER);
+		panel.add(createFlashPanel(), BorderLayout.SOUTH);
+		
+		return panel;
 	}
 
 	private JPanel createSwitchsPanel(ILightEmulator light) {
@@ -91,7 +98,7 @@ public class LightEmulatorPanel extends AbstractThingEmulatorPanel<ILightEmulato
 		on.addActionListener(this);
 		control.addActionListener(this);
 		
-		JPanel panel = new JPanel(new GridLayout(0, 1));
+		JPanel panel = new JPanel(new GridLayout(1, 0));
 		panel.add(off);
 		panel.add(on);
 		panel.add(control);

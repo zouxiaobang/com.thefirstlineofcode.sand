@@ -2,12 +2,12 @@ package com.firstlinecode.sand.server.actuator;
 
 import com.firstlinecode.basalt.protocol.core.JabberId;
 import com.firstlinecode.basalt.protocol.core.stanza.Iq;
-import com.firstlinecode.granite.framework.core.annotations.Dependency;
+import com.firstlinecode.granite.framework.core.annotations.BeanDependency;
 import com.firstlinecode.granite.framework.core.config.IServerConfiguration;
 import com.firstlinecode.granite.framework.core.config.IServerConfigurationAware;
 import com.firstlinecode.granite.framework.core.pipeline.stages.event.IEventContext;
 import com.firstlinecode.granite.framework.core.pipeline.stages.event.IEventListener;
-import com.firstlinecode.sand.protocols.core.SandConstants;
+import com.firstlinecode.sand.protocols.core.DeviceIdentity;
 import com.firstlinecode.sand.server.concentrator.IConcentrator;
 import com.firstlinecode.sand.server.concentrator.IConcentratorFactory;
 import com.firstlinecode.sand.server.concentrator.Node;
@@ -15,10 +15,10 @@ import com.firstlinecode.sand.server.devices.Device;
 import com.firstlinecode.sand.server.devices.IDeviceManager;
 
 public class ExecutionListener implements IEventListener<ExecutionEvent>, IServerConfigurationAware {
-	@Dependency("concentrator.factory")
+	@BeanDependency
 	private IConcentratorFactory concentratorFactory;
 	
-	@Dependency("device.manager")
+	@BeanDependency
 	private IDeviceManager deviceManager;
 
 	private String domain;
@@ -63,7 +63,7 @@ public class ExecutionListener implements IEventListener<ExecutionEvent>, IServe
 		to.setDomain(domain);
 		
 		if (!isConcentrator) {
-			to.setResource(SandConstants.JID_RESOURCE_THING);
+			to.setResource(DeviceIdentity.DEFAULT_RESOURCE_NAME);
 			return to;
 		}
 		

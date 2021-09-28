@@ -60,8 +60,8 @@ import com.firstlinecode.sand.emulators.things.emulators.StreamConfigInfo;
 import com.firstlinecode.sand.emulators.things.ui.AboutDialog;
 import com.firstlinecode.sand.emulators.things.ui.LightEmulatorPanel;
 import com.firstlinecode.sand.emulators.things.ui.StreamConfigDialog;
+import com.firstlinecode.sand.protocols.core.DeviceIdentity;
 import com.firstlinecode.sand.protocols.core.ModelDescriptor;
-import com.firstlinecode.sand.protocols.core.SandConstants;
 import com.firstlinecode.sand.protocols.devices.light.Flash;
 
 public class LightFrame extends JFrame implements ActionListener, WindowListener,
@@ -323,7 +323,7 @@ public class LightFrame extends JFrame implements ActionListener, WindowListener
 	}
 
 	private void showLogConsoleDialog() {
-		logConsolesDialog = new LogConsolesDialog(this, chatClient);
+		logConsolesDialog = new LogConsolesDialog(this);
 		logConsolesDialog.addWindowListener(this);
 		
 		logConsolesDialog.setVisible(true);
@@ -529,7 +529,7 @@ public class LightFrame extends JFrame implements ActionListener, WindowListener
 	private StandardStreamConfig createStreamConfigWithResource() {
 		StandardStreamConfig cloned = new StandardStreamConfig(streamConfig.getHost(), streamConfig.getPort());
 		cloned.setTlsPreferred(streamConfig.isTlsPreferred());
-		cloned.setResource(SandConstants.JID_RESOURCE_THING);
+		cloned.setResource(DeviceIdentity.DEFAULT_RESOURCE_NAME);
 		
 		return cloned;
 	}

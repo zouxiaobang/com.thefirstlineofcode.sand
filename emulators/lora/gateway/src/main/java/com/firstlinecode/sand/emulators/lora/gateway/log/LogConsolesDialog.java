@@ -5,7 +5,6 @@ import java.util.Map;
 
 import javax.swing.JFrame;
 
-import com.firstlinecode.chalk.core.IChatClient;
 import com.firstlinecode.sand.client.lora.IDualLoraChipsCommunicator;
 import com.firstlinecode.sand.client.things.commuication.ICommunicationNetwork;
 import com.firstlinecode.sand.client.things.commuication.ICommunicationNetworkListener;
@@ -26,11 +25,11 @@ public class LogConsolesDialog extends AbstractLogConsolesDialog {
 	private IDualLoraChipsCommunicator gatewayCommunicator;
 	private Map<String, List<AbstractLoraThingEmulator>> allThings;
 	
-	public LogConsolesDialog(JFrame parent, IChatClient chatClient, Map<String, ModelDescriptor> models,
+	public LogConsolesDialog(JFrame parent, Map<String, ModelDescriptor> models,
 			ICommunicationNetwork<LoraAddress, byte[], ?> network,
 			IDualLoraChipsCommunicator gatewayCommunicator,
 			Map<String, List<AbstractLoraThingEmulator>> allThings) {
-		super(parent, chatClient);
+		super(parent);
 		
 		this.models = models;
 		this.network = network;
@@ -41,7 +40,7 @@ public class LogConsolesDialog extends AbstractLogConsolesDialog {
 	}
 
 	protected void createPreinstlledLogConsoles() {
-		createInternetLogConsole(chatClient);
+		createInternetLogConsole();
 		createCommunicationNetworkLogConsole(network);
 		createGatewayConsole(gatewayCommunicator);
 		createThingLogConsoles(allThings);

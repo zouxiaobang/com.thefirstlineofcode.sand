@@ -5,6 +5,8 @@ import java.io.Serializable;
 public class DeviceIdentity implements Serializable {
 	private static final long serialVersionUID = 2975514130104649088L;
 	
+	public static final String DEFAULT_RESOURCE_NAME = "00";
+	
 	private String deviceName;
 	private String credentials;
 	
