@@ -72,11 +72,11 @@ public class DualLoraAddress {
 	}
 	
 	public LoraAddress getMasterChipAddress() {
-		return LoraAddress.create(address, getMasterChipFrequencyBand());
+		return new LoraAddress(address, getMasterChipFrequencyBand());
 	}
 	
 	public LoraAddress getSlaveChipAddress() {
-		return LoraAddress.create(address, getSlaveChipFrequencyBand());
+		return new LoraAddress(address, getSlaveChipFrequencyBand());
 	}
 	
 	public static DualLoraAddress randomDualLoraAddress(int channel) {

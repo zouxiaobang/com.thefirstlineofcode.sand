@@ -6,15 +6,31 @@ import com.firstlinecode.basalt.protocol.core.IqProtocolChain;
 import com.firstlinecode.granite.framework.core.pipeline.stages.PipelineExtendersContributorAdapter;
 import com.firstlinecode.granite.framework.core.pipeline.stages.event.EventListenerFactory;
 import com.firstlinecode.granite.framework.core.pipeline.stages.event.IEventListenerFactory;
+import com.firstlinecode.granite.framework.core.pipeline.stages.parsing.IProtocolParserFactory;
+import com.firstlinecode.granite.framework.core.pipeline.stages.parsing.ProtocolParserFactory;
 import com.firstlinecode.granite.framework.core.pipeline.stages.processing.IXepProcessorFactory;
 import com.firstlinecode.granite.framework.core.pipeline.stages.processing.SingletonXepProcessorFactory;
+import com.firstlinecode.granite.framework.core.pipeline.stages.routing.IProtocolTranslatorFactory;
+import com.firstlinecode.granite.framework.core.pipeline.stages.routing.ProtocolTranslatorFactory;
 import com.firstlinecode.sand.protocols.actuator.Execute;
+import com.firstlinecode.sand.protocols.actuator.oxm.ExecutionParserFactory;
+import com.firstlinecode.sand.protocols.actuator.oxm.ExecutionTranslatorFactory;
 
 @Extension
 public class PipelineExtendersContributor extends PipelineExtendersContributorAdapter {
+	
 	@Override
-	protected Class<?>[] getNamingConventionTranslatableProtocolObjects() {
-		return new Class<?>[] {Execute.class};
+	protected IProtocolParserFactory<?>[] getCustomizedParserFactories() {
+		return new IProtocolParserFactory<?>[] {
+			new ProtocolParserFactory<>(new IqProtocolChain(Execute.PROTOCOL), new ExecutionParserFactory())
+		};
+	}
+	
+	@Override
+	protected IProtocolTranslatorFactory<?>[] getCustomizedTranslatorFactories() {
+		return new ProtocolTranslatorFactory<?>[] {
+			new ProtocolTranslatorFactory<>(Execute.class, new ExecutionTranslatorFactory())
+		};
 	}
 	
 	@Override

@@ -220,7 +220,7 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 				}
 				
 				try {
-					Thread.sleep(1000);
+					Thread.sleep(1000 * 10);
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
@@ -445,16 +445,21 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 	}
 	
 	private void doConnect() throws ConnectionException, AuthFailureException {
+		boolean oldAutoReconnect = this.autoReconnect;
 		autoReconnect = false;
 		
-		if (chatClient == null) {
-			chatClient = createChatClient();
-		}
-		
-		listenInternetInLogConsole(chatClient);
-		
-		if (!isConnected()) {
-			chatClient.connect(new UsernamePasswordToken(deviceIdentity.getDeviceName().toString(), deviceIdentity.getCredentials()));	
+		try {			
+			if (chatClient == null) {
+				chatClient = createChatClient();
+			}
+			
+			listenInternetInLogConsole(chatClient);
+			
+			if (!isConnected()) {
+				chatClient.connect(new UsernamePasswordToken(deviceIdentity.getDeviceName().toString(), deviceIdentity.getCredentials()));	
+			}
+		} finally {
+			autoReconnect = oldAutoReconnect;
 		}
 		
 		refreshConnectionStateRelativatedMenus();
@@ -1416,12 +1421,16 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 
 	@Override
 	public synchronized void exceptionOccurred(ConnectionException exception) {
-		if (exception.getType() == ConnectionException.Type.CONNECTION_CLOSED && !isConnected()) {
+		if (exception.getType() == ConnectionException.Type.CONNECTION_CLOSED ||
+				exception.getType() == ConnectionException.Type.IO_ERROR) {
 			removeConnectionListenerFromStream(chatClient);
 			
 			if (addressConfigurator != null && addressConfigurator.getState() != ConcentratorDynamicalAddressConfigurator.State.STOPPED) {				
 				addressConfigurator.stop();
 			}
+			
+			chatClient.close();
+			chatClient = null;
 			
 			refreshConnectionStateRelativatedMenus();
 			updateStatus();

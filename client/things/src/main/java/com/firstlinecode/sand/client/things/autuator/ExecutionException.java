@@ -11,6 +11,7 @@ public class ExecutionException extends Exception {
 		UNSUPPORTED_COMMUNICATION_NET,
 		FAILED_TO_CREATE_ACTION_DELIVERER_INSTANCE,
 		FAILED_TO_DELIVER_ACTION_TO_NODE,
+		BAD_ADDRESS,
 		UNKNOWN_ERROR
 	}
 	
@@ -37,5 +38,13 @@ public class ExecutionException extends Exception {
 	
 	public Throwable getCause() {
 		return cause;
+	}
+	
+	@Override
+	public String getMessage() {
+		if (reason != null)
+			return reason.toString();
+		else
+			return null;
 	}
 }

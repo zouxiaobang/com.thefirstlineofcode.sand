@@ -47,12 +47,16 @@ public class ExecutionListener implements IEventListener<ExecutionEvent>, IServe
 		String deviceName = deviceManager.getDeviceNameByDeviceId(event.getDevice().getDeviceId());
 		
 		Iq iq = new Iq(event.getExecute(), Iq.Type.SET);
-		JabberId target = getTarget(event, deviceName, isConcentrator);
-		iq.setTo(target);
 		
-		context.write(target, iq);
+		if (isConcentrator) {			
+			iq.setTo(new JabberId(deviceName, domain, event.getNodeLanId()));
+		} else {
+			iq.setTo(new JabberId(deviceName, domain, DeviceIdentity.DEFAULT_RESOURCE_NAME));
+		}
+		
+		context.write(getTarget(event, deviceName, isConcentrator), iq);
 	}
-
+	
 	private JabberId getTarget(ExecutionEvent event, String deviceName, boolean isConcentrator) {
 		if (!isConcentrator && event.getNodeLanId() != null) {
 			throw new IllegalArgumentException("Device which's ID is %s isn't a concentrator.");
@@ -64,13 +68,9 @@ public class ExecutionListener implements IEventListener<ExecutionEvent>, IServe
 		
 		if (!isConcentrator) {
 			to.setResource(DeviceIdentity.DEFAULT_RESOURCE_NAME);
-			return to;
-		}
-		
-		if (event.getNodeLanId() != null)
-			to.setResource(event.getNodeLanId());
-		else
+		} else {			
 			to.setResource(IConcentrator.LAN_ID_CONCENTRATOR);
+		}
 		
 		return to;
 	}

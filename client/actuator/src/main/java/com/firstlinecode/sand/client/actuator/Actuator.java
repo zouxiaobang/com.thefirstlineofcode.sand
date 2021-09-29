@@ -178,7 +178,7 @@ public class Actuator implements IActuator, IIqListener {
 			}
 		}
 		
-		if (chatServices.getIqService().getListener(Execute.PROTOCOL) == null)
+		if (chatServices.getIqService().getListener(Execute.PROTOCOL) != this)
 			chatServices.getIqService().addListener(Execute.PROTOCOL, this);
 	}
 	
@@ -250,7 +250,7 @@ public class Actuator implements IActuator, IIqListener {
 		try {
 			actionDeliverer.deliver((PA)getNodeAddress(node.getCommunicationNet(), node.getAddress()), action);
 		} catch (BadAddressException e) {
-			throw new ExecutionException(Reason.UNKNOWN_ERROR, e);
+			throw new ExecutionException(Reason.BAD_ADDRESS, e);
 		} catch (CommunicationException e) {
 			throw new ExecutionException(Reason.FAILED_TO_DELIVER_ACTION_TO_NODE, e);
 		}

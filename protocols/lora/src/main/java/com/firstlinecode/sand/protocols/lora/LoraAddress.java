@@ -25,9 +25,9 @@ public class LoraAddress extends Address implements Serializable {
 	private long address;
 	private int frequencyBand;
 	
-	private LoraAddress() {}
+	public LoraAddress() {}
 	
-	private LoraAddress(long address, int frequencyBand) {
+	public LoraAddress(long address, int frequencyBand) {
 		if (address < 0 || address > MAX_FOUR_BYTES_ADDRESS)
 			throw new IllegalArgumentException("Invalid lora addresses.");
 		
@@ -110,9 +110,5 @@ public class LoraAddress extends Address implements Serializable {
 	@Override
 	public CommunicationNet getCommunicationNet() {
 		return CommunicationNet.LORA;
-	}
-	
-	public static LoraAddress create(long address, int frequencyBand) {
-		return new LoraAddress(address, frequencyBand);
 	}
 }

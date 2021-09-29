@@ -106,7 +106,7 @@ public class NodeDynamicalAddressConfigurator implements IAddressConfigurator<IC
 			Allocation allocation = (Allocation)obmFactory.toObject(Allocation.class, data);
 
 			gatewayAddress = new DualLoraAddress(allocation.getGatewayAddress(), allocation.getGatewayChannel());
-			allocatedAddress = LoraAddress.create(allocation.getAllocatedAddress(), allocation.getAllocatedFrequencyBand());
+			allocatedAddress = new LoraAddress(allocation.getAllocatedAddress(), allocation.getAllocatedFrequencyBand());
 			
 			communicator.changeAddress(allocatedAddress);
 			
