@@ -1,18 +1,18 @@
 package com.firstlinecode.sand.server.stream;
 
-import com.firstlinecode.basalt.protocol.core.JabberId;
-import com.firstlinecode.basalt.protocol.core.ProtocolException;
-import com.firstlinecode.basalt.protocol.core.stanza.Iq;
-import com.firstlinecode.basalt.protocol.core.stanza.error.NotAuthorized;
-import com.firstlinecode.basalt.protocol.core.stream.Bind;
-import com.firstlinecode.basalt.protocol.core.stream.Stream;
-import com.firstlinecode.basalt.protocol.core.stream.error.Conflict;
-import com.firstlinecode.basalt.protocol.core.stream.error.InternalServerError;
 import com.firstlinecode.granite.framework.core.connection.IClientConnectionContext;
 import com.firstlinecode.granite.framework.core.pipeline.IMessage;
 import com.firstlinecode.granite.framework.core.session.ISessionManager;
 import com.firstlinecode.granite.pipeline.stages.stream.StreamConstants;
 import com.firstlinecode.granite.pipeline.stages.stream.negotiants.ResourceBindingNegotiant;
+import com.thefirstlineofcode.basalt.protocol.core.JabberId;
+import com.thefirstlineofcode.basalt.protocol.core.ProtocolException;
+import com.thefirstlineofcode.basalt.protocol.core.stanza.Iq;
+import com.thefirstlineofcode.basalt.protocol.core.stanza.error.NotAuthorized;
+import com.thefirstlineofcode.basalt.protocol.core.stream.Bind;
+import com.thefirstlineofcode.basalt.protocol.core.stream.Stream;
+import com.thefirstlineofcode.basalt.protocol.core.stream.error.Conflict;
+import com.thefirstlineofcode.basalt.protocol.core.stream.error.InternalServerError;
 
 public class DeviceResourceBindingNegotiant extends ResourceBindingNegotiant {
 	private static final String RESOURCE_DEVICE = "device";

@@ -3,9 +3,9 @@ package com.firstlinecode.sand.emulators.models;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.firstlinecode.basalt.protocol.core.Protocol;
 import com.firstlinecode.sand.protocols.core.ModelDescriptor;
 import com.firstlinecode.sand.protocols.devices.gateway.Restart;
+import com.thefirstlineofcode.basalt.protocol.core.Protocol;
 
 public class Ge01ModelDescriptor extends ModelDescriptor {
 	private static final String MODEL_NAME = "GE01";

@@ -6,9 +6,6 @@ import java.util.UUID;
 
 import org.apache.ibatis.session.SqlSession;
 
-import com.firstlinecode.basalt.protocol.core.ProtocolException;
-import com.firstlinecode.basalt.protocol.core.stanza.error.Conflict;
-import com.firstlinecode.basalt.protocol.core.stanza.error.NotAcceptable;
 import com.firstlinecode.granite.framework.core.adf.data.IDataObjectFactory;
 import com.firstlinecode.granite.framework.core.adf.data.IDataObjectFactoryAware;
 import com.firstlinecode.granite.framework.core.annotations.BeanDependency;
@@ -19,6 +16,9 @@ import com.firstlinecode.sand.server.concentrator.Node;
 import com.firstlinecode.sand.server.concentrator.NodeConfirmation;
 import com.firstlinecode.sand.server.devices.Device;
 import com.firstlinecode.sand.server.devices.IDeviceManager;
+import com.thefirstlineofcode.basalt.protocol.core.ProtocolException;
+import com.thefirstlineofcode.basalt.protocol.core.stanza.error.Conflict;
+import com.thefirstlineofcode.basalt.protocol.core.stanza.error.NotAcceptable;
 
 public class Concentrator implements IConcentrator, IDataObjectFactoryAware {
 	private String deviceId;

@@ -6,22 +6,22 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<parent>
-		<groupId>com.firstlinecode.sand</groupId>
+		<groupId>com.thefirstlineofcode.sand</groupId>
 		<artifactId>sand-emulators</artifactId>
 		<version>0.2.0-SNAPSHOT</version>
 	</parent>
 
-	<groupId>com.firstlinecode.sand.emulators</groupId>
+	<groupId>com.thefirstlineofcode.sand.emulators</groupId>
 	<artifactId>sand-emulators-models</artifactId>
 	<name>Sand emulator models module</name>
 	
 	<dependencies>
 		<dependency>
-			<groupId>com.firstlinecode.sand.protocols.devices</groupId>
+			<groupId>com.thefirstlineofcode.sand.protocols.devices</groupId>
 			<artifactId>sand-protocols-devices-gateway</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>com.firstlinecode.sand.protocols.devices</groupId>
+			<groupId>com.thefirstlineofcode.sand.protocols.devices</groupId>
 			<artifactId>sand-protocols-devices-light</artifactId>
 		</dependency>
 	</dependencies>

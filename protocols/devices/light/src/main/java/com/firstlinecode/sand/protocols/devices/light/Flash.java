@@ -1,7 +1,7 @@
 package com.firstlinecode.sand.protocols.devices.light;
 
-import com.firstlinecode.basalt.oxm.convention.annotations.ProtocolObject;
-import com.firstlinecode.basalt.protocol.core.Protocol;
+import com.thefirstlineofcode.basalt.oxm.convention.annotations.ProtocolObject;
+import com.thefirstlineofcode.basalt.protocol.core.Protocol;
 
 @ProtocolObject(namespace="urn:leps:iot:actuator:light", localName="flash")
 public class Flash {

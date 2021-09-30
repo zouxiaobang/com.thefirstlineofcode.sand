@@ -1,7 +1,5 @@
 package com.firstlinecode.sand.server.actuator;
 
-import com.firstlinecode.basalt.protocol.core.JabberId;
-import com.firstlinecode.basalt.protocol.core.stanza.Iq;
 import com.firstlinecode.granite.framework.core.annotations.BeanDependency;
 import com.firstlinecode.granite.framework.core.config.IServerConfiguration;
 import com.firstlinecode.granite.framework.core.config.IServerConfigurationAware;
@@ -13,6 +11,8 @@ import com.firstlinecode.sand.server.concentrator.IConcentratorFactory;
 import com.firstlinecode.sand.server.concentrator.Node;
 import com.firstlinecode.sand.server.devices.Device;
 import com.firstlinecode.sand.server.devices.IDeviceManager;
+import com.thefirstlineofcode.basalt.protocol.core.JabberId;
+import com.thefirstlineofcode.basalt.protocol.core.stanza.Iq;
 
 public class ExecutionListener implements IEventListener<ExecutionEvent>, IServerConfigurationAware {
 	@BeanDependency

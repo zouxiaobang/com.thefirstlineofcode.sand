@@ -3,8 +3,8 @@ package com.firstlinecode.sand.client.dmr;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.firstlinecode.basalt.protocol.core.Protocol;
 import com.firstlinecode.sand.protocols.core.ModelDescriptor;
+import com.thefirstlineofcode.basalt.protocol.core.Protocol;
 
 public class ModelRegistrar implements IModelRegistrar {
 	private Map<String, ModelDescriptor> modelDescriptors = new HashMap<>();

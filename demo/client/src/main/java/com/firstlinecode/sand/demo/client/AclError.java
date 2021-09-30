@@ -1,6 +1,6 @@
 package com.firstlinecode.sand.demo.client;
 
-import com.firstlinecode.basalt.protocol.core.stanza.error.StanzaError;
+import com.thefirstlineofcode.basalt.protocol.core.stanza.error.StanzaError;
 
 public class AclError {
 	public enum Type {

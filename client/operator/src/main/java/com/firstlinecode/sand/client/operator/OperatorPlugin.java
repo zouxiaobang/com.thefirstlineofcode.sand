@@ -2,11 +2,11 @@ package com.firstlinecode.sand.client.operator;
 
 import java.util.Properties;
 
-import com.firstlinecode.basalt.oxm.convention.NamingConventionTranslatorFactory;
 import com.firstlinecode.chalk.core.IChatSystem;
 import com.firstlinecode.chalk.core.IPlugin;
 import com.firstlinecode.sand.protocols.operator.AuthorizeDevice;
 import com.firstlinecode.sand.protocols.operator.ConfirmConcentration;
+import com.thefirstlineofcode.basalt.oxm.convention.NamingConventionTranslatorFactory;
 
 public class OperatorPlugin implements IPlugin {
 

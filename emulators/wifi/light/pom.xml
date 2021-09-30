@@ -6,35 +6,35 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<parent>
-		<groupId>com.firstlinecode.sand.emulators</groupId>
+		<groupId>com.thefirstlineofcode.sand.emulators</groupId>
 		<artifactId>sand-emulators-wifi</artifactId>
 		<version>0.2.0-SNAPSHOT</version>
 	</parent>
 
-	<groupId>com.firstlinecode.sand.emulators.wifi</groupId>
+	<groupId>com.thefirstlineofcode.sand.emulators.wifi</groupId>
 	<artifactId>sand-emulators-wifi-light</artifactId>
 	<name>Sand WiFi light emulator</name>
 	<packaging>jar</packaging>
 	
 	<dependencies>
 		<dependency>
-			<groupId>com.firstlinecode.sand.emulators</groupId>
+			<groupId>com.thefirstlineofcode.sand.emulators</groupId>
 			<artifactId>sand-emulators-things</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>com.firstlinecode.sand.emulators</groupId>
+			<groupId>com.thefirstlineofcode.sand.emulators</groupId>
 			<artifactId>sand-emulators-models</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>com.firstlinecode.chalk</groupId>
+			<groupId>com.thefirstlineofcode.chalk</groupId>
 			<artifactId>chalk-core</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>com.firstlinecode.sand.client</groupId>
+			<groupId>com.thefirstlineofcode.sand.client</groupId>
 			<artifactId>sand-client-ibdr</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>com.firstlinecode.sand.client</groupId>
+			<groupId>com.thefirstlineofcode.sand.client</groupId>
 			<artifactId>sand-client-actuator</artifactId>
 		</dependency>
 	</dependencies>
@@ -51,7 +51,7 @@
 						<manifest>
 							<addClasspath>true</addClasspath>
 							<classpathPrefix>lib/</classpathPrefix>
-							<mainClass>com.firstlinecode.sand.emulators.wifi.light.Main</mainClass>
+							<mainClass>com.thefirstlineofcode.sand.emulators.wifi.light.Main</mainClass>
 						</manifest>
 					</archive>
 				</configuration>

@@ -6,13 +6,13 @@ import java.io.ObjectOutput;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
-import com.firstlinecode.basalt.protocol.core.Protocol;
 import com.firstlinecode.sand.client.things.IDeviceListener;
 import com.firstlinecode.sand.client.things.commuication.CommunicationException;
 import com.firstlinecode.sand.client.things.commuication.ICommunicationListener;
 import com.firstlinecode.sand.client.things.commuication.ICommunicator;
 import com.firstlinecode.sand.client.things.obm.IObmFactory;
 import com.firstlinecode.sand.client.things.obm.ObmFactory;
+import com.thefirstlineofcode.basalt.protocol.core.Protocol;
 
 public abstract class AbstractCommunicationNetworkThingEmulator<OA, PA, D> extends AbstractThingEmulator
 		implements ICommunicationNetworkThingEmulator<OA, PA, D>, ICommunicationListener<OA, PA, D> {

@@ -4,14 +4,14 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import com.firstlinecode.basalt.protocol.core.stanza.Iq;
-import com.firstlinecode.basalt.protocol.core.stanza.error.Conflict;
-import com.firstlinecode.basalt.protocol.core.stanza.error.NotAcceptable;
-import com.firstlinecode.basalt.protocol.core.stanza.error.StanzaError;
 import com.firstlinecode.chalk.core.IChatServices;
 import com.firstlinecode.chalk.core.ITask;
 import com.firstlinecode.chalk.core.IUnidirectionalStream;
 import com.firstlinecode.sand.protocols.operator.AuthorizeDevice;
+import com.thefirstlineofcode.basalt.protocol.core.stanza.Iq;
+import com.thefirstlineofcode.basalt.protocol.core.stanza.error.Conflict;
+import com.thefirstlineofcode.basalt.protocol.core.stanza.error.NotAcceptable;
+import com.thefirstlineofcode.basalt.protocol.core.stanza.error.StanzaError;
 
 public class Operator implements IOperator {
 	private IChatServices chatServices;

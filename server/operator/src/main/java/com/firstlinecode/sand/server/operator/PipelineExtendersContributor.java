@@ -2,11 +2,11 @@ package com.firstlinecode.sand.server.operator;
 
 import org.pf4j.Extension;
 
-import com.firstlinecode.basalt.protocol.core.IqProtocolChain;
 import com.firstlinecode.granite.framework.core.pipeline.stages.PipelineExtendersContributorAdapter;
 import com.firstlinecode.granite.framework.core.pipeline.stages.processing.IXepProcessorFactory;
 import com.firstlinecode.granite.framework.core.pipeline.stages.processing.SingletonXepProcessorFactory;
 import com.firstlinecode.sand.protocols.operator.AuthorizeDevice;
+import com.thefirstlineofcode.basalt.protocol.core.IqProtocolChain;
 
 @Extension
 public class PipelineExtendersContributor extends PipelineExtendersContributorAdapter {

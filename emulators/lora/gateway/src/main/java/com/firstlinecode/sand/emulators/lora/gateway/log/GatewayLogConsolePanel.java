@@ -4,7 +4,6 @@ import java.awt.event.WindowEvent;
 import java.util.Collection;
 import java.util.Map;
 
-import com.firstlinecode.basalt.protocol.core.Protocol;
 import com.firstlinecode.sand.client.lora.IDualLoraChipsCommunicator;
 import com.firstlinecode.sand.client.things.commuication.CommunicationException;
 import com.firstlinecode.sand.client.things.commuication.ICommunicationListener;
@@ -13,6 +12,7 @@ import com.firstlinecode.sand.emulators.things.ui.AbstractLogConsolePanel;
 import com.firstlinecode.sand.protocols.core.ModelDescriptor;
 import com.firstlinecode.sand.protocols.lora.DualLoraAddress;
 import com.firstlinecode.sand.protocols.lora.LoraAddress;
+import com.thefirstlineofcode.basalt.protocol.core.Protocol;
 
 public class GatewayLogConsolePanel extends AbstractLogConsolePanel implements ICommunicationListener<DualLoraAddress, LoraAddress, byte[]> {
 	private static final long serialVersionUID = -75294176722668481L;

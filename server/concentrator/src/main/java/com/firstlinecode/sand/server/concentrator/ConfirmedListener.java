@@ -1,13 +1,13 @@
 package com.firstlinecode.sand.server.concentrator;
 
-import com.firstlinecode.basalt.protocol.core.JabberId;
-import com.firstlinecode.basalt.protocol.core.stanza.Iq;
 import com.firstlinecode.granite.framework.core.annotations.BeanDependency;
 import com.firstlinecode.granite.framework.core.config.IServerConfiguration;
 import com.firstlinecode.granite.framework.core.config.IServerConfigurationAware;
 import com.firstlinecode.granite.framework.core.pipeline.stages.event.IEventContext;
 import com.firstlinecode.granite.framework.core.pipeline.stages.event.IEventListener;
 import com.firstlinecode.sand.server.devices.IDeviceManager;
+import com.thefirstlineofcode.basalt.protocol.core.JabberId;
+import com.thefirstlineofcode.basalt.protocol.core.stanza.Iq;
 
 public class ConfirmedListener implements IEventListener<ConfirmedEvent>, IServerConfigurationAware {
 	@BeanDependency

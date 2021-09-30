@@ -2,13 +2,13 @@ package com.firstlinecode.sand.client.ibdr;
 
 import java.util.List;
 
-import com.firstlinecode.basalt.protocol.core.stream.Feature;
 import com.firstlinecode.chalk.core.stream.AbstractStreamer;
 import com.firstlinecode.chalk.core.stream.INegotiationContext;
 import com.firstlinecode.chalk.core.stream.NegotiationException;
 import com.firstlinecode.chalk.core.stream.negotiants.AbstractStreamNegotiant;
 import com.firstlinecode.chalk.network.ConnectionException;
 import com.firstlinecode.sand.protocols.ibdr.Register;
+import com.thefirstlineofcode.basalt.protocol.core.stream.Feature;
 
 public class IbdrNegotiant extends AbstractStreamNegotiant {
 	

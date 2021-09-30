@@ -5,13 +5,13 @@
 	<modelVersion>4.0.0</modelVersion>
 	
 	<parent>
-		<groupId>com.firstlinecode.sand</groupId>
+		<groupId>com.thefirstlineofcode.sand</groupId>
 		<artifactId>sand-server</artifactId>
 		<version>0.2.0-SNAPSHOT</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 
-	<groupId>com.firstlinecode.sand.server</groupId>
+	<groupId>com.thefirstlineofcode.sand.server</groupId>
 	<artifactId>sand-server-lite</artifactId>
 	<packaging>pom</packaging>
 	<name>Lithosphere IoT server deploy lite plugins</name>

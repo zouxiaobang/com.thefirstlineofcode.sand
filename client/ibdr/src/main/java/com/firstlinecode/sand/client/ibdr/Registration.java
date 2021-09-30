@@ -3,13 +3,6 @@ package com.firstlinecode.sand.client.ibdr;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.firstlinecode.basalt.protocol.core.IError;
-import com.firstlinecode.basalt.protocol.core.stanza.Iq;
-import com.firstlinecode.basalt.protocol.core.stanza.Stanza;
-import com.firstlinecode.basalt.protocol.core.stanza.error.Conflict;
-import com.firstlinecode.basalt.protocol.core.stanza.error.NotAcceptable;
-import com.firstlinecode.basalt.protocol.core.stanza.error.NotAuthorized;
-import com.firstlinecode.basalt.protocol.core.stanza.error.RemoteServerTimeout;
 import com.firstlinecode.chalk.core.AuthFailureException;
 import com.firstlinecode.chalk.core.ErrorException;
 import com.firstlinecode.chalk.core.IChatClient;
@@ -25,6 +18,13 @@ import com.firstlinecode.chalk.network.ConnectionListenerAdapter;
 import com.firstlinecode.chalk.network.IConnectionListener;
 import com.firstlinecode.sand.protocols.core.DeviceIdentity;
 import com.firstlinecode.sand.protocols.ibdr.DeviceRegister;
+import com.thefirstlineofcode.basalt.protocol.core.IError;
+import com.thefirstlineofcode.basalt.protocol.core.stanza.Iq;
+import com.thefirstlineofcode.basalt.protocol.core.stanza.Stanza;
+import com.thefirstlineofcode.basalt.protocol.core.stanza.error.Conflict;
+import com.thefirstlineofcode.basalt.protocol.core.stanza.error.NotAcceptable;
+import com.thefirstlineofcode.basalt.protocol.core.stanza.error.NotAuthorized;
+import com.thefirstlineofcode.basalt.protocol.core.stanza.error.RemoteServerTimeout;
 
 public class Registration extends ConnectionListenerAdapter implements IRegistration, INegotiationListener {
 	private StandardStreamConfig streamConfig;

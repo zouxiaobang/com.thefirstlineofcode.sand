@@ -1,9 +1,9 @@
 package com.firstlinecode.sand.protocols.devices.gateway;
 
-import com.firstlinecode.basalt.oxm.convention.annotations.ProtocolObject;
-import com.firstlinecode.basalt.oxm.convention.conversion.annotations.String2DateTime;
-import com.firstlinecode.basalt.protocol.core.Protocol;
-import com.firstlinecode.basalt.protocol.datetime.DateTime;
+import com.thefirstlineofcode.basalt.oxm.convention.annotations.ProtocolObject;
+import com.thefirstlineofcode.basalt.oxm.convention.conversion.annotations.String2DateTime;
+import com.thefirstlineofcode.basalt.protocol.core.Protocol;
+import com.thefirstlineofcode.basalt.protocol.datetime.DateTime;
 
 @ProtocolObject(namespace="urn:leps:iot:actuator:geteway", localName="restart")
 public class Restart {

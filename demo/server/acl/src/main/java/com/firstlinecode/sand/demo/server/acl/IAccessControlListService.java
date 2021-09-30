@@ -1,9 +1,9 @@
 package com.firstlinecode.sand.demo.server.acl;
 
-import com.firstlinecode.basalt.protocol.datetime.DateTime;
 import com.firstlinecode.sand.demo.protocols.AccessControlEntry;
 import com.firstlinecode.sand.demo.protocols.AccessControlList;
 import com.firstlinecode.sand.demo.protocols.AccessControlList.Role;
+import com.thefirstlineofcode.basalt.protocol.datetime.DateTime;
 
 public interface IAccessControlListService {
 	void add(AccessControlEntry entry);

@@ -2,15 +2,15 @@ package com.firstlinecode.sand.client.concentrator;
 
 import java.util.Properties;
 
-import com.firstlinecode.basalt.oxm.convention.NamingConventionParserFactory;
-import com.firstlinecode.basalt.oxm.convention.NamingConventionTranslatorFactory;
-import com.firstlinecode.basalt.protocol.core.IqProtocolChain;
 import com.firstlinecode.chalk.core.IChatSystem;
 import com.firstlinecode.chalk.core.IPlugin;
 import com.firstlinecode.sand.client.dmr.DmrPlugin;
 import com.firstlinecode.sand.client.things.concentrator.IConcentrator;
 import com.firstlinecode.sand.protocols.concentrator.CreateNode;
 import com.firstlinecode.sand.protocols.concentrator.NodeCreated;
+import com.thefirstlineofcode.basalt.oxm.convention.NamingConventionParserFactory;
+import com.thefirstlineofcode.basalt.oxm.convention.NamingConventionTranslatorFactory;
+import com.thefirstlineofcode.basalt.protocol.core.IqProtocolChain;
 
 public class ConcentratorPlugin implements IPlugin {
 	@Override

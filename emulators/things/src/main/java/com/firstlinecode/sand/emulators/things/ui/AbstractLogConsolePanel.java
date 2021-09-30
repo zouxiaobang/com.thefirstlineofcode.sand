@@ -17,8 +17,6 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 
-import com.firstlinecode.basalt.oxm.binary.BinaryUtils;
-import com.firstlinecode.basalt.protocol.core.Protocol;
 import com.firstlinecode.gem.protocols.bxmpp.BinaryMessageProtocolReader;
 import com.firstlinecode.sand.client.things.obm.IObmFactory;
 import com.firstlinecode.sand.client.things.obm.ObmFactory;
@@ -26,6 +24,8 @@ import com.firstlinecode.sand.emulators.things.ILogger;
 import com.firstlinecode.sand.protocols.lora.dac.Allocated;
 import com.firstlinecode.sand.protocols.lora.dac.Allocation;
 import com.firstlinecode.sand.protocols.lora.dac.Introduction;
+import com.thefirstlineofcode.basalt.oxm.binary.BinaryUtils;
+import com.thefirstlineofcode.basalt.protocol.core.Protocol;
 
 public abstract class AbstractLogConsolePanel extends JPanel implements ILogger, WindowListener {
 	private static final long serialVersionUID = 2661118467157999059L;

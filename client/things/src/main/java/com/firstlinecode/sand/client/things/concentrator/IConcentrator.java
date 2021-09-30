@@ -2,10 +2,10 @@ package com.firstlinecode.sand.client.things.concentrator;
 
 import java.util.Map;
 
-import com.firstlinecode.basalt.protocol.core.stanza.error.StanzaError;
 import com.firstlinecode.sand.client.things.commuication.ICommunicator;
 import com.firstlinecode.sand.protocols.concentrator.NodeAddress;
 import com.firstlinecode.sand.protocols.core.CommunicationNet;
+import com.thefirstlineofcode.basalt.protocol.core.stanza.error.StanzaError;
 
 public interface IConcentrator {
 	public static final String LAN_ID_CONCENTRATOR = "00";

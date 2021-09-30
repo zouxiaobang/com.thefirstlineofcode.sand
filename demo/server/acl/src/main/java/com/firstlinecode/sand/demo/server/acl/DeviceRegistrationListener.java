@@ -3,8 +3,6 @@ package com.firstlinecode.sand.demo.server.acl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.firstlinecode.basalt.protocol.core.JabberId;
-import com.firstlinecode.basalt.protocol.core.stanza.Iq;
 import com.firstlinecode.granite.framework.core.annotations.Dependency;
 import com.firstlinecode.granite.framework.core.config.IServerConfiguration;
 import com.firstlinecode.granite.framework.core.config.IServerConfigurationAware;
@@ -15,6 +13,8 @@ import com.firstlinecode.granite.framework.im.IResourcesService;
 import com.firstlinecode.sand.demo.protocols.AccessControlEntry;
 import com.firstlinecode.sand.demo.protocols.AccessControlList;
 import com.firstlinecode.sand.server.ibdr.DeviceRegistrationEvent;
+import com.thefirstlineofcode.basalt.protocol.core.JabberId;
+import com.thefirstlineofcode.basalt.protocol.core.stanza.Iq;
 
 public class DeviceRegistrationListener implements IEventListener<DeviceRegistrationEvent>, IServerConfigurationAware {
 	private static final Logger logger = LoggerFactory.getLogger(DeviceRegistrationListener.class);

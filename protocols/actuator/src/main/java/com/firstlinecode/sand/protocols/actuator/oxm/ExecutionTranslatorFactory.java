@@ -1,14 +1,14 @@
 package com.firstlinecode.sand.protocols.actuator.oxm;
 
-import com.firstlinecode.basalt.oxm.convention.NamingConventionTranslatorFactory;
-import com.firstlinecode.basalt.oxm.translating.IProtocolWriter;
-import com.firstlinecode.basalt.oxm.translating.ITranslatingFactory;
-import com.firstlinecode.basalt.oxm.translating.ITranslator;
-import com.firstlinecode.basalt.oxm.translating.ITranslatorFactory;
-import com.firstlinecode.basalt.protocol.core.Protocol;
-import com.firstlinecode.basalt.protocol.core.ProtocolException;
-import com.firstlinecode.basalt.protocol.core.stanza.error.BadRequest;
 import com.firstlinecode.sand.protocols.actuator.Execute;
+import com.thefirstlineofcode.basalt.oxm.convention.NamingConventionTranslatorFactory;
+import com.thefirstlineofcode.basalt.oxm.translating.IProtocolWriter;
+import com.thefirstlineofcode.basalt.oxm.translating.ITranslatingFactory;
+import com.thefirstlineofcode.basalt.oxm.translating.ITranslator;
+import com.thefirstlineofcode.basalt.oxm.translating.ITranslatorFactory;
+import com.thefirstlineofcode.basalt.protocol.core.Protocol;
+import com.thefirstlineofcode.basalt.protocol.core.ProtocolException;
+import com.thefirstlineofcode.basalt.protocol.core.stanza.error.BadRequest;
 
 public class ExecutionTranslatorFactory implements ITranslatorFactory<Execute> {
 	private static final ITranslator<Execute> translator = new ExecutionTranslator();

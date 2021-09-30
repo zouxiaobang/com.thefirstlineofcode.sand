@@ -6,12 +6,12 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<parent>
-		<groupId>com.firstlinecode.sand</groupId>
+		<groupId>com.thefirstlineofcode.sand</groupId>
 		<artifactId>sand-emulators</artifactId>
 		<version>0.2.0-SNAPSHOT</version>
 	</parent>
 
-	<groupId>com.firstlinecode.sand.emulators</groupId>
+	<groupId>com.thefirstlineofcode.sand.emulators</groupId>
 	<artifactId>sand-emulators-things</artifactId>
 	<name>Sand emulators things module</name>
 	<packaging>jar</packaging>
@@ -26,15 +26,15 @@
 			<artifactId>jsplitbutton</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>com.firstlinecode.chalk</groupId>
+			<groupId>com.thefirstlineofcode.chalk</groupId>
 			<artifactId>chalk-core</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>com.firstlinecode.sand.client</groupId>
+			<groupId>com.thefirstlineofcode.sand.client</groupId>
 			<artifactId>sand-client-things</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>com.firstlinecode.sand.protocols</groupId>
+			<groupId>com.thefirstlineofcode.sand.protocols</groupId>
 			<artifactId>sand-protocols-actuator</artifactId>
 		</dependency>
 	</dependencies>

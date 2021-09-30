@@ -5,9 +5,6 @@ import java.util.List;
 
 import javax.security.cert.X509Certificate;
 
-import com.firstlinecode.basalt.oxm.convention.NamingConventionParserFactory;
-import com.firstlinecode.basalt.protocol.core.ProtocolChain;
-import com.firstlinecode.basalt.protocol.core.stream.Features;
 import com.firstlinecode.chalk.core.AbstractChatClient;
 import com.firstlinecode.chalk.core.stream.AbstractStreamer;
 import com.firstlinecode.chalk.core.stream.IStreamNegotiant;
@@ -20,6 +17,9 @@ import com.firstlinecode.chalk.core.stream.negotiants.tls.TlsNegotiant;
 import com.firstlinecode.chalk.network.IConnection;
 import com.firstlinecode.chalk.network.SocketConnection;
 import com.firstlinecode.sand.protocols.ibdr.Register;
+import com.thefirstlineofcode.basalt.oxm.convention.NamingConventionParserFactory;
+import com.thefirstlineofcode.basalt.protocol.core.ProtocolChain;
+import com.thefirstlineofcode.basalt.protocol.core.stream.Features;
 
 class IbdrChatClient extends AbstractChatClient {
 	

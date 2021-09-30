@@ -2,20 +2,20 @@ package com.firstlinecode.sand.protocols.ibdr.oxm;
 
 import java.util.List;
 
-import com.firstlinecode.basalt.protocol.core.Protocol;
-import com.firstlinecode.basalt.protocol.core.ProtocolException;
-import com.firstlinecode.basalt.protocol.core.stanza.error.BadRequest;
-import com.firstlinecode.basalt.oxm.Attribute;
-import com.firstlinecode.basalt.oxm.Value;
-import com.firstlinecode.basalt.oxm.parsing.ElementParserAdaptor;
-import com.firstlinecode.basalt.oxm.parsing.IElementParser;
-import com.firstlinecode.basalt.oxm.parsing.IParser;
-import com.firstlinecode.basalt.oxm.parsing.IParserFactory;
-import com.firstlinecode.basalt.oxm.parsing.IParsingContext;
-import com.firstlinecode.basalt.oxm.parsing.IParsingPath;
-import com.firstlinecode.basalt.oxm.parsing.ParserAdaptor;
 import com.firstlinecode.sand.protocols.core.DeviceIdentity;
 import com.firstlinecode.sand.protocols.ibdr.DeviceRegister;
+import com.thefirstlineofcode.basalt.oxm.Attribute;
+import com.thefirstlineofcode.basalt.oxm.Value;
+import com.thefirstlineofcode.basalt.oxm.parsing.ElementParserAdaptor;
+import com.thefirstlineofcode.basalt.oxm.parsing.IElementParser;
+import com.thefirstlineofcode.basalt.oxm.parsing.IParser;
+import com.thefirstlineofcode.basalt.oxm.parsing.IParserFactory;
+import com.thefirstlineofcode.basalt.oxm.parsing.IParsingContext;
+import com.thefirstlineofcode.basalt.oxm.parsing.IParsingPath;
+import com.thefirstlineofcode.basalt.oxm.parsing.ParserAdaptor;
+import com.thefirstlineofcode.basalt.protocol.core.Protocol;
+import com.thefirstlineofcode.basalt.protocol.core.ProtocolException;
+import com.thefirstlineofcode.basalt.protocol.core.stanza.error.BadRequest;
 
 public class DeviceRegisterParserFactory implements IParserFactory<DeviceRegister> {
 	@Override

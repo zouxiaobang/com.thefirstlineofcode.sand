@@ -3,8 +3,6 @@ package com.firstlinecode.sand.server.lite.ibdr;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.firstlinecode.basalt.protocol.core.ProtocolException;
-import com.firstlinecode.basalt.protocol.core.stanza.error.NotAcceptable;
 import com.firstlinecode.granite.framework.core.annotations.AppComponent;
 import com.firstlinecode.granite.framework.core.annotations.BeanDependency;
 import com.firstlinecode.sand.protocols.core.DeviceIdentity;
@@ -12,6 +10,8 @@ import com.firstlinecode.sand.server.devices.IDeviceManager;
 import com.firstlinecode.sand.server.ibdr.DeviceRegistrationEvent;
 import com.firstlinecode.sand.server.ibdr.IDeviceRegistrar;
 import com.firstlinecode.sand.server.ibdr.IDeviceRegistrationCustomizerProxy;
+import com.thefirstlineofcode.basalt.protocol.core.ProtocolException;
+import com.thefirstlineofcode.basalt.protocol.core.stanza.error.NotAcceptable;
 
 @AppComponent("device.registrar")
 public class DeviceRegistrar implements IDeviceRegistrar {

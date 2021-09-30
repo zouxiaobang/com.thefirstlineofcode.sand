@@ -4,8 +4,6 @@ import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
 
-import com.firstlinecode.basalt.oxm.binary.BinaryUtils;
-import com.firstlinecode.basalt.protocol.core.Protocol;
 import com.firstlinecode.gem.protocols.bxmpp.BinaryMessageProtocolReader;
 import com.firstlinecode.sand.client.lora.ILoraChip.PowerType;
 import com.firstlinecode.sand.client.things.commuication.CommunicationException;
@@ -17,6 +15,8 @@ import com.firstlinecode.sand.emulators.lora.network.LoraCommunicator;
 import com.firstlinecode.sand.emulators.lora.network.LoraCommunicatorFactory;
 import com.firstlinecode.sand.emulators.things.emulators.AbstractCommunicationNetworkThingEmulator;
 import com.firstlinecode.sand.protocols.lora.LoraAddress;
+import com.thefirstlineofcode.basalt.oxm.binary.BinaryUtils;
+import com.thefirstlineofcode.basalt.protocol.core.Protocol;
 
 public abstract class AbstractLoraThingEmulator extends AbstractCommunicationNetworkThingEmulator<LoraAddress, LoraAddress, byte[]> {
 	private static final String PATTERN_LAN_ID = "%02d";

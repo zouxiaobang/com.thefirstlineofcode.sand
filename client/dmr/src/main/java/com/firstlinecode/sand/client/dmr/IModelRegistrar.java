@@ -1,7 +1,7 @@
 package com.firstlinecode.sand.client.dmr;
 
-import com.firstlinecode.basalt.protocol.core.Protocol;
 import com.firstlinecode.sand.protocols.core.ModelDescriptor;
+import com.thefirstlineofcode.basalt.protocol.core.Protocol;
 
 public interface IModelRegistrar {
 	void registerModeDescriptor(ModelDescriptor modelDescriptor);

@@ -2,12 +2,12 @@ package com.firstlinecode.sand.client.ibdr;
 
 import java.util.Properties;
 
-import com.firstlinecode.basalt.protocol.core.IqProtocolChain;
 import com.firstlinecode.chalk.core.IChatSystem;
 import com.firstlinecode.chalk.core.IPlugin;
 import com.firstlinecode.sand.protocols.ibdr.DeviceRegister;
 import com.firstlinecode.sand.protocols.ibdr.oxm.DeviceRegisterParserFactory;
 import com.firstlinecode.sand.protocols.ibdr.oxm.DeviceRegisterTranslatorFactory;
+import com.thefirstlineofcode.basalt.protocol.core.IqProtocolChain;
 
 public class InternalIbdrPlugin implements IPlugin {
 	@Override

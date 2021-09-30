@@ -6,27 +6,27 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<parent>
-		<groupId>com.firstlinecode.sand.demo</groupId>
+		<groupId>com.thefirstlineofcode.sand.demo</groupId>
 		<artifactId>sand-demo-server</artifactId>
 		<version>0.2.0-SNAPSHOT</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 
-	<groupId>com.firstlinecode.sand.demo.server</groupId>
+	<groupId>com.thefirstlineofcode.sand.demo.server</groupId>
 	<artifactId>sand-demo-server-models</artifactId>
 	<name>Sand demo server models module</name>
 
 	<dependencies>
 		<dependency>
-			<groupId>com.firstlinecode.granite.framework</groupId>
+			<groupId>com.thefirstlineofcode.granite.framework</groupId>
 			<artifactId>granite-framework-core</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>com.firstlinecode.sand.server</groupId>
+			<groupId>com.thefirstlineofcode.sand.server</groupId>
 			<artifactId>sand-server-devices</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>com.firstlinecode.sand.emulators</groupId>
+			<groupId>com.thefirstlineofcode.sand.emulators</groupId>
 			<artifactId>sand-emulators-models</artifactId>
 		</dependency>
 	</dependencies>

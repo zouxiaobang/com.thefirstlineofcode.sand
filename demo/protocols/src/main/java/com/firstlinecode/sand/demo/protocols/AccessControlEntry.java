@@ -1,9 +1,9 @@
 package com.firstlinecode.sand.demo.protocols;
 
-import com.firstlinecode.basalt.oxm.convention.conversion.annotations.String2Enum;
-import com.firstlinecode.basalt.oxm.convention.validation.annotations.NotNull;
-import com.firstlinecode.basalt.protocol.HandyUtils;
 import com.firstlinecode.sand.demo.protocols.AccessControlList.Role;
+import com.thefirstlineofcode.basalt.oxm.convention.conversion.annotations.String2Enum;
+import com.thefirstlineofcode.basalt.oxm.convention.validation.annotations.NotNull;
+import com.thefirstlineofcode.basalt.protocol.HandyUtils;
 
 public class AccessControlEntry {
 	public static final String USER_SELF = null;

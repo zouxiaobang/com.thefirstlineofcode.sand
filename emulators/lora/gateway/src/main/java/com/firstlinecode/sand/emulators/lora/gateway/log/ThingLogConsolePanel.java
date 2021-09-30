@@ -3,7 +3,6 @@ package com.firstlinecode.sand.emulators.lora.gateway.log;
 import java.awt.event.WindowEvent;
 import java.util.Map;
 
-import com.firstlinecode.basalt.protocol.core.Protocol;
 import com.firstlinecode.sand.client.things.commuication.CommunicationException;
 import com.firstlinecode.sand.client.things.commuication.ICommunicationListener;
 import com.firstlinecode.sand.client.things.commuication.ICommunicator;
@@ -12,6 +11,7 @@ import com.firstlinecode.sand.emulators.lora.things.AbstractLoraThingEmulator;
 import com.firstlinecode.sand.emulators.things.ui.AbstractLogConsolePanel;
 import com.firstlinecode.sand.protocols.core.ModelDescriptor;
 import com.firstlinecode.sand.protocols.lora.LoraAddress;
+import com.thefirstlineofcode.basalt.protocol.core.Protocol;
 
 public class ThingLogConsolePanel extends AbstractLogConsolePanel
 		implements ICommunicationListener<LoraAddress, LoraAddress, byte[]> {

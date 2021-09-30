@@ -1,8 +1,8 @@
 package com.firstlinecode.sand.protocols.ibdr;
 
-import com.firstlinecode.basalt.protocol.core.Protocol;
-import com.firstlinecode.basalt.oxm.convention.annotations.ProtocolObject;
 import com.firstlinecode.sand.protocols.core.DeviceIdentity;
+import com.thefirstlineofcode.basalt.oxm.convention.annotations.ProtocolObject;
+import com.thefirstlineofcode.basalt.protocol.core.Protocol;
 
 @ProtocolObject(namespace="urn:leps:iot:ibdr", localName="query")
 public class DeviceRegister {

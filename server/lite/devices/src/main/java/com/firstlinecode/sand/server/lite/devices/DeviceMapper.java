@@ -1,7 +1,7 @@
 package com.firstlinecode.sand.server.lite.devices;
 
-import com.firstlinecode.basalt.protocol.core.JabberId;
 import com.firstlinecode.sand.server.devices.Device;
+import com.thefirstlineofcode.basalt.protocol.core.JabberId;
 
 public interface DeviceMapper {
 	void insert(Device device);

@@ -3,14 +3,14 @@ package com.firstlinecode.sand.server.operator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.firstlinecode.basalt.protocol.core.ProtocolException;
-import com.firstlinecode.basalt.protocol.core.stanza.Iq;
-import com.firstlinecode.basalt.protocol.core.stanza.error.BadRequest;
 import com.firstlinecode.granite.framework.core.annotations.Dependency;
 import com.firstlinecode.granite.framework.core.pipeline.stages.processing.IProcessingContext;
 import com.firstlinecode.granite.framework.core.pipeline.stages.processing.IXepProcessor;
 import com.firstlinecode.sand.protocols.operator.AuthorizeDevice;
 import com.firstlinecode.sand.server.devices.DeviceAuthorizationDelegator;
+import com.thefirstlineofcode.basalt.protocol.core.ProtocolException;
+import com.thefirstlineofcode.basalt.protocol.core.stanza.Iq;
+import com.thefirstlineofcode.basalt.protocol.core.stanza.error.BadRequest;
 
 public class DeviceAuthorizationProcessor implements IXepProcessor<Iq, AuthorizeDevice> {
 	private Logger logger = LoggerFactory.getLogger(DeviceAuthorizationProcessor.class);

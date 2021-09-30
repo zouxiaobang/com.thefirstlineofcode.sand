@@ -10,9 +10,6 @@ import java.util.Map.Entry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.firstlinecode.basalt.protocol.core.stanza.Iq;
-import com.firstlinecode.basalt.protocol.core.stanza.error.RemoteServerTimeout;
-import com.firstlinecode.basalt.protocol.core.stanza.error.StanzaError;
 import com.firstlinecode.chalk.core.IChatServices;
 import com.firstlinecode.chalk.core.ITask;
 import com.firstlinecode.chalk.core.IUnidirectionalStream;
@@ -23,6 +20,9 @@ import com.firstlinecode.sand.protocols.concentrator.CreateNode;
 import com.firstlinecode.sand.protocols.concentrator.NodeAddress;
 import com.firstlinecode.sand.protocols.concentrator.NodeCreated;
 import com.firstlinecode.sand.protocols.core.CommunicationNet;
+import com.thefirstlineofcode.basalt.protocol.core.stanza.Iq;
+import com.thefirstlineofcode.basalt.protocol.core.stanza.error.RemoteServerTimeout;
+import com.thefirstlineofcode.basalt.protocol.core.stanza.error.StanzaError;
 
 public class Concentrator implements IConcentrator {
 	private static final String PATTERN_LAN_ID = "%02d";

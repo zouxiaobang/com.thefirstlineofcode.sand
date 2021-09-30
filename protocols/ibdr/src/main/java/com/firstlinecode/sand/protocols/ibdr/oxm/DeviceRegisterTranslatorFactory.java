@@ -1,13 +1,13 @@
 package com.firstlinecode.sand.protocols.ibdr.oxm;
 
-import com.firstlinecode.basalt.protocol.core.Protocol;
-import com.firstlinecode.basalt.oxm.Value;
-import com.firstlinecode.basalt.oxm.translating.IProtocolWriter;
-import com.firstlinecode.basalt.oxm.translating.ITranslatingFactory;
-import com.firstlinecode.basalt.oxm.translating.ITranslator;
-import com.firstlinecode.basalt.oxm.translating.ITranslatorFactory;
 import com.firstlinecode.sand.protocols.core.DeviceIdentity;
 import com.firstlinecode.sand.protocols.ibdr.DeviceRegister;
+import com.thefirstlineofcode.basalt.oxm.Value;
+import com.thefirstlineofcode.basalt.oxm.translating.IProtocolWriter;
+import com.thefirstlineofcode.basalt.oxm.translating.ITranslatingFactory;
+import com.thefirstlineofcode.basalt.oxm.translating.ITranslator;
+import com.thefirstlineofcode.basalt.oxm.translating.ITranslatorFactory;
+import com.thefirstlineofcode.basalt.protocol.core.Protocol;
 
 public class DeviceRegisterTranslatorFactory implements ITranslatorFactory<DeviceRegister> {
 	private ITranslator<DeviceRegister> translator = new DeviceRegisterTranslator();

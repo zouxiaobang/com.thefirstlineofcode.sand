@@ -2,10 +2,10 @@ package com.firstlinecode.sand.demo.client;
 
 import java.util.List;
 
-import com.firstlinecode.basalt.protocol.core.stanza.Iq;
-import com.firstlinecode.basalt.protocol.datetime.DateTime;
 import com.firstlinecode.sand.demo.protocols.AccessControlEntry;
 import com.firstlinecode.sand.demo.protocols.AccessControlList;
+import com.thefirstlineofcode.basalt.protocol.core.stanza.Iq;
+import com.thefirstlineofcode.basalt.protocol.datetime.DateTime;
 
 public interface IAclService {
 	void retrieve();

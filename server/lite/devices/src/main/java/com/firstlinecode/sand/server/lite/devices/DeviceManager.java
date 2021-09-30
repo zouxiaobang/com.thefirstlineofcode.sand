@@ -11,17 +11,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.firstlinecode.basalt.protocol.core.JabberId;
-import com.firstlinecode.basalt.protocol.core.Protocol;
-import com.firstlinecode.basalt.protocol.core.ProtocolException;
-import com.firstlinecode.basalt.protocol.core.stanza.error.Conflict;
-import com.firstlinecode.basalt.protocol.core.stanza.error.NotAuthorized;
 import com.firstlinecode.sand.protocols.core.DeviceIdentity;
 import com.firstlinecode.sand.protocols.core.ModelDescriptor;
 import com.firstlinecode.sand.server.devices.Device;
 import com.firstlinecode.sand.server.devices.DeviceAuthorization;
 import com.firstlinecode.sand.server.devices.IDeviceIdRuler;
 import com.firstlinecode.sand.server.devices.IDeviceManager;
+import com.thefirstlineofcode.basalt.protocol.core.JabberId;
+import com.thefirstlineofcode.basalt.protocol.core.Protocol;
+import com.thefirstlineofcode.basalt.protocol.core.ProtocolException;
+import com.thefirstlineofcode.basalt.protocol.core.stanza.error.Conflict;
+import com.thefirstlineofcode.basalt.protocol.core.stanza.error.NotAuthorized;
 
 @Transactional
 @Component

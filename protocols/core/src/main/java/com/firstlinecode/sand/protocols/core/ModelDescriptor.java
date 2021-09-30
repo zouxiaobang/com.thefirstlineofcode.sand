@@ -3,7 +3,7 @@ package com.firstlinecode.sand.protocols.core;
 import java.util.Collections;
 import java.util.Map;
 
-import com.firstlinecode.basalt.protocol.core.Protocol;
+import com.thefirstlineofcode.basalt.protocol.core.Protocol;
 
 public class ModelDescriptor {
 	private String name;

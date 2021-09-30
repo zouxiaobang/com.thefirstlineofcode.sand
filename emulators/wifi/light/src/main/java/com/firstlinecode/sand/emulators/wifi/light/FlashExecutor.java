@@ -1,11 +1,11 @@
 package com.firstlinecode.sand.emulators.wifi.light;
 
-import com.firstlinecode.basalt.protocol.core.stanza.Iq;
 import com.firstlinecode.sand.client.things.autuator.ExecutionException;
 import com.firstlinecode.sand.client.things.autuator.IExecutor;
 import com.firstlinecode.sand.emulators.things.NotRemoteControlStateException;
 import com.firstlinecode.sand.emulators.things.NotTurnedOffStateException;
 import com.firstlinecode.sand.protocols.devices.light.Flash;
+import com.thefirstlineofcode.basalt.protocol.core.stanza.Iq;
 
 public class FlashExecutor implements IExecutor<Flash> {
 	private Light light;

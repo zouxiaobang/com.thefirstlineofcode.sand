@@ -3,9 +3,6 @@ package com.firstlinecode.sand.server.devices;
 import java.util.Calendar;
 import java.util.Date;
 
-import com.firstlinecode.basalt.protocol.core.ProtocolException;
-import com.firstlinecode.basalt.protocol.core.stanza.error.BadRequest;
-import com.firstlinecode.basalt.protocol.core.stream.error.Conflict;
 import com.firstlinecode.granite.framework.core.annotations.AppComponent;
 import com.firstlinecode.granite.framework.core.annotations.BeanDependency;
 import com.firstlinecode.granite.framework.core.auth.IAccountManager;
@@ -13,6 +10,9 @@ import com.firstlinecode.granite.framework.core.config.IConfiguration;
 import com.firstlinecode.granite.framework.core.config.IConfigurationAware;
 import com.firstlinecode.granite.framework.core.config.IServerConfiguration;
 import com.firstlinecode.granite.framework.core.config.IServerConfigurationAware;
+import com.thefirstlineofcode.basalt.protocol.core.ProtocolException;
+import com.thefirstlineofcode.basalt.protocol.core.stanza.error.BadRequest;
+import com.thefirstlineofcode.basalt.protocol.core.stream.error.Conflict;
 
 @AppComponent("device.authorization.delegator")
 public class DeviceAuthorizationDelegator implements IServerConfigurationAware, IConfigurationAware {

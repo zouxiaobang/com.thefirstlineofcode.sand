@@ -2,21 +2,6 @@ package com.firstlinecode.sand.server.ibdr;
 
 import java.util.List;
 
-import com.firstlinecode.basalt.oxm.OxmService;
-import com.firstlinecode.basalt.oxm.parsers.core.stanza.IqParserFactory;
-import com.firstlinecode.basalt.oxm.parsing.IParsingFactory;
-import com.firstlinecode.basalt.oxm.translating.ITranslatingFactory;
-import com.firstlinecode.basalt.oxm.translators.core.stanza.IqTranslatorFactory;
-import com.firstlinecode.basalt.oxm.translators.core.stream.StreamTranslatorFactory;
-import com.firstlinecode.basalt.oxm.translators.error.StanzaErrorTranslatorFactory;
-import com.firstlinecode.basalt.protocol.core.IqProtocolChain;
-import com.firstlinecode.basalt.protocol.core.ProtocolException;
-import com.firstlinecode.basalt.protocol.core.stanza.Iq;
-import com.firstlinecode.basalt.protocol.core.stanza.error.BadRequest;
-import com.firstlinecode.basalt.protocol.core.stanza.error.InternalServerError;
-import com.firstlinecode.basalt.protocol.core.stanza.error.StanzaError;
-import com.firstlinecode.basalt.protocol.core.stream.Feature;
-import com.firstlinecode.basalt.protocol.core.stream.Stream;
 import com.firstlinecode.granite.framework.core.connection.IClientConnectionContext;
 import com.firstlinecode.granite.framework.core.pipeline.IMessage;
 import com.firstlinecode.granite.framework.core.pipeline.IMessageChannel;
@@ -25,6 +10,21 @@ import com.firstlinecode.granite.pipeline.stages.stream.negotiants.InitialStream
 import com.firstlinecode.sand.protocols.ibdr.DeviceRegister;
 import com.firstlinecode.sand.protocols.ibdr.oxm.DeviceRegisterParserFactory;
 import com.firstlinecode.sand.protocols.ibdr.oxm.DeviceRegisterTranslatorFactory;
+import com.thefirstlineofcode.basalt.oxm.OxmService;
+import com.thefirstlineofcode.basalt.oxm.parsers.core.stanza.IqParserFactory;
+import com.thefirstlineofcode.basalt.oxm.parsing.IParsingFactory;
+import com.thefirstlineofcode.basalt.oxm.translating.ITranslatingFactory;
+import com.thefirstlineofcode.basalt.oxm.translators.core.stanza.IqTranslatorFactory;
+import com.thefirstlineofcode.basalt.oxm.translators.core.stream.StreamTranslatorFactory;
+import com.thefirstlineofcode.basalt.oxm.translators.error.StanzaErrorTranslatorFactory;
+import com.thefirstlineofcode.basalt.protocol.core.IqProtocolChain;
+import com.thefirstlineofcode.basalt.protocol.core.ProtocolException;
+import com.thefirstlineofcode.basalt.protocol.core.stanza.Iq;
+import com.thefirstlineofcode.basalt.protocol.core.stanza.error.BadRequest;
+import com.thefirstlineofcode.basalt.protocol.core.stanza.error.InternalServerError;
+import com.thefirstlineofcode.basalt.protocol.core.stanza.error.StanzaError;
+import com.thefirstlineofcode.basalt.protocol.core.stream.Feature;
+import com.thefirstlineofcode.basalt.protocol.core.stream.Stream;
 
 public class IbdrNegotiant extends InitialStreamNegotiant {
 	public static final Object KEY_IBDR_REGISTERED = new Object();

@@ -2,8 +2,6 @@ package com.firstlinecode.sand.server.ibdr;
 
 import java.util.List;
 
-import com.firstlinecode.basalt.protocol.core.stream.Feature;
-import com.firstlinecode.basalt.protocol.core.stream.Features;
 import com.firstlinecode.granite.framework.core.adf.IApplicationComponentService;
 import com.firstlinecode.granite.framework.core.annotations.Component;
 import com.firstlinecode.granite.framework.core.connection.IClientConnectionContext;
@@ -16,6 +14,8 @@ import com.firstlinecode.granite.pipeline.stages.stream.negotiants.TlsNegotiant;
 import com.firstlinecode.sand.protocols.ibdr.Register;
 import com.firstlinecode.sand.protocols.ibdr.oxm.RegisterTranslatorFactory;
 import com.firstlinecode.sand.server.stream.DeviceClientMessageProcessor;
+import com.thefirstlineofcode.basalt.protocol.core.stream.Feature;
+import com.thefirstlineofcode.basalt.protocol.core.stream.Features;
 
 @Component("ibdr.supported.client.message.processor")
 public class IbdrSupportedClientMessageProcessor extends DeviceClientMessageProcessor {

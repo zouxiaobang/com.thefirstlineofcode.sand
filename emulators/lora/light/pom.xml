@@ -6,23 +6,23 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<parent>
-		<groupId>com.firstlinecode.sand.emulators</groupId>
+		<groupId>com.thefirstlineofcode.sand.emulators</groupId>
 		<artifactId>sand-emulators-lora</artifactId>
 		<version>0.2.0-SNAPSHOT</version>
 	</parent>
 
-	<groupId>com.firstlinecode.sand.emulators.lora</groupId>
+	<groupId>com.thefirstlineofcode.sand.emulators.lora</groupId>
 	<artifactId>sand-emulators-lora-light</artifactId>
 	<name>Sand LoRa light emulator</name>
 	<packaging>jar</packaging>
 	
 	<dependencies>
 		<dependency>
-			<groupId>com.firstlinecode.sand.emulators.lora</groupId>
+			<groupId>com.thefirstlineofcode.sand.emulators.lora</groupId>
 			<artifactId>sand-emulators-lora-things</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>com.firstlinecode.sand.emulators</groupId>
+			<groupId>com.thefirstlineofcode.sand.emulators</groupId>
 			<artifactId>sand-emulators-models</artifactId>
 		</dependency>
 	</dependencies>

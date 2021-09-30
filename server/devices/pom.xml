@@ -6,27 +6,27 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<parent>
-		<groupId>com.firstlinecode.sand</groupId>
+		<groupId>com.thefirstlineofcode.sand</groupId>
 		<artifactId>sand-server</artifactId>
 		<version>0.2.0-SNAPSHOT</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 
-	<groupId>com.firstlinecode.sand.server</groupId>
+	<groupId>com.thefirstlineofcode.sand.server</groupId>
 	<artifactId>sand-server-devices</artifactId>
 	<name>Sand server devices implementatioin</name>
 	
 	<dependencies>
 		<dependency>
-			<groupId>com.firstlinecode.granite.framework.adf</groupId>
+			<groupId>com.thefirstlineofcode.granite.framework.adf</groupId>
 			<artifactId>granite-framework-adf-spring</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>com.firstlinecode.sand.protocols.devices</groupId>
+			<groupId>com.thefirstlineofcode.sand.protocols.devices</groupId>
 			<artifactId>sand-protocols-devices-light</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>com.firstlinecode.sand.protocols.devices</groupId>
+			<groupId>com.thefirstlineofcode.sand.protocols.devices</groupId>
 			<artifactId>sand-protocols-devices-gateway</artifactId>
 		</dependency>
 	</dependencies>

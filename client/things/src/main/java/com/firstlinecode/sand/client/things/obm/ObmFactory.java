@@ -3,18 +3,18 @@ package com.firstlinecode.sand.client.things.obm;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.firstlinecode.basalt.oxm.IOxmFactory;
-import com.firstlinecode.basalt.oxm.OxmService;
-import com.firstlinecode.basalt.oxm.binary.IBinaryXmppProtocolConverter;
-import com.firstlinecode.basalt.oxm.convention.NamingConventionParserFactory;
-import com.firstlinecode.basalt.oxm.convention.NamingConventionTranslatorFactory;
-import com.firstlinecode.basalt.oxm.convention.annotations.ProtocolObject;
-import com.firstlinecode.basalt.protocol.core.MessageProtocolChain;
-import com.firstlinecode.basalt.protocol.core.Protocol;
-import com.firstlinecode.basalt.protocol.core.ProtocolChain;
-import com.firstlinecode.basalt.protocol.im.stanza.Message;
 import com.firstlinecode.gem.client.bxmpp.BinaryXmppProtocolFactory;
 import com.firstlinecode.gem.protocols.bxmpp.BinaryXmppProtocolConverter;
+import com.thefirstlineofcode.basalt.oxm.IOxmFactory;
+import com.thefirstlineofcode.basalt.oxm.OxmService;
+import com.thefirstlineofcode.basalt.oxm.binary.IBinaryXmppProtocolConverter;
+import com.thefirstlineofcode.basalt.oxm.convention.NamingConventionParserFactory;
+import com.thefirstlineofcode.basalt.oxm.convention.NamingConventionTranslatorFactory;
+import com.thefirstlineofcode.basalt.oxm.convention.annotations.ProtocolObject;
+import com.thefirstlineofcode.basalt.protocol.core.MessageProtocolChain;
+import com.thefirstlineofcode.basalt.protocol.core.Protocol;
+import com.thefirstlineofcode.basalt.protocol.core.ProtocolChain;
+import com.thefirstlineofcode.basalt.protocol.im.stanza.Message;
 
 public class ObmFactory implements IObmFactory {
 	private static final byte[] MESSAGE_WRAPPER_DATA = new byte[] {88, 0, 1, 0};

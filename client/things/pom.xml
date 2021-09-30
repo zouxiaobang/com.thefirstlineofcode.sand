@@ -6,28 +6,28 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<parent>
-		<groupId>com.firstlinecode.sand</groupId>
+		<groupId>com.thefirstlineofcode.sand</groupId>
 		<artifactId>sand-client</artifactId>
 		<version>0.2.0-SNAPSHOT</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 
-	<groupId>com.firstlinecode.sand.client</groupId>
+	<groupId>com.thefirstlineofcode.sand.client</groupId>
 	<artifactId>sand-client-things</artifactId>
 	<name>Sand client things implementation</name>
 	<packaging>jar</packaging>
 	
 	<dependencies>
 		<dependency>
-			<groupId>com.firstlinecode.gem.client</groupId>
+			<groupId>com.thefirstlineofcode.gem.client</groupId>
 			<artifactId>gem-client-bxmpp</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>com.firstlinecode.sand.protocols</groupId>
+			<groupId>com.thefirstlineofcode.sand.protocols</groupId>
 			<artifactId>sand-protocols-concentrator</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>com.firstlinecode.sand.protocols</groupId>
+			<groupId>com.thefirstlineofcode.sand.protocols</groupId>
 			<artifactId>sand-protocols-actuator</artifactId>
 		</dependency>
 	</dependencies>

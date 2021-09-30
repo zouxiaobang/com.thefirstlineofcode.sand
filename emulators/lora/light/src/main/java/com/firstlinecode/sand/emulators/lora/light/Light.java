@@ -11,7 +11,6 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.ExecutionException;
 
-import com.firstlinecode.basalt.protocol.core.Protocol;
 import com.firstlinecode.sand.emulators.lora.network.LoraCommunicator;
 import com.firstlinecode.sand.emulators.lora.things.AbstractLoraThingEmulator;
 import com.firstlinecode.sand.emulators.models.Le01ModelDescriptor;
@@ -25,6 +24,7 @@ import com.firstlinecode.sand.emulators.things.emulators.ISwitchStateListener;
 import com.firstlinecode.sand.emulators.things.ui.AbstractThingEmulatorPanel;
 import com.firstlinecode.sand.emulators.things.ui.LightEmulatorPanel;
 import com.firstlinecode.sand.protocols.devices.light.Flash;
+import com.thefirstlineofcode.basalt.protocol.core.Protocol;
 
 public class Light extends AbstractLoraThingEmulator implements ILightEmulator, ISwitchStateListener {
 	public static final String THING_TYPE = "Light Emulator";

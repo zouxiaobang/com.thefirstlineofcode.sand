@@ -3,12 +3,12 @@ package com.firstlinecode.sand.demo.protocols;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.firstlinecode.basalt.oxm.convention.annotations.Array;
-import com.firstlinecode.basalt.oxm.convention.annotations.ProtocolObject;
-import com.firstlinecode.basalt.oxm.convention.conversion.annotations.String2DateTime;
-import com.firstlinecode.basalt.protocol.HandyUtils;
-import com.firstlinecode.basalt.protocol.core.Protocol;
-import com.firstlinecode.basalt.protocol.datetime.DateTime;
+import com.thefirstlineofcode.basalt.oxm.convention.annotations.Array;
+import com.thefirstlineofcode.basalt.oxm.convention.annotations.ProtocolObject;
+import com.thefirstlineofcode.basalt.oxm.convention.conversion.annotations.String2DateTime;
+import com.thefirstlineofcode.basalt.protocol.HandyUtils;
+import com.thefirstlineofcode.basalt.protocol.core.Protocol;
+import com.thefirstlineofcode.basalt.protocol.datetime.DateTime;
 
 @ProtocolObject(namespace = "http://firstlinecode.com/sand-demo/acl", localName = "query")
 public class AccessControlList {

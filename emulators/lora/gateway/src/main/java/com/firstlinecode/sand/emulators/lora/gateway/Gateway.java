@@ -44,7 +44,6 @@ import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileSystemView;
 import javax.swing.plaf.FontUIResource;
 
-import com.firstlinecode.basalt.protocol.core.stanza.error.StanzaError;
 import com.firstlinecode.chalk.core.AuthFailureException;
 import com.firstlinecode.chalk.core.IChatClient;
 import com.firstlinecode.chalk.core.StandardChatClient;
@@ -95,6 +94,7 @@ import com.firstlinecode.sand.protocols.core.CommunicationNet;
 import com.firstlinecode.sand.protocols.core.DeviceIdentity;
 import com.firstlinecode.sand.protocols.core.ModelDescriptor;
 import com.firstlinecode.sand.protocols.lora.LoraAddress;
+import com.thefirstlineofcode.basalt.protocol.core.stanza.error.StanzaError;
 
 public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionListener, InternalFrameListener,
 		ComponentListener, WindowListener, IGateway, IConnectionListener, ConcentratorDynamicalAddressConfigurator.Listener,

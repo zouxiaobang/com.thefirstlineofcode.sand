@@ -8,8 +8,6 @@ import java.util.StringTokenizer;
 
 import org.pf4j.Extension;
 
-import com.firstlinecode.basalt.oxm.convention.PropertyDescriptor;
-import com.firstlinecode.basalt.protocol.core.Protocol;
 import com.firstlinecode.granite.framework.core.annotations.BeanDependency;
 import com.firstlinecode.granite.framework.core.annotations.Dependency;
 import com.firstlinecode.granite.framework.core.auth.IAccountManager;
@@ -30,6 +28,8 @@ import com.firstlinecode.sand.server.concentrator.Node;
 import com.firstlinecode.sand.server.devices.Device;
 import com.firstlinecode.sand.server.devices.DeviceAuthorizationDelegator;
 import com.firstlinecode.sand.server.devices.IDeviceManager;
+import com.thefirstlineofcode.basalt.oxm.convention.PropertyDescriptor;
+import com.thefirstlineofcode.basalt.protocol.core.Protocol;
 
 @Extension
 public class SandCommandsProcessor extends AbstractCommandsProcessor implements IEventFirerAware,

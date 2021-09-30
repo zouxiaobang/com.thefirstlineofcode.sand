@@ -3,10 +3,6 @@ package com.firstlinecode.sand.server.concentrator;
 import java.util.Calendar;
 import java.util.Date;
 
-import com.firstlinecode.basalt.protocol.core.ProtocolException;
-import com.firstlinecode.basalt.protocol.core.stanza.error.BadRequest;
-import com.firstlinecode.basalt.protocol.core.stanza.error.ItemNotFound;
-import com.firstlinecode.basalt.protocol.core.stanza.error.NotAcceptable;
 import com.firstlinecode.granite.framework.core.annotations.AppComponent;
 import com.firstlinecode.granite.framework.core.annotations.BeanDependency;
 import com.firstlinecode.granite.framework.core.auth.IAccountManager;
@@ -16,6 +12,10 @@ import com.firstlinecode.granite.framework.core.config.IServerConfiguration;
 import com.firstlinecode.granite.framework.core.config.IServerConfigurationAware;
 import com.firstlinecode.sand.server.devices.Device;
 import com.firstlinecode.sand.server.devices.IDeviceManager;
+import com.thefirstlineofcode.basalt.protocol.core.ProtocolException;
+import com.thefirstlineofcode.basalt.protocol.core.stanza.error.BadRequest;
+import com.thefirstlineofcode.basalt.protocol.core.stanza.error.ItemNotFound;
+import com.thefirstlineofcode.basalt.protocol.core.stanza.error.NotAcceptable;
 
 @AppComponent("node.confirmation.delegator")
 public class NodeConfirmationDelegator implements IServerConfigurationAware, IConfigurationAware {

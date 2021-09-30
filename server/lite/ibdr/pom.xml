@@ -6,23 +6,23 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<parent>
-		<groupId>com.firstlinecode.sand.server</groupId>
+		<groupId>com.thefirstlineofcode.sand.server</groupId>
 		<artifactId>sand-server-lite</artifactId>
 		<version>0.2.0-SNAPSHOT</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 
-	<groupId>com.firstlinecode.sand.server.lite</groupId>
+	<groupId>com.thefirstlineofcode.sand.server.lite</groupId>
 	<artifactId>sand-server-lite-ibdr</artifactId>
 	<name>Sand server deploy lite IBDR implementation</name>
 	
 	<dependencies>
 		<dependency>
-			<groupId>com.firstlinecode.sand.server</groupId>
+			<groupId>com.thefirstlineofcode.sand.server</groupId>
 			<artifactId>sand-server-ibdr</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>com.firstlinecode.granite.framework.adf</groupId>
+			<groupId>com.thefirstlineofcode.granite.framework.adf</groupId>
 			<artifactId>granite-framework-adf-spring</artifactId>
 		</dependency>
 	</dependencies>
