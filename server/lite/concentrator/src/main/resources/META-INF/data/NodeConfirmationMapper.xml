@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.firstlinecode.sand.server.lite.concentrator.NodeConfirmationMapper">
-    <insert id="insert" parameterType="com.firstlinecode.sand.server.lite.concentrator.D_NodeConfirmation">
+<mapper namespace="com.thefirstlineofcode.sand.server.lite.concentrator.NodeConfirmationMapper">
+    <insert id="insert" parameterType="com.thefirstlineofcode.sand.server.lite.concentrator.D_NodeConfirmation">
         INSERT INTO NODE_CONFIRMATIONS(id, request_id, concentrator, node, lan_id, communication_net, address, confirmer, requested_time, confirmed_time, expired_time, canceled) VALUES(#{id}, #{requestId}, #{concentrator}, #{node.deviceId}, #{node.lanId}, #{node.communicationNet}, #{node.address},  #{confirmer}, #{requestedTime}, #{confirmedTime}, #{expiredTime}, FALSE)
     </insert>
     
@@ -18,7 +18,7 @@
 		SELECT * FROM NODE_CONFIRMATIONS WHERE concentrator = #{arg0} AND node = #{arg1}
 	</select>
 	
-	<resultMap id="nodeConfirmationResultMap" type="com.firstlinecode.sand.server.lite.concentrator.D_NodeConfirmation">
+	<resultMap id="nodeConfirmationResultMap" type="com.thefirstlineofcode.sand.server.lite.concentrator.D_NodeConfirmation">
 		<result property="id" column="id"/>
 		<result property="requestId" column="request_id"/>
 		<result property="concentrator" column="concentrator"/>

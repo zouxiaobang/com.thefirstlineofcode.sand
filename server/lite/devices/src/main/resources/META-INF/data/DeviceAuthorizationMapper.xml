@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.firstlinecode.sand.server.lite.devices.DeviceAuthorizationMapper">
-    <insert id="insert" parameterType="com.firstlinecode.sand.server.lite.devices.D_DeviceAuthorization">
+<mapper namespace="com.thefirstlineofcode.sand.server.lite.devices.DeviceAuthorizationMapper">
+    <insert id="insert" parameterType="com.thefirstlineofcode.sand.server.lite.devices.D_DeviceAuthorization">
         INSERT INTO DEVICE_AUTHORIZATIONS(id, device_id, authorizer, authorized_time, expired_time, canceled) VALUES(#{id}, #{deviceId}, #{authorizer}, #{authorizedTime}, #{expiredTime}, FALSE)
     </insert>
     
     <update id="updateCanceled">
-		UPDATE DEVICE_IDENTITIES SET canceled = #{1} WHERE device_id = #{0}
+		UPDATE DEVICE_IDENTITIES SET canceled = #{1} WHERE device_id = #{0}s
     </update>
     
 	<select id="selectByDeviceId" resultMap="deviceAuthorizationResultMap">

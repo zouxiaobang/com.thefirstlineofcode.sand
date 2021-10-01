@@ -23,7 +23,7 @@
 		<appender-ref ref="FILE" />
 	</root>
 	
-	<logger level="TRACE" name="com.firstlinecode.sand" additivity="false">
+	<logger level="TRACE" name="com.thefirstlineofcode.sand" additivity="false">
 		<appender-ref ref="FILE"/>
 	</logger> 
 </configuration>

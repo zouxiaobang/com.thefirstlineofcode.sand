@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.firstlinecode.sand.server.lite.devices.DeviceMapper">
-    <insert id="insert" parameterType="com.firstlinecode.sand.server.lite.devices.D_Device">
+<mapper namespace="com.thefirstlineofcode.sand.server.lite.devices.DeviceMapper">
+    <insert id="insert" parameterType="com.thefirstlineofcode.sand.server.lite.devices.D_Device">
         INSERT INTO DEVICES(id, device_id, model, registration_time) VALUES(#{id}, #{deviceId}, #{model}, #{registrationTime})
     </insert>
     
@@ -10,7 +10,7 @@
         DELETE FROM DEVICES WHERE device_Name=#{0}
     </update>
     
-	<select id="selectByDeviceId" resultType="com.firstlinecode.sand.server.lite.devices.D_Device">
+	<select id="selectByDeviceId" resultType="com.thefirstlineofcode.sand.server.lite.devices.D_Device">
 		SELECT * FROM DEVICES WHERE device_id=#{0}
     </select>
     
