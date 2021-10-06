@@ -5,8 +5,8 @@ import java.io.ObjectInput;
 import java.io.ObjectOutput;
 
 import com.thefirstlineofcode.basalt.oxm.binary.BinaryUtils;
+import com.thefirstlineofcode.basalt.oxm.binary.IBinaryXmppProtocolConverter;
 import com.thefirstlineofcode.basalt.protocol.core.Protocol;
-import com.thefirstlineofcode.gem.protocols.bxmpp.BinaryMessageProtocolReader;
 import com.thefirstlineofcode.sand.client.lora.ILoraChip.PowerType;
 import com.thefirstlineofcode.sand.client.things.commuication.CommunicationException;
 import com.thefirstlineofcode.sand.client.things.commuication.ICommunicator;
@@ -31,7 +31,7 @@ public abstract class AbstractLoraThingEmulator extends AbstractCommunicationNet
 	
 	protected IObmFactory obmFactory = ObmFactory.createInstance();
 	
-	protected BinaryMessageProtocolReader bMessageProtocolReader;
+	protected IBinaryXmppProtocolConverter bXmppProtocolConverter;
 	
 	public AbstractLoraThingEmulator() {}
 	
@@ -43,7 +43,7 @@ public abstract class AbstractLoraThingEmulator extends AbstractCommunicationNet
 
 	private void init() {
 		ObmFactory obmFactory = (ObmFactory)ObmFactory.createInstance();
-		bMessageProtocolReader = new BinaryMessageProtocolReader(obmFactory.getBinaryXmppProtocolConverter());
+		bXmppProtocolConverter = obmFactory.getBinaryXmppProtocolConverter();
 		
 		if (dataReceiving) {
 			dataReceiving = false;
@@ -194,7 +194,7 @@ public abstract class AbstractLoraThingEmulator extends AbstractCommunicationNet
 	public void addressChanged(LoraAddress newAddress, LoraAddress oldAddress) {}
 	
 	protected Protocol readProtocol(byte[] data) {
-		return bMessageProtocolReader.readProtocol(data);
+		return bXmppProtocolConverter.readProtocol(data);
 	}
 	
 	protected <A> A readAction(Class<A> actionType, byte[] data) {

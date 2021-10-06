@@ -4,7 +4,6 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
-import com.thefirstlineofcode.sand.protocols.core.HourBasedTimeId;
 import com.thefirstlineofcode.sand.protocols.core.HourBasedTimeId.Direction;
 
 public class HourBasedTimeIdTest {

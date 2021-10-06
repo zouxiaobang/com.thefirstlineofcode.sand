@@ -5,7 +5,7 @@ import java.util.Map;
 
 import com.thefirstlineofcode.basalt.protocol.core.Protocol;
 import com.thefirstlineofcode.sand.protocols.core.ModelDescriptor;
-import com.thefirstlineofcode.sand.protocols.devices.gateway.Restart;
+import com.thefirstlineofcode.sand.protocols.devices.gateway.ChangeMode;
 
 public class Ge01ModelDescriptor extends ModelDescriptor {
 	private static final String MODEL_NAME = "GE01";
@@ -16,7 +16,7 @@ public class Ge01ModelDescriptor extends ModelDescriptor {
 
 	private static Map<Protocol, Class<?>> createSupportedActions() {
 		Map<Protocol, Class<?>> supportedActions = new HashMap<>();
-		supportedActions.put(Restart.PROTOCOL, Restart.class);
+		supportedActions.put(ChangeMode.PROTOCOL, ChangeMode.class);
 		
 		return supportedActions;
 	}

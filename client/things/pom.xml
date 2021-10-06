@@ -19,16 +19,16 @@
 	
 	<dependencies>
 		<dependency>
-			<groupId>com.thefirstlineofcode.gem.client</groupId>
-			<artifactId>gem-client-bxmpp</artifactId>
-		</dependency>
-		<dependency>
 			<groupId>com.thefirstlineofcode.sand.protocols</groupId>
 			<artifactId>sand-protocols-concentrator</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>com.thefirstlineofcode.sand.protocols</groupId>
 			<artifactId>sand-protocols-actuator</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.thefirstlineofcode.basalt</groupId>
+			<artifactId>basalt-oxm</artifactId>
 		</dependency>
 	</dependencies>
 </project>

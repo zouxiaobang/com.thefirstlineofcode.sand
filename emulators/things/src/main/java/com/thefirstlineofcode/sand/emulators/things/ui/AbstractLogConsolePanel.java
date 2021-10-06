@@ -18,8 +18,8 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 
 import com.thefirstlineofcode.basalt.oxm.binary.BinaryUtils;
+import com.thefirstlineofcode.basalt.oxm.binary.IBinaryXmppProtocolConverter;
 import com.thefirstlineofcode.basalt.protocol.core.Protocol;
-import com.thefirstlineofcode.gem.protocols.bxmpp.BinaryMessageProtocolReader;
 import com.thefirstlineofcode.sand.client.things.obm.IObmFactory;
 import com.thefirstlineofcode.sand.client.things.obm.ObmFactory;
 import com.thefirstlineofcode.sand.emulators.things.ILogger;
@@ -37,10 +37,10 @@ public abstract class AbstractLogConsolePanel extends JPanel implements ILogger,
 	private JTextArea logConsole;
 	private JButton clear;
 	private final IObmFactory obmFactory = ObmFactory.createInstance();
-	private final BinaryMessageProtocolReader bMessageProtocolReader;
+	private final IBinaryXmppProtocolConverter bXmppProtocolConverter;
 	
 	public AbstractLogConsolePanel() {
-		bMessageProtocolReader = new BinaryMessageProtocolReader(((ObmFactory)ObmFactory.createInstance()).getBinaryXmppProtocolConverter());
+		bXmppProtocolConverter = ((ObmFactory)ObmFactory.createInstance()).getBinaryXmppProtocolConverter();
 		registerAddressConfigurationProtocolTypes();
 
 		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
@@ -113,7 +113,7 @@ public abstract class AbstractLogConsolePanel extends JPanel implements ILogger,
 	}
 
 	protected Object parseProtocol(byte[] data) {
-		Protocol protocol = bMessageProtocolReader.readProtocol(data);
+		Protocol protocol = bXmppProtocolConverter.readProtocol(data);
 		if (protocol == null) {
 			throw new RuntimeException(String.format("Unknown protocol. Data is %s.", BinaryUtils.getHexStringFromBytes(data)));
 		}
