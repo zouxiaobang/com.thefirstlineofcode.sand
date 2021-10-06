@@ -14,6 +14,7 @@ import com.thefirstlineofcode.basalt.oxm.binary.AbstractBinaryXmppProtocolConver
 import com.thefirstlineofcode.basalt.oxm.binary.BinaryUtils;
 import com.thefirstlineofcode.basalt.oxm.binary.BinaryXmppProtocolConverter;
 import com.thefirstlineofcode.basalt.oxm.binary.BxmppExtension;
+import com.thefirstlineofcode.basalt.oxm.binary.DefaultBxmppExtension;
 import com.thefirstlineofcode.basalt.oxm.binary.IBinaryXmppProtocolConverter;
 import com.thefirstlineofcode.basalt.oxm.binary.Namespace;
 import com.thefirstlineofcode.basalt.oxm.binary.ReduplicateBxmppReplacementException;
@@ -27,7 +28,7 @@ import com.thefirstlineofcode.basalt.protocol.core.ProtocolChain;
 import com.thefirstlineofcode.basalt.protocol.im.stanza.Message;
 
 public class ObmFactory implements IObmFactory {
-	private static final byte[] MESSAGE_WRAPPER_DATA = new byte[] {88, 0, 1, 0};
+	private static final byte[] MESSAGE_WRAPPER_DATA = new byte[] {(byte)0x60, (byte)0, (byte)1, (byte)0};
 	
 	private IOxmFactory oxmFactory;
 	private AbstractBinaryXmppProtocolConverter<?> binaryXmppProtocolConverter;
@@ -76,6 +77,10 @@ public class ObmFactory implements IObmFactory {
 			if (configFiles == null || configFiles.length == 0)
 				return binaryXmppProtocolConverter;
 			
+			BxmppExtension defaultBxmppExtension = new DefaultBxmppExtension();
+			defaultBxmppExtension.register(new ReplacementBytes((byte)0x60), "message");
+			binaryXmppProtocolConverter.registerBxmppExtension(defaultBxmppExtension);
+			
 			for (String configFile : configFiles) {
 				loadBxmppExtensionFromPropertiesFile(binaryXmppProtocolConverter,
 						"META-INF/" + configFile);
@@ -92,7 +97,7 @@ public class ObmFactory implements IObmFactory {
 	private void loadBxmppExtensionFromPropertiesFile(AbstractBinaryXmppProtocolConverter<?> bxmppProtocolConverter,
 			String configurationFilePath)
 			throws IOException, ReduplicateBxmppReplacementException {
-		URL configurationFileUrl = getClass().getClassLoader().getResource("META-INF/" + configurationFilePath);
+		URL configurationFileUrl = getClass().getClassLoader().getResource(configurationFilePath);
 		String provider = getProvider(configurationFileUrl);
 		
 		Properties properties = new Properties();
@@ -110,10 +115,12 @@ public class ObmFactory implements IObmFactory {
 			ReplacementBytes replacementBytes = ReplacementBytes.parse(sReplacementBytes);				
 			replacementBytes.setProvider(provider);
 			
-			bxmppExtension.register(replacementBytes, keyword);
+			if (!ReplacementBytes.isNamespaceReplacementBytes(replacementBytes)) {
+				bxmppExtension.register(replacementBytes, keyword);
+			}			
 		}
 		
-		binaryXmppProtocolConverter.registerBxmppExtension(bxmppExtension);
+		bxmppProtocolConverter.registerBxmppExtension(bxmppExtension);
 	}
 	
 	private Namespace findNamespace(Properties properties) {

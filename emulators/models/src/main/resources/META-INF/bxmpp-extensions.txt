@@ -3,4 +3,4 @@ concentrator-bxmpp-extension.properties
 actuator-bxmpp-extension.properties
 lora-dac-bxmpp-extension.properties
 devices-gateway-bxmpp-extension.properties
-device-light-bxmpp-extension.properties
+devices-light-bxmpp-extension.properties
