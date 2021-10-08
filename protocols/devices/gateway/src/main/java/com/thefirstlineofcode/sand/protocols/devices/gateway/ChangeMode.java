@@ -9,8 +9,18 @@ public class ChangeMode {
 	public static final Protocol PROTOCOL = new Protocol("urn:leps:iot:actuator:geteway", "change-mode");
 	
 	public enum Mode {
-		ADDRESS_CONFIGURATION,
-		WORKING
+		ADDRESS_CONFIGURATION {
+			@Override
+			public String toString() {
+				return "A";
+			}
+		},
+		WORKING {
+			@Override
+			public String toString() {
+				return "W";
+			}
+		}
 	}
 	
 	@String2Enum(Mode.class)

@@ -40,7 +40,6 @@ import com.thefirstlineofcode.chalk.core.stream.UsernamePasswordToken;
 import com.thefirstlineofcode.chalk.network.ConnectionException;
 import com.thefirstlineofcode.chalk.network.IConnectionListener;
 import com.thefirstlineofcode.sand.client.actuator.ActuatorPlugin;
-import com.thefirstlineofcode.sand.client.dmr.IModelRegistrar;
 import com.thefirstlineofcode.sand.client.ibdr.IRegistration;
 import com.thefirstlineofcode.sand.client.ibdr.IbdrPlugin;
 import com.thefirstlineofcode.sand.client.ibdr.RegistrationException;
@@ -512,14 +511,8 @@ public class LightFrame extends JFrame implements ActionListener, WindowListener
 		IChatClient chatClient = new StandardChatClient(streamConfigWithResource);
 		
 		registerPlugins(chatClient);
-		registeredModels(chatClient);
 		
 		return chatClient;
-	}
-	
-	private void registeredModels(IChatClient chatClient) {
-		IModelRegistrar modelRegistrar = chatClient.createApi(IModelRegistrar.class);
-		modelRegistrar.registerModeDescriptor(new Le02ModelDescriptor());
 	}
 
 	private void registerPlugins(IChatClient chatClient) {

@@ -79,7 +79,7 @@ public class ObmFactory implements IObmFactory {
 			
 			BxmppExtension defaultBxmppExtension = new DefaultBxmppExtension();
 			defaultBxmppExtension.register(new ReplacementBytes((byte)0x60), "message");
-			binaryXmppProtocolConverter.registerBxmppExtension(defaultBxmppExtension);
+			binaryXmppProtocolConverter.register(defaultBxmppExtension);
 			
 			for (String configFile : configFiles) {
 				loadBxmppExtensionFromPropertiesFile(binaryXmppProtocolConverter,
@@ -120,7 +120,7 @@ public class ObmFactory implements IObmFactory {
 			}			
 		}
 		
-		bxmppProtocolConverter.registerBxmppExtension(bxmppExtension);
+		bxmppProtocolConverter.register(bxmppExtension);
 	}
 	
 	private Namespace findNamespace(Properties properties) {

@@ -9,7 +9,7 @@ public class DmrPlugin implements IPlugin {
 
 	@Override
 	public void init(IChatSystem chatSystem, Properties properties) {
-		chatSystem.registerApi(IModelRegistrar.class, ModelRegistrar.class);
+		chatSystem.registerApi(IModelRegistrar.class, ModelRegistrar.class, false);
 	}
 
 	@Override

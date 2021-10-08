@@ -20,6 +20,7 @@ import com.thefirstlineofcode.granite.framework.core.console.IConsoleSystem;
 import com.thefirstlineofcode.granite.framework.core.pipeline.stages.event.IEventFirer;
 import com.thefirstlineofcode.granite.framework.core.pipeline.stages.event.IEventFirerAware;
 import com.thefirstlineofcode.sand.protocols.actuator.Execute;
+import com.thefirstlineofcode.sand.protocols.devices.gateway.ChangeMode;
 import com.thefirstlineofcode.sand.protocols.devices.light.Flash;
 import com.thefirstlineofcode.sand.server.actuator.ExecutionEvent;
 import com.thefirstlineofcode.sand.server.concentrator.Confirmed;
@@ -41,6 +42,7 @@ public class SandCommandsProcessor extends AbstractCommandsProcessor implements 
 
 	private static final String COMMAND_EXECUTE = "execute";
 	private static final String ACTION_NAME_FLASH = "flash";
+	private static final String ACTION_NAME_CHANGE_MODE = "change-mode";
 	
 	@Dependency("device.authorization.delegator")
 	private DeviceAuthorizationDelegator deviceAuthorizationDelegator;
@@ -66,6 +68,7 @@ public class SandCommandsProcessor extends AbstractCommandsProcessor implements 
 	private Map<String, Protocol> createActionNameToProtocols() {
 		Map<String, Protocol> actionNameToProtocols = new HashMap<>();
 		actionNameToProtocols.put(ACTION_NAME_FLASH, Flash.PROTOCOL);
+		actionNameToProtocols.put(ACTION_NAME_CHANGE_MODE, ChangeMode.PROTOCOL);
 		
 		return actionNameToProtocols;
 	}
@@ -269,6 +272,15 @@ public class SandCommandsProcessor extends AbstractCommandsProcessor implements 
 			return new BigInteger(value);
 		} else if (type.equals(BigDecimal.class)) {
 			return new BigDecimal(value);
+		} else if (type.isEnum()) {
+			Object[] constants = type.getEnumConstants();
+			for (Object constant : constants) {
+				if (((Enum<?>)constant).toString().equalsIgnoreCase(value)) {
+					return constant;
+				}
+			}
+			
+			throw new RuntimeException(String.format("Can't convert string '%s' to instance of enum type %s.", type, value));
 		} else {
 			return value;
 		}

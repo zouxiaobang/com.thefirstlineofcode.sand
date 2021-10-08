@@ -18,11 +18,12 @@ import com.thefirstlineofcode.basalt.protocol.core.stanza.Iq;
 import com.thefirstlineofcode.chalk.core.IChatServices;
 import com.thefirstlineofcode.chalk.core.stanza.IIqListener;
 import com.thefirstlineofcode.sand.client.dmr.IModelRegistrar;
+import com.thefirstlineofcode.sand.client.dmr.ModelRegistrar;
 import com.thefirstlineofcode.sand.client.things.autuator.ExecutionException;
+import com.thefirstlineofcode.sand.client.things.autuator.ExecutionException.Reason;
 import com.thefirstlineofcode.sand.client.things.autuator.IActuator;
 import com.thefirstlineofcode.sand.client.things.autuator.IExecutor;
 import com.thefirstlineofcode.sand.client.things.autuator.IExecutorFactory;
-import com.thefirstlineofcode.sand.client.things.autuator.ExecutionException.Reason;
 import com.thefirstlineofcode.sand.client.things.commuication.CommunicationException;
 import com.thefirstlineofcode.sand.client.things.commuication.ICommunicator;
 import com.thefirstlineofcode.sand.client.things.concentrator.IActionDeliverer;
@@ -40,9 +41,13 @@ public class Actuator implements IActuator, IIqListener {
 	private Map<Class<?>, IExecutorFactory<?>> executorFactories;
 	private ConcurrentMap<CommunicationNet, IActionDeliverer<?, ?>> actionDeliverers;
 	
+	private IModelRegistrar modelRegistrar;
+	
 	public Actuator() {
 		executorFactories = new HashMap<>();
 		actionDeliverers = new ConcurrentHashMap<>();
+		
+		modelRegistrar = new ModelRegistrar();
 	}
 	
 	@Override
@@ -57,6 +62,9 @@ public class Actuator implements IActuator, IIqListener {
 			execute(iq, execute.getAction());
 			
 			Iq result = new Iq(Iq.Type.RESULT, iq.getId());
+			if (iq.getFrom() != null)
+				iq.setTo(iq.getFrom());
+			
 			chatServices.getIqService().send(result);
 		} catch (ExecutionException e) {
 			// TODO Auto-generated catch block
@@ -82,7 +90,8 @@ public class Actuator implements IActuator, IIqListener {
 				
 				deliverAction(iq, action);
 			} else {
-				throw new ExecutionException(Reason.UNSUPPORTED_ACTION_TYPE);
+				throw new ExecutionException(Reason.UNSUPPORTED_ACTION_TYPE,
+						String.format("Unsupported action type: %s.", action.getClass().getName()));
 			}
 		} catch (RuntimeException e) {
 			// TODO: handle exception
@@ -98,28 +107,30 @@ public class Actuator implements IActuator, IIqListener {
 		
 		return null;
 	}
-
-	@SuppressWarnings("unchecked")
-	private <T> IExecutor<T> createExecutor(Class<? extends IExecutor<T>> executorType) throws ExecutionException {
-		IExecutor<T> executor = null;
-		Constructor<T> constructor = null;
+	
+	private IExecutor<?> createExecutor(Class<? extends IExecutor<?>> executorType) throws ExecutionException {
+		IExecutor<?> executor = null;
+		Constructor<?> constructor = null;
 		try {
-			constructor = (Constructor<T>)executorType.getConstructor(IChatServices.class);
+			constructor = (Constructor<?>)executorType.getConstructor(IChatServices.class);
 			
 			try {
-				executor = (IExecutor<T>)constructor.newInstance(chatServices);
+				executor = (IExecutor<?>)constructor.newInstance(chatServices);
 			} catch (Exception e) {
-				throw new ExecutionException(Reason.FAILED_TO_CREATE_EXECUTOR_INSTANCE, e);
+				throw new ExecutionException(Reason.FAILED_TO_CREATE_EXECUTOR_INSTANCE,
+						getCantCreateExecutorInfo(executor.getClass()), e);
 			}
 		} catch (NoSuchMethodException e) {
 			constructor = createEmptyConstructor(executorType, constructor);
 			try {
-				executor = (IExecutor<T>)constructor.newInstance();
+				executor = (IExecutor<?>)constructor.newInstance();
 			} catch (Exception nie) {
-				throw new ExecutionException(Reason.FAILED_TO_CREATE_EXECUTOR_INSTANCE, nie);
+				throw new ExecutionException(Reason.FAILED_TO_CREATE_EXECUTOR_INSTANCE,
+						getCantCreateExecutorInfo(executor.getClass()), nie);
 			}
 		} catch (SecurityException e) {
-			throw new ExecutionException(Reason.FAILED_TO_CREATE_EXECUTOR_INSTANCE);			
+			throw new ExecutionException(Reason.FAILED_TO_CREATE_EXECUTOR_INSTANCE,
+					getCantCreateExecutorInfo(executor.getClass()));			
 		}
 		
 		for (Field field : executorType.getFields()) {
@@ -129,7 +140,7 @@ public class Actuator implements IActuator, IIqListener {
 					field.setAccessible(true);
 					field.set(executor, chatServices);
 				} catch (IllegalAccessException | IllegalArgumentException e) {
-					throw new ExecutionException(Reason.FAILED_TO_CREATE_EXECUTOR_INSTANCE, e);
+					throw new ExecutionException(Reason.FAILED_TO_CREATE_EXECUTOR_INSTANCE, "Can't set chat services to executor.", e);
 				} finally {
 					field.setAccessible(oldAccesssiable);
 				}
@@ -141,15 +152,20 @@ public class Actuator implements IActuator, IIqListener {
 		return executor;
 	}
 
-	@SuppressWarnings("unchecked")
-	private <T> Constructor<T> createEmptyConstructor(Class<? extends IExecutor<T>> executorType,
-			Constructor<T> constructor) throws ExecutionException {
+	private String getCantCreateExecutorInfo(Class<?> executorType) {
+		return String.format("Can't create executor for executor type: %s.", executorType.getName());
+	}
+
+	private Constructor<?> createEmptyConstructor(Class<?> executorType,
+			Constructor<?> constructor) throws ExecutionException {
 		try {
-			constructor = (Constructor<T>)executorType.getConstructor();
+			constructor = (Constructor<?>)executorType.getConstructor();
 		} catch (NoSuchMethodException e) {
-			throw new ExecutionException(Reason.FAILED_TO_CREATE_EXECUTOR_INSTANCE, e);			
+			throw new ExecutionException(Reason.FAILED_TO_CREATE_EXECUTOR_INSTANCE,
+					getCantCreateExecutorInfo(executorType), e);			
 		} catch (SecurityException e) {
-			throw new ExecutionException(Reason.FAILED_TO_CREATE_EXECUTOR_INSTANCE, e);			
+			throw new ExecutionException(Reason.FAILED_TO_CREATE_EXECUTOR_INSTANCE,
+					getCantCreateExecutorInfo(executorType), e);
 		}
 		
 		return constructor;
@@ -162,24 +178,8 @@ public class Actuator implements IActuator, IIqListener {
 
 	@Override
 	public void start() {
-		IModelRegistrar modelRegistrar = chatServices.createApi(IModelRegistrar.class);
-		ModelDescriptor[] modelDescriptors = modelRegistrar.getModelDescriptors();
-		for (ModelDescriptor modelDescriptor : modelDescriptors) {
-			for (Protocol protocol : modelDescriptor.getSupportedActions().keySet()) {
-				Class<?> actionType = modelDescriptor.getSupportedActions().get(protocol);
-				IParserFactory<?> actionParserFactory = createCustomActionParserFactory(actionType);
-				
-				if (actionParserFactory == null)
-					actionParserFactory = new NamingConventionParserFactory<>(actionType);
-				
-					chatServices.getStream().getOxmFactory().register(
-							new IqProtocolChain().next(Execute.PROTOCOL).next(protocol),
-							actionParserFactory);
-			}
-		}
-		
 		if (chatServices.getIqService().getListener(Execute.PROTOCOL) != this)
-			chatServices.getIqService().addListener(Execute.PROTOCOL, this);
+			chatServices.getIqService().addListener(Execute.PROTOCOL, this);		
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -216,9 +216,10 @@ public class Actuator implements IActuator, IIqListener {
 			this.executorType = executorType;
 		}
 
+		@SuppressWarnings("unchecked")
 		@Override
 		public IExecutor<T> create() throws ExecutionException {
-			return createExecutor(executorType);
+			return (IExecutor<T>)createExecutor(executorType);
 		}
 		
 	}
@@ -293,6 +294,36 @@ public class Actuator implements IActuator, IIqListener {
 		} catch (Exception e) {
 			throw new ExecutionException(Reason.FAILED_TO_CREATE_ACTION_DELIVERER_INSTANCE, e);
 		}
+	}
+
+	@Override
+	public void registerModel(ModelDescriptor modelDescriptor) {
+		if (isModelRegistered(modelDescriptor)) {
+			throw new IllegalArgumentException(String.format("Reduplicate model descritor. Model name is '%s'", modelDescriptor.getName()));
+		}
+		
+		modelRegistrar.registerModeDescriptor(modelDescriptor);
+		
+		for (Protocol protocol : modelDescriptor.getSupportedActions().keySet()) {
+			Class<?> actionType = modelDescriptor.getSupportedActions().get(protocol);
+			IParserFactory<?> actionParserFactory = createCustomActionParserFactory(actionType);
+			
+			if (actionParserFactory == null)
+				actionParserFactory = new NamingConventionParserFactory<>(actionType);
+			
+			chatServices.getStream().getOxmFactory().register(
+					new IqProtocolChain(Execute.PROTOCOL).next(protocol),
+					actionParserFactory);
+		}
+	}
+
+	private boolean isModelRegistered(ModelDescriptor modelDescriptor) {
+		for (ModelDescriptor aModelDescriptor : modelRegistrar.getModelDescriptors()) {
+			if (aModelDescriptor.getName().equals(modelDescriptor.getName()))
+				return true;
+		}
+		
+		return false;
 	}
 
 }

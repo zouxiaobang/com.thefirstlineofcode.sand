@@ -16,35 +16,26 @@ public class ExecutionException extends Exception {
 	}
 	
 	private Reason reason;
-	private Throwable cause;
 
 	public ExecutionException(Reason reason) {
-		this.reason = reason;
+		this(reason, null, null);
 	}
 	
-	public ExecutionException(Throwable cause) {
-		this.reason = Reason.UNKNOWN_ERROR;
-		this.cause = cause;
+	public ExecutionException(Reason reason, String message) {
+		this(reason, message, null);
 	}
 	
 	public ExecutionException(Reason reason, Throwable cause) {
+		this(reason, null, cause);
+	}
+	
+	public ExecutionException(Reason reason, String message, Throwable cause) {
+		super(message, cause);
+		
 		this.reason = reason;
-		this.cause = cause;
 	}
 	
 	public ExecutionException.Reason getReason() {
 		return reason;
-	}
-	
-	public Throwable getCause() {
-		return cause;
-	}
-	
-	@Override
-	public String getMessage() {
-		if (reason != null)
-			return reason.toString();
-		else
-			return null;
 	}
 }

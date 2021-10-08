@@ -57,6 +57,7 @@ import com.thefirstlineofcode.chalk.network.IConnectionListener;
 import com.thefirstlineofcode.sand.client.actuator.ActuatorPlugin;
 import com.thefirstlineofcode.sand.client.concentrator.ConcentratorPlugin;
 import com.thefirstlineofcode.sand.client.dmr.IModelRegistrar;
+import com.thefirstlineofcode.sand.client.dmr.ModelRegistrar;
 import com.thefirstlineofcode.sand.client.ibdr.IRegistration;
 import com.thefirstlineofcode.sand.client.ibdr.IbdrPlugin;
 import com.thefirstlineofcode.sand.client.ibdr.RegistrationException;
@@ -64,7 +65,10 @@ import com.thefirstlineofcode.sand.client.lora.ConcentratorDynamicalAddressConfi
 import com.thefirstlineofcode.sand.client.lora.IDualLoraChipsCommunicator;
 import com.thefirstlineofcode.sand.client.things.IDeviceListener;
 import com.thefirstlineofcode.sand.client.things.ThingsUtils;
+import com.thefirstlineofcode.sand.client.things.autuator.ExecutionException;
 import com.thefirstlineofcode.sand.client.things.autuator.IActuator;
+import com.thefirstlineofcode.sand.client.things.autuator.IExecutor;
+import com.thefirstlineofcode.sand.client.things.autuator.IExecutorFactory;
 import com.thefirstlineofcode.sand.client.things.commuication.ParamsMap;
 import com.thefirstlineofcode.sand.client.things.concentrator.IConcentrator;
 import com.thefirstlineofcode.sand.client.things.concentrator.IConcentrator.LanError;
@@ -94,6 +98,7 @@ import com.thefirstlineofcode.sand.emulators.things.ui.StreamConfigDialog;
 import com.thefirstlineofcode.sand.protocols.core.CommunicationNet;
 import com.thefirstlineofcode.sand.protocols.core.DeviceIdentity;
 import com.thefirstlineofcode.sand.protocols.core.ModelDescriptor;
+import com.thefirstlineofcode.sand.protocols.devices.gateway.ChangeMode;
 import com.thefirstlineofcode.sand.protocols.lora.LoraAddress;
 
 public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionListener, InternalFrameListener,
@@ -183,7 +188,9 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 	
 	private ConcentratorDynamicalAddressConfigurator addressConfigurator;
 	private IConcentrator concentrator;
-	private Map<String, ModelDescriptor> registeredModels;
+	
+	private IActuator actuator;
+	private IModelRegistrar modelRegistrar;
 	
 	public Gateway(ILoraNetwork network, IDualLoraChipsCommunicator gatewayCommunicator) {
 		super(THING_NAME);
@@ -354,7 +361,7 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 		getSelectedFrame().getThing().powerOn();
 	}
 
-	private synchronized void setToWorkingMode() {
+	public synchronized void setToWorkingMode() {
 		addressConfigurator.stop();
 		startWorking(chatClient);
 		
@@ -363,8 +370,7 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 		UiUtils.getMenuItem(menuBar, MENU_NAME_TOOLS, MENU_ITEM_NAME_RECONFIGURE_ADDRESS).setEnabled(false);
 	}
 
-	private synchronized void setToAddressConfigurationMode() {
-		stopWorking(chatClient);
+	public synchronized void setToAddressConfigurationMode() {
 		addressConfigurator.start();
 		
 		UiUtils.getMenuItem(menuBar, MENU_NAME_TOOLS, MENU_ITEM_NAME_ADDRESS_CONFIGURATION_MODE).setEnabled(false);
@@ -507,7 +513,7 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 		IChatClient chatClient = new StandardChatClient(streamConfigWithResource);
 		
 		registerPlugins(chatClient);
-		registerModels(chatClient);
+		registerModels();
 		
 		return chatClient;
 	}
@@ -526,37 +532,27 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 		if (addressConfigurator.getState() != ConcentratorDynamicalAddressConfigurator.State.STOPPED)
 			return;
 		
-		IActuator actuator = chatClient.createApi(IActuator.class);
-		actuator.start();
-	}
-	
-	private void stopWorking(IChatClient chatClient) {
-		stopSensor(chatClient);
-		stopActuator(chatClient);
-	}
-	
-	private void stopSensor(IChatClient chatClient) {
-		// TODO Auto-generated method stub
+		if (actuator == null) {
+			actuator = chatClient.createApi(IActuator.class);
+			for (ModelDescriptor modelDescriptor : modelRegistrar.getModelDescriptors()) {				
+				actuator.registerModel(modelDescriptor);
+			}
+			
+			actuator.registerExecutorFactory(ChangeMode.class, new IExecutorFactory<ChangeMode>() {
+				@Override
+				public IExecutor<ChangeMode> create() throws ExecutionException {
+					return new ChangeModeExecutor(Gateway.this);
+				}
+			});
+		}
 		
-	}
-
-	private void stopActuator(IChatClient chatClient) {
-		IActuator actuator = chatClient.createApi(IActuator.class);
-		actuator.stop();
-	}
-
-	private void registerModels(IChatClient chatClient) {
-		IModelRegistrar modelRegistrar = chatClient.createApi(IModelRegistrar.class);
-		modelRegistrar.registerModeDescriptor(new Ge01ModelDescriptor());
-		modelRegistrar.registerModeDescriptor(new Le01ModelDescriptor());
+		actuator.start();
 	}
 
 	private void registerModels() {
-		registeredModels = new HashMap<>();
-		Ge01ModelDescriptor ge01 = new Ge01ModelDescriptor();
-		registeredModels.put(ge01.getName(), ge01);
-		Le01ModelDescriptor le01 = new Le01ModelDescriptor();
-		registeredModels.put(le01.getName(), le01);
+		modelRegistrar = new ModelRegistrar();
+		modelRegistrar.registerModeDescriptor(new Ge01ModelDescriptor());
+		modelRegistrar.registerModeDescriptor(new Le01ModelDescriptor());
 	}
 
 	private void registerPlugins(IChatClient chatClient) {
@@ -573,7 +569,8 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 	}
 
 	private void showLogConsoleDialog() {
-		logConsolesDialog = new LogConsolesDialog(this, registeredModels, network, gatewayCommunicator, allThings);			
+		logConsolesDialog = new LogConsolesDialog(this, modelRegistrar.getModelDescriptors(),
+				network, gatewayCommunicator, allThings);			
 		logConsolesDialog.addWindowListener(this);
 		logConsolesDialog.setVisible(true);
 		
@@ -1359,7 +1356,8 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 			UiUtils.getMenuItem(menuBar, MENU_NAME_EDIT, MENU_ITEM_NAME_POWER_ON).setEnabled(false);
 			UiUtils.getMenuItem(menuBar, MENU_NAME_EDIT, MENU_ITEM_NAME_POWER_OFF).setEnabled(true);
 			
-			if (chatClient != null && chatClient.isConnected()) {
+			if (chatClient != null && chatClient.isConnected() && addressConfigurator != null &&
+					addressConfigurator.getState() == ConcentratorDynamicalAddressConfigurator.State.STOPPED) {
 				UiUtils.getMenuItem(menuBar, MENU_NAME_TOOLS, MENU_ITEM_NAME_RECONFIGURE_ADDRESS).setEnabled(true);
 			}
 		} else {

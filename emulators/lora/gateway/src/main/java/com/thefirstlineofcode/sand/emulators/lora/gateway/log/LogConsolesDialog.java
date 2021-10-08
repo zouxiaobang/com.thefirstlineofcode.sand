@@ -1,5 +1,6 @@
 package com.thefirstlineofcode.sand.emulators.lora.gateway.log;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -25,18 +26,28 @@ public class LogConsolesDialog extends AbstractLogConsolesDialog {
 	private IDualLoraChipsCommunicator gatewayCommunicator;
 	private Map<String, List<AbstractLoraThingEmulator>> allThings;
 	
-	public LogConsolesDialog(JFrame parent, Map<String, ModelDescriptor> models,
+	public LogConsolesDialog(JFrame parent, ModelDescriptor[] modelDescriptors,
 			ICommunicationNetwork<LoraAddress, byte[], ?> network,
 			IDualLoraChipsCommunicator gatewayCommunicator,
 			Map<String, List<AbstractLoraThingEmulator>> allThings) {
 		super(parent);
 		
-		this.models = models;
+		this.models = toModels(modelDescriptors);
 		this.network = network;
 		this.gatewayCommunicator = gatewayCommunicator;
 		this.allThings = allThings;
 		
 		createPreinstlledLogConsoles();
+	}
+
+	private Map<String, ModelDescriptor> toModels(ModelDescriptor[] modelDescriptors) {
+		Map<String, ModelDescriptor> models = new HashMap<>();
+		
+		for (ModelDescriptor modelDescriptor : modelDescriptors) {
+			models.put(modelDescriptor.getName(), modelDescriptor);
+		}
+		
+		return models;
 	}
 
 	protected void createPreinstlledLogConsoles() {
