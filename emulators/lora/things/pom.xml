@@ -8,7 +8,7 @@
 	<parent>
 		<groupId>com.thefirstlineofcode.sand.emulators</groupId>
 		<artifactId>sand-emulators-lora</artifactId>
-		<version>0.2.0-SNAPSHOT</version>
+		<version>1.0.0-ALPHA-1</version>
 	</parent>
 
 	<groupId>com.thefirstlineofcode.sand.emulators.lora</groupId>

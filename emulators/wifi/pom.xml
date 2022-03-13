@@ -7,14 +7,14 @@
 	<parent>
 		<groupId>com.thefirstlineofcode.sand</groupId>
 		<artifactId>sand-emulators</artifactId>
-		<version>0.2.0-SNAPSHOT</version>
+		<version>1.0.0-ALPHA-1</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 
 	<groupId>com.thefirstlineofcode.sand.emulators</groupId>
 	<artifactId>sand-emulators-wifi</artifactId>
 	<packaging>pom</packaging>
-	<name>Lithosphere IoT WiFi emulators</name>
+	<name>Sand IoT WiFi emulators</name>
 
 	<modules>
 		<module>light</module>

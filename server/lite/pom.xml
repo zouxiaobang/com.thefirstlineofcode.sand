@@ -7,14 +7,14 @@
 	<parent>
 		<groupId>com.thefirstlineofcode.sand</groupId>
 		<artifactId>sand-server</artifactId>
-		<version>0.2.0-SNAPSHOT</version>
+		<version>1.0.0-ALPHA-1</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 
 	<groupId>com.thefirstlineofcode.sand.server</groupId>
 	<artifactId>sand-server-lite</artifactId>
 	<packaging>pom</packaging>
-	<name>Lithosphere IoT server deploy lite plugins</name>
+	<name>Sand IoT server deploy lite plugins</name>
 
 	<modules>
 		<module>devices</module>

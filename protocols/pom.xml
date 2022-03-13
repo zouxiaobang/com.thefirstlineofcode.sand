@@ -7,14 +7,14 @@
 	<parent>
 		<groupId>com.thefirstlineofcode.sand</groupId>
 		<artifactId>com.thefirstlineofcode.sand</artifactId>
-		<version>0.2.0-SNAPSHOT</version>
+		<version>1.0.0-ALPHA-1</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 
 	<groupId>com.thefirstlineofcode.sand</groupId>
 	<artifactId>sand-protocols</artifactId>
 	<packaging>pom</packaging>
-	<name>Lithosphere IoT protocol plugins</name>
+	<name>Sand IoT protocol plugins</name>
 
 	<modules>
 		<module>core</module>

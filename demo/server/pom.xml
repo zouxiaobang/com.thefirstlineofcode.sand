@@ -7,14 +7,14 @@
 	<parent>
 		<groupId>com.thefirstlineofcode.sand</groupId>
 		<artifactId>sand-demo</artifactId>
-		<version>0.2.0-SNAPSHOT</version>
+		<version>1.0.0-ALPHA-1</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 
 	<groupId>com.thefirstlineofcode.sand.demo</groupId>
 	<artifactId>sand-demo-server</artifactId>
 	<packaging>pom</packaging>
-	<name>Lithosphere demo IoT server Plugins</name>
+	<name>Sand demo IoT server Plugins</name>
 
 	<modules>
 		<module>console</module>
