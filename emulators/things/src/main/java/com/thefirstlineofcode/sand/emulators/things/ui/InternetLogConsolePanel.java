@@ -4,12 +4,13 @@ import java.awt.event.WindowEvent;
 
 import com.thefirstlineofcode.chalk.network.ConnectionException;
 import com.thefirstlineofcode.chalk.network.IConnectionListener;
+import com.thefirstlineofcode.sand.client.things.obm.IObmFactory;
 
 public class InternetLogConsolePanel extends AbstractLogConsolePanel implements IConnectionListener {
 	private static final long serialVersionUID = -7218394171950030532L;
 	
-	public InternetLogConsolePanel() {
-		super();
+	public InternetLogConsolePanel(IObmFactory obmFactory) {
+		super(obmFactory);
 	}
 
 	@Override

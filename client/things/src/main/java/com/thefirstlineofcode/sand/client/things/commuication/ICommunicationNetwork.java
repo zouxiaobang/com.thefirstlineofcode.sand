@@ -1,6 +1,8 @@
 package com.thefirstlineofcode.sand.client.things.commuication;
 
-public interface ICommunicationNetwork<A, D, P extends ParamsMap> {
+import com.thefirstlineofcode.sand.protocols.core.Address;
+
+public interface ICommunicationNetwork<A extends Address, D, P extends ParamsMap> {
 	ICommunicationChip<A, D> createChip(A address, P params);
 	void sendData(ICommunicationChip<A, D> from, A to, byte[] data);
 	Data<A, D> receiveData(ICommunicationChip<A, D> target);

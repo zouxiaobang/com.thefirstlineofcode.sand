@@ -1,4 +1,4 @@
-package com.thefirstlineofcode.sand.client.dmr;
+package com.thefirstlineofcode.sand.client.things.concentrator;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -77,6 +77,11 @@ public class ModelRegistrar implements IModelRegistrar {
 	@Override
 	public ModelDescriptor[] getModelDescriptors() {
 		return modelDescriptors.values().toArray(new ModelDescriptor[modelDescriptors.size()]);
+	}
+
+	@Override
+	public ModelDescriptor getModelDescriptor(String model) {
+		return modelDescriptors.get(model);
 	}
 
 }

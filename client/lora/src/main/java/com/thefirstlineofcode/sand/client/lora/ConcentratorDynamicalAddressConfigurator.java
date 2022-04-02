@@ -13,7 +13,6 @@ import com.thefirstlineofcode.sand.client.things.commuication.IAddressConfigurat
 import com.thefirstlineofcode.sand.client.things.commuication.ICommunicationListener;
 import com.thefirstlineofcode.sand.client.things.concentrator.IConcentrator;
 import com.thefirstlineofcode.sand.client.things.obm.IObmFactory;
-import com.thefirstlineofcode.sand.client.things.obm.ObmFactory;
 import com.thefirstlineofcode.sand.protocols.lora.DualLoraAddress;
 import com.thefirstlineofcode.sand.protocols.lora.LoraAddress;
 import com.thefirstlineofcode.sand.protocols.lora.dac.Allocated;
@@ -46,11 +45,12 @@ public class ConcentratorDynamicalAddressConfigurator implements IAddressConfigu
 	
 	private List<Listener> listeners;
 	
-	public ConcentratorDynamicalAddressConfigurator(IDualLoraChipsCommunicator communicator, IConcentrator concentrator) {
+	public ConcentratorDynamicalAddressConfigurator(IDualLoraChipsCommunicator communicator,
+			IConcentrator concentrator, IObmFactory obmFactory) {
 		this.communicator = communicator;
 		this.concentrator =  concentrator;
-
-		obmFactory = ObmFactory.createInstance();
+		this.obmFactory = obmFactory;
+		
 		workingAddress = communicator.getAddress();
 		state = State.STOPPED;
 		
@@ -89,7 +89,7 @@ public class ConcentratorDynamicalAddressConfigurator implements IAddressConfigu
 		}
 		
 		if (state == State.STOPPED || !communicator.getAddress().equals(ADDRESS_CONFIGURATION_MODE_DUAL_LORA_ADDRESS)) {				
-			logger.warn("It seemed that device has already is being in stopped mode.");
+			logger.warn("It seemed that address configurator has already is being in stopped mode.");
 			return;
 		}
 		

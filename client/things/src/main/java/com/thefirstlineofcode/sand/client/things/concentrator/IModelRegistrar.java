@@ -1,4 +1,4 @@
-package com.thefirstlineofcode.sand.client.dmr;
+package com.thefirstlineofcode.sand.client.things.concentrator;
 
 import com.thefirstlineofcode.basalt.protocol.core.Protocol;
 import com.thefirstlineofcode.sand.protocols.core.ModelDescriptor;
@@ -6,6 +6,7 @@ import com.thefirstlineofcode.sand.protocols.core.ModelDescriptor;
 public interface IModelRegistrar {
 	void registerModeDescriptor(ModelDescriptor modelDescriptor);
 	ModelDescriptor[] getModelDescriptors();
+	ModelDescriptor getModelDescriptor(String model);
 	boolean isActionSupported(String model, Protocol protocol);
 	boolean isActionSupported(String model, Class<?> actionType);
 	Class<?> getActionType(String model, Protocol protocol);

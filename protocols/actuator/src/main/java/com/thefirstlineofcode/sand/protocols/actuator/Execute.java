@@ -10,11 +10,19 @@ public class Execute {
 	
 	@NotNull
 	private Object action;
+	private boolean lanTraceable;
 	
-	public Execute() {}
+	public Execute() {
+		lanTraceable = false;
+	}
 	
 	public Execute(Object action) {
+		this(action, false);
+	}
+	
+	public Execute(Object action, boolean lanTraceable) {
 		this.action = action;
+		this.lanTraceable = lanTraceable;
 	}
 	
 	public Object getAction() {
@@ -23,6 +31,14 @@ public class Execute {
 	
 	public void setAction(Object action) {
 		this.action = action;
+	}
+
+	public boolean isLanTraceable() {
+		return lanTraceable;
+	}
+
+	public void setLanTraceable(boolean lanTraceable) {
+		this.lanTraceable = lanTraceable;
 	}
 	
 }

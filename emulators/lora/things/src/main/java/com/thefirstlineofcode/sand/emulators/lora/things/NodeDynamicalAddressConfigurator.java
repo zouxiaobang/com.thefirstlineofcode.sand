@@ -5,7 +5,6 @@ import com.thefirstlineofcode.sand.client.things.commuication.IAddressConfigurat
 import com.thefirstlineofcode.sand.client.things.commuication.ICommunicationListener;
 import com.thefirstlineofcode.sand.client.things.commuication.ICommunicator;
 import com.thefirstlineofcode.sand.client.things.obm.IObmFactory;
-import com.thefirstlineofcode.sand.client.things.obm.ObmFactory;
 import com.thefirstlineofcode.sand.emulators.lora.network.LoraCommunicator;
 import com.thefirstlineofcode.sand.protocols.lora.DualLoraAddress;
 import com.thefirstlineofcode.sand.protocols.lora.LoraAddress;
@@ -36,12 +35,13 @@ public class NodeDynamicalAddressConfigurator implements IAddressConfigurator<IC
 	
 	private boolean configurating;
 	
-	public NodeDynamicalAddressConfigurator(AbstractLoraThingEmulator thing, LoraCommunicator communicator) {
+	public NodeDynamicalAddressConfigurator(AbstractLoraThingEmulator thing, LoraCommunicator communicator, IObmFactory obmFactory) {
 		this.thing = thing;
-		obmFactory = ObmFactory.createInstance();
 
 		this.communicator = communicator;
 		communicator.addCommunicationListener(this);
+		
+		this.obmFactory = obmFactory;
 
 		configurating = false;
 	}

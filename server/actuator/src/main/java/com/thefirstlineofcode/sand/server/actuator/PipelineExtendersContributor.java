@@ -8,21 +8,25 @@ import com.thefirstlineofcode.granite.framework.core.pipeline.stages.PipelineExt
 import com.thefirstlineofcode.granite.framework.core.pipeline.stages.parsing.ProtocolParserFactory;
 import com.thefirstlineofcode.granite.framework.core.pipeline.stages.routing.ProtocolTranslatorFactory;
 import com.thefirstlineofcode.sand.protocols.actuator.Execute;
-import com.thefirstlineofcode.sand.protocols.actuator.oxm.ExecutionParserFactory;
-import com.thefirstlineofcode.sand.protocols.actuator.oxm.ExecutionTranslatorFactory;
+import com.thefirstlineofcode.sand.protocols.actuator.oxm.ExecuteParserFactory;
+import com.thefirstlineofcode.sand.protocols.actuator.oxm.ExecuteTranslatorFactory;
 
 @Extension
 public class PipelineExtendersContributor extends PipelineExtendersConfigurator {
 	@Override
 	protected void configure(IPipelineExtendersConfigurator configurator) {
+		ExecutionListener executionListener = new ExecutionListener();
+		
 		configurator.
 			registerParserFactory(
-					new ProtocolParserFactory<>(new IqProtocolChain(Execute.PROTOCOL), new ExecutionParserFactory())).
+					new ProtocolParserFactory<>(new IqProtocolChain(Execute.PROTOCOL), new ExecuteParserFactory())).
 			registerSingletonXepProcessor(
 					new IqProtocolChain(Execute.PROTOCOL), new ExecutionProcessor()).
 			registerTranslatorFactory(
-					new ProtocolTranslatorFactory<>(Execute.class, new ExecutionTranslatorFactory())).
+					new ProtocolTranslatorFactory<>(Execute.class, new ExecuteTranslatorFactory())).
 			registerEventListener(
-					ExecutionEvent.class, new ExecutionListener());
+					ExecutionEvent.class, executionListener).
+			registerIqResultProcessor(
+					executionListener);
 	}
 }

@@ -10,6 +10,7 @@ import javax.swing.JFrame;
 import javax.swing.JTabbedPane;
 
 import com.thefirstlineofcode.chalk.network.IConnectionListener;
+import com.thefirstlineofcode.sand.client.things.obm.IObmFactory;
 
 public abstract class AbstractLogConsolesDialog extends JDialog {
 	private static final long serialVersionUID = 5197344780011371803L;
@@ -19,9 +20,12 @@ public abstract class AbstractLogConsolesDialog extends JDialog {
 	protected JTabbedPane tabbedPane;
 	protected Map<String, AbstractLogConsolePanel> logConsoles;
 	
-	public AbstractLogConsolesDialog(JFrame parent) {
+	protected IObmFactory obmFactory;
+	
+	public AbstractLogConsolesDialog(JFrame parent, IObmFactory obmFactory) {
 		super(parent, "Log Console");
 		
+		this.obmFactory = obmFactory;
 		logConsoles = new HashMap<>();
 		
 		setUi();
@@ -38,7 +42,7 @@ public abstract class AbstractLogConsolesDialog extends JDialog {
 	protected abstract void createPreinstlledLogConsoles();
 	
 	protected void createInternetLogConsole() {
-		createLogConsole(NAME_INTERNET, new InternetLogConsolePanel());
+		createLogConsole(NAME_INTERNET, new InternetLogConsolePanel(obmFactory));
 	}
 	
 	public void createLogConsole(String name, AbstractLogConsolePanel logConsole) {

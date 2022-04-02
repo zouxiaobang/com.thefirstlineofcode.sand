@@ -21,6 +21,7 @@ import com.thefirstlineofcode.chalk.core.ITask;
 import com.thefirstlineofcode.chalk.core.IUnidirectionalStream;
 import com.thefirstlineofcode.sand.client.things.commuication.ICommunicator;
 import com.thefirstlineofcode.sand.client.things.concentrator.IConcentrator;
+import com.thefirstlineofcode.sand.client.things.concentrator.IModelRegistrar;
 import com.thefirstlineofcode.sand.client.things.concentrator.Node;
 import com.thefirstlineofcode.sand.protocols.core.CommunicationNet;
 
@@ -37,6 +38,7 @@ public class Concentrator implements IConcentrator {
 	private Map<String, Node> nodes;
 	private Object nodesLock;
 	
+	private IModelRegistrar modelRegistrar;
 	private Map<CommunicationNet, ? extends ICommunicator<?, ?, ?>> communicators; 
 	
 	private IChatServices chatServices;
@@ -48,8 +50,9 @@ public class Concentrator implements IConcentrator {
 	}
 
 	@Override
-	public void init(String deviceId, Map<String, Node> nodes, Map<CommunicationNet, ? extends ICommunicator<?, ?, ?>> communicators) {
+	public void init(String deviceId, Map<String, Node> nodes, IModelRegistrar modelRegistrar, Map<CommunicationNet, ? extends ICommunicator<?, ?, ?>> communicators) {
 		this.deviceId = deviceId;
+		this.modelRegistrar = modelRegistrar;
 		this.communicators = communicators;
 		
 		if (nodes == null || nodes.size() == 0)
@@ -352,6 +355,11 @@ public class Concentrator implements IConcentrator {
 	@Override
 	public String getDeviceId() {
 		return deviceId;
+	}
+
+	@Override
+	public IModelRegistrar getModeRegistrar() {
+		return modelRegistrar;
 	}
 
 }

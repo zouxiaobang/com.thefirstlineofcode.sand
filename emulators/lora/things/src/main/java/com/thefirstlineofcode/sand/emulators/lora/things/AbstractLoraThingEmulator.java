@@ -4,21 +4,16 @@ import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
 
-import com.thefirstlineofcode.basalt.oxm.binary.BinaryUtils;
-import com.thefirstlineofcode.basalt.oxm.binary.IBinaryXmppProtocolConverter;
-import com.thefirstlineofcode.basalt.protocol.core.Protocol;
 import com.thefirstlineofcode.sand.client.lora.ILoraChip.PowerType;
 import com.thefirstlineofcode.sand.client.things.commuication.CommunicationException;
 import com.thefirstlineofcode.sand.client.things.commuication.ICommunicator;
-import com.thefirstlineofcode.sand.client.things.obm.IObmFactory;
-import com.thefirstlineofcode.sand.client.things.obm.ObmFactory;
 import com.thefirstlineofcode.sand.emulators.lora.network.LoraChipCreationParams;
 import com.thefirstlineofcode.sand.emulators.lora.network.LoraCommunicator;
 import com.thefirstlineofcode.sand.emulators.lora.network.LoraCommunicatorFactory;
 import com.thefirstlineofcode.sand.emulators.things.emulators.AbstractCommunicationNetworkThingEmulator;
 import com.thefirstlineofcode.sand.protocols.lora.LoraAddress;
 
-public abstract class AbstractLoraThingEmulator extends AbstractCommunicationNetworkThingEmulator<LoraAddress, LoraAddress, byte[]> {
+public abstract class AbstractLoraThingEmulator extends AbstractCommunicationNetworkThingEmulator<LoraAddress, LoraAddress> {
 	private static final String PATTERN_LAN_ID = "%02d";
 	
 	protected NodeDynamicalAddressConfigurator addressConfigurator;
@@ -29,10 +24,6 @@ public abstract class AbstractLoraThingEmulator extends AbstractCommunicationNet
 	
 	protected String lanId;
 	
-	protected IObmFactory obmFactory = ObmFactory.createInstance();
-	
-	protected IBinaryXmppProtocolConverter bXmppProtocolConverter;
-	
 	public AbstractLoraThingEmulator() {}
 	
 	public AbstractLoraThingEmulator(String type, String model, ICommunicator<LoraAddress, LoraAddress, byte[]> communicator) {
@@ -42,9 +33,6 @@ public abstract class AbstractLoraThingEmulator extends AbstractCommunicationNet
 	}
 
 	private void init() {
-		ObmFactory obmFactory = (ObmFactory)ObmFactory.createInstance();
-		bXmppProtocolConverter = obmFactory.getBinaryXmppProtocolConverter();
-		
 		if (dataReceiving) {
 			dataReceiving = false;
 			startToReceiveData();
@@ -113,7 +101,7 @@ public abstract class AbstractLoraThingEmulator extends AbstractCommunicationNet
 			}
 			
 			if (addressConfigurator == null) {
-				addressConfigurator = new NodeDynamicalAddressConfigurator(this, (LoraCommunicator)communicator);
+				addressConfigurator = new NodeDynamicalAddressConfigurator(this, (LoraCommunicator)communicator, obmFactory);
 			}
 			
 			addressConfigurator.introduce();
@@ -192,16 +180,4 @@ public abstract class AbstractLoraThingEmulator extends AbstractCommunicationNet
 	
 	@Override
 	public void addressChanged(LoraAddress newAddress, LoraAddress oldAddress) {}
-	
-	protected Protocol readProtocol(byte[] data) {
-		return bXmppProtocolConverter.readProtocol(data);
-	}
-	
-	protected <A> A readAction(Class<A> actionType, byte[] data) {
-		return (A)obmFactory.toObject(actionType, data);
-	}
-	
-	protected String getDataInfoString(byte[] data) {
-		return BinaryUtils.getHexStringFromBytes(data);
-	}
 }

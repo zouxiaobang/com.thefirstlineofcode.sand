@@ -9,8 +9,9 @@ import com.thefirstlineofcode.chalk.core.IOrder;
 import com.thefirstlineofcode.sand.client.things.commuication.CommunicationException;
 import com.thefirstlineofcode.sand.client.things.commuication.ICommunicationListener;
 import com.thefirstlineofcode.sand.client.things.commuication.ICommunicator;
+import com.thefirstlineofcode.sand.protocols.core.Address;
 
-public abstract class AbstractCommunicator<OA, PA, D> implements ICommunicator<OA, PA, D> {
+public abstract class AbstractCommunicator<OA, PA extends Address, D> implements ICommunicator<OA, PA, D> {
 	protected List<ICommunicationListener<OA, PA, D>> listeners;
 
 	public AbstractCommunicator() {

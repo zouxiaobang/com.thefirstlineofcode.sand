@@ -11,7 +11,6 @@ import javax.naming.OperationNotSupportedException;
 
 import com.thefirstlineofcode.sand.emulators.things.ILight;
 import com.thefirstlineofcode.sand.emulators.things.NotRemoteControlStateException;
-import com.thefirstlineofcode.sand.emulators.things.NotTurnedOffStateException;
 import com.thefirstlineofcode.sand.emulators.things.PowerEvent;
 import com.thefirstlineofcode.sand.emulators.things.emulators.AbstractThingEmulator;
 import com.thefirstlineofcode.sand.emulators.things.emulators.ILightEmulator;
@@ -71,27 +70,31 @@ public class Light extends AbstractThingEmulator implements ILightEmulator, ISwi
 	}
 	
 	@Override
-	public void turnOn() throws NotRemoteControlStateException {
-		if (switchState != SwitchState.CONTROL)
-			throw new RuntimeException(new NotRemoteControlStateException(switchState));
+	public void turnOn() {
+		if (switchState != SwitchState.CONTROL) {
+			new RuntimeException(new NotRemoteControlStateException(switchState)).printStackTrace();
+			return;
+		}
 		
 		panel.turnOn();
 	}
 	
 	@Override
-	public void turnOff() throws NotRemoteControlStateException {
-		if (switchState != SwitchState.CONTROL)
-			throw new NotRemoteControlStateException(switchState);
+	public void turnOff() {
+		if (switchState != SwitchState.CONTROL) {
+			new NotRemoteControlStateException(switchState).printStackTrace();
+			return;
+		}
 		
-		panel.turnOn();
+		panel.turnOff();
 	}
 	
-	public void flash() throws NotRemoteControlStateException, NotTurnedOffStateException {
+	public void flash() {
 		if (switchState != SwitchState.CONTROL)
-			throw new NotRemoteControlStateException(switchState);
+			new NotRemoteControlStateException(switchState).printStackTrace();;
 			
 		if (lightState != LightState.OFF)
-			throw new NotTurnedOffStateException();
+			throw new RuntimeException("Try to flash light when light state is " + lightState + ".");
 		
 		panel.flash();
 	}

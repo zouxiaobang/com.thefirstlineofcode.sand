@@ -1,8 +1,8 @@
 package com.thefirstlineofcode.sand.emulators.wifi.light;
 
 import com.thefirstlineofcode.basalt.protocol.core.stanza.Iq;
-import com.thefirstlineofcode.sand.client.things.autuator.ExecutionException;
-import com.thefirstlineofcode.sand.client.things.autuator.IExecutor;
+import com.thefirstlineofcode.sand.client.things.actuator.ExecutionException;
+import com.thefirstlineofcode.sand.client.things.actuator.IExecutor;
 import com.thefirstlineofcode.sand.emulators.things.NotRemoteControlStateException;
 import com.thefirstlineofcode.sand.emulators.things.NotTurnedOffStateException;
 import com.thefirstlineofcode.sand.protocols.devices.light.Flash;
@@ -43,9 +43,6 @@ public class FlashExecutor implements IExecutor<Flash> {
 				try {
 					light.flash();
 				} catch (NotRemoteControlStateException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (NotTurnedOffStateException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}

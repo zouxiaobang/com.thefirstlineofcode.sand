@@ -27,6 +27,4 @@ public interface ILoraNetwork extends ICommunicationNetwork<LoraAddress, byte[],
 	void removeChip(LoraAddress address);
 	void setSignalCrashedInterval(int interval);
 	int getSignalCrashedInterval();
-	void setSignalTransferTimeout(int timeout);
-	int getSignalTransferTimeout();
 }

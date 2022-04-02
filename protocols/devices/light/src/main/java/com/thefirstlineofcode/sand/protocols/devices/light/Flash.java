@@ -7,6 +7,8 @@ import com.thefirstlineofcode.basalt.protocol.core.Protocol;
 public class Flash {
 	public static final Protocol PROTOCOL = new Protocol("urn:leps:iot:actuator:light", "flash");
 	
+	public static final String ERROR_CODE_NOT_REMOTE_CONTROL_STATE = "001";
+	
 	private int repeat;
 	
 	public Flash() {
@@ -24,4 +26,8 @@ public class Flash {
 		this.repeat = repeat;
 	}
 	
+	@Override
+	public String toString() {
+		return String.format("Flash[repeat=%d]", repeat);
+	}
 }

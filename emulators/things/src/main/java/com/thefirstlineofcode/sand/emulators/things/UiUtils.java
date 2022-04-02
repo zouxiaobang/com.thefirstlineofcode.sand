@@ -87,7 +87,7 @@ public class UiUtils {
 		
 		for (MenuElement child : menu.getSubElements()[0].getSubElements()) {
 			JMenuItem menuItem = (JMenuItem)child;
-			if (menuItem.getName().equals(menuItemName))
+			if (menuItemName.equals(menuItem.getName()))
 				return menuItem;
 		}
 		

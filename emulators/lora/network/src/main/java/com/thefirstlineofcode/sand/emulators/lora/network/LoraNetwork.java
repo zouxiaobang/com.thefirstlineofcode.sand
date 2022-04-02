@@ -20,7 +20,6 @@ public class LoraNetwork implements ILoraNetwork {
 	private static final Logger logger = LoggerFactory.getLogger(LoraNetwork.class);
 	
 	private static final int DEFAULT_SIGNAL_COLLISION_INTERVAL = 500;
-	private static final int DEFAULT_SIGNAL_TRANSFER_TIMEOUT = 2000;
 	
 	protected Map<LoraAddress, LoraChip> chips;
 	protected List<ILoraNetworkListener> listeners;
@@ -44,7 +43,6 @@ public class LoraNetwork implements ILoraNetwork {
 		signalLostRandomGenerator = new Random(networkInitTime);
 		
 		signalCrashedInterval = DEFAULT_SIGNAL_COLLISION_INTERVAL;
-		signalTransferTimeout = DEFAULT_SIGNAL_TRANSFER_TIMEOUT;
 		
 		new Thread(new LoraSignalTimeoutThread()).start();
 	}
@@ -89,16 +87,6 @@ public class LoraNetwork implements ILoraNetwork {
 	@Override
 	public int getSignalCrashedInterval() {
 		return signalCrashedInterval;
-	}
-	
-	@Override
-	public void setSignalTransferTimeout(int timeout) {
-		signalTransferTimeout = timeout;
-	}
-	
-	@Override
-	public int getSignalTransferTimeout() {
-		return signalTransferTimeout;
 	}
 	
 	@Override
@@ -259,7 +247,7 @@ public class LoraNetwork implements ILoraNetwork {
 	}
 
 	private boolean isCollided(LoraSignal signal, LoraSignal received) {
-		return Math.abs(signal.arrivedTime - received.arrivedTime) < DEFAULT_SIGNAL_COLLISION_INTERVAL;
+		return Math.abs(signal.arrivedTime - received.arrivedTime) < signalCrashedInterval;
 	}
 
 	private boolean isSendToTarget(LoraSignal signal, ILoraChip target) {

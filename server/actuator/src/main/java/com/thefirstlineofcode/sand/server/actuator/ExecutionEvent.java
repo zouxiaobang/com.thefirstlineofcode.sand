@@ -8,15 +8,21 @@ public class ExecutionEvent implements IEvent {
 	private Device device;
 	private String nodeLanId;
 	private Execute execute;
+	private IExecutionCallback callback;
 	
 	public ExecutionEvent(Device device, Execute execute) {
 		this(device, null, execute);
 	}
 	
 	public ExecutionEvent(Device device, String nodeLanId, Execute execute) {
+		this(device, null, execute, null);
+	}
+	
+	public ExecutionEvent(Device device, String nodeLanId, Execute execute, IExecutionCallback callback) {
 		this.device = device;
 		this.nodeLanId = nodeLanId;
 		this.execute = execute;
+		this.callback = callback;
 	}
 	
 	public Device getDevice() {
@@ -31,8 +37,12 @@ public class ExecutionEvent implements IEvent {
 		return execute;
 	}
 	
+	public IExecutionCallback getExecutionCallback() {
+		return callback;
+	}
+	
 	@Override
 	public Object clone() {
-		return new ExecutionEvent(device, nodeLanId, execute);
+		return new ExecutionEvent(device, nodeLanId, execute, callback);
 	}
 }

@@ -26,24 +26,37 @@ import com.thefirstlineofcode.basalt.protocol.core.MessageProtocolChain;
 import com.thefirstlineofcode.basalt.protocol.core.Protocol;
 import com.thefirstlineofcode.basalt.protocol.core.ProtocolChain;
 import com.thefirstlineofcode.basalt.protocol.im.stanza.Message;
+import com.thefirstlineofcode.sand.protocols.actuator.LanActionError;
+import com.thefirstlineofcode.sand.protocols.actuator.LanExecute;
+import com.thefirstlineofcode.sand.protocols.actuator.oxm.LanExecuteParserFactory;
+import com.thefirstlineofcode.sand.protocols.actuator.oxm.LanExecuteTranslatorFactory;
+import com.thefirstlineofcode.sand.protocols.core.ITraceIdFactory;
 
 public class ObmFactory implements IObmFactory {
 	private static final byte[] MESSAGE_WRAPPER_DATA = new byte[] {(byte)0x60, (byte)0, (byte)1, (byte)0};
 	
 	private IOxmFactory oxmFactory;
 	private AbstractBinaryXmppProtocolConverter<?> binaryXmppProtocolConverter;
-	private List<Object> registeredObjects;
+	private List<Class<?>> registeredObjectTypes;
+	private List<Class<?>> registeredLanActionTypes;
 	
-	private static IObmFactory instance;
-	
-	private ObmFactory() {
+	public ObmFactory(ITraceIdFactory traceIdFactory) {
 		oxmFactory = OxmService.createStandardOxmFactory();
-		registeredObjects = new ArrayList<>();
+		registeredObjectTypes = new ArrayList<>();
+		registeredLanActionTypes = new ArrayList<>();
 		
 		String[] configFiles = loadBxmppExtensionConfigurations();
 		binaryXmppProtocolConverter = createBinaryXmppProtocolConverter(configFiles);
+		
+		ProtocolChain lanExecuteProtocolChain = new MessageProtocolChain(LanExecute.PROTOCOL);
+		oxmFactory.register(lanExecuteProtocolChain, new LanExecuteParserFactory(traceIdFactory));
+		oxmFactory.register(LanExecute.class, new LanExecuteTranslatorFactory());
+		
+		ProtocolChain lanActionErrorProtocolChain = lanExecuteProtocolChain.next(LanActionError.PROTOCOL);
+		oxmFactory.register(lanActionErrorProtocolChain, new NamingConventionParserFactory<>(LanActionError.class));
+		oxmFactory.register(LanActionError.class, new NamingConventionTranslatorFactory<>(LanActionError.class));
 	}
-
+	
 	private String[] loadBxmppExtensionConfigurations() {
 		URL bxmppExtensionsConfigurationFile = getClass().getClassLoader().getResource("META-INF/bxmpp-extensions.txt");
 		if (bxmppExtensionsConfigurationFile == null)
@@ -77,13 +90,15 @@ public class ObmFactory implements IObmFactory {
 			if (configFiles == null || configFiles.length == 0)
 				return binaryXmppProtocolConverter;
 			
-			BxmppExtension defaultBxmppExtension = new DefaultBxmppExtension();
-			defaultBxmppExtension.register(new ReplacementBytes((byte)0x60), "message");
+			DefaultBxmppExtension defaultBxmppExtension = new DefaultBxmppExtension();
+			loadBxmppCoreExtension(defaultBxmppExtension);
+			loadBxmppImExtension(defaultBxmppExtension);
+			
 			binaryXmppProtocolConverter.register(defaultBxmppExtension);
 			
 			for (String configFile : configFiles) {
-				loadBxmppExtensionFromPropertiesFile(binaryXmppProtocolConverter,
-						"META-INF/" + configFile);
+				BxmppExtension bxmppExtension = loadBxmppExtensionFromPropertiesFile("META-INF/" + configFile);
+				binaryXmppProtocolConverter.register(bxmppExtension);
 			}
 			
 			return binaryXmppProtocolConverter;
@@ -93,9 +108,56 @@ public class ObmFactory implements IObmFactory {
 			throw new RuntimeException("Reduplicate BXMPP replacement.", e);
 		}
 	}
+
+	private void loadBxmppCoreExtension(BxmppExtension defaultBxmppExtension)
+			throws IOException, ReduplicateBxmppReplacementException {
+		URL bxmppCoreUrl = getClass().getClassLoader().getResource("META-INF/bxmpp-core.properties");
+		if (bxmppCoreUrl == null) {
+			throw new RuntimeException("bxmpp-core properties file not found.");
+		}
+		
+		Properties properties = new Properties();
+		properties.load(new BufferedReader(new InputStreamReader(bxmppCoreUrl.openStream())));
+		
+		String provider = "BXMPP-Core";
+		for (Object oRepalcementByte : properties.keySet()) {
+			String sReplacementBytes = (String)oRepalcementByte;
+			String keyword = (String)properties.get(sReplacementBytes);
+			
+			ReplacementBytes replacementBytes = ReplacementBytes.parse(sReplacementBytes);				
+			replacementBytes.setProvider(provider);
+			
+			if (!ReplacementBytes.isNamespaceReplacementBytes(replacementBytes)) {
+				defaultBxmppExtension.register(replacementBytes, keyword);
+			}
+		}
+	}
 	
-	private void loadBxmppExtensionFromPropertiesFile(AbstractBinaryXmppProtocolConverter<?> bxmppProtocolConverter,
-			String configurationFilePath)
+	private void loadBxmppImExtension(BxmppExtension defaultBxmppExtension)
+			throws IOException, ReduplicateBxmppReplacementException {
+		URL bxmppImUrl = getClass().getClassLoader().getResource("META-INF/bxmpp-im.properties");
+		if (bxmppImUrl == null) {
+			throw new RuntimeException("bxmpp-im properties file not found.");
+		}
+		
+		Properties properties = new Properties();
+		properties.load(new BufferedReader(new InputStreamReader(bxmppImUrl.openStream())));
+		
+		String provider = "BXMPP-IM";
+		for (Object oRepalcementByte : properties.keySet()) {
+			String sReplacementBytes = (String)oRepalcementByte;
+			String keyword = (String)properties.get(sReplacementBytes);
+			
+			ReplacementBytes replacementBytes = ReplacementBytes.parse(sReplacementBytes);				
+			replacementBytes.setProvider(provider);
+			
+			if (!ReplacementBytes.isNamespaceReplacementBytes(replacementBytes)) {
+				defaultBxmppExtension.register(replacementBytes, keyword);
+			}
+		}
+	}
+	
+	private BxmppExtension loadBxmppExtensionFromPropertiesFile(String configurationFilePath)
 			throws IOException, ReduplicateBxmppReplacementException {
 		URL configurationFileUrl = getClass().getClassLoader().getResource(configurationFilePath);
 		String provider = getProvider(configurationFileUrl);
@@ -117,10 +179,10 @@ public class ObmFactory implements IObmFactory {
 			
 			if (!ReplacementBytes.isNamespaceReplacementBytes(replacementBytes)) {
 				bxmppExtension.register(replacementBytes, keyword);
-			}			
+			}
 		}
 		
-		bxmppProtocolConverter.register(bxmppExtension);
+		return bxmppExtension;
 	}
 	
 	private Namespace findNamespace(Properties properties) {
@@ -150,17 +212,9 @@ public class ObmFactory implements IObmFactory {
 		}
 	}
 	
-	public static synchronized IObmFactory createInstance() {
-		if (instance == null) {
-			instance = new ObmFactory();
-		}
-		
-		return instance;
-	}
-	
 	@Override
 	public byte[] toBinary(Object obj) {
-		registerTypeIfNeed(obj.getClass());
+		registerObjectTypeIfNeed(obj.getClass());
 		
 		Message message = new Message();
 		message.setObject(obj);
@@ -176,20 +230,68 @@ public class ObmFactory implements IObmFactory {
 	}
 	
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	private void registerTypeIfNeed(Class<?> type) {
-		if (!registeredObjects.contains(type)) {
-			ProtocolObject projectObject = type.getAnnotation(ProtocolObject.class);
+	private void registerObjectTypeIfNeed(Class<?> type) {
+		if (LanExecute.class == type)
+			return;
+		
+		if (registeredLanActionTypes.contains(type))
+			return;
+		
+		if (!registeredObjectTypes.contains(type)) {
+			ProtocolObject protocolObject = type.getAnnotation(ProtocolObject.class);
+			if (protocolObject == null) {
+				throw new IllegalArgumentException(String.format("Type '%s' isn't a protocol object type.", type.getName()));
+			}
+			
 			ProtocolChain protocolChain = new MessageProtocolChain(
-					new Protocol(projectObject.namespace(), projectObject.localName()));
+					new Protocol(protocolObject.namespace(), protocolObject.localName()));
 			oxmFactory.register(protocolChain, new NamingConventionParserFactory<>(type));
 			oxmFactory.register(type, new NamingConventionTranslatorFactory(type));
+			
+			registeredObjectTypes.add(type);
 		}
 	}
 
 	@Override
 	public <T> T toObject(Class<T> type, byte[] data) {
-		registerTypeIfNeed(type);
+		registerObjectTypeIfNeed(type);
 		
+		return getMessage(data).getObject();
+	}
+	
+	@Override
+	public IBinaryXmppProtocolConverter getBinaryXmppProtocolConverter() {
+		return binaryXmppProtocolConverter;
+	}
+
+	@Override
+	public void registerLanAction(Class<?> lanActionType) {
+		if (registeredLanActionTypes.contains(lanActionType))
+			return;
+		
+		ProtocolObject protocolObject = lanActionType.getAnnotation(ProtocolObject.class);
+		if (protocolObject == null) {
+			throw new IllegalArgumentException(String.format("LAN action type %s isn't a protocol object type.", lanActionType.getName()));
+		}
+		
+		ProtocolChain actionProtocolChain = new MessageProtocolChain(
+				new Protocol(protocolObject.namespace(), protocolObject.localName()));
+		oxmFactory.register(actionProtocolChain, new NamingConventionParserFactory<>(lanActionType));
+		
+		ProtocolChain lanActionProtocolChain = new MessageProtocolChain(LanExecute.PROTOCOL).
+				next(new Protocol(protocolObject.namespace(), protocolObject.localName()));
+		oxmFactory.register(lanActionProtocolChain, new NamingConventionParserFactory<>(lanActionType));
+		oxmFactory.register(lanActionType, new NamingConventionTranslatorFactory<>(lanActionType));
+		
+		registeredLanActionTypes.add(lanActionType);
+	}
+
+	@Override
+	public Object toObject(byte[] data) {
+		return getMessage(data).getObject();
+	}
+
+	private Message getMessage(byte[] data) {
 		byte[] amendedData = new byte[data.length + 4];
 		
 		amendedData[0] = data[0];
@@ -203,10 +305,31 @@ public class ObmFactory implements IObmFactory {
 		String xml = binaryXmppProtocolConverter.toXml(amendedData);
 		Message message = (Message)oxmFactory.getParsingFactory().parse(xml);
 		
-		return message.getObject();
+		return message;
 	}
-	
-	public IBinaryXmppProtocolConverter getBinaryXmppProtocolConverter() {
-		return binaryXmppProtocolConverter;
+
+	@Override
+	public Protocol readProtocol(byte[] data) {
+		return binaryXmppProtocolConverter.readProtocol(data);
+	}
+
+	@Override
+	public boolean unregisterLanAction(Class<?> lanActionType) {
+		if (!registeredLanActionTypes.contains(lanActionType))
+			return false;
+		
+		ProtocolObject protocolObject = lanActionType.getAnnotation(ProtocolObject.class);
+		if (protocolObject == null) {
+			throw new IllegalArgumentException(String.format("Type '%s' isn't a protocol object type.", lanActionType.getName()));
+		}
+		
+		ProtocolChain lanActionProtocolChain = new MessageProtocolChain(LanExecute.PROTOCOL).
+				next(new Protocol(protocolObject.namespace(), protocolObject.localName()));
+		oxmFactory.unregister(lanActionProtocolChain);
+		oxmFactory.unregister(lanActionType);
+		
+		registeredLanActionTypes.remove(lanActionType);
+		
+		return true;
 	}
 }

@@ -10,6 +10,8 @@ import org.pf4j.Extension;
 
 import com.thefirstlineofcode.basalt.oxm.convention.PropertyDescriptor;
 import com.thefirstlineofcode.basalt.protocol.core.Protocol;
+import com.thefirstlineofcode.basalt.protocol.core.stanza.Iq;
+import com.thefirstlineofcode.basalt.protocol.core.stanza.error.StanzaError;
 import com.thefirstlineofcode.granite.framework.core.annotations.BeanDependency;
 import com.thefirstlineofcode.granite.framework.core.annotations.Dependency;
 import com.thefirstlineofcode.granite.framework.core.auth.IAccountManager;
@@ -19,10 +21,12 @@ import com.thefirstlineofcode.granite.framework.core.console.AbstractCommandsPro
 import com.thefirstlineofcode.granite.framework.core.console.IConsoleSystem;
 import com.thefirstlineofcode.granite.framework.core.pipeline.stages.event.IEventFirer;
 import com.thefirstlineofcode.granite.framework.core.pipeline.stages.event.IEventFirerAware;
+import com.thefirstlineofcode.granite.framework.core.pipeline.stages.processing.IProcessingContext;
 import com.thefirstlineofcode.sand.protocols.actuator.Execute;
 import com.thefirstlineofcode.sand.protocols.devices.gateway.ChangeMode;
 import com.thefirstlineofcode.sand.protocols.devices.light.Flash;
 import com.thefirstlineofcode.sand.server.actuator.ExecutionEvent;
+import com.thefirstlineofcode.sand.server.actuator.IExecutionCallback;
 import com.thefirstlineofcode.sand.server.concentrator.Confirmed;
 import com.thefirstlineofcode.sand.server.concentrator.ConfirmedEvent;
 import com.thefirstlineofcode.sand.server.concentrator.IConcentrator;
@@ -96,8 +100,10 @@ public class SandCommandsProcessor extends AbstractCommandsProcessor implements 
 		String deviceLocation = args[0];
 		int slashIndex = deviceLocation.indexOf('/');
 		
-		if (slashIndex == deviceLocation.length() - 1)
+		if (slashIndex == deviceLocation.length() - 1) {
 			consoleSystem.printMessageLine("Error: Invalid device location.");
+			return;
+		}
 		
 		String deviceId = null;
 		String lanId = null;
@@ -120,7 +126,7 @@ public class SandCommandsProcessor extends AbstractCommandsProcessor implements 
 		String actionName = args[1];
 		Protocol protocol = actionNameToProtocols.get(actionName);
 		if (protocol == null) {
-			consoleSystem.printMessageLine("Error: Unsupported action name '%s'.");	
+			consoleSystem.printMessageLine(String.format("Error: Unsupported action name '%s'.", actionName));	
 			return;
 		}
 		
@@ -185,7 +191,8 @@ public class SandCommandsProcessor extends AbstractCommandsProcessor implements 
 		}
 		
 		Object actionObject = createActionObject(consoleSystem, device.getModel(), protocol, params);
-		eventFirer.fire(new ExecutionEvent(device, null, new Execute(actionObject)));
+		eventFirer.fire(new ExecutionEvent(device, null, new Execute(actionObject),
+				new ExecutionCallback(device.getDeviceId(), protocol, consoleSystem)));
 	}
 	
 	private void executeOnNode(IConsoleSystem consoleSystem, Device concentratorDevice, String lanId, Protocol protocol, Map<String, String> params) {
@@ -201,7 +208,44 @@ public class SandCommandsProcessor extends AbstractCommandsProcessor implements 
 		}
 		
 		Object actionObject = createActionObject(consoleSystem, nodeDevice.getModel(), protocol, params);
-		eventFirer.fire(new ExecutionEvent(concentratorDevice, lanId, new Execute(actionObject)));
+		eventFirer.fire(new ExecutionEvent(concentratorDevice, lanId, new Execute(actionObject, true),
+				new ExecutionCallback(concentratorDevice.getDeviceId() + "/" + lanId, protocol, consoleSystem)));
+	}
+	
+	private class ExecutionCallback implements IExecutionCallback {
+		private String deviceLocation;
+		private Protocol protocol;
+		private IConsoleSystem consoleSystem;
+		
+		public ExecutionCallback(String deviceLocation, Protocol protocol, IConsoleSystem consoleSystem) {
+			this.deviceLocation = deviceLocation;
+			this.protocol = protocol;
+			this.consoleSystem = consoleSystem;
+		}
+
+		@Override
+		public boolean processResult(IProcessingContext context, Iq result) {
+			consoleSystem.printMessageLine(String.format(
+					"Action(protocol: %s) executed successfully on the devcie which's location is %s.",
+					protocol, deviceLocation));
+			return true;
+		}
+
+		@Override
+		public boolean processError(IProcessingContext context, StanzaError error) {
+			consoleSystem.printMessageLine(String.format(
+					"Failed to execute an action(protocol: %s) on the device which's location is %s. Error is %s.",
+					protocol, deviceLocation, getErrorDescrption(error)));
+			return true;
+		}
+
+		private String getErrorDescrption(StanzaError error) {
+			if (error.getDefinedCondition() != null)
+				return error.getDefinedCondition();
+			
+			return error.getApplicationSpecificCondition().toString();
+		}
+		
 	}
 	
 	private Device getNodeDevice(Device concentratorDevice, String lanId) {
@@ -363,8 +407,8 @@ public class SandCommandsProcessor extends AbstractCommandsProcessor implements 
 		Confirmed confirmed = concentratorFactory.getConcentrator(device).confirm(nodeDeviceId, confirmer);
 		eventFirer.fire(new ConfirmedEvent(confirmed.getRequestId(), confirmed.getNodeCreated()));
 		
-		consoleSystem.printMessageLine(String.format("Node device which's ID is '%s' has confirmed to add to concentrator " +
-				"device which's ID is '%s' by user '%s' in server console.", nodeDeviceId, concentratorDeviceId, confirmer));
+		consoleSystem.printMessageLine(String.format("Concentrator device which's ID is '%s' has been confirmed to add device which's ID is '%s' as it's node by user '%s' in server console.",
+				concentratorDeviceId, nodeDeviceId, confirmer));
 	}
 	
 	@Override

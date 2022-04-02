@@ -16,7 +16,7 @@ public interface ILight extends IDevice {
 	
 	SwitchState getSwitchState();
 	LightState getLightState();
-	void turnOn() throws NotRemoteControlStateException;
-	void turnOff() throws NotRemoteControlStateException;
-	void flash() throws NotRemoteControlStateException, NotTurnedOffStateException;
+	void turnOn();
+	void turnOff();
+	void flash();
 }

@@ -8,6 +8,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
@@ -27,6 +29,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JDesktopPane;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
@@ -56,8 +59,6 @@ import com.thefirstlineofcode.chalk.network.ConnectionException;
 import com.thefirstlineofcode.chalk.network.IConnectionListener;
 import com.thefirstlineofcode.sand.client.actuator.ActuatorPlugin;
 import com.thefirstlineofcode.sand.client.concentrator.ConcentratorPlugin;
-import com.thefirstlineofcode.sand.client.dmr.IModelRegistrar;
-import com.thefirstlineofcode.sand.client.dmr.ModelRegistrar;
 import com.thefirstlineofcode.sand.client.ibdr.IRegistration;
 import com.thefirstlineofcode.sand.client.ibdr.IbdrPlugin;
 import com.thefirstlineofcode.sand.client.ibdr.RegistrationException;
@@ -65,14 +66,17 @@ import com.thefirstlineofcode.sand.client.lora.ConcentratorDynamicalAddressConfi
 import com.thefirstlineofcode.sand.client.lora.IDualLoraChipsCommunicator;
 import com.thefirstlineofcode.sand.client.things.IDeviceListener;
 import com.thefirstlineofcode.sand.client.things.ThingsUtils;
-import com.thefirstlineofcode.sand.client.things.autuator.ExecutionException;
-import com.thefirstlineofcode.sand.client.things.autuator.IActuator;
-import com.thefirstlineofcode.sand.client.things.autuator.IExecutor;
-import com.thefirstlineofcode.sand.client.things.autuator.IExecutorFactory;
+import com.thefirstlineofcode.sand.client.things.actuator.IActuator;
+import com.thefirstlineofcode.sand.client.things.actuator.IExecutor;
+import com.thefirstlineofcode.sand.client.things.actuator.IExecutorFactory;
 import com.thefirstlineofcode.sand.client.things.commuication.ParamsMap;
 import com.thefirstlineofcode.sand.client.things.concentrator.IConcentrator;
 import com.thefirstlineofcode.sand.client.things.concentrator.IConcentrator.LanError;
+import com.thefirstlineofcode.sand.client.things.concentrator.IModelRegistrar;
+import com.thefirstlineofcode.sand.client.things.concentrator.ModelRegistrar;
 import com.thefirstlineofcode.sand.client.things.concentrator.Node;
+import com.thefirstlineofcode.sand.client.things.obm.IObmFactory;
+import com.thefirstlineofcode.sand.client.things.obm.ObmFactory;
 import com.thefirstlineofcode.sand.emulators.lora.gateway.log.LogConsolesDialog;
 import com.thefirstlineofcode.sand.emulators.lora.gateway.things.DeviceIdentityInfo;
 import com.thefirstlineofcode.sand.emulators.lora.gateway.things.ThingInfo;
@@ -83,7 +87,6 @@ import com.thefirstlineofcode.sand.emulators.lora.network.LoraCommunicator;
 import com.thefirstlineofcode.sand.emulators.lora.network.LoraCommunicatorFactory;
 import com.thefirstlineofcode.sand.emulators.lora.things.AbstractLoraThingEmulator;
 import com.thefirstlineofcode.sand.emulators.lora.things.AbstractLoraThingEmulatorFactory;
-import com.thefirstlineofcode.sand.emulators.models.Ge01ModelDescriptor;
 import com.thefirstlineofcode.sand.emulators.models.Le01ModelDescriptor;
 import com.thefirstlineofcode.sand.emulators.things.Constants;
 import com.thefirstlineofcode.sand.emulators.things.IGateway;
@@ -97,8 +100,11 @@ import com.thefirstlineofcode.sand.emulators.things.ui.StatusBar;
 import com.thefirstlineofcode.sand.emulators.things.ui.StreamConfigDialog;
 import com.thefirstlineofcode.sand.protocols.core.CommunicationNet;
 import com.thefirstlineofcode.sand.protocols.core.DeviceIdentity;
-import com.thefirstlineofcode.sand.protocols.core.ModelDescriptor;
+import com.thefirstlineofcode.sand.protocols.core.HourTimeBasedId;
+import com.thefirstlineofcode.sand.protocols.core.ITraceId;
+import com.thefirstlineofcode.sand.protocols.core.ITraceIdFactory;
 import com.thefirstlineofcode.sand.protocols.devices.gateway.ChangeMode;
+import com.thefirstlineofcode.sand.protocols.devices.light.Flash;
 import com.thefirstlineofcode.sand.protocols.lora.LoraAddress;
 
 public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionListener, InternalFrameListener,
@@ -148,10 +154,7 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 	private static final String MENU_ITEM_TEXT_DISCONNECT = "Disconnect";
 	private static final String MENU_ITEM_NAME_DISCONNECT = "disconnect";
 	
-	private static final String MENU_ITEM_NAME_ADDRESS_CONFIGURATION_MODE = "address_configuration_mode";
 	private static final String MENU_ITEM_TEXT_ADDRESS_CONFIGURATION_MODE = "Address Configuration Mode";
-	private static final String MENU_ITEM_NAME_WORKING_MODE = "working_mode";
-	private static final String MENU_ITEM_TEXT_WORKING_MODE = "Working Mode";
 	private static final String MENU_ITEM_NAME_RECONFIGURE_ADDRESS = "reconfigure_address";
 	private static final String MENU_ITEM_TEXT_RECONFIGURE_ADDRESS = "Reconfigure Address";
 	
@@ -163,6 +166,8 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 	private static final String MENU_NAME_HELP = "help";
 	private static final String MENU_ITEM_TEXT_ABOUT = "About";
 	private static final String MENU_ITEM_NAME_ABOUT = "about";
+	
+	private JCheckBoxMenuItem addressConfigurationModeMenuItem;
 	
 	private String deviceId;
 	private DeviceIdentity deviceIdentity;
@@ -186,12 +191,15 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 	private IChatClient chatClient;
 	private boolean autoReconnect;
 	
+	private IModelRegistrar modelRegistrar;
 	private ConcentratorDynamicalAddressConfigurator addressConfigurator;
 	private IConcentrator concentrator;
 	
-	private IActuator actuator;
-	private IModelRegistrar modelRegistrar;
+	private ITraceIdFactory traceIdFactory;
+	private IObmFactory obmFactory;
 	
+	private IActuator actuator;
+		
 	public Gateway(ILoraNetwork network, IDualLoraChipsCommunicator gatewayCommunicator) {
 		super(THING_NAME);
 		
@@ -205,13 +213,26 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 		nodes = new HashMap<>();
 		dirty = false;
 		autoReconnect = false;
-		registerModels();
 		
 		LoraCommunicatorFactory.create(network);
+		modelRegistrar = createModeRegistrar();
 		
 		new Thread(new AutoReconnectThread(), "Gateway Auto Reconnect Thread").start();
 		
-		setUi();
+		traceIdFactory = new ITraceIdFactory() {
+			@Override
+			public ITraceId generateRequestId() {
+				return HourTimeBasedId.createInstance(ITraceId.Type.REQUEST);
+			}
+
+			@Override
+			public ITraceId create(byte[] data) {
+				return HourTimeBasedId.createInstance(data);
+			}
+		};
+		obmFactory = new ObmFactory(traceIdFactory);
+		
+		setupUi();
 	}
 
 	protected String generateDeviceId() {
@@ -248,7 +269,7 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 		return null;
 	}
 	
-	private void setUi() {
+	private void setupUi() {
 		JFrame.setDefaultLookAndFeelDecorated(true);
 		
 		setDefaultUiFont(new javax.swing.plaf.FontUIResource("Serif", Font.PLAIN, 20));
@@ -301,6 +322,8 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 			sb.append("Registered: ").append(deviceIdentity.getDeviceName()).append(". ");
 			if (chatClient != null && chatClient.isConnected()) {
 				sb.append("Connected. ");
+				
+				sb.append(getModeString());
 			} else {
 				sb.append("Disconnected. ");
 			}
@@ -311,6 +334,23 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 		return sb.toString();
 	}
 	
+	private String getModeString() {
+		if (!isConnected())
+			return "";
+		
+		if (addressConfigurator == null ||
+				addressConfigurator.getState() ==
+					ConcentratorDynamicalAddressConfigurator.State.STOPPED) {
+			return "Mode: W. ";
+		} else if (addressConfigurator != null &&
+				addressConfigurator.getState() !=
+				ConcentratorDynamicalAddressConfigurator.State.STOPPED) {
+			return "Mode: A. ";
+		} else {
+			return "Mode: Unknown. ";
+		}
+	}
+
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		String actionCommand = e.getActionCommand();
@@ -339,10 +379,6 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 			connect();
 		} else if (MENU_ITEM_NAME_DISCONNECT.equals(actionCommand)) {
 			disconnect();
-		} else if (MENU_ITEM_NAME_ADDRESS_CONFIGURATION_MODE.equals(actionCommand)) {
-			setToAddressConfigurationMode();
-		} else if (MENU_ITEM_NAME_WORKING_MODE.equals(actionCommand)) {
-			setToWorkingMode();
 		} else if (MENU_ITEM_NAME_RECONFIGURE_ADDRESS.equals(actionCommand)) {
 			reconfigureAddress();
 		} else if (MENU_ITEM_NAME_SHOW_LOG_CONSOLE.equals(actionCommand)) {
@@ -365,21 +401,40 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 		addressConfigurator.stop();
 		startWorking(chatClient);
 		
-		UiUtils.getMenuItem(menuBar, MENU_NAME_TOOLS, MENU_ITEM_NAME_WORKING_MODE).setEnabled(false);
-		UiUtils.getMenuItem(menuBar, MENU_NAME_TOOLS, MENU_ITEM_NAME_ADDRESS_CONFIGURATION_MODE).setEnabled(true);	
-		UiUtils.getMenuItem(menuBar, MENU_NAME_TOOLS, MENU_ITEM_NAME_RECONFIGURE_ADDRESS).setEnabled(false);
+		refreshAddressConfigurationModeRelativeMenus();
+		updateStatus();
 	}
 
 	public synchronized void setToAddressConfigurationMode() {
 		addressConfigurator.start();
 		
-		UiUtils.getMenuItem(menuBar, MENU_NAME_TOOLS, MENU_ITEM_NAME_ADDRESS_CONFIGURATION_MODE).setEnabled(false);
-		UiUtils.getMenuItem(menuBar, MENU_NAME_TOOLS, MENU_ITEM_NAME_WORKING_MODE).setEnabled(true);
-		
-		ThingInternalFrame thingInternalFrame = getSelectedFrame();
-		if (thingInternalFrame != null && !thingInternalFrame.getThing().isAddressConfigured()) {
-			UiUtils.getMenuItem(menuBar, MENU_NAME_TOOLS, MENU_ITEM_NAME_RECONFIGURE_ADDRESS).setEnabled(true);
+		refreshAddressConfigurationModeRelativeMenus();
+		updateStatus();
+	}
+
+	private void refreshAddressConfigurationModeRelativeMenus() {
+		if (!isConnected()) {
+			addressConfigurationModeMenuItem.setSelected(false);
+			addressConfigurationModeMenuItem.setEnabled(false);
+			UiUtils.getMenuItem(menuBar, MENU_NAME_TOOLS, MENU_ITEM_NAME_RECONFIGURE_ADDRESS).setEnabled(false);
+			
+			return;
 		}
+		
+		addressConfigurationModeMenuItem.setEnabled(true);
+		if (addressConfigurator == null ||
+				addressConfigurator.getState() == ConcentratorDynamicalAddressConfigurator.State.STOPPED) {
+			addressConfigurationModeMenuItem.setSelected(false);
+			UiUtils.getMenuItem(menuBar, MENU_NAME_TOOLS, MENU_ITEM_NAME_RECONFIGURE_ADDRESS).setEnabled(false);
+		} else {
+			addressConfigurationModeMenuItem.setSelected(true);
+			ThingInternalFrame thingInternalFrame = getSelectedFrame();
+			if (thingInternalFrame != null && !thingInternalFrame.getThing().isAddressConfigured()) {
+				UiUtils.getMenuItem(menuBar, MENU_NAME_TOOLS, MENU_ITEM_NAME_RECONFIGURE_ADDRESS).setEnabled(true);
+			} else {
+				UiUtils.getMenuItem(menuBar, MENU_NAME_TOOLS, MENU_ITEM_NAME_RECONFIGURE_ADDRESS).setEnabled(false);
+			}
+		}	
 	}
 	
 	private synchronized void disconnect() {
@@ -398,10 +453,11 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 		setDirty(dirty);
 		
 		if (dirty) {
-			refreshConnectionStateRelativatedMenus();
-			updateStatus();
+			refreshConnectionStateRelativeMenus();
 			UiUtils.showNotification(this, "Message", "Gateway has disconnected.");
 		}
+		refreshAddressConfigurationModeRelativeMenus();
+		updateStatus();
 	}
 
 	private void doDisconnect() {
@@ -428,6 +484,9 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 		
 		// Don't start actuator before the time that chat client has connected to server.
 		startActuator(chatClient);
+		
+		refreshAddressConfigurationModeRelativeMenus();
+		updateStatus();
 	}
 	
 	private void connect(boolean dirty) {
@@ -468,7 +527,8 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 			autoReconnect = oldAutoReconnect;
 		}
 		
-		refreshConnectionStateRelativatedMenus();
+		refreshConnectionStateRelativeMenus();
+		refreshAddressConfigurationModeRelativeMenus();
 		updateStatus();
 		
 		if (!isConnected())
@@ -477,7 +537,7 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 		autoReconnect = true;
 		chatClient.getStream().addConnectionListener(this);
 		concentrator = createConcentrator();
-		addressConfigurator = new ConcentratorDynamicalAddressConfigurator(gatewayCommunicator, concentrator);
+		addressConfigurator = new ConcentratorDynamicalAddressConfigurator(gatewayCommunicator, concentrator, obmFactory);
 		addressConfigurator.addListener(this);
 	}
 
@@ -499,10 +559,17 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 
 	private IConcentrator createConcentrator() {
 		IConcentrator concentrator = chatClient.createApi(IConcentrator.class);
-		concentrator.init(deviceId, nodes, Collections.singletonMap(CommunicationNet.LORA, gatewayCommunicator));
+		concentrator.init(deviceId, nodes, modelRegistrar, Collections.singletonMap(CommunicationNet.LORA, gatewayCommunicator));
 		concentrator.addListener(this);
 		
 		return concentrator;
+	}
+	
+	private IModelRegistrar createModeRegistrar() {
+		IModelRegistrar modeRegistrar = new ModelRegistrar();
+		modeRegistrar.registerModeDescriptor(new Le01ModelDescriptor());
+		
+		return modeRegistrar;
 	}
 
 	private IChatClient createChatClient() {
@@ -513,7 +580,6 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 		IChatClient chatClient = new StandardChatClient(streamConfigWithResource);
 		
 		registerPlugins(chatClient);
-		registerModels();
 		
 		return chatClient;
 	}
@@ -534,27 +600,23 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 		
 		if (actuator == null) {
 			actuator = chatClient.createApi(IActuator.class);
-			for (ModelDescriptor modelDescriptor : modelRegistrar.getModelDescriptors()) {				
-				actuator.registerModel(modelDescriptor);
-			}
 			
 			actuator.registerExecutorFactory(ChangeMode.class, new IExecutorFactory<ChangeMode>() {
 				@Override
-				public IExecutor<ChangeMode> create() throws ExecutionException {
+				public IExecutor<ChangeMode> create() {
 					return new ChangeModeExecutor(Gateway.this);
 				}
 			});
+			
+			actuator.setDeviceModel(THING_MODEL);
+			actuator.setToConcentrator(concentrator, traceIdFactory, obmFactory);
+			actuator.registerLanAction(Flash.class);
+			actuator.setLanExecuteTimeout(1000 * 60 * 10);
 		}
 		
 		actuator.start();
 	}
-
-	private void registerModels() {
-		modelRegistrar = new ModelRegistrar();
-		modelRegistrar.registerModeDescriptor(new Ge01ModelDescriptor());
-		modelRegistrar.registerModeDescriptor(new Le01ModelDescriptor());
-	}
-
+	
 	private void registerPlugins(IChatClient chatClient) {
 		chatClient.register(ConcentratorPlugin.class);
 		chatClient.register(ActuatorPlugin.class);
@@ -569,8 +631,7 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 	}
 
 	private void showLogConsoleDialog() {
-		logConsolesDialog = new LogConsolesDialog(this, modelRegistrar.getModelDescriptors(),
-				network, gatewayCommunicator, allThings);			
+		logConsolesDialog = new LogConsolesDialog(this, network, gatewayCommunicator, allThings, obmFactory);			
 		logConsolesDialog.addWindowListener(this);
 		logConsolesDialog.setVisible(true);
 		
@@ -617,7 +678,7 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 		}
 		
 		setDirty(true);
-		refreshGatewayInstanceRelativatedMenus();
+		refreshGatewayInstanceRelativeMenus();
 		updateStatus();
 	}
 
@@ -636,19 +697,19 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 	private void reset() {
 		ThingInternalFrame selectedFrame = getSelectedFrame();
 		if (selectedFrame == null) {
-			refreshThingSelectionRelativedMenuItems();
+			refreshThingSelectionRelativeMenus();
 			return;
 		}
 		
 		powerOff();
 		selectedFrame.getThing().reset();
-		refreshThingSelectionRelativedMenuItems();
+		refreshThingSelectionRelativeMenus();
 	}
 	
 	@Override
 	public void powerOff() {
 		getSelectedFrame().getThing().powerOff();
-		refreshPowerRelativedMenuItems();
+		refreshPowerRelativeMenus();
 	}
 
 	private ThingInternalFrame getSelectedFrame() {
@@ -659,7 +720,7 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 	@Override
 	public void powerOn() {
 		getSelectedFrame().getThing().powerOn();
-		refreshPowerRelativedMenuItems();
+		refreshPowerRelativeMenus();
 	}
 
 	private void saveAs() {
@@ -820,7 +881,7 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 						frame.addInternalFrameListener(Gateway.this);
 					}
 					
-					refreshGatewayInstanceRelativatedMenus();
+					refreshGatewayInstanceRelativeMenus();
 					updateStatus();
 				}
 				
@@ -878,30 +939,24 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 						thingInfo.getX(), thingInfo.getY(), thingInfo.isSelected());
 			}
 		}
-		refreshGatewayInstanceRelativatedMenus();
+		refreshGatewayInstanceRelativeMenus();
 		
 		setConfigFile(file);
 	}
 	
-	private void refreshConnectionStateRelativatedMenus() {
+	private void refreshConnectionStateRelativeMenus() {
 		if (isConnected()) {
 			UiUtils.getMenuItem(menuBar, MENU_NAME_TOOLS, MENU_ITEM_NAME_CONNECT).setEnabled(false);
 			UiUtils.getMenuItem(menuBar, MENU_NAME_TOOLS, MENU_ITEM_NAME_DISCONNECT).setEnabled(true);
 			
-			UiUtils.getMenuItem(menuBar, MENU_NAME_TOOLS, MENU_ITEM_NAME_ADDRESS_CONFIGURATION_MODE).setEnabled(true);
-			UiUtils.getMenuItem(menuBar, MENU_NAME_TOOLS, MENU_ITEM_NAME_WORKING_MODE).setEnabled(false);
-			
-			refreshGatewayInstanceRelativatedMenus();
+			refreshGatewayInstanceRelativeMenus();
 		} else {
 			UiUtils.getMenuItem(menuBar, MENU_NAME_TOOLS, MENU_ITEM_NAME_DISCONNECT).setEnabled(false);			
 			UiUtils.getMenuItem(menuBar, MENU_NAME_TOOLS, MENU_ITEM_NAME_CONNECT).setEnabled(true);
-			
-			UiUtils.getMenuItem(menuBar, MENU_NAME_TOOLS, MENU_ITEM_NAME_ADDRESS_CONFIGURATION_MODE).setEnabled(false);
-			UiUtils.getMenuItem(menuBar, MENU_NAME_TOOLS, MENU_ITEM_NAME_WORKING_MODE).setEnabled(false);
 		}
 	}
 
-	private void refreshGatewayInstanceRelativatedMenus() {
+	private void refreshGatewayInstanceRelativeMenus() {
 		if (deviceIdentity != null) {
 			UiUtils.getMenuItem(menuBar, MENU_NAME_TOOLS, MENU_ITEM_NAME_REGISTER).setEnabled(false);
 			
@@ -1001,6 +1056,8 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 			return;
 		
 		createThing(thingName);
+		
+		refreshAddressConfigurationModeRelativeMenus();
 	}
 	
 	private AbstractLoraThingEmulator createThing(String thingName) {
@@ -1014,6 +1071,7 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 		}
 		
 		AbstractLoraThingEmulator loraThing = (AbstractLoraThingEmulator)thing;
+		loraThing.setObmFactory(obmFactory);
 		int instanceIndex = addThingToAllThings(thingFactory, loraThing);
 		
 		showThing(loraThing, getThingInstanceName(thingFactory, instanceIndex), -1, 30 * instanceIndex, 30 * instanceIndex);
@@ -1116,7 +1174,7 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 		@Override
 		public void run() {
 			setDirty(dirty);
-			refreshPowerRelativedMenuItems();
+			refreshPowerRelativeMenus();
 		}
 	}
 
@@ -1197,10 +1255,8 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 		
 		toolsMenu.addSeparator();
 		
-		toolsMenu.add(UiUtils.createMenuItem(MENU_ITEM_NAME_WORKING_MODE,
-				MENU_ITEM_TEXT_WORKING_MODE, -1, null, this, false));
-		toolsMenu.add(UiUtils.createMenuItem(MENU_ITEM_NAME_ADDRESS_CONFIGURATION_MODE,
-				MENU_ITEM_TEXT_ADDRESS_CONFIGURATION_MODE, -1, null, this, false));
+		createSetToAddressConfigurationModeMenuItem();
+		toolsMenu.add(addressConfigurationModeMenuItem);
 		toolsMenu.add(UiUtils.createMenuItem(MENU_ITEM_NAME_RECONFIGURE_ADDRESS,
 				MENU_ITEM_TEXT_RECONFIGURE_ADDRESS, -1, null, this, false));
 		
@@ -1209,6 +1265,24 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 		toolsMenu.add(UiUtils.createMenuItem(MENU_ITEM_NAME_SHOW_LOG_CONSOLE, MENU_ITEM_TEXT_SHOW_LOG_CONSOLE, -1, null, this));
 		
 		return toolsMenu;
+	}
+
+	private void createSetToAddressConfigurationModeMenuItem() {
+		addressConfigurationModeMenuItem = new JCheckBoxMenuItem(
+				MENU_ITEM_TEXT_ADDRESS_CONFIGURATION_MODE, false);
+		addressConfigurationModeMenuItem.addItemListener(new ItemListener() {	
+			@Override
+			public void itemStateChanged(ItemEvent e) {
+				if (addressConfigurationModeMenuItem.isSelected()) {
+					setToAddressConfigurationMode();
+				} else {
+					setToWorkingMode();
+				}
+				
+				updateStatus();
+			}
+		});
+		addressConfigurationModeMenuItem.setEnabled(false);
 	}
 
 	private JMenu createHelpMenu() {
@@ -1325,14 +1399,14 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 	@Override
 	public void internalFrameActivated(InternalFrameEvent e) {
 		setDirty(true);
-		refreshPowerRelativedMenuItems();
-		refreshThingSelectionRelativedMenuItems();
+		refreshPowerRelativeMenus();
+		refreshThingSelectionRelativeMenus();
 	}
 	
 	@Override
 	public void internalFrameDeactivated(InternalFrameEvent e) {}
 	
-	private void refreshThingSelectionRelativedMenuItems() {
+	private void refreshThingSelectionRelativeMenus() {
 		ThingInternalFrame thingFrame = getSelectedFrame();
 		if (thingFrame == null) {
 			UiUtils.getMenuItem(menuBar, MENU_NAME_EDIT, MENU_ITEM_NAME_RESET).setEnabled(false);
@@ -1343,11 +1417,10 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 		
 		UiUtils.getMenuItem(menuBar, MENU_NAME_EDIT, MENU_ITEM_NAME_RESET).setEnabled(true);
 		
-		if (isConnected() && !UiUtils.getMenuItem(menuBar, MENU_NAME_TOOLS, MENU_ITEM_NAME_ADDRESS_CONFIGURATION_MODE).isEnabled())
-			UiUtils.getMenuItem(menuBar, MENU_NAME_TOOLS, MENU_ITEM_NAME_RECONFIGURE_ADDRESS).setEnabled(true);
+		refreshAddressConfigurationModeRelativeMenus();
 	}
 
-	private void refreshPowerRelativedMenuItems() {
+	private void refreshPowerRelativeMenus() {
 		ThingInternalFrame thingFrame = getSelectedFrame();
 		if (thingFrame == null)
 			return;
@@ -1355,25 +1428,20 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 		if (thingFrame.getThing().isPowered()) {
 			UiUtils.getMenuItem(menuBar, MENU_NAME_EDIT, MENU_ITEM_NAME_POWER_ON).setEnabled(false);
 			UiUtils.getMenuItem(menuBar, MENU_NAME_EDIT, MENU_ITEM_NAME_POWER_OFF).setEnabled(true);
-			
-			if (chatClient != null && chatClient.isConnected() && addressConfigurator != null &&
-					addressConfigurator.getState() == ConcentratorDynamicalAddressConfigurator.State.STOPPED) {
-				UiUtils.getMenuItem(menuBar, MENU_NAME_TOOLS, MENU_ITEM_NAME_RECONFIGURE_ADDRESS).setEnabled(true);
-			}
 		} else {
 			UiUtils.getMenuItem(menuBar, MENU_NAME_EDIT, MENU_ITEM_NAME_POWER_OFF).setEnabled(false);
 			UiUtils.getMenuItem(menuBar, MENU_NAME_EDIT, MENU_ITEM_NAME_POWER_ON).setEnabled(true);
-			
-			UiUtils.getMenuItem(menuBar, MENU_NAME_TOOLS, MENU_ITEM_NAME_RECONFIGURE_ADDRESS).setEnabled(false);
 		}
+		
+		refreshAddressConfigurationModeRelativeMenus();
 	}
 	
 	private void setDirty(boolean dirty) {
 		this.dirty = dirty;
-		refreshDirtyRelativedMenuItems(dirty);
+		refreshDirtyRelativeMenus(dirty);
 	}
 
-	private void refreshDirtyRelativedMenuItems(boolean dirty) {
+	private void refreshDirtyRelativeMenus(boolean dirty) {
 		JMenuItem saveMenuItem = UiUtils.getMenuItem(menuBar, MENU_NAME_FILE, MENU_ITEM_NAME_SAVE);
 		if (dirty) {
 			saveMenuItem.setEnabled(true);
@@ -1430,7 +1498,8 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 			chatClient.close();
 			chatClient = null;
 			
-			refreshConnectionStateRelativatedMenus();
+			refreshConnectionStateRelativeMenus();
+			refreshAddressConfigurationModeRelativeMenus();
 			updateStatus();
 			
 			UiUtils.showNotification(this, "Message", "Gateway has disconnected.");

@@ -1,6 +1,8 @@
 package com.thefirstlineofcode.sand.client.things.commuication;
 
-public interface ICommunicationChip<A, D> {
+import com.thefirstlineofcode.sand.protocols.core.Address;
+
+public interface ICommunicationChip<A extends Address, D> {
 	void changeAddress(A address) throws CommunicationException;
 	A getAddress();
 	void send(A to, D data) throws CommunicationException;

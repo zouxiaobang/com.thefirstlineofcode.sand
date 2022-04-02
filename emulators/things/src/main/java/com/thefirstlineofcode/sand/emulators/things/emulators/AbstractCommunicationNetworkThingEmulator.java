@@ -4,20 +4,25 @@ import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.util.Map;
-import java.util.concurrent.ExecutionException;
 
+import com.thefirstlineofcode.basalt.oxm.binary.BinaryUtils;
 import com.thefirstlineofcode.basalt.protocol.core.Protocol;
 import com.thefirstlineofcode.sand.client.things.IDeviceListener;
 import com.thefirstlineofcode.sand.client.things.commuication.CommunicationException;
 import com.thefirstlineofcode.sand.client.things.commuication.ICommunicationListener;
 import com.thefirstlineofcode.sand.client.things.commuication.ICommunicator;
 import com.thefirstlineofcode.sand.client.things.obm.IObmFactory;
-import com.thefirstlineofcode.sand.client.things.obm.ObmFactory;
+import com.thefirstlineofcode.sand.client.things.obm.IObmFactoryAware;
+import com.thefirstlineofcode.sand.protocols.actuator.LanActionError;
+import com.thefirstlineofcode.sand.protocols.actuator.LanActionException;
+import com.thefirstlineofcode.sand.protocols.actuator.LanExecute;
+import com.thefirstlineofcode.sand.protocols.core.Address;
 
-public abstract class AbstractCommunicationNetworkThingEmulator<OA, PA, D> extends AbstractThingEmulator
-		implements ICommunicationNetworkThingEmulator<OA, PA, D>, ICommunicationListener<OA, PA, D> {
-	protected ICommunicator<OA, PA, D> communicator;
-	protected IObmFactory obmFactory = ObmFactory.createInstance();
+public abstract class AbstractCommunicationNetworkThingEmulator<OA, PA extends Address> extends AbstractThingEmulator
+		implements ICommunicationNetworkThingEmulator<OA, PA, byte[]>, ICommunicationListener<OA, PA, byte[]>,
+			IObmFactoryAware {
+	protected ICommunicator<OA, PA, byte[]> communicator;
+	protected IObmFactory obmFactory;
 	protected boolean dataReceiving;
 	protected Map<Protocol, Class<?>> supportedActions;
 	
@@ -27,7 +32,7 @@ public abstract class AbstractCommunicationNetworkThingEmulator<OA, PA, D> exten
 	public AbstractCommunicationNetworkThingEmulator(String type, String model, ICommunicator<?, ?, ?> communicator) {
 		super(type, model);
 		
-		this.communicator = (ICommunicator<OA, PA, D>)communicator;	
+		this.communicator = (ICommunicator<OA, PA, byte[]>)communicator;	
 		dataReceiving = false;
 		
 		supportedActions = createSupportedActions();
@@ -85,36 +90,75 @@ public abstract class AbstractCommunicationNetworkThingEmulator<OA, PA, D> exten
 	}
 	
 	@Override
-	public ICommunicator<OA, PA, D> getCommunicator() {
+	public ICommunicator<OA, PA, byte[]> getCommunicator() {
 		return communicator;
 	}
 	
 	@Override
-	public void sent(PA to, D data) {}
+	public void sent(PA to, byte[] data) {}
 	
 	@Override
-	public void received(PA from, D data) {
+	public void received(PA from, byte[] data) {
 		processReceived(from, data);
 	}
 	
-	protected void processReceived(PA from, D data) {
+	protected void processReceived(PA from, byte[] data) {
 		Protocol protocol = readProtocol(data);
 		if (protocol == null) {
-			// TODO Unknown protocol.
-			throw new RuntimeException(String.format("Unknown protocol. Data: %s.", getDataInfoString(data)));
+			throw new RuntimeException(String.format("Unrecognized protocol. Data: %s.", getDataInfoString(data)));
 		}
 		
+		if (LanExecute.PROTOCOL.equals(protocol)) {
+			processLanExecute(from, data);
+		} else {
+			processAction(from, protocol, data);
+		}
+	}
+
+	private void processAction(PA from, Protocol protocol, byte[] data)  {
 		Class<?> actionType = supportedActions.get(protocol);
+		Object action = readAction(actionType, data);
+		
 		if (actionType == null) {
-			// TODO Action not supported.
 			throw new RuntimeException(String.format("Action not supported. Protocol is %s.", protocol));
 		}
 		
 		try {
-			processAction(readAction(actionType, data));
-		} catch (ExecutionException e) {
-			// TODO Auto-generated catch block
+			processAction(action);
+		} catch (LanActionException e) {
 			e.printStackTrace();
+		}
+	}
+
+	private void processLanExecute(PA from, byte[] data) {
+		LanExecute lanExecute = (LanExecute)obmFactory.toObject(data);		
+		Object action = lanExecute.getLanActionObj();
+		
+		try {
+			processAction(action);
+		} catch (LanActionException e) {
+			processLanActionError(from, lanExecute, e.getError());
+			return;
+		}
+		
+		sendResponseToPeer(from, lanExecute);
+	}
+
+	private void sendResponseToPeer(PA from, LanExecute request) {
+		LanExecute response = new LanExecute(request.getTraceId().createResponseId());		
+		try {
+			communicator.send(from, obmFactory.toBinary(response));
+		} catch (CommunicationException ce) {
+			ce.printStackTrace();
+		}
+	}
+
+	private void processLanActionError(PA from, LanExecute request, LanActionError lanActionError) {
+		LanExecute error = new LanExecute(request.getTraceId().createErrorId(), lanActionError);
+		try {
+			communicator.send(from, obmFactory.toBinary(error));
+		} catch (CommunicationException ce) {
+			ce.printStackTrace();
 		}
 	}
 	
@@ -133,13 +177,27 @@ public abstract class AbstractCommunicationNetworkThingEmulator<OA, PA, D> exten
 	public boolean isDataReceiving() {
 		return dataReceiving;
 	}
+	
+	@Override
+	public void setObmFactory(IObmFactory obmFactory) {
+		this.obmFactory = obmFactory;
+	}
 
 	@Override
 	public void occurred(CommunicationException e) {}
 	
+	protected Protocol readProtocol(byte[] data) {
+		return obmFactory.getBinaryXmppProtocolConverter().readProtocol(data);
+	}
+	
+	protected <A> A readAction(Class<A> actionType, byte[] data) {
+		return (A)obmFactory.toObject(actionType, data);
+	}
+	
+	protected String getDataInfoString(byte[] data) {
+		return BinaryUtils.getHexStringFromBytes(data);
+	}
+	
 	protected abstract Map<Protocol, Class<?>> createSupportedActions();
-	protected abstract Protocol readProtocol(D data);
-	protected abstract <A> A readAction(Class<A> actionType, D data);
-	protected abstract String getDataInfoString(D data);
-	protected abstract void processAction(Object action) throws ExecutionException;
+	protected abstract void processAction(Object action) throws LanActionException;
 }

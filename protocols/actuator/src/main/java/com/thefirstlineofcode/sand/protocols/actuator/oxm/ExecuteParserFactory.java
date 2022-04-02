@@ -14,7 +14,7 @@ import com.thefirstlineofcode.basalt.protocol.core.ProtocolException;
 import com.thefirstlineofcode.basalt.protocol.core.stanza.error.BadRequest;
 import com.thefirstlineofcode.sand.protocols.actuator.Execute;
 
-public class ExecutionParserFactory implements IParserFactory<Execute> {
+public class ExecuteParserFactory implements IParserFactory<Execute> {
 	@Override
 	public Protocol getProtocol() {
 		return Execute.PROTOCOL;
@@ -27,6 +27,8 @@ public class ExecutionParserFactory implements IParserFactory<Execute> {
 	
 	private class ExecutionParser implements IParser<Execute> {
 		
+		private static final String ATTRIBUTE_NAME_LAN_TRACEABLE = "lan-traceable";
+
 		@Override
 		public Execute createObject() {
 			return new Execute();
@@ -38,8 +40,13 @@ public class ExecutionParserFactory implements IParserFactory<Execute> {
 				return new ElementParserAdaptor<Execute>() {
 					@Override
 					public void processAttributes(IParsingContext<Execute> context, List<Attribute> attributes) {
-						if (attributes.size() != 0) {
-							throw new ProtocolException(new BadRequest("Execute object mustn't has any attributes."));
+						if (attributes.size() == 0) {
+							return;
+						} else if (attributes.size() == 1 && ATTRIBUTE_NAME_LAN_TRACEABLE.equals(attributes.get(0).getName())) {							
+							boolean traceable = Boolean.valueOf(attributes.get(0).getValue().stringIt().get());								
+							context.getObject().setLanTraceable(traceable);
+						} else {
+							throw new ProtocolException(new BadRequest("Only an optional attribute 'lan-traceable' is allowed in Execute."));						
 						}
 					}
 				};

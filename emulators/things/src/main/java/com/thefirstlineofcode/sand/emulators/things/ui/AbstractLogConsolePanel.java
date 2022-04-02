@@ -18,10 +18,8 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 
 import com.thefirstlineofcode.basalt.oxm.binary.BinaryUtils;
-import com.thefirstlineofcode.basalt.oxm.binary.IBinaryXmppProtocolConverter;
 import com.thefirstlineofcode.basalt.protocol.core.Protocol;
 import com.thefirstlineofcode.sand.client.things.obm.IObmFactory;
-import com.thefirstlineofcode.sand.client.things.obm.ObmFactory;
 import com.thefirstlineofcode.sand.emulators.things.ILogger;
 import com.thefirstlineofcode.sand.protocols.lora.dac.Allocated;
 import com.thefirstlineofcode.sand.protocols.lora.dac.Allocation;
@@ -36,11 +34,11 @@ public abstract class AbstractLogConsolePanel extends JPanel implements ILogger,
 	
 	private JTextArea logConsole;
 	private JButton clear;
-	private final IObmFactory obmFactory = ObmFactory.createInstance();
-	private final IBinaryXmppProtocolConverter bXmppProtocolConverter;
+	private final IObmFactory obmFactory;
 	
-	public AbstractLogConsolePanel() {
-		bXmppProtocolConverter = ((ObmFactory)ObmFactory.createInstance()).getBinaryXmppProtocolConverter();
+	public AbstractLogConsolePanel(IObmFactory obmFactory) {
+		this.obmFactory = obmFactory;
+		
 		registerAddressConfigurationProtocolTypes();
 
 		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
@@ -65,7 +63,7 @@ public abstract class AbstractLogConsolePanel extends JPanel implements ILogger,
 		add(clear);
 	}
 	
-	public void log(Exception e) {
+	public synchronized void log(Exception e) {
 		StringWriter out = new StringWriter();
 		e.printStackTrace(new PrintWriter(out));
 		logConsole.append(out.getBuffer().toString());
@@ -74,7 +72,7 @@ public abstract class AbstractLogConsolePanel extends JPanel implements ILogger,
 		logConsole.setCaretPosition(logConsole.getDocument().getLength() - 1);
 	}
 	
-	public void log(String message) {
+	public synchronized void log(String message) {
 		logConsole.append(message);
 		logConsole.append(LINE_SEPARATOR);
 		
@@ -111,18 +109,19 @@ public abstract class AbstractLogConsolePanel extends JPanel implements ILogger,
 		protocolToTypes.put(Allocation.PROTOCOL, Allocation.class);
 		protocolToTypes.put(Introduction.PROTOCOL, Introduction.class);
 	}
-
-	protected Object parseProtocol(byte[] data) {
-		Protocol protocol = bXmppProtocolConverter.readProtocol(data);
+	
+	protected Object toObject(byte[] data) {
+		Protocol protocol = obmFactory.readProtocol(data);
 		if (protocol == null) {
 			throw new RuntimeException(String.format("Unknown protocol. Data is %s.", BinaryUtils.getHexStringFromBytes(data)));
 		}
 
 		Class<?> actionType = protocolToTypes.get(protocol);
-		if (actionType == null) {
-			throw new RuntimeException(String.format("Action not supported. Protocol is %s.", protocol));
+		if (actionType != null) {
+			return obmFactory.toObject(actionType, data);
 		}
-
-		return obmFactory.toObject(actionType, data);
+		
+		return obmFactory.toObject(data);
+		
 	}
 }

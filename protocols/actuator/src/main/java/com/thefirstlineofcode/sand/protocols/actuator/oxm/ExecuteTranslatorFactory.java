@@ -1,5 +1,7 @@
 package com.thefirstlineofcode.sand.protocols.actuator.oxm;
 
+import com.thefirstlineofcode.basalt.oxm.Attribute;
+import com.thefirstlineofcode.basalt.oxm.Attributes;
 import com.thefirstlineofcode.basalt.oxm.convention.NamingConventionTranslatorFactory;
 import com.thefirstlineofcode.basalt.oxm.translating.IProtocolWriter;
 import com.thefirstlineofcode.basalt.oxm.translating.ITranslatingFactory;
@@ -10,8 +12,8 @@ import com.thefirstlineofcode.basalt.protocol.core.ProtocolException;
 import com.thefirstlineofcode.basalt.protocol.core.stanza.error.BadRequest;
 import com.thefirstlineofcode.sand.protocols.actuator.Execute;
 
-public class ExecutionTranslatorFactory implements ITranslatorFactory<Execute> {
-	private static final ITranslator<Execute> translator = new ExecutionTranslator();
+public class ExecuteTranslatorFactory implements ITranslatorFactory<Execute> {
+	private static final ITranslator<Execute> translator = new ExecuteTranslator();
 
 	@Override
 	public Class<Execute> getType() {
@@ -23,7 +25,9 @@ public class ExecutionTranslatorFactory implements ITranslatorFactory<Execute> {
 		return translator;
 	}
 	
-	private static class ExecutionTranslator implements ITranslator<Execute> {
+	private static class ExecuteTranslator implements ITranslator<Execute> {
+
+		private static final String ATTRIBUTE_NAME_LAN_TRACEABLE = "lan-traceable";
 
 		@Override
 		public Protocol getProtocol() {
@@ -37,6 +41,9 @@ public class ExecutionTranslatorFactory implements ITranslatorFactory<Execute> {
 			}
 			
 			writer.writeProtocolBegin(Execute.PROTOCOL);
+			if (execute.isLanTraceable()) {				
+				writer.writeAttributes(new Attributes().add(new Attribute(ATTRIBUTE_NAME_LAN_TRACEABLE, execute.isLanTraceable())).get());
+			}
 			translateAction(execute.getAction(), writer, translatingFactory);
 			writer.writeProtocolEnd();
 			
@@ -45,27 +52,8 @@ public class ExecutionTranslatorFactory implements ITranslatorFactory<Execute> {
 
 		@SuppressWarnings("unchecked")
 		private <T> void translateAction(Object action, IProtocolWriter writer, ITranslatingFactory translatingFactory) {
-			Class<T> actionType = (Class<T>)action.getClass();
-			ITranslatorFactory<T> actionTranslatorFactory = createCustomActionTranslatorFactory(actionType);
-			if (actionTranslatorFactory == null) {				
-				actionTranslatorFactory = new NamingConventionTranslatorFactory<>(actionType);
-			}
-			
+			ITranslatorFactory<T> actionTranslatorFactory = new NamingConventionTranslatorFactory<>((Class<T>)action.getClass());			
 			actionTranslatorFactory.create().translate((T)action, writer, translatingFactory);
-		}
-
-		@SuppressWarnings("unchecked")
-		private <T> ITranslatorFactory<T> createCustomActionTranslatorFactory(Class<T> actionType) {
-			String customActionTranslatorFactoryName = String.format("%s.%s%s", actionType.getPackage().getName(),
-					actionType.getSimpleName(), "TranslatorFactory");
-			try {
-				Class<ITranslatorFactory<T>> customActionTranslatorFactoryType = (Class<ITranslatorFactory<T>>)Class.forName(customActionTranslatorFactoryName);
-				return customActionTranslatorFactoryType.newInstance();
-			} catch (Exception e) {
-				// Ignore
-			}
-			
-			return null;
 		}
 	}
 

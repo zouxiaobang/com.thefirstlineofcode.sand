@@ -1,18 +1,15 @@
 package com.thefirstlineofcode.sand.emulators.lora.gateway.log;
 
 import java.awt.event.WindowEvent;
-import java.util.Collection;
-import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.thefirstlineofcode.basalt.protocol.core.Protocol;
 import com.thefirstlineofcode.sand.client.things.commuication.ICommunicationNetwork;
+import com.thefirstlineofcode.sand.client.things.obm.IObmFactory;
 import com.thefirstlineofcode.sand.client.things.obm.ObmData;
 import com.thefirstlineofcode.sand.emulators.lora.network.ILoraNetworkListener;
 import com.thefirstlineofcode.sand.emulators.things.ui.AbstractLogConsolePanel;
-import com.thefirstlineofcode.sand.protocols.core.ModelDescriptor;
 import com.thefirstlineofcode.sand.protocols.lora.LoraAddress;
 
 public class CommunicationNetworkLogConsolePanel extends AbstractLogConsolePanel implements ILoraNetworkListener {
@@ -22,30 +19,11 @@ public class CommunicationNetworkLogConsolePanel extends AbstractLogConsolePanel
 	
 	private ICommunicationNetwork<LoraAddress, byte[], ?> network;
 	
-	public CommunicationNetworkLogConsolePanel(ICommunicationNetwork<LoraAddress, byte[], ?> network, Map<String, ModelDescriptor> models) {
+	public CommunicationNetworkLogConsolePanel(ICommunicationNetwork<LoraAddress, byte[], ?> network,
+			IObmFactory obmFactory) {
+		super(obmFactory);
+		
 		this.network = network;
-		addProtocolToTypes(models);
-	}
-
-	public void addProtocolToTypes(Map<String, ModelDescriptor> models) {
-		Collection<ModelDescriptor> modelDescriptors = models.values();
-		for (ModelDescriptor modelDescriptor : modelDescriptors) {
-			Map<Protocol, Class<?>> supportedActions = modelDescriptor.getSupportedActions();
-			for (Map.Entry<Protocol, Class<?>> entry : supportedActions.entrySet()) {
-				Protocol protocol = entry.getKey();
-				if (!protocolToTypes.containsKey(protocol)) {
-					protocolToTypes.put(protocol, entry.getValue());
-				}
-			}
-
-			Map<Protocol, Class<?>> supportedEvents = modelDescriptor.getSupportedEvents();
-			for (Map.Entry<Protocol, Class<?>> entry : supportedEvents.entrySet()) {
-				Protocol protocol = entry.getKey();
-				if (!protocolToTypes.containsKey(protocol)) {
-					protocolToTypes.put(protocol, entry.getValue());
-				}
-			}
-		}
 	}
 	
 	@Override
@@ -55,7 +33,7 @@ public class CommunicationNetworkLogConsolePanel extends AbstractLogConsolePanel
 
 	@Override
 	public void sent(LoraAddress from, LoraAddress to, byte[] data) {
-		String logMessage = createSentLogMessage(from, to, new ObmData(parseProtocol(data), data));
+		String logMessage = createSentLogMessage(from, to, new ObmData(toObject(data), data));
 		
 		if (logger.isDebugEnabled()) {
 			logger.debug(logMessage);
@@ -74,7 +52,7 @@ public class CommunicationNetworkLogConsolePanel extends AbstractLogConsolePanel
 
 	@Override
 	public void received(LoraAddress from, LoraAddress to, byte[] data) {
-		String logMessage = createReceivedLogMessage(from, to, new ObmData(parseProtocol(data), data));
+		String logMessage = createReceivedLogMessage(from, to, new ObmData(toObject(data), data));
 		
 		if (logger.isDebugEnabled()) {
 			logger.debug(logMessage);
@@ -109,7 +87,7 @@ public class CommunicationNetworkLogConsolePanel extends AbstractLogConsolePanel
 
 	@Override
 	public void collided(LoraAddress from, LoraAddress to, byte[] data) {
-		String logMessage = createCollidedLogMessage(from, to, new ObmData(parseProtocol(data), data));
+		String logMessage = createCollidedLogMessage(from, to, new ObmData(toObject(data), data));
 		
 		if (logger.isWarnEnabled()) {
 			logger.warn(logMessage);
@@ -128,7 +106,7 @@ public class CommunicationNetworkLogConsolePanel extends AbstractLogConsolePanel
 
 	@Override
 	public void lost(LoraAddress from, LoraAddress to, byte[] data) {
-		String logMessage = createLostLogMessage(from, to, new ObmData(parseProtocol(data), data));
+		String logMessage = createLostLogMessage(from, to, new ObmData(toObject(data), data));
 		
 		if (logger.isWarnEnabled()) {
 			logger.warn(logMessage);

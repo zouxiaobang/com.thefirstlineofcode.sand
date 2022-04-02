@@ -19,13 +19,15 @@ public interface IConcentrator {
 		SERVER_ASSIGNED_A_EXISTED_LAN_ID
 	}
 	
-	void init(String deviceId, Map<String, Node> nodes, Map<CommunicationNet, ? extends ICommunicator<?, ?, ?>> communicators);
+	void init(String deviceId, Map<String, Node> nodes, IModelRegistrar modeRegistrar,
+			Map<CommunicationNet, ? extends ICommunicator<?, ?, ?>> communicators);
 	String getBestSuitedNewLanId();
 	void createNode(String deviceId, String lanId, NodeAddress<?> address);
 	void removeNode(String lanId);
 	Map<String, Node> getNodes();
 	Node getNode(String lanId);
 	Node[] pullNodes();
+	IModelRegistrar getModeRegistrar();
 	ICommunicator<?, ?, ?> getCommunicator(CommunicationNet communicationNet);
 	String getDeviceId();
 	void addListener(IConcentrator.Listener listener);

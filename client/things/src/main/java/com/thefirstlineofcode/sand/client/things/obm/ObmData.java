@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.Set;
 
 import com.thefirstlineofcode.sand.client.things.ThingsUtils;
+import com.thefirstlineofcode.sand.protocols.core.ITraceId;
 
 /**
  * @author xb.zou
@@ -65,6 +66,9 @@ public class ObmData {
 		if (isPrimitiveType(objClass)) {
 			return obj.toString();
 		}
+		
+		if (obj instanceof ITraceId)
+			return obj.toString();
 
 		Field[] fields = objClass.getDeclaredFields();
 		String className = objClass.getSimpleName();
@@ -80,7 +84,7 @@ public class ObmData {
 				try {
 					field.setAccessible(true);
 
-					Object fieldValue = field.get(protocolObject);
+					Object fieldValue = field.get(obj);
 					if (fieldValue == null) {
 						continue;
 					}

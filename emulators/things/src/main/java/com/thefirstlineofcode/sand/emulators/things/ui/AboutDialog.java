@@ -28,7 +28,7 @@ public class AboutDialog extends JDialog {
 		
 		JPanel creatorPanel = new JPanel();
 		creatorPanel.setLayout(new BorderLayout());
-		creatorPanel.add(new JLabel("Created by FirstLineCode."), BorderLayout.EAST);
+		creatorPanel.add(new JLabel("Created by TheFirstLineOfCode."), BorderLayout.EAST);
 		box.add(creatorPanel);
 		
 		getContentPane().add(box, "Center");

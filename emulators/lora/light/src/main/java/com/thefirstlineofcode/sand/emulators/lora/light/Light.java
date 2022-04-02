@@ -9,21 +9,20 @@ import java.util.List;
 import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.concurrent.ExecutionException;
 
 import com.thefirstlineofcode.basalt.protocol.core.Protocol;
 import com.thefirstlineofcode.sand.emulators.lora.network.LoraCommunicator;
 import com.thefirstlineofcode.sand.emulators.lora.things.AbstractLoraThingEmulator;
 import com.thefirstlineofcode.sand.emulators.models.Le01ModelDescriptor;
 import com.thefirstlineofcode.sand.emulators.things.ILight;
-import com.thefirstlineofcode.sand.emulators.things.NotRemoteControlStateException;
-import com.thefirstlineofcode.sand.emulators.things.NotTurnedOffStateException;
 import com.thefirstlineofcode.sand.emulators.things.PowerEvent;
 import com.thefirstlineofcode.sand.emulators.things.emulators.ILightEmulator;
 import com.thefirstlineofcode.sand.emulators.things.emulators.ILightStateListener;
 import com.thefirstlineofcode.sand.emulators.things.emulators.ISwitchStateListener;
 import com.thefirstlineofcode.sand.emulators.things.ui.AbstractThingEmulatorPanel;
 import com.thefirstlineofcode.sand.emulators.things.ui.LightEmulatorPanel;
+import com.thefirstlineofcode.sand.protocols.actuator.LanActionError;
+import com.thefirstlineofcode.sand.protocols.actuator.LanActionException;
 import com.thefirstlineofcode.sand.protocols.devices.light.Flash;
 
 public class Light extends AbstractLoraThingEmulator implements ILightEmulator, ISwitchStateListener {
@@ -105,38 +104,18 @@ public class Light extends AbstractLoraThingEmulator implements ILightEmulator, 
 	}
 
 	@Override
-	public void turnOn() throws NotRemoteControlStateException {
-		if (switchState != SwitchState.CONTROL)
-			throw new NotRemoteControlStateException(switchState);
-		
-		doTurnOn();
-	}
-
-	private void doTurnOn() {
-		switchState = SwitchState.ON;
+	public void turnOn() {
 		panel.turnOn();
+
 	}
 
 	@Override
-	public void turnOff() throws NotRemoteControlStateException {
-		if (switchState != SwitchState.CONTROL)
-			throw new NotRemoteControlStateException(switchState);
-		
-		doTurnOff();
-	}
-
-	private void doTurnOff() {
+	public void turnOff() {
 		panel.turnOff();
 	}
 
 	@Override
-	public void flash() throws NotRemoteControlStateException, NotTurnedOffStateException {
-		if (switchState != SwitchState.CONTROL)
-			throw new NotRemoteControlStateException(switchState);
-		
-		if (lightState != LightState.OFF)
-			throw new NotTurnedOffStateException();
-		
+	public void flash() {
 		panel.flash();
 	}
 
@@ -152,7 +131,7 @@ public class Light extends AbstractLoraThingEmulator implements ILightEmulator, 
 
 	@Override
 	protected void doReset() {
-		doTurnOff();
+		turnOff();
 		
 		super.doReset();
 	}
@@ -211,15 +190,20 @@ public class Light extends AbstractLoraThingEmulator implements ILightEmulator, 
 	}
 
 	@Override
-	protected void processAction(Object action) throws ExecutionException {
+	protected void processAction(Object action) throws LanActionException {
 		if (action instanceof Flash) {
 			executeFlash((Flash)action);
 		} else {
-			throw new ExecutionException(new IllegalArgumentException(String.format("Unsupported action type: %s", action.getClass())));
+			throw new RuntimeException(String.format("Unsupported action type: %s.", action.getClass().getName()));
 		}
 	}
-
-	private void executeFlash(Flash flash) {
+	
+	private void executeFlash(Flash flash) throws LanActionException {
+		if (switchState != SwitchState.CONTROL) {			
+			throw new LanActionException(new LanActionError(Flash.ERROR_CODE_NOT_REMOTE_CONTROL_STATE,
+					(String.format("Not remote control state. Current state is %s.", switchState))));
+		}
+		
 		int repeat = flash.getRepeat();
 		if (repeat == 0)
 			repeat = 1;
@@ -244,15 +228,7 @@ public class Light extends AbstractLoraThingEmulator implements ILightEmulator, 
 			
 			@Override
 			public void run() {
-				try {
-					flash();
-				} catch (NotRemoteControlStateException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (NotTurnedOffStateException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
+				flash();
 			}
 		}).start();
 	}

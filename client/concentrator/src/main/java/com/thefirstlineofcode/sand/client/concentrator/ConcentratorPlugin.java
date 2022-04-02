@@ -9,14 +9,11 @@ import com.thefirstlineofcode.basalt.oxm.convention.NamingConventionTranslatorFa
 import com.thefirstlineofcode.basalt.protocol.core.IqProtocolChain;
 import com.thefirstlineofcode.chalk.core.IChatSystem;
 import com.thefirstlineofcode.chalk.core.IPlugin;
-import com.thefirstlineofcode.sand.client.dmr.DmrPlugin;
 import com.thefirstlineofcode.sand.client.things.concentrator.IConcentrator;
 
 public class ConcentratorPlugin implements IPlugin {
 	@Override
 	public void init(IChatSystem chatSystem, Properties properties) {	
-		chatSystem.register(DmrPlugin.class);
-		
 		chatSystem.registerTranslator(
 				CreateNode.class,
 				new NamingConventionTranslatorFactory<CreateNode>(
@@ -39,8 +36,6 @@ public class ConcentratorPlugin implements IPlugin {
 		
 		chatSystem.unregisterParser(new IqProtocolChain(NodeCreated.PROTOCOL));
 		chatSystem.unregisterTranslator(CreateNode.class);
-		
-		chatSystem.unregister(DmrPlugin.class);
 	}
 
 }
