@@ -12,12 +12,15 @@ public interface IActuator {
 	boolean unregisterExecutor(Class<?> actionType);
 	void setTraceIdFactory(ITraceIdFactory traceIdFactory);
 	ITraceIdFactory getTraceIdFactory();
-	void registerLanAction(Class<?> actionType);
+	void registerLanAction(Class<?> lanActionType);
+	void registerLanActionErrorProcessor(ILanActionErrorProcessor lanActionErrorProcessor);
 	boolean unregisterLanAction(Class<?> actionType);
 	void setLanExecuteTimeout(long timeout);
 	long getLanExecuteTimeout();
 	void setLanExecuteTimeoutCheckInterval(int interval);
 	int getLanExecuteTimeoutCheckInterval();
+	void setLanEnabled(boolean enabled);
+	boolean isLanEnabled();
 	void start();
 	void stop();
 	boolean isStarted();

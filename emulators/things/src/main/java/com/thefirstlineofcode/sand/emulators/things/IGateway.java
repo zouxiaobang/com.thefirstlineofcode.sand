@@ -7,5 +7,10 @@ public interface IGateway extends IDevice {
 	void registerThingEmulatorFactory(IThingEmulatorFactory<?> factory);
 	boolean isRegistered();
 	boolean isConnected();
+	void register();
+	void connect();
+	void disconnect();
+	void setToWorkingMode();
+	void setToAddressConfigurationMode();
 	String getLanId();
 }

@@ -8,7 +8,7 @@ import com.thefirstlineofcode.sand.protocols.core.ModelDescriptor;
 import com.thefirstlineofcode.sand.protocols.devices.light.Flash;
 
 public class Le02ModelDescriptor extends ModelDescriptor {
-	private static final String MODEL_NAME = "LE02";
+	public static final String MODEL_NAME = "LE02";
 
 	public Le02ModelDescriptor() {
 		super(MODEL_NAME, false, createSupportedActions(), null);

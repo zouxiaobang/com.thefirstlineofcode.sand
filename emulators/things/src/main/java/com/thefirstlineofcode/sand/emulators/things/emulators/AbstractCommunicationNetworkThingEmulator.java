@@ -13,7 +13,6 @@ import com.thefirstlineofcode.sand.client.things.commuication.ICommunicationList
 import com.thefirstlineofcode.sand.client.things.commuication.ICommunicator;
 import com.thefirstlineofcode.sand.client.things.obm.IObmFactory;
 import com.thefirstlineofcode.sand.client.things.obm.IObmFactoryAware;
-import com.thefirstlineofcode.sand.protocols.actuator.LanActionError;
 import com.thefirstlineofcode.sand.protocols.actuator.LanActionException;
 import com.thefirstlineofcode.sand.protocols.actuator.LanExecute;
 import com.thefirstlineofcode.sand.protocols.core.Address;
@@ -131,21 +130,22 @@ public abstract class AbstractCommunicationNetworkThingEmulator<OA, PA extends A
 	}
 
 	private void processLanExecute(PA from, byte[] data) {
-		LanExecute lanExecute = (LanExecute)obmFactory.toObject(data);		
-		Object action = lanExecute.getLanActionObj();
+		LanExecute request = (LanExecute)obmFactory.toObject(data);		
+		Object action = request.getLanActionObj();
 		
 		try {
 			processAction(action);
+			sendResponseToPeer(from, request);
 		} catch (LanActionException e) {
-			processLanActionError(from, lanExecute, e.getError());
-			return;
+			sendErrorToPeer(from, request, e.getErrorCode());
 		}
-		
-		sendResponseToPeer(from, lanExecute);
 	}
 
-	private void sendResponseToPeer(PA from, LanExecute request) {
-		LanExecute response = new LanExecute(request.getTraceId().createResponseId());		
+	protected void sendResponseToPeer(PA from, LanExecute request) {
+		sendToPeer(from, new LanExecute(request.getTraceId().createResponseId()));
+	}
+
+	protected void sendToPeer(PA from, LanExecute response) {
 		try {
 			communicator.send(from, obmFactory.toBinary(response));
 		} catch (CommunicationException ce) {
@@ -153,13 +153,8 @@ public abstract class AbstractCommunicationNetworkThingEmulator<OA, PA extends A
 		}
 	}
 
-	private void processLanActionError(PA from, LanExecute request, LanActionError lanActionError) {
-		LanExecute error = new LanExecute(request.getTraceId().createErrorId(), lanActionError);
-		try {
-			communicator.send(from, obmFactory.toBinary(error));
-		} catch (CommunicationException ce) {
-			ce.printStackTrace();
-		}
+	protected void sendErrorToPeer(PA from, LanExecute request, String errorCode) {
+		sendToPeer(from, new LanExecute(request.getTraceId().createErrorId(), errorCode));
 	}
 	
 	@Override

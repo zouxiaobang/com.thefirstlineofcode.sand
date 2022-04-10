@@ -6,6 +6,7 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.thefirstlineofcode.basalt.protocol.core.Protocol;
 import com.thefirstlineofcode.basalt.protocol.core.ProtocolException;
 import com.thefirstlineofcode.basalt.protocol.core.stanza.error.Conflict;
 import com.thefirstlineofcode.sand.client.things.commuication.CommunicationException;
@@ -21,6 +22,8 @@ import com.thefirstlineofcode.sand.protocols.lora.dac.Introduction;
 
 public class ConcentratorDynamicalAddressConfigurator implements IAddressConfigurator<IDualLoraChipsCommunicator,
 			LoraAddress, byte[]>, ICommunicationListener<DualLoraAddress, LoraAddress, byte[]> {
+	private static final String NAMESPACE_LORA_DAC = "urn:leps:iot:lora-dac";
+
 	private static final Logger logger = LoggerFactory.getLogger(ConcentratorDynamicalAddressConfigurator.class);
 	
 	private static final DualLoraAddress ADDRESS_CONFIGURATION_MODE_DUAL_LORA_ADDRESS = new DualLoraAddress(
@@ -246,6 +249,11 @@ public class ConcentratorDynamicalAddressConfigurator implements IAddressConfigu
 
 	@Override
 	public void received(LoraAddress from, byte[] data) {
+		Protocol protocol = obmFactory.readProtocol(data);
+		if (!NAMESPACE_LORA_DAC.equals(protocol.getNamespace())) {
+			return;
+		}
+		
 		negotiate(from, data);
 	}
 

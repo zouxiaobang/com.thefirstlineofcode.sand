@@ -14,6 +14,8 @@ public interface ILight extends IDevice {
 		OFF
 	}
 	
+	public static final String ERROR_CODE_NOT_REMOTE_CONTROL_STATE = "01";
+	
 	SwitchState getSwitchState();
 	LightState getLightState();
 	void turnOn();

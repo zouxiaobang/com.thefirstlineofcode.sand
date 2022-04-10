@@ -22,7 +22,11 @@
 		SELECT * FROM CONCENTRATIONS WHERE concentrator = #{arg0} AND lan_id = #{arg1}
 	</select>
 	
-	<select id="selectByLanId" resultType="com.thefirstlineofcode.sand.server.concentrator.Node">
+	<select id="selectNodeByLanId" resultType="com.thefirstlineofcode.sand.server.concentrator.Node">
 		SELECT node AS device_id, lan_id, communication_net, address FROM CONCENTRATIONS WHERE concentrator = #{arg0} AND lan_id = #{arg1}
+	</select>
+	
+	<select id="selectNodeByDeviceId" resultType="com.thefirstlineofcode.sand.server.concentrator.Node">
+		SELECT node AS device_id, lan_id, communication_net, address FROM CONCENTRATIONS WHERE node = #{arg0}
 	</select>
 </mapper>

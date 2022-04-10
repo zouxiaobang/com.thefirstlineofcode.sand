@@ -11,6 +11,7 @@ import com.thefirstlineofcode.sand.emulators.lora.network.LoraChipCreationParams
 import com.thefirstlineofcode.sand.emulators.lora.network.LoraCommunicator;
 import com.thefirstlineofcode.sand.emulators.lora.network.LoraCommunicatorFactory;
 import com.thefirstlineofcode.sand.emulators.things.emulators.AbstractCommunicationNetworkThingEmulator;
+import com.thefirstlineofcode.sand.protocols.actuator.LanExecute;
 import com.thefirstlineofcode.sand.protocols.lora.LoraAddress;
 
 public abstract class AbstractLoraThingEmulator extends AbstractCommunicationNetworkThingEmulator<LoraAddress, LoraAddress> {
@@ -157,10 +158,10 @@ public abstract class AbstractLoraThingEmulator extends AbstractCommunicationNet
 		thingAddress = null;
 	}
 	
-	protected void addressConfigured(LoraAddress gatewayUplinkAddress, LoraAddress gatewayDownlinkAddress,
+	protected void addressConfigured(LoraAddress gatewayDownlinkAddress, LoraAddress gatewayUplinkAddress,
 			LoraAddress thingAddress) {
-		this.gatewayUplinkAddress = gatewayUplinkAddress;
 		this.gatewayDownlinkAddress = gatewayDownlinkAddress;
+		this.gatewayUplinkAddress = gatewayUplinkAddress;
 		this.thingAddress = thingAddress;
 		
 		if (addressConfigurator != null) {
@@ -180,4 +181,12 @@ public abstract class AbstractLoraThingEmulator extends AbstractCommunicationNet
 	
 	@Override
 	public void addressChanged(LoraAddress newAddress, LoraAddress oldAddress) {}
+	
+	protected void sendToPeer(LoraAddress from, LanExecute response) {
+		try {
+			communicator.send(gatewayUplinkAddress, obmFactory.toBinary(response));
+		} catch (CommunicationException ce) {
+			ce.printStackTrace();
+		}
+	}
 }

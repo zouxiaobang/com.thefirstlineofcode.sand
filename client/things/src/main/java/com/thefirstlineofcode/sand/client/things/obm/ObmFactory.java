@@ -26,7 +26,6 @@ import com.thefirstlineofcode.basalt.protocol.core.MessageProtocolChain;
 import com.thefirstlineofcode.basalt.protocol.core.Protocol;
 import com.thefirstlineofcode.basalt.protocol.core.ProtocolChain;
 import com.thefirstlineofcode.basalt.protocol.im.stanza.Message;
-import com.thefirstlineofcode.sand.protocols.actuator.LanActionError;
 import com.thefirstlineofcode.sand.protocols.actuator.LanExecute;
 import com.thefirstlineofcode.sand.protocols.actuator.oxm.LanExecuteParserFactory;
 import com.thefirstlineofcode.sand.protocols.actuator.oxm.LanExecuteTranslatorFactory;
@@ -51,10 +50,6 @@ public class ObmFactory implements IObmFactory {
 		ProtocolChain lanExecuteProtocolChain = new MessageProtocolChain(LanExecute.PROTOCOL);
 		oxmFactory.register(lanExecuteProtocolChain, new LanExecuteParserFactory(traceIdFactory));
 		oxmFactory.register(LanExecute.class, new LanExecuteTranslatorFactory());
-		
-		ProtocolChain lanActionErrorProtocolChain = lanExecuteProtocolChain.next(LanActionError.PROTOCOL);
-		oxmFactory.register(lanActionErrorProtocolChain, new NamingConventionParserFactory<>(LanActionError.class));
-		oxmFactory.register(LanActionError.class, new NamingConventionTranslatorFactory<>(LanActionError.class));
 	}
 	
 	private String[] loadBxmppExtensionConfigurations() {
@@ -220,13 +215,13 @@ public class ObmFactory implements IObmFactory {
 		message.setObject(obj);
 		
 		byte[] data = binaryXmppProtocolConverter.toBinary(oxmFactory.getTranslatingFactory().translate(message));
-		byte[] amendedData = new byte[data.length - 4];
-		amendedData[0] = data[0];
+		byte[] pureActionData = new byte[data.length - 4];
+		pureActionData[0] = data[0];
 		for (int i = 1; i < data.length - 4; i++) {
-			amendedData[i] = data[i + 4];
+			pureActionData[i] = data[i + 4];
 		}
 		
-		return amendedData;
+		return pureActionData;
 	}
 	
 	@SuppressWarnings({ "rawtypes", "unchecked" })
@@ -292,17 +287,17 @@ public class ObmFactory implements IObmFactory {
 	}
 
 	private Message getMessage(byte[] data) {
-		byte[] amendedData = new byte[data.length + 4];
+		byte[] wrappedByMessageData = new byte[data.length + 4];
 		
-		amendedData[0] = data[0];
+		wrappedByMessageData[0] = data[0];
 		for (int i = 0; i < 4; i++) {
-			amendedData[i + 1] = MESSAGE_WRAPPER_DATA[i];
+			wrappedByMessageData[i + 1] = MESSAGE_WRAPPER_DATA[i];
 		}
 		for (int i = 0; i < data.length - 1; i++) {
-			amendedData[i + 5] = data[i + 1];
+			wrappedByMessageData[i + 5] = data[i + 1];
 		}
 		
-		String xml = binaryXmppProtocolConverter.toXml(amendedData);
+		String xml = binaryXmppProtocolConverter.toXml(wrappedByMessageData);
 		Message message = (Message)oxmFactory.getParsingFactory().parse(xml);
 		
 		return message;

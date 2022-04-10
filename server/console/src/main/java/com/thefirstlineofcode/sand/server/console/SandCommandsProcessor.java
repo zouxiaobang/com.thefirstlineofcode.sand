@@ -101,7 +101,7 @@ public class SandCommandsProcessor extends AbstractCommandsProcessor implements 
 		int slashIndex = deviceLocation.indexOf('/');
 		
 		if (slashIndex == deviceLocation.length() - 1) {
-			consoleSystem.printMessageLine("Error: Invalid device location.");
+			consoleSystem.printMessageLine("Error: Invalid device location '%s'.");
 			return;
 		}
 		
@@ -137,12 +137,29 @@ public class SandCommandsProcessor extends AbstractCommandsProcessor implements 
 			if (params == null) {
 				consoleSystem.printMessageLine(String.format("Error: Illegal action parameters '%s' for action '%s'.",
 						args[2], actionName));
+				return;
 			}
 		}
 		
+		if (!deviceManager.isRegistered(deviceId)) {
+			consoleSystem.printMessageLine(String.format("Error: Device which's device ID is '%s' isn't a registered device.", deviceId));
+			return;
+		}
+		
+		if (concentratorFactory.isLanNode(deviceId)) {
+			consoleSystem.printMessageLine(String.format(
+					"Error: Device which's device ID is '%s' is a LAN node. You should access it by it's concentrator.", deviceId));
+			return;			
+		}
+		
 		Device device = deviceManager.getByDeviceId(deviceId);
-		if (!concentratorFactory.isConcentrator(device) || lanId == null ||
-				IConcentrator.LAN_ID_CONCENTRATOR.equals(lanId)) {
+		if (!concentratorFactory.isConcentrator(device) && lanId != null &&
+				!IConcentrator.LAN_ID_CONCENTRATOR.equals(lanId)) {
+			consoleSystem.printMessageLine(String.format("Error: Try to deliver action by device '%s', but it isn't a concentrator.", deviceId));
+			return;
+		}
+		
+		if (lanId == null || IConcentrator.LAN_ID_CONCENTRATOR.equals(lanId)) {
 			executeOnDevice(consoleSystem, device, protocol, params);
 		} else {
 			executeOnNode(consoleSystem, device, lanId, protocol, params);			
@@ -225,25 +242,54 @@ public class SandCommandsProcessor extends AbstractCommandsProcessor implements 
 
 		@Override
 		public boolean processResult(IProcessingContext context, Iq result) {
+			consoleSystem.printBlankLine();
+			consoleSystem.printBlankLine();
 			consoleSystem.printMessageLine(String.format(
-					"Action(protocol: %s) executed successfully on the devcie which's location is %s.",
+					"Action(protocol: %s) executed successfully on the devcie which's location is '%s'.",
 					protocol, deviceLocation));
+			consoleSystem.printBlankLine();
+			consoleSystem.printPrompt();
+			
 			return true;
 		}
 
 		@Override
 		public boolean processError(IProcessingContext context, StanzaError error) {
+			consoleSystem.printBlankLine();
+			consoleSystem.printBlankLine();
 			consoleSystem.printMessageLine(String.format(
-					"Failed to execute an action(protocol: %s) on the device which's location is %s. Error is %s.",
+					"Failed to execute an action(protocol: %s) on the device which's location is '%s'. %s",
 					protocol, deviceLocation, getErrorDescrption(error)));
+			consoleSystem.printBlankLine();
+			consoleSystem.printPrompt();
+			
 			return true;
 		}
 
 		private String getErrorDescrption(StanzaError error) {
-			if (error.getDefinedCondition() != null)
-				return error.getDefinedCondition();
+			if (error.getDefinedCondition() != null) {
+				StringBuilder sb = new StringBuilder();
+				sb.append("Error description: ").
+					append("Defined condition = ").
+					append(error.getDefinedCondition()).
+					append(".");
+				
+				if (error.getText() != null) {
+					sb.append(" Error text = ").
+						append(error.getText().getText());
+					
+					if (sb.charAt(sb.length() - 1) != '.') {						
+						sb.append(".");
+					}
+				}
+				
+				return sb.toString();
+			} else if (error.getApplicationSpecificCondition() != null) {
+				return String.format("Error description: Application specific condition = %s.", error.getApplicationSpecificCondition().toString());
+			} else {
+				return "Unknown error.";
+			}
 			
-			return error.getApplicationSpecificCondition().toString();
 		}
 		
 	}

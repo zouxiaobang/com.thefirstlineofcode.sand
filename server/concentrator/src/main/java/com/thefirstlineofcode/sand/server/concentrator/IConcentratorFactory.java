@@ -5,4 +5,5 @@ import com.thefirstlineofcode.sand.server.devices.Device;
 public interface IConcentratorFactory {
 	boolean isConcentrator(Device device);
 	IConcentrator getConcentrator(Device device);
+	boolean isLanNode(String deviceId);
 }

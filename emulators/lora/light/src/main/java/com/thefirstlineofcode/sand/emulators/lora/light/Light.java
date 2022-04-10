@@ -21,7 +21,6 @@ import com.thefirstlineofcode.sand.emulators.things.emulators.ILightStateListene
 import com.thefirstlineofcode.sand.emulators.things.emulators.ISwitchStateListener;
 import com.thefirstlineofcode.sand.emulators.things.ui.AbstractThingEmulatorPanel;
 import com.thefirstlineofcode.sand.emulators.things.ui.LightEmulatorPanel;
-import com.thefirstlineofcode.sand.protocols.actuator.LanActionError;
 import com.thefirstlineofcode.sand.protocols.actuator.LanActionException;
 import com.thefirstlineofcode.sand.protocols.devices.light.Flash;
 
@@ -200,8 +199,7 @@ public class Light extends AbstractLoraThingEmulator implements ILightEmulator, 
 	
 	private void executeFlash(Flash flash) throws LanActionException {
 		if (switchState != SwitchState.CONTROL) {			
-			throw new LanActionException(new LanActionError(Flash.ERROR_CODE_NOT_REMOTE_CONTROL_STATE,
-					(String.format("Not remote control state. Current state is %s.", switchState))));
+			throw new LanActionException(Flash.ERROR_CODE_NOT_REMOTE_CONTROL_STATE);
 		}
 		
 		int repeat = flash.getRepeat();

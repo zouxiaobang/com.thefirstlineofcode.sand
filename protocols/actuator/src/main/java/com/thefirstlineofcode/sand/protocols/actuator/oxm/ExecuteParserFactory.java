@@ -43,8 +43,8 @@ public class ExecuteParserFactory implements IParserFactory<Execute> {
 						if (attributes.size() == 0) {
 							return;
 						} else if (attributes.size() == 1 && ATTRIBUTE_NAME_LAN_TRACEABLE.equals(attributes.get(0).getName())) {							
-							boolean traceable = Boolean.valueOf(attributes.get(0).getValue().stringIt().get());								
-							context.getObject().setLanTraceable(traceable);
+							boolean lanTraceable = Boolean.valueOf(attributes.get(0).getValue().stringIt().get());								
+							context.getObject().setLanTraceable(lanTraceable);
 						} else {
 							throw new ProtocolException(new BadRequest("Only an optional attribute 'lan-traceable' is allowed in Execute."));						
 						}

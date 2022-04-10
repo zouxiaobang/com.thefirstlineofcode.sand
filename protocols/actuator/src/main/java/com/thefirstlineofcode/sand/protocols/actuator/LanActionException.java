@@ -3,14 +3,14 @@ package com.thefirstlineofcode.sand.protocols.actuator;
 public class LanActionException extends Exception {
 	private static final long serialVersionUID = 4957236030809756512L;
 	
-	private LanActionError error;
+	private String errorCode;
 	
-	public LanActionException(LanActionError error) {
-		this.error = error;
+	public LanActionException(String errorCode) {
+		this.errorCode = errorCode;
 	}
 
-	public LanActionError getError() {
-		return error;
+	public String getErrorCode() {
+		return errorCode;
 	}
 
 }

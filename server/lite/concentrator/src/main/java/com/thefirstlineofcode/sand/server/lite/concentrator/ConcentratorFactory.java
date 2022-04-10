@@ -9,6 +9,7 @@ import com.thefirstlineofcode.granite.framework.core.adf.IApplicationComponentSe
 import com.thefirstlineofcode.granite.framework.core.adf.IApplicationComponentServiceAware;
 import com.thefirstlineofcode.sand.server.concentrator.IConcentrator;
 import com.thefirstlineofcode.sand.server.concentrator.IConcentratorFactory;
+import com.thefirstlineofcode.sand.server.concentrator.Node;
 import com.thefirstlineofcode.sand.server.devices.Device;
 import com.thefirstlineofcode.sand.server.devices.IDeviceManager;
 
@@ -46,6 +47,20 @@ public class ConcentratorFactory implements IConcentratorFactory, IApplicationCo
 	@Override
 	public void setApplicationComponentService(IApplicationComponentService appComponentService) {
 		this.appComponentService = appComponentService;
+	}
+
+	@Override
+	public boolean isLanNode(String deviceId) {
+		if (!deviceManager.isRegistered(deviceId)) {			
+			return false;
+		}
+		
+		Node node = getConcentrationMapper().selectNodeByDeviceId(deviceId);
+		return node != null;
+	}
+	
+	private ConcentrationMapper getConcentrationMapper() {
+		return sqlSession.getMapper(ConcentrationMapper.class);
 	}
 
 }

@@ -66,6 +66,7 @@ import com.thefirstlineofcode.sand.client.lora.ConcentratorDynamicalAddressConfi
 import com.thefirstlineofcode.sand.client.lora.IDualLoraChipsCommunicator;
 import com.thefirstlineofcode.sand.client.things.IDeviceListener;
 import com.thefirstlineofcode.sand.client.things.ThingsUtils;
+import com.thefirstlineofcode.sand.client.things.actuator.ErrorCodeToXmppErrorsConverter;
 import com.thefirstlineofcode.sand.client.things.actuator.IActuator;
 import com.thefirstlineofcode.sand.client.things.actuator.IExecutor;
 import com.thefirstlineofcode.sand.client.things.actuator.IExecutorFactory;
@@ -199,6 +200,8 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 	private IObmFactory obmFactory;
 	
 	private IActuator actuator;
+	
+	private LanDataListener lanDataListener;
 		
 	public Gateway(ILoraNetwork network, IDualLoraChipsCommunicator gatewayCommunicator) {
 		super(THING_NAME);
@@ -257,16 +260,10 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 	}
 	
 	private IConnectionListener getLogConsoleInternetConnectionListener() {
-		IConnectionListener listener = null;
-		
 		if (logConsolesDialog == null)
 			return null;
 		
-		listener = logConsolesDialog.getInternetConnectionListener();
-		if (listener != null)
-			return (IConnectionListener)listener;
-		
-		return null;
+		return logConsolesDialog.getInternetConnectionListener();
 	}
 	
 	private void setupUi() {
@@ -396,7 +393,8 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 		setToAddressConfigurationMode();
 		getSelectedFrame().getThing().powerOn();
 	}
-
+	
+	@Override
 	public synchronized void setToWorkingMode() {
 		addressConfigurator.stop();
 		startWorking(chatClient);
@@ -404,8 +402,11 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 		refreshAddressConfigurationModeRelativeMenus();
 		updateStatus();
 	}
-
+	
+	@Override
 	public synchronized void setToAddressConfigurationMode() {
+		actuator.setLanEnabled(false);
+		
 		addressConfigurator.start();
 		
 		refreshAddressConfigurationModeRelativeMenus();
@@ -437,7 +438,8 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 		}	
 	}
 	
-	private synchronized void disconnect() {
+	@Override
+	public synchronized void disconnect() {
 		boolean dirty = false;
 		
 		if (autoReconnect) {
@@ -468,22 +470,27 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 		
 		stopListeningInLogConsole(chatClient);
 		
+		if (actuator != null) {
+			actuator.stop();
+			actuator = null;
+		}
+		
 		if (addressConfigurator != null && ConcentratorDynamicalAddressConfigurator.State.STOPPED != addressConfigurator.getState()) {
 			addressConfigurator.stop();
 		}
 		addressConfigurator = null;
+		
+		stopListeningLan();
 	}
 	
 	private void stopListeningInLogConsole(IChatClient chatClient) {
 		if (chatClient != null && hasAlreadyConnectionListenerExisted(chatClient, getLogConsoleInternetConnectionListener()))
 			chatClient.getConnection().removeListener(getLogConsoleInternetConnectionListener());
 	}
-
-	private void connect() {
+	
+	@Override
+	public void connect() {
 		connect(true);
-		
-		// Don't start actuator before the time that chat client has connected to server.
-		startActuator(chatClient);
 		
 		refreshAddressConfigurationModeRelativeMenus();
 		updateStatus();
@@ -496,6 +503,14 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 		try {
 			doConnect();
 			setDirty(dirty);
+			
+			// Don't start actuator before the time that chat client has connected to server.
+			startActuator(chatClient);
+			if (!actuator.isLanEnabled())
+				actuator.setLanEnabled(true);
+			
+			listenLan();
+			
 			UiUtils.showNotification(this, "Message", "Gateway has connected.");
 		} catch (ConnectionException e) {
 			if (chatClient != null) {
@@ -586,6 +601,9 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 	
 	private void startWorking(IChatClient chatClient) {
 		startActuator(chatClient);
+		if (!actuator.isLanEnabled())
+			actuator.setLanEnabled(true);
+		
 		startSensor(chatClient);
 	}
 
@@ -595,8 +613,9 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 	}
 
 	private void startActuator(IChatClient chatClient) {
-		if (addressConfigurator.getState() != ConcentratorDynamicalAddressConfigurator.State.STOPPED)
-			return;
+		if (addressConfigurator != null && addressConfigurator.getState() !=
+				ConcentratorDynamicalAddressConfigurator.State.STOPPED)
+			throw new IllegalStateException("Address configurator isn't in stopped state..");
 		
 		if (actuator == null) {
 			actuator = chatClient.createApi(IActuator.class);
@@ -611,7 +630,9 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 			actuator.setDeviceModel(THING_MODEL);
 			actuator.setToConcentrator(concentrator, traceIdFactory, obmFactory);
 			actuator.registerLanAction(Flash.class);
-			actuator.setLanExecuteTimeout(1000 * 60 * 10);
+			actuator.registerLanActionErrorProcessor(
+					new ErrorCodeToXmppErrorsConverter(Le01ModelDescriptor.MODEL_NAME,
+							Le01ModelDescriptor.getLe01ErrorCodeToXmppErrors()));
 		}
 		
 		actuator.start();
@@ -639,8 +660,9 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 		
 		UiUtils.getMenuItem(menuBar, MENU_NAME_TOOLS, MENU_ITEM_NAME_SHOW_LOG_CONSOLE).setEnabled(false);
 	}
-
-	private void register() {
+	
+	@Override
+	public void register() {
 		if (deviceIdentity != null)
 			throw new IllegalStateException("Gateway has already registered.");
 		
@@ -898,8 +920,8 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 		autoReconnect = false;
 		if (isConnected()) {
 			chatClient.close();
-			chatClient = null;
 		}
+		chatClient = null;
 	}
 
 	private void removeThings() {
@@ -1491,8 +1513,15 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 				exception.getType() == ConnectionException.Type.IO_ERROR) {
 			removeConnectionListenerFromStream(chatClient);
 			
+			stopListeningLan();
+			
 			if (addressConfigurator != null && addressConfigurator.getState() != ConcentratorDynamicalAddressConfigurator.State.STOPPED) {				
 				addressConfigurator.stop();
+			}
+			
+			if (actuator != null) {				
+				actuator.stop();
+				actuator = null;
 			}
 			
 			chatClient.close();
@@ -1607,5 +1636,67 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 	@Override
 	public String getThingName() {
 		return THING_NAME + "-" + THING_MODEL;
+	}
+	
+	private void listenLan() {
+		if (lanDataListener == null) {
+			lanDataListener = new LanDataListener();
+		}
+		
+		if (!lanDataListener.isListening())
+			lanDataListener.start();
+	}
+	
+	private void stopListeningLan() {
+		if (lanDataListener == null)
+			return;
+		
+		lanDataListener.stop();
+	}
+	
+	private class LanDataListener implements Runnable {
+		private Thread thread;
+		private boolean stop;
+		
+		public LanDataListener() {
+			stop = false;
+		}
+		
+		@Override
+		public void run() {
+			while (!stop) {
+				try {
+					Gateway.this.gatewayCommunicator.receive();					
+				} catch(Exception e) {
+					e.printStackTrace();
+				}
+				
+				try {
+					Thread.sleep(200);
+				} catch (InterruptedException e) {
+					// Ignore
+				}
+			}
+		}
+		
+		public void start() {
+			if (isListening())
+				return;
+			
+			stop = false;
+			thread = new Thread(this);
+			thread.start();
+		}
+		
+		public boolean isListening() {
+			if (thread == null)
+				return false;
+			
+			return thread.isAlive();
+		}
+		
+		public void stop() {
+			stop = true;
+		}
 	}
 }

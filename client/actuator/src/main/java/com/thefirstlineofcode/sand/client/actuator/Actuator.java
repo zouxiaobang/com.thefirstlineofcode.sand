@@ -15,8 +15,10 @@ import com.thefirstlineofcode.basalt.oxm.IOxmFactory;
 import com.thefirstlineofcode.basalt.oxm.binary.BinaryUtils;
 import com.thefirstlineofcode.basalt.oxm.convention.NamingConventionParserFactory;
 import com.thefirstlineofcode.basalt.oxm.convention.annotations.ProtocolObject;
+import com.thefirstlineofcode.basalt.protocol.core.IError;
 import com.thefirstlineofcode.basalt.protocol.core.IqProtocolChain;
 import com.thefirstlineofcode.basalt.protocol.core.JabberId;
+import com.thefirstlineofcode.basalt.protocol.core.LangText;
 import com.thefirstlineofcode.basalt.protocol.core.Protocol;
 import com.thefirstlineofcode.basalt.protocol.core.ProtocolException;
 import com.thefirstlineofcode.basalt.protocol.core.stanza.Iq;
@@ -27,11 +29,15 @@ import com.thefirstlineofcode.basalt.protocol.core.stanza.error.ItemNotFound;
 import com.thefirstlineofcode.basalt.protocol.core.stanza.error.NotAllowed;
 import com.thefirstlineofcode.basalt.protocol.core.stanza.error.RemoteServerTimeout;
 import com.thefirstlineofcode.basalt.protocol.core.stanza.error.StanzaError;
+import com.thefirstlineofcode.basalt.protocol.core.stanza.error.UndefinedCondition;
+import com.thefirstlineofcode.basalt.protocol.core.stanza.error.UnexpectedRequest;
+import com.thefirstlineofcode.basalt.protocol.core.stream.error.StreamError;
 import com.thefirstlineofcode.chalk.core.IChatServices;
 import com.thefirstlineofcode.chalk.core.stanza.IIqListener;
 import com.thefirstlineofcode.sand.client.things.actuator.IActuator;
 import com.thefirstlineofcode.sand.client.things.actuator.IExecutor;
 import com.thefirstlineofcode.sand.client.things.actuator.IExecutorFactory;
+import com.thefirstlineofcode.sand.client.things.actuator.ILanActionErrorProcessor;
 import com.thefirstlineofcode.sand.client.things.commuication.CommunicationException;
 import com.thefirstlineofcode.sand.client.things.commuication.ICommunicationListener;
 import com.thefirstlineofcode.sand.client.things.commuication.ICommunicator;
@@ -43,6 +49,7 @@ import com.thefirstlineofcode.sand.protocols.actuator.LanExecute;
 import com.thefirstlineofcode.sand.protocols.core.Address;
 import com.thefirstlineofcode.sand.protocols.core.BadAddressException;
 import com.thefirstlineofcode.sand.protocols.core.CommunicationNet;
+import com.thefirstlineofcode.sand.protocols.core.ITraceId;
 import com.thefirstlineofcode.sand.protocols.core.ITraceIdFactory;
 
 public class Actuator implements IActuator, IIqListener {
@@ -57,7 +64,9 @@ public class Actuator implements IActuator, IIqListener {
 	private IConcentrator concentrator;
 	private ITraceIdFactory traceIdFactory;
 	private Map<CommunicationNet, ICommunicator<?, ?, byte[]>> communicators;
+	private Map<CommunicationNet, LanExecuteAnswerListener<?, ?>> netToLanExecuteAnswerListeners;
 	private Map<String, List<LanExecuteTraceInfo>> lanNodeToLanExecuteTraceInfos;
+	private Map<String, ILanActionErrorProcessor> modelToLanActionErrorProcessors;
 	private long lanExecuteTimeout;
 	private int lanExecuteTimeoutCheckInterval;
 	private TimeoutLanExecutesChecker timeoutLanExecutesChecker;
@@ -65,17 +74,21 @@ public class Actuator implements IActuator, IIqListener {
 	private IOxmFactory oxmFactory;
 	private JabberId host;
 	private boolean started;
+	private boolean lanEnabled;
 	
 	public Actuator(IChatServices chatServices) {
 		this.chatServices = chatServices;
 		executorFactories = new HashMap<>();
 		communicators = new HashMap<>();
+		netToLanExecuteAnswerListeners = new HashMap<>();
 		oxmFactory = chatServices.getStream().getOxmFactory();
 		lanNodeToLanExecuteTraceInfos = new HashMap<>();
+		modelToLanActionErrorProcessors = new HashMap<>();
 		lanExecuteTimeout = DEFAULT_LAN_EXECUTE_TIMEOUT;
 		lanExecuteTimeoutCheckInterval = DEFAULT_LAN_EXECUTE_TIMEOUT_CHECK_INTERVAL;
 		host = JabberId.parse(chatServices.getStream().getStreamConfig().getHost());
 		started = false;
+		lanEnabled = false;
 	}
 	
 	@Override
@@ -144,14 +157,21 @@ public class Actuator implements IActuator, IIqListener {
 			
 			IExecutor<T> executor = createExecutor(action);
 			executor.execute(iq, action);
+			
+			Iq result = new Iq(Iq.Type.RESULT, iq.getId());
+			setFromToAddresses(iq.getFrom(), iq.getTo(), result);
 		} else if (toLanNode(iq.getTo())) {
+			if (concentrator == null)
+				throw new ProtocolException(new NotAllowed(String.format("Try to deliver action to LAN node from device '%s'. But the device isn't a concentrator."),
+						iq.getTo().getBareIdString()));
+			
+			if (!lanEnabled) {
+				throw new ProtocolException(new UnexpectedRequest("Actuator is being in LAN disabled mode."));
+			}
+			
 			if (logger.isInfoEnabled()) {
 				logger.info("Try to execute the action {} which was sent from '{}' on LAN node '{}'.", action, from, iq.getTo());
 			}
-			
-			if (concentrator == null)
-				throw new ProtocolException(new NotAllowed(String.format("Try to deliver action to LAN node by device '%s'. But the device isn't a concentrator."),
-						iq.getTo().getBareIdString()));
 			
 			executeOnLanNode(iq, action, execute.isLanTraceable());
 		} else {
@@ -170,7 +190,7 @@ public class Actuator implements IActuator, IIqListener {
 		return to != null && to.getResource() != null &&
 				!IConcentrator.LAN_ID_CONCENTRATOR.equals(to.getResource());
 	}
-
+	
 	private boolean toDeviceItself(JabberId to) {
 		return to == null ||
 				(to != null && to.getResource() == null) ||
@@ -277,7 +297,24 @@ public class Actuator implements IActuator, IIqListener {
 			timeoutLanExecutesChecker = null;
 		}
 		
+		synchronized (this) {
+			for (CommunicationNet net : communicators.keySet()) {
+				ICommunicator<?, ?, byte[]> communicator = communicators.get(net);
+				removeLanExecuteAnswerListener(net, communicator);
+			}
+			
+			communicators.clear();
+		}
+		
 		started = false;
+	}
+
+	@SuppressWarnings("unchecked")
+	private <OA, PA extends Address> void removeLanExecuteAnswerListener(CommunicationNet net,
+			ICommunicator<OA, PA, byte[]> communicator) {
+		LanExecuteAnswerListener<OA, PA> lanExecuteAnswerListener = (LanExecuteAnswerListener<OA, PA>)netToLanExecuteAnswerListeners.get(net);
+		if (lanExecuteAnswerListener != null)
+			communicator.removeCommunicationListener(lanExecuteAnswerListener);
 	}
 	
 	private class TimeoutLanExecutesChecker implements Runnable {
@@ -409,20 +446,23 @@ public class Actuator implements IActuator, IIqListener {
 		}
 		
 		long timeout = Calendar.getInstance().getTime().getTime() + lanExecuteTimeout;
-		lanExecuteTraceInfos.add(new LanExecuteTraceInfo(from, to, stanzaId, lanExecute, timeout));
+		lanExecuteTraceInfos.add(new LanExecuteTraceInfo(from, to, stanzaId, node, lanExecute, timeout));
 	}
 	
 	private class LanExecuteTraceInfo {
 		public JabberId from;
 		public JabberId to;
 		public String sanzaId;
+		public Node node;
 		public LanExecute lanExecute;
 		public long timeout;
 		
-		public LanExecuteTraceInfo(JabberId from, JabberId to, String sanzaId, LanExecute lanExecute, long timeout) {
+		public LanExecuteTraceInfo(JabberId from, JabberId to, String sanzaId, Node node,
+				LanExecute lanExecute, long timeout) {
 			this.from = from;
 			this.to = to;
 			this.sanzaId = sanzaId;
+			this.node = node;
 			this.lanExecute = lanExecute;
 			this.timeout = timeout;
 		}
@@ -439,8 +479,10 @@ public class Actuator implements IActuator, IIqListener {
 				
 				communicator = (ICommunicator<OA, PA, byte[]>)concentrator.getCommunicator(communicationNet);
 				if (communicator != null) {
-					communicator.addCommunicationListener(new LanExecuteAnswerListener<OA, PA>(communicationNet));
 					communicators.put(communicationNet, communicator);				
+					LanExecuteAnswerListener<OA, PA> lanExecuteAnswerListener = new LanExecuteAnswerListener<OA, PA>(communicationNet);
+					communicator.addCommunicationListener(lanExecuteAnswerListener);
+					netToLanExecuteAnswerListeners.put(communicationNet, lanExecuteAnswerListener);
 				}
 			}
 		}
@@ -475,6 +517,7 @@ public class Actuator implements IActuator, IIqListener {
 			return;
 		
 		LanExecute response = (LanExecute)obmFactory.toObject(data);
+		ITraceId responseId = response.getTraceId();
 		for (Node node : concentrator.getNodes().values()) {
 			try {
 				if (net.parse(node.getAddress()).equals(from)) {
@@ -483,13 +526,12 @@ public class Actuator implements IActuator, IIqListener {
 						if (lanExecuteTraceInfos != null) {
 							LanExecuteTraceInfo request = null;
 							for (LanExecuteTraceInfo lanExecuteTraceInfo : lanExecuteTraceInfos) {
-								if (lanExecuteTraceInfo.lanExecute.getTraceId().isResponse(data)) {
+								if (lanExecuteTraceInfo.lanExecute.getTraceId().isResponse(responseId.getBytes())) {
 									request = lanExecuteTraceInfo;
 									processLanExecuteResponse(lanExecuteTraceInfo.from, lanExecuteTraceInfo.to, lanExecuteTraceInfo.sanzaId);
 									break;
-								} else if (lanExecuteTraceInfo.lanExecute.getTraceId().isError(data)) {
-									processLanExecuteError(lanExecuteTraceInfo.from, lanExecuteTraceInfo.to,
-											lanExecuteTraceInfo.sanzaId, lanExecuteTraceInfo.lanExecute, response);
+								} else if (lanExecuteTraceInfo.lanExecute.getTraceId().isError(responseId.getBytes())) {
+									processLanExecuteError(lanExecuteTraceInfo, response);
 									request = lanExecuteTraceInfo;
 									break;
 								} else {
@@ -513,35 +555,63 @@ public class Actuator implements IActuator, IIqListener {
 		}
 	}
 	
-	private void processLanExecuteError(JabberId from, JabberId to, String stanzaId, LanExecute request, LanExecute error) {
-		if (!(error.getLanActionObj() instanceof StanzaError))
-			throw new RuntimeException("An action error must be an stanza error object.");
+	private void processLanExecuteError(LanExecuteTraceInfo traceInfo, LanExecute error) {
+		if (!(error.getLanActionObj() instanceof String))
+			throw new RuntimeException("An LAN action error code must be an string object.");
 		
-		StanzaError stanzaError = (StanzaError)error.getLanActionObj();
-		stanzaError.setId(stanzaId);
-		setJidAddresses(from, to, stanzaError);
+		String errorCode = (String)error.getLanActionObj();
+		ILanActionErrorProcessor lanActionErrorProcessor = modelToLanActionErrorProcessors.get(traceInfo.node.getModel());
+		if (lanActionErrorProcessor != null) {
+			IError e = lanActionErrorProcessor.processErrorCode(errorCode);
+			
+			if (e instanceof StreamError) {
+				chatServices.getStream().send(e);
+				if (e.closeStream())
+					chatServices.getStream().close();
+			} else {
+				StanzaError se = (StanzaError)e;
+				
+				se.setId(traceInfo.sanzaId);
+				setFromToAddresses(traceInfo.from, traceInfo.to, se);
+				e.setText(getGlobalErrorCode(traceInfo.node.getModel(), errorCode));
+				
+				chatServices.getStream().send(e);
+			}
+		} else {
+			StanzaError e = new UndefinedCondition(StanzaError.Type.MODIFY);
+			e.setId(traceInfo.sanzaId);
+			setFromToAddresses(traceInfo.from, traceInfo.to, e);
+			e.setText(getGlobalErrorCode(traceInfo.node.getModel(), errorCode));
+			
+			chatServices.getStream().send((IError)e);
+		}
 		
-		chatServices.getStream().send(stanzaError);
 	}
 	
+	private LangText getGlobalErrorCode(String model, String errorCode) {
+		return new LangText(String.format("%s-E%s", model, errorCode));
+	}
+
 	private void processLanExecuteResponse(JabberId from, JabberId to, String stanzaId) {
 		Iq result = new Iq(Iq.Type.RESULT, stanzaId);
-		setJidAddresses(from, to, result);
+		setFromToAddresses(from, to, result);
 		
 		chatServices.getIqService().send(result);
 	}
 
-	private void setJidAddresses(JabberId from, JabberId to, Stanza stanza) {
-		stanza.setFrom(to);
-		if (!host.equals(from) && from != null) {
+	private void setFromToAddresses(JabberId from, JabberId to, Stanza stanza) {
+		if (toLanNode(to))
+			stanza.setFrom(to.getBareId());
+		
+		if (from != null && !host.equals(from)) {
 			stanza.setTo(from);
 		}
 	}
 	
 	private void processLanExecuteTimeout(JabberId from, JabberId to, String stanzaId) {
-		StanzaError timeout = new RemoteServerTimeout();
+		Stanza timeout = new RemoteServerTimeout();
 		timeout.setId(stanzaId);
-		setJidAddresses(from, to, timeout);
+		setFromToAddresses(from, to, timeout);
 		
 		chatServices.getStream().send(timeout);
 	}
@@ -550,20 +620,6 @@ public class Actuator implements IActuator, IIqListener {
 		return LanExecute.PROTOCOL.equals(obmFactory.readProtocol(data));
 	}
 	
-	@Override
-	public void registerLanAction(Class<?> lanActionType) {
-		ProtocolObject protocolObject = lanActionType.getAnnotation(ProtocolObject.class);
-		if (protocolObject == null) {
-			throw new IllegalArgumentException(String.format("LAN action type %s isn't a protocol object type.", lanActionType.getName()));
-		}
-		
-		Protocol lanActionProtocol = new Protocol(protocolObject.namespace(), protocolObject.localName());
-		oxmFactory.register(new IqProtocolChain(Execute.PROTOCOL).next(lanActionProtocol),
-				new NamingConventionParserFactory<>(lanActionType));
-		
-		obmFactory.registerLanAction(lanActionType);
-	}
-
 	@Override
 	public boolean unregisterLanAction(Class<?> lanActionType) {
 		ProtocolObject protocolObject = lanActionType.getAnnotation(ProtocolObject.class);
@@ -617,4 +673,36 @@ public class Actuator implements IActuator, IIqListener {
 		return !started;
 	}
 	
+	@Override
+	public void setLanEnabled(boolean enabled) {
+		if (concentrator == null)
+			throw new IllegalStateException("Can't change LAN enabled state because the actuator doesn't run on a concentrator.");
+		
+		this.lanEnabled = enabled;
+	}
+
+	@Override
+	public boolean isLanEnabled() {
+		return lanEnabled;
+	}
+
+	@Override
+	public void registerLanAction(Class<?> lanActionType) {
+		// TODO Auto-generated method stub
+		ProtocolObject protocolObject = lanActionType.getAnnotation(ProtocolObject.class);
+		if (protocolObject == null) {
+			throw new IllegalArgumentException(String.format("LAN action type %s isn't a protocol object type.", lanActionType.getName()));
+		}
+		
+		Protocol lanActionProtocol = new Protocol(protocolObject.namespace(), protocolObject.localName());
+		oxmFactory.register(new IqProtocolChain(Execute.PROTOCOL).next(lanActionProtocol),
+				new NamingConventionParserFactory<>(lanActionType));
+		
+		obmFactory.registerLanAction(lanActionType);
+	}
+	
+	@Override
+	public void registerLanActionErrorProcessor(ILanActionErrorProcessor lanActionErrorProcessor) {
+		modelToLanActionErrorProcessors.put(lanActionErrorProcessor.getModel(), lanActionErrorProcessor);
+	}
 }

@@ -8,7 +8,7 @@ import com.thefirstlineofcode.sand.protocols.core.ModelDescriptor;
 import com.thefirstlineofcode.sand.protocols.devices.gateway.ChangeMode;
 
 public class Ge01ModelDescriptor extends ModelDescriptor {
-	private static final String MODEL_NAME = "GE01";
+	public static final String MODEL_NAME = "GE01";
 
 	public Ge01ModelDescriptor() {
 		super(MODEL_NAME, true, createSupportedActions(), null);
