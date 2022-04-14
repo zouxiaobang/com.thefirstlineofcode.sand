@@ -15,8 +15,8 @@ public interface IActuator {
 	void registerLanAction(Class<?> lanActionType);
 	void registerLanActionErrorProcessor(ILanActionErrorProcessor lanActionErrorProcessor);
 	boolean unregisterLanAction(Class<?> actionType);
-	void setLanExecuteTimeout(long timeout);
-	long getLanExecuteTimeout();
+	void setDefaultLanExecuteTimeout(long timeout);
+	long getDefaultLanExecuteTimeout();
 	void setLanExecuteTimeoutCheckInterval(int interval);
 	int getLanExecuteTimeoutCheckInterval();
 	void setLanEnabled(boolean enabled);

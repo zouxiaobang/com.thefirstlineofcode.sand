@@ -1,10 +1,11 @@
 package com.thefirstlineofcode.sand.emulators.wifi.light;
 
+import com.thefirstlineofcode.basalt.protocol.core.ProtocolException;
 import com.thefirstlineofcode.basalt.protocol.core.stanza.Iq;
-import com.thefirstlineofcode.sand.client.things.actuator.ExecutionException;
+import com.thefirstlineofcode.basalt.protocol.core.stanza.error.UnexpectedRequest;
 import com.thefirstlineofcode.sand.client.things.actuator.IExecutor;
-import com.thefirstlineofcode.sand.emulators.things.NotRemoteControlStateException;
-import com.thefirstlineofcode.sand.emulators.things.NotTurnedOffStateException;
+import com.thefirstlineofcode.sand.emulators.things.ILight;
+import com.thefirstlineofcode.sand.protocols.actuator.LanActionException;
 import com.thefirstlineofcode.sand.protocols.devices.light.Flash;
 
 public class FlashExecutor implements IExecutor<Flash> {
@@ -15,38 +16,32 @@ public class FlashExecutor implements IExecutor<Flash> {
 	}
 
 	@Override
-	public void execute(Iq iq, Flash action) throws ExecutionException {
+	public void execute(Iq iq, Flash action) {
+		if (light.getSwitchState() != ILight.SwitchState.CONTROL)
+			throw new ProtocolException(new UnexpectedRequest("Device is not in remote control state."));
+		
 		int repeat = action.getRepeat();
 		if (repeat == 0)
 			repeat = 1;
 		
-		if (repeat == 1) {
-			executeFlash(light);
-		} else {
-			for (int i = 0; i < repeat; i++) {
-				executeFlash(light);
-				
-				try {
-					Thread.sleep(2000);
-				} catch (InterruptedException e) {
-					// Ignore
-				}
-			}
-		}
-	}
-	
-	private void executeFlash(final Light light) {
-		new Thread(new Runnable() {
+		try {
+			light.flash(((Flash)action).getRepeat());
 			
-			@Override
-			public void run() {
+			synchronized (light) {
 				try {
-					light.flash();
-				} catch (NotRemoteControlStateException e) {
+					light.wait();
+				} catch (InterruptedException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 			}
-		}).start();
+		} catch (LanActionException le) {
+			// TODO Auto-generated catch block
+			le.printStackTrace();
+		}
+	}
+	
+	private String getGlobalErrorCode(String model, String errorCode) {
+		return String.format("%s-E%s", model, errorCode);
 	}
 }

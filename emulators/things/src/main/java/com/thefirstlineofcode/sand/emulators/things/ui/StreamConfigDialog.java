@@ -33,7 +33,7 @@ public class StreamConfigDialog extends JDialog implements WindowListener, Actio
 	private JTextField host;
 	private JTextField port;
 	private JCheckBox tlsPreferred;
-	private JButton register;
+	private JButton ok;
 	private JButton cancel;
 	
 	private StandardStreamConfig streamConfig;
@@ -65,11 +65,11 @@ public class StreamConfigDialog extends JDialog implements WindowListener, Actio
 	private JPanel createButtonsPanel() {
 		JPanel buttonsPanel = new JPanel();
 		
-		register = new JButton("Register");
-		register.setPreferredSize(new Dimension(100, 48));	
-		register.setActionCommand(ACTION_COMMAND_OK);
-		register.addActionListener(this);
-		buttonsPanel.add(register);
+		ok = new JButton("Ok");
+		ok.setPreferredSize(new Dimension(100, 48));	
+		ok.setActionCommand(ACTION_COMMAND_OK);
+		ok.addActionListener(this);
+		buttonsPanel.add(ok);
 		
 		cancel = new JButton("Cancel");
 		cancel.setPreferredSize(new Dimension(100, 48));

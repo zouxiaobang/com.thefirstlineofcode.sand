@@ -26,9 +26,6 @@ public class ExecuteTranslatorFactory implements ITranslatorFactory<Execute> {
 	}
 	
 	private static class ExecuteTranslator implements ITranslator<Execute> {
-
-		private static final String ATTRIBUTE_NAME_LAN_TRACEABLE = "lan-traceable";
-
 		@Override
 		public Protocol getProtocol() {
 			return Execute.PROTOCOL;
@@ -41,10 +38,18 @@ public class ExecuteTranslatorFactory implements ITranslatorFactory<Execute> {
 			}
 			
 			writer.writeProtocolBegin(Execute.PROTOCOL);
+			
 			if (execute.isLanTraceable()) {				
-				writer.writeAttributes(new Attributes().add(new Attribute(ATTRIBUTE_NAME_LAN_TRACEABLE, execute.isLanTraceable())).get());
+				writer.writeAttributes(new Attributes().add(new Attribute(Execute.ATTRIBUTE_NAME_LAN_TRACEABLE,
+						execute.isLanTraceable())).get());
 			}
+			if (execute.getLanTimeout() != null)
+				writer.writeAttributes(new Attributes().add(new Attribute(Execute.ATTRIBUTE_NAME_LAN_TIMEOUT,
+						execute.getLanTimeout())).get());
+				
+			
 			translateAction(execute.getAction(), writer, translatingFactory);
+			
 			writer.writeProtocolEnd();
 			
 			return writer.getDocument();

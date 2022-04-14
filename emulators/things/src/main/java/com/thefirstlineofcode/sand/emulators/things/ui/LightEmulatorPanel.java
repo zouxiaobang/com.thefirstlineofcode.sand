@@ -19,7 +19,7 @@ import com.thefirstlineofcode.sand.emulators.things.ILight;
 import com.thefirstlineofcode.sand.emulators.things.ILight.LightState;
 import com.thefirstlineofcode.sand.emulators.things.ILight.SwitchState;
 import com.thefirstlineofcode.sand.emulators.things.emulators.ILightEmulator;
-import com.thefirstlineofcode.sand.emulators.things.emulators.ISwitchStateListener;
+import com.thefirstlineofcode.sand.protocols.actuator.LanActionException;
 
 public class LightEmulatorPanel extends AbstractThingEmulatorPanel<ILightEmulator> implements ActionListener  {
 	private static final long serialVersionUID = 7660599095831708565L;
@@ -34,7 +34,6 @@ public class LightEmulatorPanel extends AbstractThingEmulatorPanel<ILightEmulato
 	private ImageIcon lightOff;
 	
 	private ILightEmulator light;
-	private ISwitchStateListener switchStateListener;
 	
 	public LightEmulatorPanel(ILightEmulator light) {
 		super(light);
@@ -43,7 +42,6 @@ public class LightEmulatorPanel extends AbstractThingEmulatorPanel<ILightEmulato
 		this.light = light;
 		
 		updateStatus();
-		refreshFlashButtionStatus();
 	}
 	
 	private void createLightIcons() {
@@ -148,63 +146,32 @@ public class LightEmulatorPanel extends AbstractThingEmulatorPanel<ILightEmulato
 		flashPanel.add(flash);
 		
 		flash.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				flash();
+			public void actionPerformed(ActionEvent event) {
+				try {
+					light.flash(1);
+				} catch (LanActionException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 			}
 		});
 		
 		return flashPanel;
 	}
 	
-	public void refreshFlashButtionStatus() {
-		if (light.isPowered() && light.getLightState() == LightState.OFF) {
-			flash.setEnabled(true);
-		} else {
-			flash.setEnabled(false);
-		}
-	}
-	
 	public void flash() {
 		if (!light.isPowered())
 			return;
 		
-		SwingUtilities.invokeLater(new Runnable() {
-			
-			@Override
-			public void run() {
-				flash.setEnabled(false);
-				lightImage.setIcon(getLightImageIcon(LightState.ON));
-				
-				repaint();
-				flash.repaint();
-				lightImage.repaint();
-			}
-		});
+		turnOn();
 		
-		new Thread(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					Thread.sleep(200);
-				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-				
-				SwingUtilities.invokeLater(new Runnable() {
-					
-					@Override
-					public void run() {
-						refreshFlashButtionStatus();
-						lightImage.setIcon(getLightImageIcon(LightState.OFF));
-						
-						repaint();
-						flash.repaint();
-						lightImage.repaint();
-					}
-				});
-			}
-		}).start();
+		try {
+			Thread.sleep(200);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		
+		turnOff();
 	}
 	
 	protected ImageIcon getLightImageIcon(LightState lightState) {
@@ -226,42 +193,34 @@ public class LightEmulatorPanel extends AbstractThingEmulatorPanel<ILightEmulato
 	public void actionPerformed(ActionEvent e) {
 		String actionCommand = e.getActionCommand();
 		
-		boolean changed = false;
-		ILight.SwitchState oldSwitchState = light.getSwitchState();
 		if (actionCommand.equals("off")) {
-			changed = light.changeSwitchState(ILight.SwitchState.OFF);
+			light.changeSwitchState(ILight.SwitchState.OFF);
 		} else if (actionCommand.equals("on")) {
-			changed = light.changeSwitchState(ILight.SwitchState.ON);
+			light.changeSwitchState(ILight.SwitchState.ON);
 		} else {
-			changed = light.changeSwitchState(ILight.SwitchState.CONTROL);
+			light.changeSwitchState(ILight.SwitchState.CONTROL);
 		}
-		
-		if (changed && switchStateListener != null) {
-			switchStateListener.switchStateChanged(oldSwitchState, light.getSwitchState());
-		}
-		
-		refreshFlashButtionStatus();
 	}
 	
 	public void updateStatus() {
 		updateStatus(light.getThingStatus());
 	}
 	
-	public void setSwitchStateListener(ISwitchStateListener switchStateListener) {
-		this.switchStateListener = switchStateListener;
-	}
-	
 	public void turnOn() {
-		refreshFlashButtionStatus();
-		
 		if (light.isPowered())
 			lightImage.setIcon(getLightImageIcon(LightState.ON));
+		
+		lightImage.repaint();
 	}
 	
 	public void turnOff() {
-		refreshFlashButtionStatus();
-		
 		if (light.isPowered())
 			lightImage.setIcon(getLightImageIcon(LightState.OFF));
+		
+		lightImage.repaint();
+	}
+	
+	public void setFlashButtionEnabled(boolean enabled) {
+		flash.setEnabled(enabled);
 	}
 }

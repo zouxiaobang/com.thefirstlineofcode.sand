@@ -10,8 +10,6 @@ import java.awt.event.KeyEvent;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.Map;
 
 import javax.swing.JFrame;
 import javax.swing.JMenu;
@@ -22,18 +20,14 @@ import javax.swing.plaf.FontUIResource;
 import com.thefirstlineofcode.chalk.core.stream.StandardStreamConfig;
 import com.thefirstlineofcode.sand.client.things.BatteryPowerEvent;
 import com.thefirstlineofcode.sand.client.things.IDeviceListener;
-import com.thefirstlineofcode.sand.client.things.obm.IObmFactory;
-import com.thefirstlineofcode.sand.client.things.obm.ObmFactory;
-import com.thefirstlineofcode.sand.emulators.models.Le02ModelDescriptor;
+import com.thefirstlineofcode.sand.emulators.things.Constants;
 import com.thefirstlineofcode.sand.emulators.things.UiUtils;
-import com.thefirstlineofcode.sand.emulators.things.ILight.SwitchState;
-import com.thefirstlineofcode.sand.emulators.things.emulators.ISwitchStateListener;
 import com.thefirstlineofcode.sand.emulators.things.ui.AboutDialog;
 import com.thefirstlineofcode.sand.emulators.things.ui.LightEmulatorPanel;
-import com.thefirstlineofcode.sand.protocols.core.ModelDescriptor;
+import com.thefirstlineofcode.sand.emulators.things.ui.StreamConfigDialog;
 
 public class LightFrame extends JFrame implements ActionListener, WindowListener,
-			IDeviceListener, ISwitchStateListener {
+			IDeviceListener {
 	private static final long serialVersionUID = 6734911253434942398L;
 	
 	// File Menu
@@ -49,11 +43,12 @@ public class LightFrame extends JFrame implements ActionListener, WindowListener
 	private static final String MENU_ITEM_NAME_POWER_ON = "power_on";
 	private static final String MENU_ITEM_TEXT_POWER_OFF = "Power Off";
 	private static final String MENU_ITEM_NAME_POWER_OFF = "power_off";
+	private static final String MENU_ITEM_TEXT_RESTART = "Restart";
+	private static final String MENU_ITEM_NAME_RESTART = "restart";
 	
 	// Tools Menu
 	private static final String MENU_TEXT_TOOLS = "Tools";
 	private static final String MENU_NAME_TOOLS = "tools";
-	
 	private static final String MENU_ITEM_TEXT_SHOW_LOG_CONSOLE = "Show Log Console";
 	private static final String MENU_ITEM_NAME_SHOW_LOG_CONSOLE = "show_log_console";
 	
@@ -64,17 +59,13 @@ public class LightFrame extends JFrame implements ActionListener, WindowListener
 	private static final String MENU_ITEM_NAME_ABOUT = "about";
 	
 	private JMenuBar menuBar;
-	private LogConsolesDialog logConsolesDialog;
+	private LogConsoleDialog logConsolesDialog;
 	
 	private LightEmulatorPanel panel;
 	
 	private Light light;
 	
-	protected IObmFactory obmFactory = ObmFactory.getInstance();
-	
 	private StandardStreamConfig streamConfig;
-	
-	private Map<String, ModelDescriptor> registeredModels;
 	
 	public LightFrame() {
 		this(null);
@@ -90,17 +81,9 @@ public class LightFrame extends JFrame implements ActionListener, WindowListener
 		}
 		this.light.addDeviceListener(this);
 		
-		registerModels();
-		
 		setupUi();
 		
 		refreshPowerRelativedMenus();
-	}
-	
-	private void registerModels() {
-		registeredModels = new HashMap<>();
-		Le02ModelDescriptor le02 = new Le02ModelDescriptor();
-		registeredModels.put(le02.getName(), le02);
 	}
 
 	private void setupUi() {
@@ -116,7 +99,6 @@ public class LightFrame extends JFrame implements ActionListener, WindowListener
 		
 		panel = (LightEmulatorPanel)light.getPanel();
 		getContentPane().add(panel, BorderLayout.CENTER);
-		((LightEmulatorPanel)panel).setSwitchStateListener(this);
 		
 		setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 		addWindowListener(this);		
@@ -140,6 +122,10 @@ public class LightFrame extends JFrame implements ActionListener, WindowListener
 		
 		editMenu.add(UiUtils.createMenuItem(MENU_ITEM_NAME_POWER_ON, MENU_ITEM_TEXT_POWER_ON, -1, null, this, false));
 		editMenu.add(UiUtils.createMenuItem(MENU_ITEM_NAME_POWER_OFF, MENU_ITEM_TEXT_POWER_OFF, -1, null, this, false));
+		
+		editMenu.addSeparator();
+		
+		editMenu.add(UiUtils.createMenuItem(MENU_ITEM_NAME_RESTART, MENU_ITEM_TEXT_RESTART, -1, null, this, false));
 
 		return editMenu;
 	}
@@ -186,7 +172,6 @@ public class LightFrame extends JFrame implements ActionListener, WindowListener
 	
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		// TODO Auto-generated method stub
 		String actionCommand = e.getActionCommand();
 		
 		if (MENU_ITEM_NAME_QUIT.equals(actionCommand)) {
@@ -195,6 +180,8 @@ public class LightFrame extends JFrame implements ActionListener, WindowListener
 			powerOn();
 		} else if (MENU_ITEM_NAME_POWER_OFF.equals(actionCommand)) {
 			powerOff();
+		} else if (MENU_ITEM_NAME_RESTART.equals(actionCommand)) {
+			restart();
 		} else if (MENU_ITEM_NAME_SHOW_LOG_CONSOLE.equals(actionCommand)) {
 			showLogConsoleDialog();
 		} else if (MENU_ITEM_NAME_ABOUT.equals(actionCommand)) {
@@ -203,16 +190,30 @@ public class LightFrame extends JFrame implements ActionListener, WindowListener
 			throw new IllegalArgumentException("Illegal action command: " + actionCommand);
 		}
 	}
+
+	private void restart() {
+		powerOff();
+		powerOn();
+	}
 	
 	private void powerOn() {
 		if (light.isPowered())
 			return;
 		
+		if (streamConfig == null) {
+			StreamConfigDialog streamConfigDialog = new StreamConfigDialog(this);
+			UiUtils.showDialog(this, streamConfigDialog);
+			
+			streamConfig = streamConfigDialog.getStreamConfig();
+		}
+		
 		light.powerOn();
+		
+		refreshPowerRelativedMenus();
 	}
 	
 	private void powerOff() {
-		if (light.isPowered())
+		if (!light.isPowered())
 			return;
 		
 		light.powerOff();
@@ -224,20 +225,26 @@ public class LightFrame extends JFrame implements ActionListener, WindowListener
 		if (light.isPowered()) {
 			UiUtils.getMenuItem(menuBar, MENU_NAME_EDIT, MENU_ITEM_NAME_POWER_ON).setEnabled(false);
 			UiUtils.getMenuItem(menuBar, MENU_NAME_EDIT, MENU_ITEM_NAME_POWER_OFF).setEnabled(true);
+			UiUtils.getMenuItem(menuBar, MENU_NAME_EDIT, MENU_ITEM_NAME_RESTART).setEnabled(true);
 		} else {
 			UiUtils.getMenuItem(menuBar, MENU_NAME_EDIT, MENU_ITEM_NAME_POWER_OFF).setEnabled(false);
 			UiUtils.getMenuItem(menuBar, MENU_NAME_EDIT, MENU_ITEM_NAME_POWER_ON).setEnabled(true);
+			UiUtils.getMenuItem(menuBar, MENU_NAME_EDIT, MENU_ITEM_NAME_RESTART).setEnabled(false);
 		}
 	}
 
 	private void showAboutDialog() {
-		UiUtils.showDialog(this, new AboutDialog(this, Light.THING_TYPE, Light.SOFTWARE_VERSION));
+		UiUtils.showDialog(this, new AboutDialog(this, Light.THING_TYPE, Constants.SOFTWARE_VERSION));
 	}
-
+	
 	private void showLogConsoleDialog() {
-		logConsolesDialog = new LogConsolesDialog(this);
-		logConsolesDialog.addWindowListener(this);
+		if (logConsolesDialog != null && logConsolesDialog.isVisible())
+			return;
 		
+		if (logConsolesDialog == null) {			
+			logConsolesDialog = new LogConsoleDialog(this);
+			logConsolesDialog.addWindowListener(this);
+		}
 		logConsolesDialog.setVisible(true);
 		
 		UiUtils.getMenuItem(menuBar, MENU_NAME_TOOLS, MENU_ITEM_NAME_SHOW_LOG_CONSOLE).setEnabled(false);
@@ -247,7 +254,7 @@ public class LightFrame extends JFrame implements ActionListener, WindowListener
 	public void windowClosing(WindowEvent e) {
 		if (e.getSource() instanceof JFrame) {
 			quit();
-		} else if (e.getSource() instanceof LogConsolesDialog) {
+		} else if (e.getSource() instanceof LogConsoleDialog) {
 			logConsolesDialog.setVisible(false);
 			logConsolesDialog.dispose();
 			logConsolesDialog = null;
@@ -278,15 +285,8 @@ public class LightFrame extends JFrame implements ActionListener, WindowListener
 	public void windowDeactivated(WindowEvent e) {}
 
 	@Override
-	public void batteryPowerChanged(BatteryPowerEvent event) {
-	}
-
+	public void batteryPowerChanged(BatteryPowerEvent event) {}
+	
 	@Override
-	public void switchStateChanged(SwitchState oldState, SwitchState newState) {
-	}
-
-	@Override
-	public void windowOpened(WindowEvent e) {
-		
-	}
+	public void windowOpened(WindowEvent e) {}
 }

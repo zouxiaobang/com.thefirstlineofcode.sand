@@ -225,10 +225,25 @@ public class SandCommandsProcessor extends AbstractCommandsProcessor implements 
 		}
 		
 		Object actionObject = createActionObject(consoleSystem, nodeDevice.getModel(), protocol, params);
-		eventFirer.fire(new ExecutionEvent(concentratorDevice, lanId, new Execute(actionObject, true),
+		eventFirer.fire(new ExecutionEvent(concentratorDevice, lanId, createExecute(actionObject) ,
 				new ExecutionCallback(concentratorDevice.getDeviceId() + "/" + lanId, protocol, consoleSystem)));
 	}
 	
+	private Execute createExecute(Object actionObject) {
+		Execute execute = new Execute(actionObject, true);
+		calculateLanTimeout(execute, actionObject);
+		
+		return execute;
+	}
+
+	private void calculateLanTimeout(Execute execute, Object actionObject) {
+		if (actionObject instanceof Flash) {
+			Flash flash = (Flash)actionObject;
+			int lanTimeout = flash.getRepeat() + 8;
+			execute.setLanTimeout(lanTimeout);
+		}
+	}
+
 	private class ExecutionCallback implements IExecutionCallback {
 		private String deviceLocation;
 		private Protocol protocol;

@@ -28,6 +28,7 @@ import com.thefirstlineofcode.basalt.protocol.core.stanza.error.InternalServerEr
 import com.thefirstlineofcode.basalt.protocol.core.stanza.error.ItemNotFound;
 import com.thefirstlineofcode.basalt.protocol.core.stanza.error.NotAllowed;
 import com.thefirstlineofcode.basalt.protocol.core.stanza.error.RemoteServerTimeout;
+import com.thefirstlineofcode.basalt.protocol.core.stanza.error.ServiceUnavailable;
 import com.thefirstlineofcode.basalt.protocol.core.stanza.error.StanzaError;
 import com.thefirstlineofcode.basalt.protocol.core.stanza.error.UndefinedCondition;
 import com.thefirstlineofcode.basalt.protocol.core.stanza.error.UnexpectedRequest;
@@ -55,7 +56,7 @@ import com.thefirstlineofcode.sand.protocols.core.ITraceIdFactory;
 public class Actuator implements IActuator, IIqListener {
 	private static final Logger logger = LoggerFactory.getLogger(Actuator.class);
 	
-	private static final long DEFAULT_LAN_EXECUTE_TIMEOUT = 1000 * 5;
+	private static final long DEFAULT_VALUE_OF_DEFAULT_LAN_EXECUTE_TIMEOUT = 1000 * 5;
 	private static final int DEFAULT_LAN_EXECUTE_TIMEOUT_CHECK_INTERVAL = 500;
 	
 	private IChatServices chatServices;
@@ -67,9 +68,9 @@ public class Actuator implements IActuator, IIqListener {
 	private Map<CommunicationNet, LanExecuteAnswerListener<?, ?>> netToLanExecuteAnswerListeners;
 	private Map<String, List<LanExecuteTraceInfo>> lanNodeToLanExecuteTraceInfos;
 	private Map<String, ILanActionErrorProcessor> modelToLanActionErrorProcessors;
-	private long lanExecuteTimeout;
+	private long defaultLanExecuteTimeout;
 	private int lanExecuteTimeoutCheckInterval;
-	private TimeoutLanExecutesChecker timeoutLanExecutesChecker;
+	private ExpiredLanExecutesChecker expiredLanExecutesChecker;
 	private IObmFactory obmFactory;
 	private IOxmFactory oxmFactory;
 	private JabberId host;
@@ -84,7 +85,7 @@ public class Actuator implements IActuator, IIqListener {
 		oxmFactory = chatServices.getStream().getOxmFactory();
 		lanNodeToLanExecuteTraceInfos = new HashMap<>();
 		modelToLanActionErrorProcessors = new HashMap<>();
-		lanExecuteTimeout = DEFAULT_LAN_EXECUTE_TIMEOUT;
+		defaultLanExecuteTimeout = DEFAULT_VALUE_OF_DEFAULT_LAN_EXECUTE_TIMEOUT;
 		lanExecuteTimeoutCheckInterval = DEFAULT_LAN_EXECUTE_TIMEOUT_CHECK_INTERVAL;
 		host = JabberId.parse(chatServices.getStream().getStreamConfig().getHost());
 		started = false;
@@ -151,8 +152,9 @@ public class Actuator implements IActuator, IIqListener {
 							action.getClass().getName(), iq.getTo());
 				}
 				
-				throw new ProtocolException(new NotAllowed((String.format("Action which's type is %s not supported by device '%s'.",
-						action.getClass().getName(), iq.getTo()))));
+				throw new ProtocolException(new ServiceUnavailable(String.format(
+						"Action which's type is %s not supported by device '%s'.",
+						action.getClass().getName(), iq.getTo())));
 			}
 			
 			IExecutor<T> executor = createExecutor(action);
@@ -160,6 +162,7 @@ public class Actuator implements IActuator, IIqListener {
 			
 			Iq result = new Iq(Iq.Type.RESULT, iq.getId());
 			setFromToAddresses(iq.getFrom(), iq.getTo(), result);
+			chatServices.getIqService().send(result);
 		} else if (toLanNode(iq.getTo())) {
 			if (concentrator == null)
 				throw new ProtocolException(new NotAllowed(String.format("Try to deliver action to LAN node from device '%s'. But the device isn't a concentrator."),
@@ -173,7 +176,7 @@ public class Actuator implements IActuator, IIqListener {
 				logger.info("Try to execute the action {} which was sent from '{}' on LAN node '{}'.", action, from, iq.getTo());
 			}
 			
-			executeOnLanNode(iq, action, execute.isLanTraceable());
+			executeOnLanNode(iq, action, execute.isLanTraceable(), execute.getLanTimeout());
 		} else {
 			if (logger.isErrorEnabled()) {
 				logger.error(String.format("Can't find the device which's JID is '{}' to execute the action which was sent from '%s'.",
@@ -276,13 +279,17 @@ public class Actuator implements IActuator, IIqListener {
 		if (chatServices.getIqService().getListener(Execute.PROTOCOL) != this)
 			chatServices.getIqService().addListener(Execute.PROTOCOL, this);
 		
-		if (timeoutLanExecutesChecker != null)
-			timeoutLanExecutesChecker.stop();
-		
-		timeoutLanExecutesChecker = new TimeoutLanExecutesChecker();
-		new Thread(timeoutLanExecutesChecker).start();
+		setLanEnabled(true);
 		
 		started = true;
+	}
+
+	private void enableLan() {
+		if (expiredLanExecutesChecker != null)
+			expiredLanExecutesChecker.stop();
+		
+		expiredLanExecutesChecker = new ExpiredLanExecutesChecker();
+		new Thread(expiredLanExecutesChecker).start();
 	}
 	
 	@Override
@@ -290,21 +297,8 @@ public class Actuator implements IActuator, IIqListener {
 		if (!started)
 			return;
 		
+		setLanEnabled(false);
 		chatServices.getIqService().removeListener(Execute.PROTOCOL);
-		
-		if (timeoutLanExecutesChecker != null) {
-			timeoutLanExecutesChecker.stop();
-			timeoutLanExecutesChecker = null;
-		}
-		
-		synchronized (this) {
-			for (CommunicationNet net : communicators.keySet()) {
-				ICommunicator<?, ?, byte[]> communicator = communicators.get(net);
-				removeLanExecuteAnswerListener(net, communicator);
-			}
-			
-			communicators.clear();
-		}
 		
 		started = false;
 	}
@@ -317,10 +311,10 @@ public class Actuator implements IActuator, IIqListener {
 			communicator.removeCommunicationListener(lanExecuteAnswerListener);
 	}
 	
-	private class TimeoutLanExecutesChecker implements Runnable {
+	private class ExpiredLanExecutesChecker implements Runnable {
 		private boolean stop;
 		
-		public TimeoutLanExecutesChecker() {
+		public ExpiredLanExecutesChecker() {
 			stop = false;
 		}
 		
@@ -330,33 +324,32 @@ public class Actuator implements IActuator, IIqListener {
 
 		@Override
 		public void run() {
-			if (stop)
-				return;
-			
-			checkTimeoutLanExecutes();
-			
-			try {
-				Thread.sleep(lanExecuteTimeoutCheckInterval);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
+			while (!stop) {
+				checkExpiredLanExecutes();
+				
+				try {
+					Thread.sleep(lanExecuteTimeoutCheckInterval);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
 			}
 		}
 
-		private void checkTimeoutLanExecutes() {
+		private void checkExpiredLanExecutes() {
 			long currentTime = Calendar.getInstance().getTime().getTime();
 			synchronized (Actuator.this) {
 				for (List<LanExecuteTraceInfo> traceInfos : lanNodeToLanExecuteTraceInfos.values()) {
-					List<LanExecuteTraceInfo> timeouts = new ArrayList<>();
+					List<LanExecuteTraceInfo> expiredLanExecutes = new ArrayList<>();
 					for (LanExecuteTraceInfo traceInfo : traceInfos) {
-						if (Long.compare(currentTime, traceInfo.timeout) > 0) {
-							timeouts.add(traceInfo);
+						if (Long.compare(currentTime, traceInfo.expiredTime) > 0) {
+							expiredLanExecutes.add(traceInfo);
 						}
 					}
 					
-					if (timeouts.size() > 0) {
-						for (LanExecuteTraceInfo timeout : timeouts) {
-							traceInfos.remove(timeout);
-							processLanExecuteTimeout(timeout.from, timeout.to, timeout.sanzaId);
+					if (expiredLanExecutes.size() > 0) {
+						for (LanExecuteTraceInfo expiredLanExecute : expiredLanExecutes) {
+							traceInfos.remove(expiredLanExecute);
+							processExpiredLanExecute(expiredLanExecute.from, expiredLanExecute.to, expiredLanExecute.sanzaId);
 						}
 					}
 				}
@@ -403,14 +396,16 @@ public class Actuator implements IActuator, IIqListener {
 	}
 	
 	@SuppressWarnings("unchecked")
-	private <PA extends Address> void executeOnLanNode(Iq iq, Object action, boolean lanTraceable) {
+	private <PA extends Address> void executeOnLanNode(Iq iq, Object action,
+			boolean lanTraceable, Integer lanTimeout) {
 		Node node = concentrator.getNode(iq.getTo().getResource());
 		if (node == null)
 			throw new ProtocolException(new ItemNotFound(String.format("LAN node '%s' not existed.", iq.getTo())));
 		
 		if (!concentrator.getModeRegistrar().isActionSupported(node.getModel(), action.getClass())) {
-			throw new ProtocolException(new NotAllowed((String.format("Action type %s not supported by device '{}'.",
-					action.getClass().getName(), iq.getTo()))));
+			throw new ProtocolException(new ServiceUnavailable(String.format(
+					"Action type %s not supported by device '{}'.",
+					action.getClass().getName(), iq.getTo())));
 		}
 		
 		ICommunicator<?, PA, byte[]> communicator = (ICommunicator<?, PA, byte[]>)getCommunicator(node.getCommunicationNet());
@@ -423,7 +418,7 @@ public class Actuator implements IActuator, IIqListener {
 		try {
 			if (lanTraceable) {			
 				LanExecute lanExecute = new LanExecute(traceIdFactory.generateRequestId(), action);
-				traceLanExecute(iq.getFrom(), iq.getTo(), iq.getId(), node, lanExecute);
+				traceLanExecute(iq.getFrom(), iq.getTo(), iq.getId(), node, lanExecute, lanTimeout);
 				communicator.send((PA)node.getCommunicationNet().parse(node.getAddress()), obmFactory.toBinary(lanExecute));
 			} else {
 				communicator.send((PA)node.getCommunicationNet().parse(node.getAddress()), obmFactory.toBinary(action));			
@@ -435,7 +430,8 @@ public class Actuator implements IActuator, IIqListener {
 		}
 	}
 
-	private synchronized void traceLanExecute(JabberId from, JabberId to, String stanzaId, Node node, LanExecute lanExecute) {
+	private synchronized void traceLanExecute(JabberId from, JabberId to, String stanzaId,
+			Node node, LanExecute lanExecute, Integer lanTimeout) {
 		List<LanExecuteTraceInfo> lanExecuteTraceInfos = lanNodeToLanExecuteTraceInfos.get(node.getLanId());
 		if (lanExecuteTraceInfos == null) {
 			lanExecuteTraceInfos = lanNodeToLanExecuteTraceInfos.get(node.getDeviceId());
@@ -445,8 +441,13 @@ public class Actuator implements IActuator, IIqListener {
 			}
 		}
 		
-		long timeout = Calendar.getInstance().getTime().getTime() + lanExecuteTimeout;
-		lanExecuteTraceInfos.add(new LanExecuteTraceInfo(from, to, stanzaId, node, lanExecute, timeout));
+		long expiredTime;
+		if (lanTimeout != null) {
+			expiredTime = Calendar.getInstance().getTime().getTime() + (lanTimeout * 1000);
+		} else {
+			expiredTime = Calendar.getInstance().getTime().getTime() + defaultLanExecuteTimeout;
+		}
+		lanExecuteTraceInfos.add(new LanExecuteTraceInfo(from, to, stanzaId, node, lanExecute, expiredTime));
 	}
 	
 	private class LanExecuteTraceInfo {
@@ -455,16 +456,16 @@ public class Actuator implements IActuator, IIqListener {
 		public String sanzaId;
 		public Node node;
 		public LanExecute lanExecute;
-		public long timeout;
+		public long expiredTime;
 		
 		public LanExecuteTraceInfo(JabberId from, JabberId to, String sanzaId, Node node,
-				LanExecute lanExecute, long timeout) {
+				LanExecute lanExecute, long expiredTime) {
 			this.from = from;
 			this.to = to;
 			this.sanzaId = sanzaId;
 			this.node = node;
 			this.lanExecute = lanExecute;
-			this.timeout = timeout;
+			this.expiredTime = expiredTime;
 		}
 	}
 	
@@ -608,7 +609,7 @@ public class Actuator implements IActuator, IIqListener {
 		}
 	}
 	
-	private void processLanExecuteTimeout(JabberId from, JabberId to, String stanzaId) {
+	private void processExpiredLanExecute(JabberId from, JabberId to, String stanzaId) {
 		Stanza timeout = new RemoteServerTimeout();
 		timeout.setId(stanzaId);
 		setFromToAddresses(from, to, timeout);
@@ -644,13 +645,13 @@ public class Actuator implements IActuator, IIqListener {
 	}
 
 	@Override
-	public void setLanExecuteTimeout(long timeout) {
-		this.lanExecuteTimeout = timeout;
+	public void setDefaultLanExecuteTimeout(long timeout) {
+		this.defaultLanExecuteTimeout = timeout;
 	}
 
 	@Override
-	public long getLanExecuteTimeout() {
-		return lanExecuteTimeout;
+	public long getDefaultLanExecuteTimeout() {
+		return defaultLanExecuteTimeout;
 	}
 
 	@Override
@@ -678,7 +679,29 @@ public class Actuator implements IActuator, IIqListener {
 		if (concentrator == null)
 			throw new IllegalStateException("Can't change LAN enabled state because the actuator doesn't run on a concentrator.");
 		
+		if (enabled) {
+			enableLan();
+		} else {			
+			disableLan();
+		}
+		
 		this.lanEnabled = enabled;
+	}
+
+	private void disableLan() {
+		if (expiredLanExecutesChecker != null) {
+			expiredLanExecutesChecker.stop();
+			expiredLanExecutesChecker = null;
+		}
+		
+		synchronized (this) {
+			for (CommunicationNet net : communicators.keySet()) {
+				ICommunicator<?, ?, byte[]> communicator = communicators.get(net);
+				removeLanExecuteAnswerListener(net, communicator);
+			}
+			
+			communicators.clear();
+		}
 	}
 
 	@Override

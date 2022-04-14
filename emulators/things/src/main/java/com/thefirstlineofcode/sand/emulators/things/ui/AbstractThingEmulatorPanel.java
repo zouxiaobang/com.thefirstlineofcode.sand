@@ -11,7 +11,6 @@ import javax.swing.SwingConstants;
 
 import com.thefirstlineofcode.sand.client.things.BatteryPowerEvent;
 import com.thefirstlineofcode.sand.client.things.IDeviceListener;
-import com.thefirstlineofcode.sand.emulators.things.emulators.ISwitchStateListener;
 import com.thefirstlineofcode.sand.emulators.things.emulators.IThingEmulator;
 
 public abstract class AbstractThingEmulatorPanel<T extends IThingEmulator> extends JPanel implements IDeviceListener {	
@@ -19,8 +18,6 @@ public abstract class AbstractThingEmulatorPanel<T extends IThingEmulator> exten
 	
 	protected T thingEmulator;
 	protected JLabel statusBar;
-	
-	protected ISwitchStateListener switchStateListener;
 	
 	public AbstractThingEmulatorPanel(T thingEmulator) {
 		super(new BorderLayout());
@@ -54,10 +51,6 @@ public abstract class AbstractThingEmulatorPanel<T extends IThingEmulator> exten
 	@Override
 	public void batteryPowerChanged(BatteryPowerEvent event) {
 		updateStatus(thingEmulator.getThingStatus());
-	}
-	
-	public void setSwitchStateListener(ISwitchStateListener switchStateListener) {
-		this.switchStateListener = switchStateListener;
 	}
 
 	protected abstract JPanel createThingCustomizedUi(T thingEmulator);

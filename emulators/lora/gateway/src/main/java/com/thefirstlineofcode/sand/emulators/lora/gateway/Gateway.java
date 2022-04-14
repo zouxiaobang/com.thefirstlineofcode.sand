@@ -618,7 +618,7 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 			throw new IllegalStateException("Address configurator isn't in stopped state..");
 		
 		if (actuator == null) {
-			actuator = chatClient.createApi(IActuator.class);
+ 			actuator = chatClient.createApi(IActuator.class);
 			
 			actuator.registerExecutorFactory(ChangeMode.class, new IExecutorFactory<ChangeMode>() {
 				@Override
@@ -1295,6 +1295,9 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 		addressConfigurationModeMenuItem.addItemListener(new ItemListener() {	
 			@Override
 			public void itemStateChanged(ItemEvent e) {
+				if (!isConnected())
+					return;
+				
 				if (addressConfigurationModeMenuItem.isSelected()) {
 					setToAddressConfigurationMode();
 				} else {

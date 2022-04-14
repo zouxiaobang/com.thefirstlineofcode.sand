@@ -12,7 +12,6 @@ import java.util.TimerTask;
 import com.thefirstlineofcode.sand.client.things.BatteryPowerEvent;
 import com.thefirstlineofcode.sand.client.things.IDeviceListener;
 import com.thefirstlineofcode.sand.client.things.ThingsUtils;
-import com.thefirstlineofcode.sand.emulators.things.PowerEvent;
 
 public abstract class AbstractThingEmulator implements IThingEmulator, Externalizable {
 	private static final long serialVersionUID = 5777576412420781910L;
@@ -198,21 +197,6 @@ public abstract class AbstractThingEmulator implements IThingEmulator, Externali
 		}
 		
 		getPanel().updateStatus(getThingStatus());
-		
-		for (IThingEmulatorListener thingEmulatorListener : getThingEmulatorListeners()) {
-			thingEmulatorListener.powerChanged(new PowerEvent(this, PowerEvent.Type.POWER_ON));
-		}
-	}
-
-	private List<IThingEmulatorListener> getThingEmulatorListeners() {
-		List<IThingEmulatorListener> thingEmulatorListeners = new ArrayList<>();
-		for (IDeviceListener listener : deviceListeners) {
-			if (listener instanceof IThingEmulatorListener) {
-				thingEmulatorListeners.add((IThingEmulatorListener)listener);
-			}
-		}
-		
-		return thingEmulatorListeners;
 	}
 
 	@Override
@@ -226,10 +210,6 @@ public abstract class AbstractThingEmulator implements IThingEmulator, Externali
 		stopBatteryTimer();
 		
 		getPanel().updateStatus(getThingStatus());
-		
-		for (IThingEmulatorListener thingEmulatorListener : getThingEmulatorListeners()) {
-			thingEmulatorListener.powerChanged(new PowerEvent(this, PowerEvent.Type.POWER_OFF));
-		}
 	}
 
 	@Override

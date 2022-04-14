@@ -39,6 +39,10 @@ public class ObmFactory implements IObmFactory {
 	private List<Class<?>> registeredObjectTypes;
 	private List<Class<?>> registeredLanActionTypes;
 	
+	public ObmFactory() {
+		this(null);
+	}
+	
 	public ObmFactory(ITraceIdFactory traceIdFactory) {
 		oxmFactory = OxmService.createStandardOxmFactory();
 		registeredObjectTypes = new ArrayList<>();
@@ -47,9 +51,11 @@ public class ObmFactory implements IObmFactory {
 		String[] configFiles = loadBxmppExtensionConfigurations();
 		binaryXmppProtocolConverter = createBinaryXmppProtocolConverter(configFiles);
 		
-		ProtocolChain lanExecuteProtocolChain = new MessageProtocolChain(LanExecute.PROTOCOL);
-		oxmFactory.register(lanExecuteProtocolChain, new LanExecuteParserFactory(traceIdFactory));
-		oxmFactory.register(LanExecute.class, new LanExecuteTranslatorFactory());
+		if (traceIdFactory != null) {			
+			ProtocolChain lanExecuteProtocolChain = new MessageProtocolChain(LanExecute.PROTOCOL);
+			oxmFactory.register(lanExecuteProtocolChain, new LanExecuteParserFactory(traceIdFactory));
+			oxmFactory.register(LanExecute.class, new LanExecuteTranslatorFactory());
+		}
 	}
 	
 	private String[] loadBxmppExtensionConfigurations() {

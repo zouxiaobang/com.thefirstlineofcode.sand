@@ -22,13 +22,10 @@ public class ExecuteParserFactory implements IParserFactory<Execute> {
 
 	@Override
 	public IParser<Execute> create() {
-		return new ExecutionParser();
+		return new ExecuteParser();
 	}
 	
-	private class ExecutionParser implements IParser<Execute> {
-		
-		private static final String ATTRIBUTE_NAME_LAN_TRACEABLE = "lan-traceable";
-
+	private class ExecuteParser implements IParser<Execute> {
 		@Override
 		public Execute createObject() {
 			return new Execute();
@@ -42,11 +39,18 @@ public class ExecuteParserFactory implements IParserFactory<Execute> {
 					public void processAttributes(IParsingContext<Execute> context, List<Attribute> attributes) {
 						if (attributes.size() == 0) {
 							return;
-						} else if (attributes.size() == 1 && ATTRIBUTE_NAME_LAN_TRACEABLE.equals(attributes.get(0).getName())) {							
-							boolean lanTraceable = Boolean.valueOf(attributes.get(0).getValue().stringIt().get());								
-							context.getObject().setLanTraceable(lanTraceable);
-						} else {
-							throw new ProtocolException(new BadRequest("Only an optional attribute 'lan-traceable' is allowed in Execute."));						
+						}
+						
+						for (Attribute attribute : attributes) {
+							if (Execute.ATTRIBUTE_NAME_LAN_TRACEABLE.equals(attribute.getName())) {							
+								boolean lanTraceable = Boolean.valueOf(attribute.getValue().stringIt().get());								
+								context.getObject().setLanTraceable(lanTraceable);
+							} else if (Execute.ATTRIBUTE_NAME_LAN_TIMEOUT.equals(attribute.getName())) {
+								Integer timeout = Integer.valueOf(attribute.getValue().stringIt().get());
+								context.getObject().setLanTimeout(timeout);
+							} else {
+								throw new ProtocolException(new BadRequest("Only optional attributes 'lan-traceable' and 'lan-timeout' are allowed in Execute."));						
+							}
 						}
 					}
 				};
