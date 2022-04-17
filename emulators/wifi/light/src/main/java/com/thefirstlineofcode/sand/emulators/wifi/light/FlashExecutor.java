@@ -2,7 +2,8 @@ package com.thefirstlineofcode.sand.emulators.wifi.light;
 
 import com.thefirstlineofcode.basalt.protocol.core.ProtocolException;
 import com.thefirstlineofcode.basalt.protocol.core.stanza.Iq;
-import com.thefirstlineofcode.basalt.protocol.core.stanza.error.UnexpectedRequest;
+import com.thefirstlineofcode.basalt.protocol.core.stanza.error.StanzaError;
+import com.thefirstlineofcode.basalt.protocol.core.stanza.error.UndefinedCondition;
 import com.thefirstlineofcode.sand.client.things.actuator.IExecutor;
 import com.thefirstlineofcode.sand.emulators.things.ILight;
 import com.thefirstlineofcode.sand.protocols.actuator.LanActionException;
@@ -18,7 +19,7 @@ public class FlashExecutor implements IExecutor<Flash> {
 	@Override
 	public void execute(Iq iq, Flash action) {
 		if (light.getSwitchState() != ILight.SwitchState.CONTROL)
-			throw new ProtocolException(new UnexpectedRequest("Device is not in remote control state."));
+			throw convertToProtocolException(new LanActionException(ILight.ERROR_CODE_NOT_REMOTE_CONTROL_STATE));
 		
 		int repeat = action.getRepeat();
 		if (repeat == 0)
@@ -36,9 +37,12 @@ public class FlashExecutor implements IExecutor<Flash> {
 				}
 			}
 		} catch (LanActionException le) {
-			// TODO Auto-generated catch block
-			le.printStackTrace();
+			throw convertToProtocolException(le);
 		}
+	}
+
+	private ProtocolException convertToProtocolException(LanActionException le) {
+		return new ProtocolException(new UndefinedCondition(StanzaError.Type.MODIFY, getGlobalErrorCode(light.getThingModel(), le.getErrorCode())));
 	}
 	
 	private String getGlobalErrorCode(String model, String errorCode) {

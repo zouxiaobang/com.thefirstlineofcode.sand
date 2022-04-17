@@ -279,7 +279,8 @@ public class Actuator implements IActuator, IIqListener {
 		if (chatServices.getIqService().getListener(Execute.PROTOCOL) != this)
 			chatServices.getIqService().addListener(Execute.PROTOCOL, this);
 		
-		setLanEnabled(true);
+		if (concentrator != null)
+			setLanEnabled(true);
 		
 		started = true;
 	}
@@ -297,7 +298,9 @@ public class Actuator implements IActuator, IIqListener {
 		if (!started)
 			return;
 		
-		setLanEnabled(false);
+		if (concentrator != null)
+			setLanEnabled(false);
+		
 		chatServices.getIqService().removeListener(Execute.PROTOCOL);
 		
 		started = false;

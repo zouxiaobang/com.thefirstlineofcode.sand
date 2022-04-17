@@ -3,9 +3,7 @@ package com.thefirstlineofcode.sand.emulators.lora.light;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List;
 import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -16,8 +14,6 @@ import com.thefirstlineofcode.sand.emulators.lora.things.AbstractLoraThingEmulat
 import com.thefirstlineofcode.sand.emulators.models.Le01ModelDescriptor;
 import com.thefirstlineofcode.sand.emulators.things.ILight;
 import com.thefirstlineofcode.sand.emulators.things.emulators.ILightEmulator;
-import com.thefirstlineofcode.sand.emulators.things.emulators.ILightStateListener;
-import com.thefirstlineofcode.sand.emulators.things.emulators.ISwitchStateListener;
 import com.thefirstlineofcode.sand.emulators.things.ui.AbstractThingEmulatorPanel;
 import com.thefirstlineofcode.sand.emulators.things.ui.LightEmulatorPanel;
 import com.thefirstlineofcode.sand.protocols.actuator.LanActionException;
@@ -39,9 +35,6 @@ public class Light extends AbstractLoraThingEmulator implements ILightEmulator {
 	private LightEmulatorPanel panel;
 	
 	private Timer dataReceivingTimer;
-	
-	private List<ISwitchStateListener> switchStateListeners = new ArrayList<>();
-	private List<ILightStateListener> lightStateListeners= new ArrayList<>();
 	
 	public Light() {}
 	
@@ -281,54 +274,13 @@ public class Light extends AbstractLoraThingEmulator implements ILightEmulator {
 		if (this.switchState == switchState)
 			return;
 		
-		LightState oldLightState = lightState;
+		this.switchState = switchState;
 		if (switchState == ILight.SwitchState.ON && lightState == ILight.LightState.OFF) {
 			lightState = ILight.LightState.ON;			
 			panel.turnOn();
 		} else if (switchState != ILight.SwitchState.ON && lightState == ILight.LightState.ON) {
 			lightState = ILight.LightState.OFF;
 			panel.turnOff();
-		}
-		
-		if (oldLightState != lightState)
-			notifyLightStateChanged(oldLightState, lightState);
-		
-		SwitchState oldSwitchState = this.switchState;
-		this.switchState = switchState;
-		notifySwitchStateChanged(oldSwitchState, switchState);
-	}
-
-	@Override
-	public void addSwitchStateListener(ISwitchStateListener switchStateListener) {
-		if (!switchStateListeners.contains(switchStateListener))
-			switchStateListeners.add(switchStateListener);
-	}
-
-	@Override
-	public boolean removeSwitchStateListener(ISwitchStateListener switchStateListener) {
-		return switchStateListeners.remove(switchStateListener);
-	}
-
-	@Override
-	public void addLightStateChangeListener(ILightStateListener lightStateListener) {
-		if (!lightStateListeners.contains(lightStateListener))
-			lightStateListeners.add(lightStateListener);
-	}
-
-	@Override
-	public boolean removeLightStateListener(ILightStateListener lightStateListener) {
-		return lightStateListeners.remove(lightStateListener);
-	}
-	
-	private void notifySwitchStateChanged(SwitchState oldState, SwitchState newState) {
-		for (ISwitchStateListener listener : switchStateListeners) {
-			listener.switchStateChanged(oldState, newState);
-		}
-	}
-	
-	private void notifyLightStateChanged(LightState oldState, LightState newState) {
-		for (ILightStateListener listener : lightStateListeners) {
-			listener.lightStateChanged(oldState, newState);
-		}
+		}		
 	}
 }

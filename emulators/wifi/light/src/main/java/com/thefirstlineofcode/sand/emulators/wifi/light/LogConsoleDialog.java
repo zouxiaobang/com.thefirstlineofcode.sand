@@ -33,7 +33,7 @@ public class LogConsoleDialog extends JDialog {
 		return new InternetConsolePanel();
 	}
 	
-	public IConnectionListener getInternetConnectionListener() {
+	public IConnectionListener getInternetLogListener() {
 		if (consolePanel == null)
 			throw new RuntimeException("Null internet console panel.");
 		

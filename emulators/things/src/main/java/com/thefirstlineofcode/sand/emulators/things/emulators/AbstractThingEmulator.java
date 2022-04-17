@@ -188,20 +188,21 @@ public abstract class AbstractThingEmulator implements IThingEmulator, Externali
 
 	@Override
 	public void powerOn() {
+		if (powered)
+			return;
+		
 		if (batteryTimer == null || !batteryTimer.isWorking())
 			startBatteryTimer();
 		
-		if (!powered) {
-			this.powered = true;
-			doPowerOn();
-		}
+		this.powered = true;
+		doPowerOn();
 		
 		getPanel().updateStatus(getThingStatus());
 	}
 
 	@Override
 	public void powerOff() {
-		if (powered == false)
+		if (!powered)
 			return;
 		
 		this.powered = false;

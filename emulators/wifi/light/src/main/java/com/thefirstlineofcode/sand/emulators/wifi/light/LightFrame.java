@@ -68,17 +68,9 @@ public class LightFrame extends JFrame implements ActionListener, WindowListener
 	private StandardStreamConfig streamConfig;
 	
 	public LightFrame() {
-		this(null);
-	}
-	
-	public LightFrame(Light light) {
 		super(Light.THING_TYPE);
 		
-		if (light != null) {
-			this.light = light;
-		} else {
-			this.light = new Light();
-		}
+		this.light = new Light(this);
 		this.light.addDeviceListener(this);
 		
 		setupUi();
@@ -92,7 +84,7 @@ public class LightFrame extends JFrame implements ActionListener, WindowListener
 		setDefaultUiFont(new javax.swing.plaf.FontUIResource("Serif", Font.PLAIN, 20));
 		
 		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-		setBounds((screenSize.width - 640) / 2, (screenSize.height - 480) / 2, 640, 480);
+		setBounds((screenSize.width - 800) / 2, (screenSize.height - 640) / 2, 800, 640);
 		
 		menuBar = createMenuBar();
 		setJMenuBar(menuBar);
@@ -200,12 +192,18 @@ public class LightFrame extends JFrame implements ActionListener, WindowListener
 		if (light.isPowered())
 			return;
 		
-		if (streamConfig == null) {
+		if (light.getStreamConfig() == null) {
 			StreamConfigDialog streamConfigDialog = new StreamConfigDialog(this);
 			UiUtils.showDialog(this, streamConfigDialog);
 			
 			streamConfig = streamConfigDialog.getStreamConfig();
+			
+			light.setStreamConfig(streamConfig);
 		}
+		
+		if (light.getInternetLogListener() == null && logConsolesDialog != null)
+			light.setInternetLogListener(
+					logConsolesDialog.getInternetLogListener());
 		
 		light.powerOn();
 		
@@ -245,6 +243,10 @@ public class LightFrame extends JFrame implements ActionListener, WindowListener
 			logConsolesDialog = new LogConsoleDialog(this);
 			logConsolesDialog.addWindowListener(this);
 		}
+		
+		if (light != null)
+			light.setInternetLogListener(logConsolesDialog.getInternetLogListener());
+		
 		logConsolesDialog.setVisible(true);
 		
 		UiUtils.getMenuItem(menuBar, MENU_NAME_TOOLS, MENU_ITEM_NAME_SHOW_LOG_CONSOLE).setEnabled(false);

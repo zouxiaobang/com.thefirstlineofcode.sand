@@ -13,7 +13,6 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
-import javax.swing.SwingUtilities;
 
 import com.thefirstlineofcode.sand.emulators.things.ILight;
 import com.thefirstlineofcode.sand.emulators.things.ILight.LightState;
@@ -214,9 +213,7 @@ public class LightEmulatorPanel extends AbstractThingEmulatorPanel<ILightEmulato
 	}
 	
 	public void turnOff() {
-		if (light.isPowered())
-			lightImage.setIcon(getLightImageIcon(LightState.OFF));
-		
+		lightImage.setIcon(getLightImageIcon(LightState.OFF));		
 		lightImage.repaint();
 	}
 	
