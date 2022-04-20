@@ -53,13 +53,13 @@ public class ExecutionListener implements IEventListener<ExecutionEvent>, IIqRes
 		}
 		
 		String model = deviceManager.getModel(actuator.getDeviceId());
-		if (!deviceManager.isActionSupported(model, event.getExecute().getAction().getClass())) {
-			throw new IllegalArgumentException(String.format("Unsupported action type: '%s'.", event.getExecute().getAction().getClass().getName()));
+		if (!deviceManager.isActionSupported(model, event.getExecution().getAction().getClass())) {
+			throw new IllegalArgumentException(String.format("Unsupported action type: '%s'.", event.getExecution().getAction().getClass().getName()));
 		}
 		
 		String deviceName = deviceManager.getDeviceNameByDeviceId(event.getDevice().getDeviceId());
 		
-		Iq iq = new Iq(event.getExecute(), Iq.Type.SET);
+		Iq iq = new Iq(event.getExecution(), Iq.Type.SET);
 		
 		if (isConcentrator && event.getNodeLanId() != null) {			
 			iq.setTo(new JabberId(deviceName, domain, event.getNodeLanId()));

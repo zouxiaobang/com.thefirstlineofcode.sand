@@ -15,42 +15,42 @@ import com.thefirstlineofcode.basalt.oxm.parsing.IParsingPath;
 import com.thefirstlineofcode.basalt.protocol.core.Protocol;
 import com.thefirstlineofcode.basalt.protocol.core.ProtocolException;
 import com.thefirstlineofcode.basalt.protocol.core.stanza.error.BadRequest;
-import com.thefirstlineofcode.sand.protocols.actuator.LanExecute;
+import com.thefirstlineofcode.sand.protocols.actuator.LanExecution;
 import com.thefirstlineofcode.sand.protocols.core.ITraceId;
 import com.thefirstlineofcode.sand.protocols.core.ITraceIdFactory;
 
-public class LanExecuteParserFactory implements IParserFactory<LanExecute> {
+public class LanExecutionParserFactory implements IParserFactory<LanExecution> {
 	private ITraceIdFactory traceIdFactory;
 	
-	public LanExecuteParserFactory(ITraceIdFactory traceIdFactory) {
+	public LanExecutionParserFactory(ITraceIdFactory traceIdFactory) {
 		this.traceIdFactory = traceIdFactory;
 	}
 	
 	@Override
 	public Protocol getProtocol() {
-		return LanExecute.PROTOCOL;
+		return LanExecution.PROTOCOL;
 	}
 
 	@Override
-	public IParser<LanExecute> create() {
+	public IParser<LanExecution> create() {
 		return new LanExecutionParser();
 	}
 	
-	private class LanExecutionParser implements IParser<LanExecute> {
+	private class LanExecutionParser implements IParser<LanExecution> {
 		private static final String PARSING_PATH_LAN_ACTION_OBJ = "/lan-action-obj";
 		private static final String ATTRIBUTE_NAME_TRACE_ID = "trace-id";
 
 		@Override
-		public LanExecute createObject() {
-			return new LanExecute();
+		public LanExecution createObject() {
+			return new LanExecution();
 		}
 
 		@Override
-		public IElementParser<LanExecute> getElementParser(IParsingPath parsingPath) {
+		public IElementParser<LanExecution> getElementParser(IParsingPath parsingPath) {
 			if (parsingPath.match("/")) {
-				return new ElementParserAdaptor<LanExecute>() {
+				return new ElementParserAdaptor<LanExecution>() {
 					@Override
-					public void processAttributes(IParsingContext<LanExecute> context, List<Attribute> attributes) {
+					public void processAttributes(IParsingContext<LanExecution> context, List<Attribute> attributes) {
 						if (attributes.size() != 1 || !ATTRIBUTE_NAME_TRACE_ID.equals(attributes.get(0).getLocalName())) {
 							throw new ProtocolException(new BadRequest("No trace ID found."));
 						}
@@ -64,8 +64,8 @@ public class LanExecuteParserFactory implements IParserFactory<LanExecute> {
 					}
 				};
 			} else if (parsingPath.match(PARSING_PATH_LAN_ACTION_OBJ)) {
-				return new ElementParserAdaptor<LanExecute>() {
-					public void processText(IParsingContext<LanExecute> context, Value<?> text) {
+				return new ElementParserAdaptor<LanExecution>() {
+					public void processText(IParsingContext<LanExecution> context, Value<?> text) {
 						if (context.getObject().getTraceId().getType() != ITraceId.Type.ERROR) {
 							throw new ProtocolException(new BadRequest("Text for element lan-action-obj mustn't be allowed because the type of LAN execute object isn't error."));
 						}
@@ -79,9 +79,9 @@ public class LanExecuteParserFactory implements IParserFactory<LanExecute> {
 		}
 
 		@Override
-		public void processEmbeddedObject(IParsingContext<LanExecute> context, Protocol protocol, Object embedded) {
+		public void processEmbeddedObject(IParsingContext<LanExecution> context, Protocol protocol, Object embedded) {
 			if (context.getObject().getTraceId().getType() != ITraceId.Type.REQUEST)
-				throw new ProtocolException(new BadRequest("Embedded object not be allowed bacause the type of LAN execute object isn't request."));
+				throw new ProtocolException(new BadRequest("Embedded object not be allowed bacause the type of LAN execution object isn't request."));
 				
 			context.getObject().setLanActionObj(embedded);
 		}

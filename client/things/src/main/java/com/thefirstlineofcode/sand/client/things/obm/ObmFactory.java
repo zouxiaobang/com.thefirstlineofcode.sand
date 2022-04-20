@@ -26,9 +26,9 @@ import com.thefirstlineofcode.basalt.protocol.core.MessageProtocolChain;
 import com.thefirstlineofcode.basalt.protocol.core.Protocol;
 import com.thefirstlineofcode.basalt.protocol.core.ProtocolChain;
 import com.thefirstlineofcode.basalt.protocol.im.stanza.Message;
-import com.thefirstlineofcode.sand.protocols.actuator.LanExecute;
-import com.thefirstlineofcode.sand.protocols.actuator.oxm.LanExecuteParserFactory;
-import com.thefirstlineofcode.sand.protocols.actuator.oxm.LanExecuteTranslatorFactory;
+import com.thefirstlineofcode.sand.protocols.actuator.LanExecution;
+import com.thefirstlineofcode.sand.protocols.actuator.oxm.LanExecutionParserFactory;
+import com.thefirstlineofcode.sand.protocols.actuator.oxm.LanExecutionTranslatorFactory;
 import com.thefirstlineofcode.sand.protocols.core.ITraceIdFactory;
 
 public class ObmFactory implements IObmFactory {
@@ -52,9 +52,9 @@ public class ObmFactory implements IObmFactory {
 		binaryXmppProtocolConverter = createBinaryXmppProtocolConverter(configFiles);
 		
 		if (traceIdFactory != null) {			
-			ProtocolChain lanExecuteProtocolChain = new MessageProtocolChain(LanExecute.PROTOCOL);
-			oxmFactory.register(lanExecuteProtocolChain, new LanExecuteParserFactory(traceIdFactory));
-			oxmFactory.register(LanExecute.class, new LanExecuteTranslatorFactory());
+			ProtocolChain lanExecuteProtocolChain = new MessageProtocolChain(LanExecution.PROTOCOL);
+			oxmFactory.register(lanExecuteProtocolChain, new LanExecutionParserFactory(traceIdFactory));
+			oxmFactory.register(LanExecution.class, new LanExecutionTranslatorFactory());
 		}
 	}
 	
@@ -232,7 +232,7 @@ public class ObmFactory implements IObmFactory {
 	
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	private void registerObjectTypeIfNeed(Class<?> type) {
-		if (LanExecute.class == type)
+		if (LanExecution.class == type)
 			return;
 		
 		if (registeredLanActionTypes.contains(type))
@@ -279,7 +279,7 @@ public class ObmFactory implements IObmFactory {
 				new Protocol(protocolObject.namespace(), protocolObject.localName()));
 		oxmFactory.register(actionProtocolChain, new NamingConventionParserFactory<>(lanActionType));
 		
-		ProtocolChain lanActionProtocolChain = new MessageProtocolChain(LanExecute.PROTOCOL).
+		ProtocolChain lanActionProtocolChain = new MessageProtocolChain(LanExecution.PROTOCOL).
 				next(new Protocol(protocolObject.namespace(), protocolObject.localName()));
 		oxmFactory.register(lanActionProtocolChain, new NamingConventionParserFactory<>(lanActionType));
 		oxmFactory.register(lanActionType, new NamingConventionTranslatorFactory<>(lanActionType));
@@ -324,7 +324,7 @@ public class ObmFactory implements IObmFactory {
 			throw new IllegalArgumentException(String.format("Type '%s' isn't a protocol object type.", lanActionType.getName()));
 		}
 		
-		ProtocolChain lanActionProtocolChain = new MessageProtocolChain(LanExecute.PROTOCOL).
+		ProtocolChain lanActionProtocolChain = new MessageProtocolChain(LanExecution.PROTOCOL).
 				next(new Protocol(protocolObject.namespace(), protocolObject.localName()));
 		oxmFactory.unregister(lanActionProtocolChain);
 		oxmFactory.unregister(lanActionType);

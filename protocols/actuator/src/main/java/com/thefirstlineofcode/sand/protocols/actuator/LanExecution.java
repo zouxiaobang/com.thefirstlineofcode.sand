@@ -6,22 +6,22 @@ import com.thefirstlineofcode.basalt.protocol.core.Protocol;
 import com.thefirstlineofcode.sand.protocols.core.ITraceId;
 import com.thefirstlineofcode.sand.protocols.core.ITraceable;
 
-@ProtocolObject(namespace="urn:leps:iot:actuator", localName="lan-execute")
-public class LanExecute implements ITraceable {
-	public static final Protocol PROTOCOL = new Protocol("urn:leps:iot:actuator", "lan-execute");
+@ProtocolObject(namespace="urn:leps:iot:actuator", localName="lan-execution")
+public class LanExecution implements ITraceable {
+	public static final Protocol PROTOCOL = new Protocol("urn:leps:iot:actuator", "lan-execution");
 	
 	@NotNull
 	private ITraceId traceId;
 	@NotNull
 	private Object lanActionObj;
 	
-	public LanExecute() {}
+	public LanExecution() {}
 	
-	public LanExecute(ITraceId traceId) {
+	public LanExecution(ITraceId traceId) {
 		this(traceId, null);
 	}
 	
-	public LanExecute(ITraceId traceId, Object lanActionObj) {
+	public LanExecution(ITraceId traceId, Object lanActionObj) {
 		this.traceId = traceId;
 		this.lanActionObj = lanActionObj;
 	}

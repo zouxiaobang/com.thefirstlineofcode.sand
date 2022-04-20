@@ -2,7 +2,6 @@ package com.thefirstlineofcode.sand.emulators.wifi.light;
 
 import com.thefirstlineofcode.chalk.network.IConnectionListener;
 import com.thefirstlineofcode.sand.client.things.actuator.IExecutorFactory;
-import com.thefirstlineofcode.sand.protocols.core.DeviceIdentity;
 
 public interface IBgProcess {
 	void start();

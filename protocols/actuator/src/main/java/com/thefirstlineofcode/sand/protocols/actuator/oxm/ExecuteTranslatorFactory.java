@@ -10,41 +10,41 @@ import com.thefirstlineofcode.basalt.oxm.translating.ITranslatorFactory;
 import com.thefirstlineofcode.basalt.protocol.core.Protocol;
 import com.thefirstlineofcode.basalt.protocol.core.ProtocolException;
 import com.thefirstlineofcode.basalt.protocol.core.stanza.error.BadRequest;
-import com.thefirstlineofcode.sand.protocols.actuator.Execute;
+import com.thefirstlineofcode.sand.protocols.actuator.Execution;
 
-public class ExecuteTranslatorFactory implements ITranslatorFactory<Execute> {
-	private static final ITranslator<Execute> translator = new ExecuteTranslator();
+public class ExecuteTranslatorFactory implements ITranslatorFactory<Execution> {
+	private static final ITranslator<Execution> translator = new ExecuteTranslator();
 
 	@Override
-	public Class<Execute> getType() {
-		return Execute.class;
+	public Class<Execution> getType() {
+		return Execution.class;
 	}
 
 	@Override
-	public ITranslator<Execute> create() {
+	public ITranslator<Execution> create() {
 		return translator;
 	}
 	
-	private static class ExecuteTranslator implements ITranslator<Execute> {
+	private static class ExecuteTranslator implements ITranslator<Execution> {
 		@Override
 		public Protocol getProtocol() {
-			return Execute.PROTOCOL;
+			return Execution.PROTOCOL;
 		}
 
 		@Override
-		public String translate(Execute execute, IProtocolWriter writer, ITranslatingFactory translatingFactory) {
+		public String translate(Execution execute, IProtocolWriter writer, ITranslatingFactory translatingFactory) {
 			if (execute.getAction() == null) {
 				throw new ProtocolException(new BadRequest("Null action."));
 			}
 			
-			writer.writeProtocolBegin(Execute.PROTOCOL);
+			writer.writeProtocolBegin(Execution.PROTOCOL);
 			
 			if (execute.isLanTraceable()) {				
-				writer.writeAttributes(new Attributes().add(new Attribute(Execute.ATTRIBUTE_NAME_LAN_TRACEABLE,
+				writer.writeAttributes(new Attributes().add(new Attribute(Execution.ATTRIBUTE_NAME_LAN_TRACEABLE,
 						execute.isLanTraceable())).get());
 			}
 			if (execute.getLanTimeout() != null)
-				writer.writeAttributes(new Attributes().add(new Attribute(Execute.ATTRIBUTE_NAME_LAN_TIMEOUT,
+				writer.writeAttributes(new Attributes().add(new Attribute(Execution.ATTRIBUTE_NAME_LAN_TIMEOUT,
 						execute.getLanTimeout())).get());
 				
 			

@@ -14,7 +14,7 @@ import com.thefirstlineofcode.sand.client.things.commuication.ICommunicator;
 import com.thefirstlineofcode.sand.client.things.obm.IObmFactory;
 import com.thefirstlineofcode.sand.client.things.obm.IObmFactoryAware;
 import com.thefirstlineofcode.sand.protocols.actuator.LanActionException;
-import com.thefirstlineofcode.sand.protocols.actuator.LanExecute;
+import com.thefirstlineofcode.sand.protocols.actuator.LanExecution;
 import com.thefirstlineofcode.sand.protocols.core.Address;
 
 public abstract class AbstractCommunicationNetworkThingEmulator<OA, PA extends Address> extends AbstractThingEmulator
@@ -107,7 +107,7 @@ public abstract class AbstractCommunicationNetworkThingEmulator<OA, PA extends A
 			throw new RuntimeException(String.format("Unrecognized protocol. Data: %s.", getDataInfoString(data)));
 		}
 		
-		if (LanExecute.PROTOCOL.equals(protocol)) {
+		if (LanExecution.PROTOCOL.equals(protocol)) {
 			processLanExecute(from, data);
 		} else {
 			processAction(from, protocol, data);
@@ -130,7 +130,7 @@ public abstract class AbstractCommunicationNetworkThingEmulator<OA, PA extends A
 	}
 
 	private void processLanExecute(PA from, byte[] data) {
-		LanExecute request = (LanExecute)obmFactory.toObject(data);		
+		LanExecution request = (LanExecution)obmFactory.toObject(data);		
 		Object action = request.getLanActionObj();
 		
 		try {
@@ -141,11 +141,11 @@ public abstract class AbstractCommunicationNetworkThingEmulator<OA, PA extends A
 		}
 	}
 
-	protected void sendResponseToPeer(PA from, LanExecute request) {
-		sendToPeer(from, new LanExecute(request.getTraceId().createResponseId()));
+	protected void sendResponseToPeer(PA from, LanExecution request) {
+		sendToPeer(from, new LanExecution(request.getTraceId().createResponseId()));
 	}
 
-	protected void sendToPeer(PA from, LanExecute response) {
+	protected void sendToPeer(PA from, LanExecution response) {
 		try {
 			communicator.send(from, obmFactory.toBinary(response));
 		} catch (CommunicationException ce) {
@@ -153,8 +153,8 @@ public abstract class AbstractCommunicationNetworkThingEmulator<OA, PA extends A
 		}
 	}
 
-	protected void sendErrorToPeer(PA from, LanExecute request, String errorCode) {
-		sendToPeer(from, new LanExecute(request.getTraceId().createErrorId(), errorCode));
+	protected void sendErrorToPeer(PA from, LanExecution request, String errorCode) {
+		sendToPeer(from, new LanExecution(request.getTraceId().createErrorId(), errorCode));
 	}
 	
 	@Override

@@ -22,7 +22,7 @@ import com.thefirstlineofcode.granite.framework.core.console.IConsoleSystem;
 import com.thefirstlineofcode.granite.framework.core.pipeline.stages.event.IEventFirer;
 import com.thefirstlineofcode.granite.framework.core.pipeline.stages.event.IEventFirerAware;
 import com.thefirstlineofcode.granite.framework.core.pipeline.stages.processing.IProcessingContext;
-import com.thefirstlineofcode.sand.protocols.actuator.Execute;
+import com.thefirstlineofcode.sand.protocols.actuator.Execution;
 import com.thefirstlineofcode.sand.protocols.devices.gateway.ChangeMode;
 import com.thefirstlineofcode.sand.protocols.devices.light.Flash;
 import com.thefirstlineofcode.sand.server.actuator.ExecutionEvent;
@@ -45,6 +45,10 @@ public class SandCommandsProcessor extends AbstractCommandsProcessor implements 
 	private static final String COMMANDS_GROUP_INTRODUCTION = "Monitoring and managing sand application.";
 
 	private static final String COMMAND_EXECUTE = "execute";
+	private static final String COMMAND_AUTHORIZE = "authorize";
+	private static final String COMMAND_DEVICES = "devices";
+	private static final String COMMAND_CONFIRM = "confirm";
+	private static final String COMMAND_HELP = "help";
 	private static final String ACTION_NAME_FLASH = "flash";
 	private static final String ACTION_NAME_CHANGE_MODE = "change-mode";
 	
@@ -208,7 +212,7 @@ public class SandCommandsProcessor extends AbstractCommandsProcessor implements 
 		}
 		
 		Object actionObject = createActionObject(consoleSystem, device.getModel(), protocol, params);
-		eventFirer.fire(new ExecutionEvent(device, null, new Execute(actionObject),
+		eventFirer.fire(new ExecutionEvent(device, null, new Execution(actionObject),
 				new ExecutionCallback(device.getDeviceId(), protocol, consoleSystem)));
 	}
 	
@@ -225,18 +229,18 @@ public class SandCommandsProcessor extends AbstractCommandsProcessor implements 
 		}
 		
 		Object actionObject = createActionObject(consoleSystem, nodeDevice.getModel(), protocol, params);
-		eventFirer.fire(new ExecutionEvent(concentratorDevice, lanId, createExecute(actionObject) ,
+		eventFirer.fire(new ExecutionEvent(concentratorDevice, lanId, createExecution(actionObject) ,
 				new ExecutionCallback(concentratorDevice.getDeviceId() + "/" + lanId, protocol, consoleSystem)));
 	}
 	
-	private Execute createExecute(Object actionObject) {
-		Execute execute = new Execute(actionObject, true);
-		calculateLanTimeout(execute, actionObject);
+	private Execution createExecution(Object actionObject) {
+		Execution execution = new Execution(actionObject, true);
+		calculateLanTimeout(execution, actionObject);
 		
-		return execute;
+		return execution;
 	}
 
-	private void calculateLanTimeout(Execute execute, Object actionObject) {
+	private void calculateLanTimeout(Execution execute, Object actionObject) {
 		if (actionObject instanceof Flash) {
 			Flash flash = (Flash)actionObject;
 			int lanTimeout = flash.getRepeat() + 8;
@@ -490,7 +494,7 @@ public class SandCommandsProcessor extends AbstractCommandsProcessor implements 
 	@Override
 	public String[] getCommands() {
 		return new String[] {
-			"authorize", "devices", "confirm", COMMAND_EXECUTE, "help"
+			COMMAND_AUTHORIZE, COMMAND_DEVICES, COMMAND_CONFIRM, COMMAND_EXECUTE, COMMAND_HELP
 		};
 	}
 

@@ -1,27 +1,27 @@
 package com.thefirstlineofcode.sand.server.actuator;
 
 import com.thefirstlineofcode.granite.framework.core.pipeline.stages.event.IEvent;
-import com.thefirstlineofcode.sand.protocols.actuator.Execute;
+import com.thefirstlineofcode.sand.protocols.actuator.Execution;
 import com.thefirstlineofcode.sand.server.devices.Device;
 
 public class ExecutionEvent implements IEvent {
 	private Device device;
 	private String nodeLanId;
-	private Execute execute;
+	private Execution execution;
 	private IExecutionCallback callback;
 	
-	public ExecutionEvent(Device device, Execute execute) {
-		this(device, null, execute);
+	public ExecutionEvent(Device device, Execution execution) {
+		this(device, null, execution);
 	}
 	
-	public ExecutionEvent(Device device, String nodeLanId, Execute execute) {
+	public ExecutionEvent(Device device, String nodeLanId, Execution execute) {
 		this(device, null, execute, null);
 	}
 	
-	public ExecutionEvent(Device device, String nodeLanId, Execute execute, IExecutionCallback callback) {
+	public ExecutionEvent(Device device, String nodeLanId, Execution execution, IExecutionCallback callback) {
 		this.device = device;
 		this.nodeLanId = nodeLanId;
-		this.execute = execute;
+		this.execution = execution;
 		this.callback = callback;
 	}
 	
@@ -33,8 +33,8 @@ public class ExecutionEvent implements IEvent {
 		return nodeLanId;
 	}
 	
-	public Execute getExecute() {
-		return execute;
+	public Execution getExecution() {
+		return execution;
 	}
 	
 	public IExecutionCallback getExecutionCallback() {
@@ -43,6 +43,6 @@ public class ExecutionEvent implements IEvent {
 	
 	@Override
 	public Object clone() {
-		return new ExecutionEvent(device, nodeLanId, execute, callback);
+		return new ExecutionEvent(device, nodeLanId, execution, callback);
 	}
 }
