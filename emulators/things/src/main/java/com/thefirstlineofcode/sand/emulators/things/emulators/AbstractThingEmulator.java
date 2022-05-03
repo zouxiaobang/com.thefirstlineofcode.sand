@@ -47,7 +47,7 @@ public abstract class AbstractThingEmulator implements IThingEmulator, Externali
 
 	protected void startBatteryTimer() {
 		if (batteryTimer == null)
-			batteryTimer = new BatteryTimer(getThingName(), deviceId);
+			batteryTimer = new BatteryTimer(getDeviceName(), deviceId);
 		
 		batteryTimer.start();
 	}
@@ -58,7 +58,7 @@ public abstract class AbstractThingEmulator implements IThingEmulator, Externali
 	}
 
 	protected String generateDeviceId() {
-		return getThingModel() + ThingsUtils.generateRandomId(8);
+		return getDeviceModel() + ThingsUtils.generateRandomId(8);
 	}
 	
 	public String getThingStatus() {
@@ -245,17 +245,17 @@ public abstract class AbstractThingEmulator implements IThingEmulator, Externali
 	}
 	
 	@Override
-	public String getThingType() {
+	public String getDeviceType() {
 		return type;
 	}
 	
 	@Override
-	public String getThingModel() {
+	public String getDeviceModel() {
 		return model;
 	}
 	
 	@Override
-	public String getThingName() {
+	public String getDeviceName() {
 		return name;
 	}
 

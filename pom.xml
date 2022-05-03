@@ -95,7 +95,12 @@
 		</pluginRepository>
 	</pluginRepositories>
 
-	<repositories> 
+	<repositories>
+				<repository>
+                        <id>com.thefirstlineofcode.releases</id>
+                        <name>TheFirstLineOfCode Repository - Releases</name>
+                        <url>http://47.115.36.99/repository/maven-releases/</url>
+                </repository>
 		<repository>
 			<id>jcenter</id>
 			<name>JCenter Repository</name>
@@ -149,8 +154,8 @@
 			</dependency>
 			<dependency>
 				<groupId>javax.annotation</groupId>
-				<artifactId>javax.annotation-api</artifactId>
-				<version>1.3.2</version>
+				<artifactId>jsr250-api</artifactId>
+				<version>1.0</version>
 			</dependency>
 			<dependency>
 				<groupId>javax.xml.bind</groupId>
@@ -387,7 +392,7 @@
 
                 <snapshotRepository>
                         <id>com.thefirstlineofcode.snapshots</id>
-                        <name>thefirstlineofcode Repository - Snapshots</name>
+                        <name>TheFirstLineOfCode Repository - Snapshots</name>
                         <url>http://47.115.36.99/repository/maven-snapshots/</url>
                 </snapshotRepository>
 	</distributionManagement>

@@ -42,7 +42,7 @@ public class FlashExecutor implements IExecutor<Flash> {
 	}
 
 	private ProtocolException convertToProtocolException(LanActionException le) {
-		return new ProtocolException(new UndefinedCondition(StanzaError.Type.MODIFY, getGlobalErrorCode(light.getThingModel(), le.getErrorCode())));
+		return new ProtocolException(new UndefinedCondition(StanzaError.Type.MODIFY, getGlobalErrorCode(light.getDeviceModel(), le.getErrorCode())));
 	}
 	
 	private String getGlobalErrorCode(String model, String errorCode) {

@@ -124,7 +124,7 @@ public class BgProcess implements IBgProcess, IConnectionListener {
 
 	private IActuator createActuator() {
 		IActuator actuator = chatClient.createApi(IActuator.class);
-		actuator.setDeviceModel(light.getThingModel());
+		actuator.setDeviceModel(light.getDeviceModel());
 		actuator.registerExecutorFactory(Flash.class, new IExecutorFactory<Flash>() {
 			private IExecutor<Flash> executor = new FlashExecutor(light);
 			

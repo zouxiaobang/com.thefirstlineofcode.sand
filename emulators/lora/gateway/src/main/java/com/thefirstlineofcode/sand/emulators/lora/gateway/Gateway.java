@@ -239,7 +239,7 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 	}
 
 	protected String generateDeviceId() {
-		return getThingModel() + ThingsUtils.generateRandomId(8);
+		return getDeviceModel() + ThingsUtils.generateRandomId(8);
 	}
 	
 	private class AutoReconnectThread implements Runnable {
@@ -956,7 +956,7 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 		
 		if (gatewayInfo.thingInfos != null) {
 			for (ThingInfo thingInfo : gatewayInfo.thingInfos) {
-				addThingToAllThings(getThingFactory(thingInfo.getThing().getThingName()), thingInfo.getThing());
+				addThingToAllThings(getThingFactory(thingInfo.getThing().getDeviceName()), thingInfo.getThing());
 				showThing(thingInfo.getThing(), thingInfo.getTitle(), thingInfo.getLayer(),
 						thingInfo.getX(), thingInfo.getY(), thingInfo.isSelected());
 			}
@@ -1627,17 +1627,17 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 	}
 
 	@Override
-	public String getThingType() {
+	public String getDeviceType() {
 		return THING_NAME;
 	}
 
 	@Override
-	public String getThingModel() {
+	public String getDeviceModel() {
 		return THING_MODEL;
 	}
 
 	@Override
-	public String getThingName() {
+	public String getDeviceName() {
 		return THING_NAME + "-" + THING_MODEL;
 	}
 	

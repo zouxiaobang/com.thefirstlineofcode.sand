@@ -2,9 +2,9 @@ package com.thefirstlineofcode.sand.client.things;
 
 public interface IDevice {
 	String getDeviceId();
-	String getThingType();
-	String getThingModel();
-	String getThingName();
+	String getDeviceType();
+	String getDeviceModel();
+	String getDeviceName();
 	String getSoftwareVersion();
 	int getBatteryPower();
 	void powerOn();

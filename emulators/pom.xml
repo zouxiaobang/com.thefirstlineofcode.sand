@@ -20,7 +20,7 @@
 		<module>things</module>
 		<module>lora</module>
 		<module>models</module>
-		<!--		<module>wifi</module> -->
+		<module>wifi</module>
 	</modules>
 
 </project>

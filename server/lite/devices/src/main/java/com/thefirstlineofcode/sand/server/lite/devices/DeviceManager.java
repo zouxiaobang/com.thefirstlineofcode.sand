@@ -70,7 +70,7 @@ public class DeviceManager implements IDeviceManager {
 		}
 		
 		DeviceAuthorization authorization = getAuthorization(deviceId);
-		if (authorization == null) {
+		if (authorization == null || authorization.isCanceled() || isExpired(authorization)) {
 			throw new ProtocolException(new NotAuthorized());
 		}
 		
@@ -91,6 +91,12 @@ public class DeviceManager implements IDeviceManager {
 		return new DeviceIdentity(identity.getDeviceName(), identity.getCredentials());
 	}
 	
+	private boolean isExpired(DeviceAuthorization authorization) {
+		Date current = Calendar.getInstance().getTime();
+		
+		return current.before(authorization.getExpiredTime());
+	}
+
 	@Override
 	public void create(Device device) {
 		getDeviceMapper().insert(device);

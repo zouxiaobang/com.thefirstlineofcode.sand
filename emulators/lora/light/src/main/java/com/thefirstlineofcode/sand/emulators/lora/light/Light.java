@@ -151,7 +151,7 @@ public class Light extends AbstractLoraThingEmulator implements ILightEmulator {
 
 	@Override
 	protected void doStartToReceiveData() {
-		dataReceivingTimer = new Timer(String.format("%s '%s' Data Receiving Timer", getThingName(), deviceId));
+		dataReceivingTimer = new Timer(String.format("%s '%s' Data Receiving Timer", getDeviceName(), deviceId));
 		dataReceivingTimer.schedule(new TimerTask() {
 			
 			@Override

@@ -66,7 +66,7 @@ public class NodeDynamicalAddressConfigurator implements IAddressConfigurator<IC
 		
 		dataReceiver = new DataReceiver();
 		new Thread(dataReceiver, String.format("Data Receiver Thread for %s of %s '%s'",
-				this.getClass().getSimpleName(), thing.getThingName(), thing.getDeviceId())).start();
+				this.getClass().getSimpleName(), thing.getDeviceName(), thing.getDeviceId())).start();
 		
 		Introduction introduction = new Introduction();
 		introduction.setDeviceId(thing.getDeviceId());
