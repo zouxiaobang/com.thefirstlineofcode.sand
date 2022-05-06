@@ -3,12 +3,14 @@ package com.thefirstlineofcode.sand.client.things.actuator;
 import java.util.Map;
 
 import com.thefirstlineofcode.basalt.protocol.core.IError;
+import com.thefirstlineofcode.basalt.protocol.core.LangText;
+import com.thefirstlineofcode.sand.client.things.ThingsUtils;
 
-public class ErrorCodeToXmppErrorsConverter implements ILanActionErrorProcessor {
+public class ErrorCodeToXmppErrorsConverter implements ILanExecutionErrorProcessor {
 	private String model;
-	private Map<String, Class<?>> errorCodeToXmppErrorTypes;
+	private Map<String, Class<? extends IError>> errorCodeToXmppErrorTypes;
 	
-	public ErrorCodeToXmppErrorsConverter(String model, Map<String, Class<?>> errorCodeToXmppErrorTypes) {
+	public ErrorCodeToXmppErrorsConverter(String model, Map<String, Class<? extends IError>> errorCodeToXmppErrorTypes) {
 		this.model = model;
 		this.errorCodeToXmppErrorTypes = errorCodeToXmppErrorTypes;
 	}
@@ -23,10 +25,12 @@ public class ErrorCodeToXmppErrorsConverter implements ILanActionErrorProcessor 
 		Class<?> errorType = errorCodeToXmppErrorTypes.get(errorCode);
 		
 		try {
-			return (IError)errorType.newInstance();
+			IError error = (IError)errorType.newInstance();
+			error.setText(new LangText(ThingsUtils.getExecutionErrorDescription(model, errorCode)));
+			
+			return error;
 		} catch (Exception e) {
 			throw new RuntimeException("Unexpected error.", e);
 		}
 	}
-	
 }

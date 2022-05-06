@@ -1,4 +1,4 @@
-package com.thefirstlineofcode.sand.emulators.things.ui;
+package com.thefirstlineofcode.sand.emulators.commons.ui;
 
 import java.awt.Container;
 import java.awt.Image;
@@ -23,7 +23,6 @@ import com.google.zxing.client.j2se.MatrixToImageWriter;
 import com.google.zxing.common.BitMatrix;
 import com.google.zxing.qrcode.QRCodeWriter;
 import com.thefirstlineofcode.sand.client.things.IDevice;
-import com.thefirstlineofcode.sand.emulators.things.UiUtils;
 
 public class CopyDeviceIdOrShowQrCodeButton extends JSplitButton {
 	private static final long serialVersionUID = -2163217242326846012L;

@@ -1,7 +1,7 @@
 package com.thefirstlineofcode.sand.emulators.things;
 
 import com.thefirstlineofcode.sand.client.things.IDevice;
-import com.thefirstlineofcode.sand.protocols.actuator.LanActionException;
+import com.thefirstlineofcode.sand.protocols.actuator.ExecutionException;
 
 public interface ILight extends IDevice {
 	public enum SwitchState {
@@ -19,7 +19,7 @@ public interface ILight extends IDevice {
 	
 	SwitchState getSwitchState();
 	LightState getLightState();
-	void turnOn() throws LanActionException;
-	void turnOff() throws LanActionException;
-	void flash(int repeat) throws LanActionException;
+	void turnOn() throws ExecutionException;
+	void turnOff() throws ExecutionException;
+	void flash(int repeat) throws ExecutionException;
 }

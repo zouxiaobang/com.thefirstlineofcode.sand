@@ -66,7 +66,6 @@ import com.thefirstlineofcode.sand.client.lora.ConcentratorDynamicalAddressConfi
 import com.thefirstlineofcode.sand.client.lora.IDualLoraChipsCommunicator;
 import com.thefirstlineofcode.sand.client.things.IDeviceListener;
 import com.thefirstlineofcode.sand.client.things.ThingsUtils;
-import com.thefirstlineofcode.sand.client.things.actuator.ErrorCodeToXmppErrorsConverter;
 import com.thefirstlineofcode.sand.client.things.actuator.IActuator;
 import com.thefirstlineofcode.sand.client.things.actuator.IExecutor;
 import com.thefirstlineofcode.sand.client.things.actuator.IExecutorFactory;
@@ -78,6 +77,15 @@ import com.thefirstlineofcode.sand.client.things.concentrator.ModelRegistrar;
 import com.thefirstlineofcode.sand.client.things.concentrator.Node;
 import com.thefirstlineofcode.sand.client.things.obm.IObmFactory;
 import com.thefirstlineofcode.sand.client.things.obm.ObmFactory;
+import com.thefirstlineofcode.sand.emulators.commons.Constants;
+import com.thefirstlineofcode.sand.emulators.commons.IThingEmulator;
+import com.thefirstlineofcode.sand.emulators.commons.IThingEmulatorFactory;
+import com.thefirstlineofcode.sand.emulators.commons.StreamConfigInfo;
+import com.thefirstlineofcode.sand.emulators.commons.ui.AboutDialog;
+import com.thefirstlineofcode.sand.emulators.commons.ui.AbstractThingEmulatorPanel;
+import com.thefirstlineofcode.sand.emulators.commons.ui.StatusBar;
+import com.thefirstlineofcode.sand.emulators.commons.ui.StreamConfigDialog;
+import com.thefirstlineofcode.sand.emulators.commons.ui.UiUtils;
 import com.thefirstlineofcode.sand.emulators.lora.gateway.log.LogConsolesDialog;
 import com.thefirstlineofcode.sand.emulators.lora.gateway.things.DeviceIdentityInfo;
 import com.thefirstlineofcode.sand.emulators.lora.gateway.things.ThingInfo;
@@ -89,16 +97,7 @@ import com.thefirstlineofcode.sand.emulators.lora.network.LoraCommunicatorFactor
 import com.thefirstlineofcode.sand.emulators.lora.things.AbstractLoraThingEmulator;
 import com.thefirstlineofcode.sand.emulators.lora.things.AbstractLoraThingEmulatorFactory;
 import com.thefirstlineofcode.sand.emulators.models.Le01ModelDescriptor;
-import com.thefirstlineofcode.sand.emulators.things.Constants;
 import com.thefirstlineofcode.sand.emulators.things.IGateway;
-import com.thefirstlineofcode.sand.emulators.things.UiUtils;
-import com.thefirstlineofcode.sand.emulators.things.emulators.IThingEmulator;
-import com.thefirstlineofcode.sand.emulators.things.emulators.IThingEmulatorFactory;
-import com.thefirstlineofcode.sand.emulators.things.emulators.StreamConfigInfo;
-import com.thefirstlineofcode.sand.emulators.things.ui.AboutDialog;
-import com.thefirstlineofcode.sand.emulators.things.ui.AbstractThingEmulatorPanel;
-import com.thefirstlineofcode.sand.emulators.things.ui.StatusBar;
-import com.thefirstlineofcode.sand.emulators.things.ui.StreamConfigDialog;
 import com.thefirstlineofcode.sand.protocols.core.CommunicationNet;
 import com.thefirstlineofcode.sand.protocols.core.DeviceIdentity;
 import com.thefirstlineofcode.sand.protocols.core.HourTimeBasedId;
@@ -630,9 +629,7 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 			actuator.setDeviceModel(THING_MODEL);
 			actuator.setToConcentrator(concentrator, traceIdFactory, obmFactory);
 			actuator.registerLanAction(Flash.class);
-			actuator.registerLanActionErrorProcessor(
-					new ErrorCodeToXmppErrorsConverter(Le01ModelDescriptor.MODEL_NAME,
-							Le01ModelDescriptor.getLe01ErrorCodeToXmppErrors()));
+			actuator.registerLanExecutionErrorProcessor(Le01ModelDescriptor.getLanExecutionErrorProcessor());
 		}
 		
 		actuator.start();
@@ -1342,7 +1339,6 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 		return fileMenu;
 	}
 
-	@Override
 	public void registerThingEmulatorFactory(IThingEmulatorFactory<?> thingFactory) {
 		if (!(thingFactory instanceof AbstractLoraThingEmulatorFactory)) {
 			throw new IllegalArgumentException("Not a lora thing emulator factory.");

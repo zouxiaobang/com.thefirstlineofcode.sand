@@ -1,4 +1,4 @@
-package com.thefirstlineofcode.sand.emulators.things;
+package com.thefirstlineofcode.sand.emulators.commons;
 
 public interface ILogger {
 	String getName();

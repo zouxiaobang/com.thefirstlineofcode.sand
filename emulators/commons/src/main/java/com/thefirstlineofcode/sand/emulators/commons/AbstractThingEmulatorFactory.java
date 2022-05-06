@@ -1,4 +1,4 @@
-package com.thefirstlineofcode.sand.emulators.things.emulators;
+package com.thefirstlineofcode.sand.emulators.commons;
 
 public abstract class AbstractThingEmulatorFactory<T extends IThingEmulator> implements IThingEmulatorFactory<T> {
 	protected String thingTypeName;

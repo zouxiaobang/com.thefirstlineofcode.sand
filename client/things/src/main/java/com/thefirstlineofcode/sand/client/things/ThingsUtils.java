@@ -31,5 +31,13 @@ public class ThingsUtils {
 				
 		return uuidHexString.substring(32 - length, 32); 
 	}
+	
+	public static String getGlobalErrorCode(String model, String errorCode) {
+		return String.format("%s-E%s", model, errorCode);
+	}
+	
+	public static String getExecutionErrorDescription(String model, String errorCode) {
+		return String.format("Execution error. Global error code: %s", getGlobalErrorCode(model, errorCode));
+	}
 }
 

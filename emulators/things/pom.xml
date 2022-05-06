@@ -13,29 +13,13 @@
 
 	<groupId>com.thefirstlineofcode.sand.emulators</groupId>
 	<artifactId>sand-emulators-things</artifactId>
-	<name>Sand emulators things module</name>
+	<name>Sand emulators things library</name>
 	<packaging>jar</packaging>
 	
 	<dependencies>
 		<dependency>
-			<groupId>com.google.zxing</groupId>
-			<artifactId>javase</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>com.alexandriasoftware.swing</groupId>
-			<artifactId>jsplitbutton</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>com.thefirstlineofcode.chalk</groupId>
-			<artifactId>chalk-core</artifactId>
-		</dependency>
-		<dependency>
 			<groupId>com.thefirstlineofcode.sand.client</groupId>
 			<artifactId>sand-client-things</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>com.thefirstlineofcode.sand.protocols</groupId>
-			<artifactId>sand-protocols-actuator</artifactId>
 		</dependency>
 	</dependencies>
 </project>

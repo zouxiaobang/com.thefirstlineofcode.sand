@@ -13,7 +13,7 @@ public interface IActuator {
 	void setTraceIdFactory(ITraceIdFactory traceIdFactory);
 	ITraceIdFactory getTraceIdFactory();
 	void registerLanAction(Class<?> lanActionType);
-	void registerLanActionErrorProcessor(ILanActionErrorProcessor lanActionErrorProcessor);
+	void registerLanExecutionErrorProcessor(ILanExecutionErrorProcessor lanActionErrorProcessor);
 	boolean unregisterLanAction(Class<?> actionType);
 	void setDefaultLanExecutionTimeout(long timeout);
 	long getDefaultLanExecutionTimeout();

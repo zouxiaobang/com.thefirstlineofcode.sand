@@ -35,10 +35,11 @@ import com.thefirstlineofcode.basalt.protocol.core.stanza.error.UnexpectedReques
 import com.thefirstlineofcode.basalt.protocol.core.stream.error.StreamError;
 import com.thefirstlineofcode.chalk.core.IChatServices;
 import com.thefirstlineofcode.chalk.core.stanza.IIqListener;
+import com.thefirstlineofcode.sand.client.things.ThingsUtils;
 import com.thefirstlineofcode.sand.client.things.actuator.IActuator;
 import com.thefirstlineofcode.sand.client.things.actuator.IExecutor;
 import com.thefirstlineofcode.sand.client.things.actuator.IExecutorFactory;
-import com.thefirstlineofcode.sand.client.things.actuator.ILanActionErrorProcessor;
+import com.thefirstlineofcode.sand.client.things.actuator.ILanExecutionErrorProcessor;
 import com.thefirstlineofcode.sand.client.things.commuication.CommunicationException;
 import com.thefirstlineofcode.sand.client.things.commuication.ICommunicationListener;
 import com.thefirstlineofcode.sand.client.things.commuication.ICommunicator;
@@ -67,7 +68,7 @@ public class Actuator implements IActuator, IIqListener {
 	private Map<CommunicationNet, ICommunicator<?, ?, byte[]>> communicators;
 	private Map<CommunicationNet, LanExecutionAnswerListener<?, ?>> netToLanExecutionAnswerListeners;
 	private Map<String, List<LanExecutionTraceInfo>> lanNodeToLanExecutionTraceInfos;
-	private Map<String, ILanActionErrorProcessor> modelToLanActionErrorProcessors;
+	private Map<String, ILanExecutionErrorProcessor> modelToLanExecutionErrorProcessors;
 	private long defaultLanExecutionTimeout;
 	private int lanExecutionTimeoutCheckInterval;
 	private ExpiredLanExecutionsChecker expiredLanExecutionsChecker;
@@ -84,7 +85,7 @@ public class Actuator implements IActuator, IIqListener {
 		netToLanExecutionAnswerListeners = new HashMap<>();
 		oxmFactory = chatServices.getStream().getOxmFactory();
 		lanNodeToLanExecutionTraceInfos = new HashMap<>();
-		modelToLanActionErrorProcessors = new HashMap<>();
+		modelToLanExecutionErrorProcessors = new HashMap<>();
 		defaultLanExecutionTimeout = DEFAULT_VALUE_OF_DEFAULT_LAN_EXECUTION_TIMEOUT;
 		lanExecutionTimeoutCheckInterval = DEFAULT_LAN_EXECUTION_TIMEOUT_CHECK_INTERVAL;
 		host = JabberId.parse(chatServices.getStream().getStreamConfig().getHost());
@@ -131,7 +132,7 @@ public class Actuator implements IActuator, IIqListener {
 	}
 	
 	@SuppressWarnings("unchecked")
-	private <T> void execute(Iq iq, Execution execute) {	
+	private <T> void execute(Iq iq, Execution execution) {	
 		if (deviceModel == null)
 			throw new IllegalStateException("Null device model. You should call setDeviceModel(String deviceModel) method before you start actuator.");
 		
@@ -140,7 +141,7 @@ public class Actuator implements IActuator, IIqListener {
 			from = host;
 		}
 		
-		T action = (T)execute.getAction();
+		T action = (T)execution.getAction();
 		if (toDeviceItself(iq.getTo())) {
 			if (logger.isInfoEnabled()) {
 				logger.info("Try to execute the action {} which was sent from '{}' on device '{}'.", action, from, iq.getTo());
@@ -176,7 +177,7 @@ public class Actuator implements IActuator, IIqListener {
 				logger.info("Try to execute the action {} which was sent from '{}' on LAN node '{}'.", action, from, iq.getTo());
 			}
 			
-			executeOnLanNode(iq, action, execute.isLanTraceable(), execute.getLanTimeout());
+			executeOnLanNode(iq, action, execution.isLanTraceable(), execution.getLanTimeout());
 		} else {
 			if (logger.isErrorEnabled()) {
 				logger.error(String.format("Can't find the device which's JID is '{}' to execute the action which was sent from '%s'.",
@@ -564,9 +565,9 @@ public class Actuator implements IActuator, IIqListener {
 			throw new RuntimeException("An LAN action error code must be an string object.");
 		
 		String errorCode = (String)error.getLanActionObj();
-		ILanActionErrorProcessor lanActionErrorProcessor = modelToLanActionErrorProcessors.get(traceInfo.node.getModel());
-		if (lanActionErrorProcessor != null) {
-			IError e = lanActionErrorProcessor.processErrorCode(errorCode);
+		ILanExecutionErrorProcessor lanExecutionErrorProcessor = modelToLanExecutionErrorProcessors.get(traceInfo.node.getModel());
+		if (lanExecutionErrorProcessor != null) {
+			IError e = lanExecutionErrorProcessor.processErrorCode(errorCode);
 			
 			if (e instanceof StreamError) {
 				chatServices.getStream().send(e);
@@ -577,7 +578,6 @@ public class Actuator implements IActuator, IIqListener {
 				
 				se.setId(traceInfo.sanzaId);
 				setFromToAddresses(traceInfo.from, traceInfo.to, se);
-				e.setText(getGlobalErrorCode(traceInfo.node.getModel(), errorCode));
 				
 				chatServices.getStream().send(e);
 			}
@@ -585,15 +585,11 @@ public class Actuator implements IActuator, IIqListener {
 			StanzaError e = new UndefinedCondition(StanzaError.Type.MODIFY);
 			e.setId(traceInfo.sanzaId);
 			setFromToAddresses(traceInfo.from, traceInfo.to, e);
-			e.setText(getGlobalErrorCode(traceInfo.node.getModel(), errorCode));
+			e.setText(new LangText(ThingsUtils.getExecutionErrorDescription(traceInfo.node.getModel(), errorCode)));
 			
 			chatServices.getStream().send((IError)e);
 		}
 		
-	}
-	
-	private LangText getGlobalErrorCode(String model, String errorCode) {
-		return new LangText(String.format("%s-E%s", model, errorCode));
 	}
 
 	private void processLanExecutionResponse(JabberId from, JabberId to, String stanzaId) {
@@ -727,7 +723,7 @@ public class Actuator implements IActuator, IIqListener {
 	}
 	
 	@Override
-	public void registerLanActionErrorProcessor(ILanActionErrorProcessor lanActionErrorProcessor) {
-		modelToLanActionErrorProcessors.put(lanActionErrorProcessor.getModel(), lanActionErrorProcessor);
+	public void registerLanExecutionErrorProcessor(ILanExecutionErrorProcessor lanExecutionErrorProcessor) {
+		modelToLanExecutionErrorProcessors.put(lanExecutionErrorProcessor.getModel(), lanExecutionErrorProcessor);
 	}
 }

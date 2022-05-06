@@ -1,4 +1,4 @@
-package com.thefirstlineofcode.sand.emulators.things.ui;
+package com.thefirstlineofcode.sand.emulators.commons.ui;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
@@ -11,7 +11,7 @@ import javax.swing.SwingConstants;
 
 import com.thefirstlineofcode.sand.client.things.BatteryPowerEvent;
 import com.thefirstlineofcode.sand.client.things.IDeviceListener;
-import com.thefirstlineofcode.sand.emulators.things.emulators.IThingEmulator;
+import com.thefirstlineofcode.sand.emulators.commons.IThingEmulator;
 
 public abstract class AbstractThingEmulatorPanel<T extends IThingEmulator> extends JPanel implements IDeviceListener {	
 	private static final long serialVersionUID = 388916038961904955L;

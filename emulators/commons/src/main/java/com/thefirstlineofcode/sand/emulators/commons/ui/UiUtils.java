@@ -1,4 +1,4 @@
-package com.thefirstlineofcode.sand.emulators.things;
+package com.thefirstlineofcode.sand.emulators.commons.ui;
 
 import java.awt.Dialog.ModalityType;
 import java.awt.Dimension;

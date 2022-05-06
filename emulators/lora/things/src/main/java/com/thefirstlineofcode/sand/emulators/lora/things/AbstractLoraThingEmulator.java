@@ -7,10 +7,10 @@ import java.io.ObjectOutput;
 import com.thefirstlineofcode.sand.client.lora.ILoraChip.PowerType;
 import com.thefirstlineofcode.sand.client.things.commuication.CommunicationException;
 import com.thefirstlineofcode.sand.client.things.commuication.ICommunicator;
+import com.thefirstlineofcode.sand.emulators.commons.AbstractCommunicationNetworkThingEmulator;
 import com.thefirstlineofcode.sand.emulators.lora.network.LoraChipCreationParams;
 import com.thefirstlineofcode.sand.emulators.lora.network.LoraCommunicator;
 import com.thefirstlineofcode.sand.emulators.lora.network.LoraCommunicatorFactory;
-import com.thefirstlineofcode.sand.emulators.things.emulators.AbstractCommunicationNetworkThingEmulator;
 import com.thefirstlineofcode.sand.protocols.actuator.LanExecution;
 import com.thefirstlineofcode.sand.protocols.lora.LoraAddress;
 

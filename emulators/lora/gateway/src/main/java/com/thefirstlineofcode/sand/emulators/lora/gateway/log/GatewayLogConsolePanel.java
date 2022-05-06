@@ -7,7 +7,7 @@ import com.thefirstlineofcode.sand.client.things.commuication.CommunicationExcep
 import com.thefirstlineofcode.sand.client.things.commuication.ICommunicationListener;
 import com.thefirstlineofcode.sand.client.things.obm.IObmFactory;
 import com.thefirstlineofcode.sand.client.things.obm.ObmData;
-import com.thefirstlineofcode.sand.emulators.things.ui.AbstractLogConsolePanel;
+import com.thefirstlineofcode.sand.emulators.commons.ui.AbstractLogConsolePanel;
 import com.thefirstlineofcode.sand.protocols.lora.DualLoraAddress;
 import com.thefirstlineofcode.sand.protocols.lora.LoraAddress;
 

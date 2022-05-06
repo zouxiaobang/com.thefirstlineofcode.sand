@@ -18,6 +18,7 @@
 
 	<modules>
 		<module>things</module>
+		<module>commons</module>
 		<module>lora</module>
 		<module>models</module>
 		<module>wifi</module>

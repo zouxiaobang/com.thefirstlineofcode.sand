@@ -1,4 +1,4 @@
-package com.thefirstlineofcode.sand.emulators.things.emulators;
+package com.thefirstlineofcode.sand.emulators.commons;
 
 import com.thefirstlineofcode.sand.emulators.things.ILight;
 

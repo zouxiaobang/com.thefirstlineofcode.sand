@@ -1,4 +1,4 @@
-package com.thefirstlineofcode.sand.emulators.things.ui;
+package com.thefirstlineofcode.sand.emulators.commons.ui;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
@@ -14,11 +14,11 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 
+import com.thefirstlineofcode.sand.emulators.commons.ILightEmulator;
 import com.thefirstlineofcode.sand.emulators.things.ILight;
 import com.thefirstlineofcode.sand.emulators.things.ILight.LightState;
 import com.thefirstlineofcode.sand.emulators.things.ILight.SwitchState;
-import com.thefirstlineofcode.sand.emulators.things.emulators.ILightEmulator;
-import com.thefirstlineofcode.sand.protocols.actuator.LanActionException;
+import com.thefirstlineofcode.sand.protocols.actuator.ExecutionException;
 
 public class LightEmulatorPanel extends AbstractThingEmulatorPanel<ILightEmulator> implements ActionListener  {
 	private static final long serialVersionUID = 7660599095831708565L;
@@ -148,7 +148,7 @@ public class LightEmulatorPanel extends AbstractThingEmulatorPanel<ILightEmulato
 			public void actionPerformed(ActionEvent event) {
 				try {
 					light.flash(1);
-				} catch (LanActionException e) {
+				} catch (ExecutionException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}

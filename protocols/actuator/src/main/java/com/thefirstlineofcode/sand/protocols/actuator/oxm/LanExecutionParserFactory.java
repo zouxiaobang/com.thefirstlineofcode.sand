@@ -60,7 +60,7 @@ public class LanExecutionParserFactory implements IParserFactory<LanExecution> {
 							throw new RuntimeException("Attribute value of trace ID must be Base64 encoded string.");
 						
 						byte[] bytes = BinaryUtils.decodeFromBase64(sTraceId);
-						context.getObject().setTraceId(traceIdFactory.create(Arrays.copyOfRange(bytes, 2, bytes.length)));
+						context.getObject().setTraceId(traceIdFactory.create(Arrays.copyOfRange(bytes, 1, bytes.length)));
 					}
 				};
 			} else if (parsingPath.match(PARSING_PATH_LAN_ACTION_OBJ)) {

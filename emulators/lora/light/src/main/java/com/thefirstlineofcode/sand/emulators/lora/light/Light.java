@@ -9,14 +9,14 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import com.thefirstlineofcode.basalt.protocol.core.Protocol;
+import com.thefirstlineofcode.sand.emulators.commons.ILightEmulator;
+import com.thefirstlineofcode.sand.emulators.commons.ui.AbstractThingEmulatorPanel;
+import com.thefirstlineofcode.sand.emulators.commons.ui.LightEmulatorPanel;
 import com.thefirstlineofcode.sand.emulators.lora.network.LoraCommunicator;
 import com.thefirstlineofcode.sand.emulators.lora.things.AbstractLoraThingEmulator;
 import com.thefirstlineofcode.sand.emulators.models.Le01ModelDescriptor;
 import com.thefirstlineofcode.sand.emulators.things.ILight;
-import com.thefirstlineofcode.sand.emulators.things.emulators.ILightEmulator;
-import com.thefirstlineofcode.sand.emulators.things.ui.AbstractThingEmulatorPanel;
-import com.thefirstlineofcode.sand.emulators.things.ui.LightEmulatorPanel;
-import com.thefirstlineofcode.sand.protocols.actuator.LanActionException;
+import com.thefirstlineofcode.sand.protocols.actuator.ExecutionException;
 import com.thefirstlineofcode.sand.protocols.devices.light.Flash;
 
 public class Light extends AbstractLoraThingEmulator implements ILightEmulator {
@@ -170,27 +170,18 @@ public class Light extends AbstractLoraThingEmulator implements ILightEmulator {
 	}
 
 	@Override
-	protected void processAction(Object action) throws LanActionException {
+	protected void processAction(Object action) throws ExecutionException {
 		if (action instanceof Flash) {
 			if (switchState != ILight.SwitchState.CONTROL)
-				throw new LanActionException(ILight.ERROR_CODE_NOT_REMOTE_CONTROL_STATE);
+				throw new ExecutionException(ILight.ERROR_CODE_NOT_REMOTE_CONTROL_STATE);
 			
 			flash(((Flash)action).getRepeat());
-			
-			try {
-				synchronized(this) {					
-					wait();
-				}
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
 		} else {
 			throw new RuntimeException(String.format("Unsupported action type: %s.", action.getClass().getName()));
 		}
 	}
 	
-	public void flash(int repeat) throws LanActionException {
+	public void flash(int repeat) throws ExecutionException {
 		if (!isPowered())
 			return;
 		
@@ -205,6 +196,15 @@ public class Light extends AbstractLoraThingEmulator implements ILightEmulator {
 	
 	private void doFlash(int repeat) {
 		new Thread(new FlashRunnable(repeat)).start();
+		
+		try {
+			synchronized(this) {					
+				wait();
+			}
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	private class FlashRunnable implements Runnable {

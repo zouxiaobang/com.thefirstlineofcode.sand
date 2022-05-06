@@ -20,11 +20,11 @@ import javax.swing.plaf.FontUIResource;
 import com.thefirstlineofcode.chalk.core.stream.StandardStreamConfig;
 import com.thefirstlineofcode.sand.client.things.BatteryPowerEvent;
 import com.thefirstlineofcode.sand.client.things.IDeviceListener;
-import com.thefirstlineofcode.sand.emulators.things.Constants;
-import com.thefirstlineofcode.sand.emulators.things.UiUtils;
-import com.thefirstlineofcode.sand.emulators.things.ui.AboutDialog;
-import com.thefirstlineofcode.sand.emulators.things.ui.LightEmulatorPanel;
-import com.thefirstlineofcode.sand.emulators.things.ui.StreamConfigDialog;
+import com.thefirstlineofcode.sand.emulators.commons.Constants;
+import com.thefirstlineofcode.sand.emulators.commons.ui.AboutDialog;
+import com.thefirstlineofcode.sand.emulators.commons.ui.LightEmulatorPanel;
+import com.thefirstlineofcode.sand.emulators.commons.ui.StreamConfigDialog;
+import com.thefirstlineofcode.sand.emulators.commons.ui.UiUtils;
 
 public class LightFrame extends JFrame implements ActionListener, WindowListener,
 			IDeviceListener {

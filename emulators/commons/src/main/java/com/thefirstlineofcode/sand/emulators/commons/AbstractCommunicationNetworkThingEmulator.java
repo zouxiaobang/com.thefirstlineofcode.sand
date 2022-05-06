@@ -1,4 +1,4 @@
-package com.thefirstlineofcode.sand.emulators.things.emulators;
+package com.thefirstlineofcode.sand.emulators.commons;
 
 import java.io.IOException;
 import java.io.ObjectInput;
@@ -13,7 +13,7 @@ import com.thefirstlineofcode.sand.client.things.commuication.ICommunicationList
 import com.thefirstlineofcode.sand.client.things.commuication.ICommunicator;
 import com.thefirstlineofcode.sand.client.things.obm.IObmFactory;
 import com.thefirstlineofcode.sand.client.things.obm.IObmFactoryAware;
-import com.thefirstlineofcode.sand.protocols.actuator.LanActionException;
+import com.thefirstlineofcode.sand.protocols.actuator.ExecutionException;
 import com.thefirstlineofcode.sand.protocols.actuator.LanExecution;
 import com.thefirstlineofcode.sand.protocols.core.Address;
 
@@ -108,7 +108,7 @@ public abstract class AbstractCommunicationNetworkThingEmulator<OA, PA extends A
 		}
 		
 		if (LanExecution.PROTOCOL.equals(protocol)) {
-			processLanExecute(from, data);
+			processLanExecution(from, data);
 		} else {
 			processAction(from, protocol, data);
 		}
@@ -124,19 +124,19 @@ public abstract class AbstractCommunicationNetworkThingEmulator<OA, PA extends A
 		
 		try {
 			processAction(action);
-		} catch (LanActionException e) {
+		} catch (ExecutionException e) {
 			e.printStackTrace();
 		}
 	}
 
-	private void processLanExecute(PA from, byte[] data) {
+	private void processLanExecution(PA from, byte[] data) {
 		LanExecution request = (LanExecution)obmFactory.toObject(data);		
 		Object action = request.getLanActionObj();
 		
 		try {
 			processAction(action);
 			sendResponseToPeer(from, request);
-		} catch (LanActionException e) {
+		} catch (ExecutionException e) {
 			sendErrorToPeer(from, request, e.getErrorCode());
 		}
 	}
@@ -194,5 +194,5 @@ public abstract class AbstractCommunicationNetworkThingEmulator<OA, PA extends A
 	}
 	
 	protected abstract Map<Protocol, Class<?>> createSupportedActions();
-	protected abstract void processAction(Object action) throws LanActionException;
+	protected abstract void processAction(Object action) throws ExecutionException;
 }

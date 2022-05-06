@@ -9,8 +9,8 @@ import com.thefirstlineofcode.sand.client.lora.IDualLoraChipsCommunicator;
 import com.thefirstlineofcode.sand.client.things.commuication.ICommunicationNetwork;
 import com.thefirstlineofcode.sand.client.things.commuication.ICommunicationNetworkListener;
 import com.thefirstlineofcode.sand.client.things.obm.IObmFactory;
+import com.thefirstlineofcode.sand.emulators.commons.ui.AbstractLogConsolesDialog;
 import com.thefirstlineofcode.sand.emulators.lora.things.AbstractLoraThingEmulator;
-import com.thefirstlineofcode.sand.emulators.things.ui.AbstractLogConsolesDialog;
 import com.thefirstlineofcode.sand.protocols.lora.LoraAddress;
 
 public class LogConsolesDialog extends AbstractLogConsolesDialog {

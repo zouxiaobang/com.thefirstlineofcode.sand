@@ -7,8 +7,8 @@ import com.thefirstlineofcode.sand.client.things.commuication.ICommunicationList
 import com.thefirstlineofcode.sand.client.things.commuication.ICommunicator;
 import com.thefirstlineofcode.sand.client.things.obm.IObmFactory;
 import com.thefirstlineofcode.sand.client.things.obm.ObmData;
+import com.thefirstlineofcode.sand.emulators.commons.ui.AbstractLogConsolePanel;
 import com.thefirstlineofcode.sand.emulators.lora.things.AbstractLoraThingEmulator;
-import com.thefirstlineofcode.sand.emulators.things.ui.AbstractLogConsolePanel;
 import com.thefirstlineofcode.sand.protocols.lora.LoraAddress;
 
 public class ThingLogConsolePanel extends AbstractLogConsolePanel

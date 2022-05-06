@@ -17,13 +17,13 @@ import com.thefirstlineofcode.chalk.core.stream.StreamConfig;
 import com.thefirstlineofcode.chalk.network.ConnectionException;
 import com.thefirstlineofcode.chalk.network.IConnectionListener;
 import com.thefirstlineofcode.sand.client.ibdr.RegistrationException;
-import com.thefirstlineofcode.sand.emulators.things.Constants;
+import com.thefirstlineofcode.sand.emulators.commons.AbstractThingEmulator;
+import com.thefirstlineofcode.sand.emulators.commons.Constants;
+import com.thefirstlineofcode.sand.emulators.commons.ILightEmulator;
+import com.thefirstlineofcode.sand.emulators.commons.ui.AbstractThingEmulatorPanel;
+import com.thefirstlineofcode.sand.emulators.commons.ui.LightEmulatorPanel;
 import com.thefirstlineofcode.sand.emulators.things.ILight;
-import com.thefirstlineofcode.sand.emulators.things.emulators.AbstractThingEmulator;
-import com.thefirstlineofcode.sand.emulators.things.emulators.ILightEmulator;
-import com.thefirstlineofcode.sand.emulators.things.ui.AbstractThingEmulatorPanel;
-import com.thefirstlineofcode.sand.emulators.things.ui.LightEmulatorPanel;
-import com.thefirstlineofcode.sand.protocols.actuator.LanActionException;
+import com.thefirstlineofcode.sand.protocols.actuator.ExecutionException;
 import com.thefirstlineofcode.sand.protocols.core.DeviceIdentity;
 
 public class Light extends AbstractThingEmulator implements ILightEmulator, IBgProcessListener {
@@ -88,16 +88,16 @@ public class Light extends AbstractThingEmulator implements ILightEmulator, IBgP
 	}
 	
 	@Override
-	public void turnOn() throws LanActionException {
+	public void turnOn() throws ExecutionException {
 		panel.turnOn();
 	}
 	
 	@Override
-	public void turnOff() throws LanActionException {
+	public void turnOff() throws ExecutionException {
 		panel.turnOff();
 	}
 	
-	public void flash(int repeat) throws LanActionException {
+	public void flash(int repeat) throws ExecutionException {
 		if (!isPowered())
 			return;
 		
@@ -112,6 +112,15 @@ public class Light extends AbstractThingEmulator implements ILightEmulator, IBgP
 	
 	private void doFlash(int repeat) {
 		new Thread(new FlashRunnable(repeat)).start();
+		
+		try {
+			synchronized(this) {					
+				wait();
+			}
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	private class FlashRunnable implements Runnable {

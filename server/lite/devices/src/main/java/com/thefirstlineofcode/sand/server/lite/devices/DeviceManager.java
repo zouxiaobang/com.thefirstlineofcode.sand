@@ -94,7 +94,7 @@ public class DeviceManager implements IDeviceManager {
 	private boolean isExpired(DeviceAuthorization authorization) {
 		Date current = Calendar.getInstance().getTime();
 		
-		return current.before(authorization.getExpiredTime());
+		return current.after(authorization.getExpiredTime());
 	}
 
 	@Override

@@ -6,14 +6,14 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<parent>
-		<groupId>com.thefirstlineofcode.sand.emulators</groupId>
-		<artifactId>sand-emulators-lora</artifactId>
+		<groupId>com.thefirstlineofcode.sand</groupId>
+		<artifactId>sand-emulators</artifactId>
 		<version>1.0.0-ALPHA1</version>
 	</parent>
 
-	<groupId>com.thefirstlineofcode.sand.emulators.lora</groupId>
-	<artifactId>sand-emulators-lora-things</artifactId>
-	<name>Sand LoRa things library</name>
+	<groupId>com.thefirstlineofcode.sand.emulators</groupId>
+	<artifactId>sand-emulators-commons</artifactId>
+	<name>Sand emulators commons library</name>
 	<packaging>jar</packaging>
 	
 	<dependencies>
@@ -26,16 +26,16 @@
 			<artifactId>jsplitbutton</artifactId>
 		</dependency>
 		<dependency>
+			<groupId>com.thefirstlineofcode.chalk</groupId>
+			<artifactId>chalk-core</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.thefirstlineofcode.sand.client</groupId>
+			<artifactId>sand-client-things</artifactId>
+		</dependency>
+		<dependency>
 			<groupId>com.thefirstlineofcode.sand.emulators</groupId>
-			<artifactId>sand-emulators-commons</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>com.thefirstlineofcode.sand.protocols</groupId>
-			<artifactId>sand-protocols-lora</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>com.thefirstlineofcode.sand.emulators.lora</groupId>
-			<artifactId>sand-emulators-lora-network</artifactId>
+			<artifactId>sand-emulators-things</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>com.thefirstlineofcode.sand.protocols</groupId>

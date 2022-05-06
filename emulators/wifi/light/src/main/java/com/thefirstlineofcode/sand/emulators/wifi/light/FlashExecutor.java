@@ -4,9 +4,12 @@ import com.thefirstlineofcode.basalt.protocol.core.ProtocolException;
 import com.thefirstlineofcode.basalt.protocol.core.stanza.Iq;
 import com.thefirstlineofcode.basalt.protocol.core.stanza.error.StanzaError;
 import com.thefirstlineofcode.basalt.protocol.core.stanza.error.UndefinedCondition;
+import com.thefirstlineofcode.basalt.protocol.core.stanza.error.UnexpectedRequest;
+import com.thefirstlineofcode.sand.client.things.ThingsUtils;
 import com.thefirstlineofcode.sand.client.things.actuator.IExecutor;
+import com.thefirstlineofcode.sand.emulators.models.Le02ModelDescriptor;
 import com.thefirstlineofcode.sand.emulators.things.ILight;
-import com.thefirstlineofcode.sand.protocols.actuator.LanActionException;
+import com.thefirstlineofcode.sand.protocols.actuator.ExecutionException;
 import com.thefirstlineofcode.sand.protocols.devices.light.Flash;
 
 public class FlashExecutor implements IExecutor<Flash> {
@@ -19,33 +22,17 @@ public class FlashExecutor implements IExecutor<Flash> {
 	@Override
 	public void execute(Iq iq, Flash action) {
 		if (light.getSwitchState() != ILight.SwitchState.CONTROL)
-			throw convertToProtocolException(new LanActionException(ILight.ERROR_CODE_NOT_REMOTE_CONTROL_STATE));
+			throw new ProtocolException(new UnexpectedRequest(ThingsUtils.getExecutionErrorDescription(
+					Le02ModelDescriptor.MODEL_NAME, ILight.ERROR_CODE_NOT_REMOTE_CONTROL_STATE)));
 		
 		int repeat = action.getRepeat();
 		if (repeat == 0)
 			repeat = 1;
-		
-		try {
+		try {			
 			light.flash(((Flash)action).getRepeat());
-			
-			synchronized (light) {
-				try {
-					light.wait();
-				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-			}
-		} catch (LanActionException le) {
-			throw convertToProtocolException(le);
+		} catch (ExecutionException e) {
+			throw new ProtocolException(new UndefinedCondition(StanzaError.Type.MODIFY,
+					ThingsUtils.getExecutionErrorDescription(Le02ModelDescriptor.MODEL_NAME, e.getErrorCode())));
 		}
-	}
-
-	private ProtocolException convertToProtocolException(LanActionException le) {
-		return new ProtocolException(new UndefinedCondition(StanzaError.Type.MODIFY, getGlobalErrorCode(light.getDeviceModel(), le.getErrorCode())));
-	}
-	
-	private String getGlobalErrorCode(String model, String errorCode) {
-		return String.format("%s-E%s", model, errorCode);
 	}
 }

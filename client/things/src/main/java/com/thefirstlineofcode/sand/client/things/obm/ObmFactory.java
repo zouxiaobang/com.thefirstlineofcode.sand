@@ -32,7 +32,7 @@ import com.thefirstlineofcode.sand.protocols.actuator.oxm.LanExecutionTranslator
 import com.thefirstlineofcode.sand.protocols.core.ITraceIdFactory;
 
 public class ObmFactory implements IObmFactory {
-	private static final byte[] MESSAGE_WRAPPER_DATA = new byte[] {(byte)0x60, (byte)0, (byte)1, (byte)0};
+	private static final byte[] MESSAGE_WRAPPER_DATA = new byte[] {(byte)0x60, (byte)0, (byte)1};
 	
 	private IOxmFactory oxmFactory;
 	private AbstractBinaryXmppProtocolConverter<?> binaryXmppProtocolConverter;
@@ -221,10 +221,10 @@ public class ObmFactory implements IObmFactory {
 		message.setObject(obj);
 		
 		byte[] data = binaryXmppProtocolConverter.toBinary(oxmFactory.getTranslatingFactory().translate(message));
-		byte[] pureActionData = new byte[data.length - 4];
+		byte[] pureActionData = new byte[data.length - 3];
 		pureActionData[0] = data[0];
-		for (int i = 1; i < data.length - 4; i++) {
-			pureActionData[i] = data[i + 4];
+		for (int i = 1; i < data.length - 3; i++) {
+			pureActionData[i] = data[i + 3];
 		}
 		
 		return pureActionData;
@@ -293,14 +293,15 @@ public class ObmFactory implements IObmFactory {
 	}
 
 	private Message getMessage(byte[] data) {
-		byte[] wrappedByMessageData = new byte[data.length + 4];
+		byte[] wrappedByMessageData = new byte[data.length + 3];
 		
 		wrappedByMessageData[0] = data[0];
-		for (int i = 0; i < 4; i++) {
+		for (int i = 0; i < 3; i++) {
 			wrappedByMessageData[i + 1] = MESSAGE_WRAPPER_DATA[i];
 		}
+		
 		for (int i = 0; i < data.length - 1; i++) {
-			wrappedByMessageData[i + 5] = data[i + 1];
+			wrappedByMessageData[i + 4] = data[i + 1];
 		}
 		
 		String xml = binaryXmppProtocolConverter.toXml(wrappedByMessageData);

@@ -8,8 +8,8 @@ import org.slf4j.LoggerFactory;
 import com.thefirstlineofcode.sand.client.things.commuication.ICommunicationNetwork;
 import com.thefirstlineofcode.sand.client.things.obm.IObmFactory;
 import com.thefirstlineofcode.sand.client.things.obm.ObmData;
+import com.thefirstlineofcode.sand.emulators.commons.ui.AbstractLogConsolePanel;
 import com.thefirstlineofcode.sand.emulators.lora.network.ILoraNetworkListener;
-import com.thefirstlineofcode.sand.emulators.things.ui.AbstractLogConsolePanel;
 import com.thefirstlineofcode.sand.protocols.lora.LoraAddress;
 
 public class CommunicationNetworkLogConsolePanel extends AbstractLogConsolePanel implements ILoraNetworkListener {

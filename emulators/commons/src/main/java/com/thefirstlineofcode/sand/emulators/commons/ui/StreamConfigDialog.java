@@ -1,4 +1,4 @@
-package com.thefirstlineofcode.sand.emulators.things.ui;
+package com.thefirstlineofcode.sand.emulators.commons.ui;
 
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;

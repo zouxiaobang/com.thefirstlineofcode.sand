@@ -1,4 +1,4 @@
-package com.thefirstlineofcode.sand.emulators.things.ui;
+package com.thefirstlineofcode.sand.emulators.commons.ui;
 
 import java.awt.Font;
 import java.awt.event.ActionEvent;
@@ -20,7 +20,7 @@ import javax.swing.JTextArea;
 import com.thefirstlineofcode.basalt.oxm.binary.BinaryUtils;
 import com.thefirstlineofcode.basalt.protocol.core.Protocol;
 import com.thefirstlineofcode.sand.client.things.obm.IObmFactory;
-import com.thefirstlineofcode.sand.emulators.things.ILogger;
+import com.thefirstlineofcode.sand.emulators.commons.ILogger;
 import com.thefirstlineofcode.sand.protocols.lora.dac.Allocated;
 import com.thefirstlineofcode.sand.protocols.lora.dac.Allocation;
 import com.thefirstlineofcode.sand.protocols.lora.dac.Introduction;
