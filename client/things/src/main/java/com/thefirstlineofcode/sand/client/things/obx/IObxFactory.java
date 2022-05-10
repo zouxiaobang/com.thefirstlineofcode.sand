@@ -1,14 +1,15 @@
-package com.thefirstlineofcode.sand.client.things.obm;
+package com.thefirstlineofcode.sand.client.things.obx;
 
 import com.thefirstlineofcode.basalt.oxm.binary.IBinaryXmppProtocolConverter;
 import com.thefirstlineofcode.basalt.protocol.core.Protocol;
 
-public interface IObmFactory {
+public interface IObxFactory {
 	IBinaryXmppProtocolConverter getBinaryXmppProtocolConverter();
 	void registerLanAction(Class<?> lanActionType);
 	boolean unregisterLanAction(Class<?> lanActionType);
 	Protocol readProtocol(byte[] data);
 	byte[] toBinary(Object obj);
+	String toXml(byte[] data);
 	Object toObject(byte[] data);
 	<T> T toObject(Class<T> type, byte[] data);
 }

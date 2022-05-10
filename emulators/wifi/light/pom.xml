@@ -26,12 +26,8 @@
 			<artifactId>sand-emulators-models</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>com.thefirstlineofcode.chalk</groupId>
-			<artifactId>chalk-core</artifactId>
-		</dependency>
-		<dependency>
 			<groupId>com.thefirstlineofcode.sand.client</groupId>
-			<artifactId>sand-client-ibdr</artifactId>
+			<artifactId>sand-client-edge</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>com.thefirstlineofcode.sand.client</groupId>

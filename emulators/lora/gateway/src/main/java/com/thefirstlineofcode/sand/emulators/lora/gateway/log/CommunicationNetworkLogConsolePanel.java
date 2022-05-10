@@ -6,8 +6,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.thefirstlineofcode.sand.client.things.commuication.ICommunicationNetwork;
-import com.thefirstlineofcode.sand.client.things.obm.IObmFactory;
-import com.thefirstlineofcode.sand.client.things.obm.ObmData;
+import com.thefirstlineofcode.sand.client.things.obx.IObxFactory;
+import com.thefirstlineofcode.sand.client.things.obx.ObxData;
 import com.thefirstlineofcode.sand.emulators.commons.ui.AbstractLogConsolePanel;
 import com.thefirstlineofcode.sand.emulators.lora.network.ILoraNetworkListener;
 import com.thefirstlineofcode.sand.protocols.lora.LoraAddress;
@@ -20,7 +20,7 @@ public class CommunicationNetworkLogConsolePanel extends AbstractLogConsolePanel
 	private ICommunicationNetwork<LoraAddress, byte[], ?> network;
 	
 	public CommunicationNetworkLogConsolePanel(ICommunicationNetwork<LoraAddress, byte[], ?> network,
-			IObmFactory obmFactory) {
+			IObxFactory obmFactory) {
 		super(obmFactory);
 		
 		this.network = network;
@@ -33,7 +33,7 @@ public class CommunicationNetworkLogConsolePanel extends AbstractLogConsolePanel
 
 	@Override
 	public void sent(LoraAddress from, LoraAddress to, byte[] data) {
-		String logMessage = createSentLogMessage(from, to, new ObmData(toObject(data), data));
+		String logMessage = createSentLogMessage(from, to, new ObxData(toObject(data), toXml(data), data));
 		
 		if (logger.isDebugEnabled()) {
 			logger.debug(logMessage);
@@ -42,17 +42,19 @@ public class CommunicationNetworkLogConsolePanel extends AbstractLogConsolePanel
 		log(logMessage);
 	}
 
-	private String createSentLogMessage(LoraAddress from, LoraAddress to, ObmData obmData) {
+	private String createSentLogMessage(LoraAddress from, LoraAddress to, ObxData obmData) {
 		return String.format("D(%s)-->N-->D(%s):" + LINE_SEPARATOR +
 						"    O: %s" + LINE_SEPARATOR +
+						"    X(%d bytes): %s" + LINE_SEPARATOR +
 						"    B(%d bytes): %s",
-				from, to, obmData.getProtocolObjectInfoString(), obmData.getBinary().length,
-					obmData.getHexString());
+				from, to, obmData.getProtocolObjectInfoString(),
+				obmData.getXml().length(), obmData.getXml(),
+				obmData.getBinary().length, obmData.getHexString());
 	}
 
 	@Override
 	public void received(LoraAddress from, LoraAddress to, byte[] data) {
-		String logMessage = createReceivedLogMessage(from, to, new ObmData(toObject(data), data));
+		String logMessage = createReceivedLogMessage(from, to, new ObxData(toObject(data), toXml(data), data));
 		
 		if (logger.isDebugEnabled()) {
 			logger.debug(logMessage);
@@ -62,12 +64,14 @@ public class CommunicationNetworkLogConsolePanel extends AbstractLogConsolePanel
 		
 	}
 
-	private String createReceivedLogMessage(LoraAddress from, LoraAddress to, ObmData obmData) {
+	private String createReceivedLogMessage(LoraAddress from, LoraAddress to, ObxData obmData) {
 		return String.format("D(%s)<--N<--D(%s)" + LINE_SEPARATOR +
 						"    O: %s" + LINE_SEPARATOR +
+						"    X(%d bytes): %s" + LINE_SEPARATOR +
 						"    B(%d bytes): %s",
-				to, from, obmData.getProtocolObjectInfoString(), obmData.getBinary().length,
-				obmData.getHexString());
+				to, from, obmData.getProtocolObjectInfoString(),
+				obmData.getXml().length(), obmData.getXml(),
+				obmData.getBinary().length, obmData.getHexString());
 	}
 
 	@Override
@@ -87,7 +91,7 @@ public class CommunicationNetworkLogConsolePanel extends AbstractLogConsolePanel
 
 	@Override
 	public void collided(LoraAddress from, LoraAddress to, byte[] data) {
-		String logMessage = createCollidedLogMessage(from, to, new ObmData(toObject(data), data));
+		String logMessage = createCollidedLogMessage(from, to, new ObxData(toObject(data), toXml(data), data));
 		
 		if (logger.isWarnEnabled()) {
 			logger.warn(logMessage);
@@ -96,17 +100,19 @@ public class CommunicationNetworkLogConsolePanel extends AbstractLogConsolePanel
 		log(logMessage);
 	}
 
-	private String createCollidedLogMessage(LoraAddress from, LoraAddress to, ObmData obmData) {
+	private String createCollidedLogMessage(LoraAddress from, LoraAddress to, ObxData obmData) {
 		return String.format("?* D(%s)-->N-->D(%s)" + LINE_SEPARATOR +
 						"    O: %s" + LINE_SEPARATOR +
+						"    X(%d bytes): %s" + LINE_SEPARATOR +
 						"    B(%d bytes): %s",
-						from, to, obmData.getProtocolObjectInfoString(), obmData.getBinary().length,
-						obmData.getHexString());
+						from, to, obmData.getProtocolObjectInfoString(),
+						obmData.getXml().length(), obmData.getXml(),
+						obmData.getBinary().length, obmData.getHexString());
 	}
 
 	@Override
 	public void lost(LoraAddress from, LoraAddress to, byte[] data) {
-		String logMessage = createLostLogMessage(from, to, new ObmData(toObject(data), data));
+		String logMessage = createLostLogMessage(from, to, new ObxData(toObject(data), toXml(data), data));
 		
 		if (logger.isWarnEnabled()) {
 			logger.warn(logMessage);
@@ -115,12 +121,14 @@ public class CommunicationNetworkLogConsolePanel extends AbstractLogConsolePanel
 		log(logMessage);
 	}
 
-	private String createLostLogMessage(LoraAddress from, LoraAddress to, ObmData obmData) {
+	private String createLostLogMessage(LoraAddress from, LoraAddress to, ObxData obmData) {
 		return String.format("?& D(%s)->N-->D(%s)" + LINE_SEPARATOR +
 				"    O: %s" + LINE_SEPARATOR +
+				"    X(%d bytes): %s" + LINE_SEPARATOR +
 				"    B(%d bytes): %s",
-				from, to, obmData.getProtocolObjectInfoString(), obmData.getBinary().length,
-				obmData.getHexString());
+				from, to, obmData.getProtocolObjectInfoString(),
+				obmData.getXml().length(), obmData.getXml(),
+				obmData.getBinary().length, obmData.getHexString());
 	}
 
 }

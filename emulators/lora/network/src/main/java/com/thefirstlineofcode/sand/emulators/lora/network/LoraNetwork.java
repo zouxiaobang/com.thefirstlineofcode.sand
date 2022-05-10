@@ -9,9 +9,9 @@ import java.util.Random;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.thefirstlineofcode.basalt.oxm.binary.BinaryUtils;
 import com.thefirstlineofcode.sand.client.lora.ILoraChip;
 import com.thefirstlineofcode.sand.client.lora.LoraData;
-import com.thefirstlineofcode.sand.client.things.ThingsUtils;
 import com.thefirstlineofcode.sand.client.things.commuication.ICommunicationChip;
 import com.thefirstlineofcode.sand.client.things.commuication.ICommunicationNetworkListener;
 import com.thefirstlineofcode.sand.protocols.lora.LoraAddress;
@@ -118,7 +118,7 @@ public class LoraNetwork implements ILoraNetwork {
 			
 			if (logger.isTraceEnabled()) {
 				logger.trace(String.format("Lora signal[%s, %s, %d, %d: %s] is sent to network.", from.address,
-						toChip.getAddress(), currentTime, arrivedTime, ThingsUtils.getHexString(data)));
+						toChip.getAddress(), currentTime, arrivedTime, BinaryUtils.getHexStringFromBytes(data)));
 			}
 			
 			for (ILoraNetworkListener listener : listeners) {
@@ -172,7 +172,7 @@ public class LoraNetwork implements ILoraNetwork {
 			if (logger.isTraceEnabled()) {
 				for (LoraSignal collision : collisions) {					
 					logger.trace(String.format("Lora signal[%s, %s, %s] is collided.",
-							ThingsUtils.getHexString(collision.data),
+							BinaryUtils.getHexStringFromBytes(collision.data),
 							collision.from, collision.to));
 				}
 			}
@@ -193,7 +193,7 @@ public class LoraNetwork implements ILoraNetwork {
 		if (isLost(received)) {
 			if (logger.isDebugEnabled()) {
 				logger.debug(String.format("Lora signal[%s, %s, %s] is lost.",
-							ThingsUtils.getHexString(received.data),
+							BinaryUtils.getHexStringFromBytes(received.data),
 							received.from, received.to));
 			}
 			

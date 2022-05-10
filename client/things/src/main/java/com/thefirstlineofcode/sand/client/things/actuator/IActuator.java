@@ -1,12 +1,12 @@
 package com.thefirstlineofcode.sand.client.things.actuator;
 
 import com.thefirstlineofcode.sand.client.things.concentrator.IConcentrator;
-import com.thefirstlineofcode.sand.client.things.obm.IObmFactory;
+import com.thefirstlineofcode.sand.client.things.obx.IObxFactory;
 import com.thefirstlineofcode.sand.protocols.core.ITraceIdFactory;
 
 public interface IActuator {
 	void setDeviceModel(String deivceModel);
-	void setToConcentrator(IConcentrator concentrator, ITraceIdFactory traceIdFactory, IObmFactory obmFactory);
+	void setToConcentrator(IConcentrator concentrator, ITraceIdFactory traceIdFactory, IObxFactory obxFactory);
 	<T> void registerExecutor(Class<T> actionType, Class<? extends IExecutor<T>> executorType);
 	<T> void registerExecutorFactory(Class<T> actionType, IExecutorFactory<T> executorFactory);
 	boolean unregisterExecutor(Class<?> actionType);

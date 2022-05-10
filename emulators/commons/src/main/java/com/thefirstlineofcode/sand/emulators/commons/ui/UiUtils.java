@@ -19,22 +19,30 @@ import javax.swing.MenuElement;
 public class UiUtils {
 	private static final int DEFAULT_NOTIFICATION_DELAY_TIME = 1000 * 2;
 	
-	public static void showNotification(Window window, String title, String message) {
-		final JDialog dialog = new JDialog(window, title, ModalityType.MODELESS);
-		dialog.setBounds(getParentCenterBounds(window, 400, 160));
-		dialog.add(new JLabel(message));
-		dialog.setVisible(true);
-		
-		final Timer timer = new Timer();
-		timer.schedule(new TimerTask() {
+	public static void showNotification(final Window window, final String title, final String message) {
+		new Thread(new Runnable() {
+
 			@Override
 			public void run() {
-				dialog.setVisible(false);
-				dialog.dispose();
+				final JDialog dialog = new JDialog(window, title, ModalityType.MODELESS);
+				dialog.setBounds(getParentCenterBounds(window, 400, 160));
+				JLabel text = new JLabel(message);
+				dialog.add(text);
+				dialog.setVisible(true);
 				
-				timer.cancel();
+				final Timer timer = new Timer();
+				timer.schedule(new TimerTask() {
+					@Override
+					public void run() {
+						dialog.setVisible(false);
+						dialog.dispose();
+						
+						timer.cancel();
+					}
+				}, DEFAULT_NOTIFICATION_DELAY_TIME);
 			}
-		}, DEFAULT_NOTIFICATION_DELAY_TIME);
+			
+		}).start();
 	}
 	
 	private static Rectangle getParentCenterBounds(Window window, int width, int height) {

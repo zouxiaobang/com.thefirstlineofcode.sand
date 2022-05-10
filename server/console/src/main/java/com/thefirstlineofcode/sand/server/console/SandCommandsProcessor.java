@@ -15,8 +15,6 @@ import com.thefirstlineofcode.basalt.protocol.core.stanza.error.StanzaError;
 import com.thefirstlineofcode.granite.framework.core.annotations.BeanDependency;
 import com.thefirstlineofcode.granite.framework.core.annotations.Dependency;
 import com.thefirstlineofcode.granite.framework.core.auth.IAccountManager;
-import com.thefirstlineofcode.granite.framework.core.config.IServerConfiguration;
-import com.thefirstlineofcode.granite.framework.core.config.IServerConfigurationAware;
 import com.thefirstlineofcode.granite.framework.core.console.AbstractCommandsProcessor;
 import com.thefirstlineofcode.granite.framework.core.console.IConsoleSystem;
 import com.thefirstlineofcode.granite.framework.core.pipeline.stages.event.IEventFirer;
@@ -37,8 +35,7 @@ import com.thefirstlineofcode.sand.server.devices.DeviceAuthorizationDelegator;
 import com.thefirstlineofcode.sand.server.devices.IDeviceManager;
 
 @Extension
-public class SandCommandsProcessor extends AbstractCommandsProcessor implements IEventFirerAware,
-			IServerConfigurationAware {
+public class SandCommandsProcessor extends AbstractCommandsProcessor implements IEventFirerAware {
 	private static final char SEPARATOR_PARAM_NAME_AND_VALUE = '=';
 	private static final String SEPARATOR_PARAMS = ",";
 	private static final String COMMAND_GROUP_SAND = "sand";
@@ -63,8 +60,6 @@ public class SandCommandsProcessor extends AbstractCommandsProcessor implements 
 	
 	@BeanDependency
 	private IConcentratorFactory concentratorFactory;
-	
-	private String domainName;
 	
 	private IEventFirer eventFirer;
 	private Map<String, Protocol> actionNameToProtocols;
@@ -413,7 +408,7 @@ public class SandCommandsProcessor extends AbstractCommandsProcessor implements 
 	}
 	
 	void processAuthorize(IConsoleSystem consoleSystem, String deviceId) {
-		this.processAuthorize(consoleSystem, deviceId, domainName);
+		this.processAuthorize(consoleSystem, deviceId, null);
 	}
 	
 	void processAuthorize(IConsoleSystem consoleSystem, String deviceId, String authorizer) {
@@ -427,7 +422,7 @@ public class SandCommandsProcessor extends AbstractCommandsProcessor implements 
 			return;
 		}
 		
-		if (authorizer != null && !domainName.equals(authorizer) && !accountManager.exists(authorizer)) {
+		if (authorizer != null && !accountManager.exists(authorizer)) {
 			consoleSystem.printMessageLine(String.format("Error: '%s' isn't a valid authorizer.", authorizer));
 			return;
 		}
@@ -441,7 +436,7 @@ public class SandCommandsProcessor extends AbstractCommandsProcessor implements 
 	}
 	
 	void processConfirm(IConsoleSystem consoleSystem, String concentratorDeviceId, String nodeDeviceId) {
-		this.processConfirm(consoleSystem, new String[] {concentratorDeviceId, nodeDeviceId, domainName});
+		this.processConfirm(consoleSystem, new String[] {concentratorDeviceId, nodeDeviceId, null});
 	}
 	
 	void processConfirm(IConsoleSystem consoleSystem, String[] args) {
@@ -464,21 +459,20 @@ public class SandCommandsProcessor extends AbstractCommandsProcessor implements 
 		}
 		
 		String confirmer = args[2];
-		if (!confirmer.equals(domainName) && !accountManager.exists(confirmer)) {
+		if (confirmer != null && !accountManager.exists(confirmer)) {
 			consoleSystem.printMessageLine(String.format("Error: '%s' isn't a valid user.", confirmer));
 			return;
 		}
 		
 		Confirmed confirmed = concentratorFactory.getConcentrator(device).confirm(nodeDeviceId, confirmer);
 		eventFirer.fire(new ConfirmedEvent(confirmed.getRequestId(), confirmed.getNodeCreated()));
-		
-		consoleSystem.printMessageLine(String.format("Concentrator device which's ID is '%s' has been confirmed to add device which's ID is '%s' as it's node by user '%s' in server console.",
+
+		if (confirmer != null)
+			consoleSystem.printMessageLine(String.format("Concentrator device which's ID is '%s' has been confirmed to add device which's ID is '%s' as it's node by user '%s' in server console.",
 				concentratorDeviceId, nodeDeviceId, confirmer));
-	}
-	
-	@Override
-	public void setServerConfiguration(IServerConfiguration serverConfiguration) {
-		domainName = serverConfiguration.getDomainName();
+		else
+			consoleSystem.printMessageLine(String.format("Concentrator device which's ID is '%s' has been confirmed to add device which's ID is '%s' as it's node by unknown user in server console.",
+				concentratorDeviceId, nodeDeviceId));
 	}
 	
 	@Override

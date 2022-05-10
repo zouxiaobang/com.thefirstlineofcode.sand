@@ -318,6 +318,12 @@
 
 			<dependency>
 				<groupId>com.thefirstlineofcode.sand.client</groupId>
+				<artifactId>sand-client-edge</artifactId>
+				<version>${sand.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>com.thefirstlineofcode.sand.client</groupId>
 				<artifactId>sand-client-ibdr</artifactId>
 				<version>${sand.version}</version>
 			</dependency>

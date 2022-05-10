@@ -48,7 +48,9 @@ import javax.swing.filechooser.FileSystemView;
 import javax.swing.plaf.FontUIResource;
 
 import com.thefirstlinelinecode.sand.protocols.concentrator.NodeAddress;
+import com.thefirstlineofcode.basalt.protocol.core.IError;
 import com.thefirstlineofcode.basalt.protocol.core.stanza.error.StanzaError;
+import com.thefirstlineofcode.basalt.protocol.core.stanza.error.UnexpectedRequest;
 import com.thefirstlineofcode.chalk.core.AuthFailureException;
 import com.thefirstlineofcode.chalk.core.IChatClient;
 import com.thefirstlineofcode.chalk.core.StandardChatClient;
@@ -66,17 +68,19 @@ import com.thefirstlineofcode.sand.client.lora.ConcentratorDynamicalAddressConfi
 import com.thefirstlineofcode.sand.client.lora.IDualLoraChipsCommunicator;
 import com.thefirstlineofcode.sand.client.things.IDeviceListener;
 import com.thefirstlineofcode.sand.client.things.ThingsUtils;
+import com.thefirstlineofcode.sand.client.things.actuator.ErrorCodeToXmppErrorsConverter;
 import com.thefirstlineofcode.sand.client.things.actuator.IActuator;
 import com.thefirstlineofcode.sand.client.things.actuator.IExecutor;
 import com.thefirstlineofcode.sand.client.things.actuator.IExecutorFactory;
+import com.thefirstlineofcode.sand.client.things.actuator.ILanExecutionErrorProcessor;
 import com.thefirstlineofcode.sand.client.things.commuication.ParamsMap;
 import com.thefirstlineofcode.sand.client.things.concentrator.IConcentrator;
 import com.thefirstlineofcode.sand.client.things.concentrator.IConcentrator.LanError;
 import com.thefirstlineofcode.sand.client.things.concentrator.IModelRegistrar;
 import com.thefirstlineofcode.sand.client.things.concentrator.ModelRegistrar;
 import com.thefirstlineofcode.sand.client.things.concentrator.Node;
-import com.thefirstlineofcode.sand.client.things.obm.IObmFactory;
-import com.thefirstlineofcode.sand.client.things.obm.ObmFactory;
+import com.thefirstlineofcode.sand.client.things.obx.IObxFactory;
+import com.thefirstlineofcode.sand.client.things.obx.ObxFactory;
 import com.thefirstlineofcode.sand.emulators.commons.Constants;
 import com.thefirstlineofcode.sand.emulators.commons.IThingEmulator;
 import com.thefirstlineofcode.sand.emulators.commons.IThingEmulatorFactory;
@@ -98,6 +102,7 @@ import com.thefirstlineofcode.sand.emulators.lora.things.AbstractLoraThingEmulat
 import com.thefirstlineofcode.sand.emulators.lora.things.AbstractLoraThingEmulatorFactory;
 import com.thefirstlineofcode.sand.emulators.models.Le01ModelDescriptor;
 import com.thefirstlineofcode.sand.emulators.things.IGateway;
+import com.thefirstlineofcode.sand.emulators.things.ILight;
 import com.thefirstlineofcode.sand.protocols.core.CommunicationNet;
 import com.thefirstlineofcode.sand.protocols.core.DeviceIdentity;
 import com.thefirstlineofcode.sand.protocols.core.HourTimeBasedId;
@@ -196,7 +201,7 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 	private IConcentrator concentrator;
 	
 	private ITraceIdFactory traceIdFactory;
-	private IObmFactory obmFactory;
+	private IObxFactory obxFactory;
 	
 	private IActuator actuator;
 	
@@ -232,7 +237,7 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 				return HourTimeBasedId.createInstance(data);
 			}
 		};
-		obmFactory = new ObmFactory(traceIdFactory);
+		obxFactory = new ObxFactory(traceIdFactory);
 		
 		setupUi();
 	}
@@ -551,7 +556,7 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 		autoReconnect = true;
 		chatClient.getStream().addConnectionListener(this);
 		concentrator = createConcentrator();
-		addressConfigurator = new ConcentratorDynamicalAddressConfigurator(gatewayCommunicator, concentrator, obmFactory);
+		addressConfigurator = new ConcentratorDynamicalAddressConfigurator(gatewayCommunicator, concentrator, obxFactory);
 		addressConfigurator.addListener(this);
 	}
 
@@ -627,12 +632,24 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 			});
 			
 			actuator.setDeviceModel(THING_MODEL);
-			actuator.setToConcentrator(concentrator, traceIdFactory, obmFactory);
+			actuator.setToConcentrator(concentrator, traceIdFactory, obxFactory);
 			actuator.registerLanAction(Flash.class);
-			actuator.registerLanExecutionErrorProcessor(Le01ModelDescriptor.getLanExecutionErrorProcessor());
+			actuator.registerLanExecutionErrorProcessor(getLe01ModelLanExecutionErrorProcessor());
 		}
 		
 		actuator.start();
+	}
+	
+	public static ILanExecutionErrorProcessor getLe01ModelLanExecutionErrorProcessor() {
+		return new ErrorCodeToXmppErrorsConverter(Le01ModelDescriptor.MODEL_NAME, getLe01ModelErrorCodeToErrorTypes());
+	}
+
+	private static Map<String, Class<? extends IError>> getLe01ModelErrorCodeToErrorTypes() {
+		Map<String, Class<? extends IError>> errorCodeToXmppErrors = new HashMap<>();
+		errorCodeToXmppErrors.put(ILight.ERROR_CODE_NOT_REMOTE_CONTROL_STATE,
+				UnexpectedRequest.class);
+		
+		return errorCodeToXmppErrors;
 	}
 	
 	private void registerPlugins(IChatClient chatClient) {
@@ -649,7 +666,7 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 	}
 
 	private void showLogConsoleDialog() {
-		logConsolesDialog = new LogConsolesDialog(this, network, gatewayCommunicator, allThings, obmFactory);			
+		logConsolesDialog = new LogConsolesDialog(this, network, gatewayCommunicator, allThings, obxFactory);			
 		logConsolesDialog.addWindowListener(this);
 		logConsolesDialog.setVisible(true);
 		
@@ -725,8 +742,7 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 		refreshThingSelectionRelativeMenus();
 	}
 	
-	@Override
-	public void powerOff() {
+	private void powerOff() {
 		getSelectedFrame().getThing().powerOff();
 		refreshPowerRelativeMenus();
 	}
@@ -736,8 +752,7 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 		return thingFrame;
 	}
 	
-	@Override
-	public void powerOn() {
+	private void powerOn() {
 		getSelectedFrame().getThing().powerOn();
 		refreshPowerRelativeMenus();
 	}
@@ -1090,7 +1105,7 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 		}
 		
 		AbstractLoraThingEmulator loraThing = (AbstractLoraThingEmulator)thing;
-		loraThing.setObmFactory(obmFactory);
+		loraThing.setObxFactory(obxFactory);
 		int instanceIndex = addThingToAllThings(thingFactory, loraThing);
 		
 		showThing(loraThing, getThingInstanceName(thingFactory, instanceIndex), -1, 30 * instanceIndex, 30 * instanceIndex);

@@ -63,22 +63,34 @@ public class LightFrame extends JFrame implements ActionListener, WindowListener
 	
 	private LightEmulatorPanel panel;
 	
-	private Light light;
+	private LightEmulator lightEmulator;
 	
 	private StandardStreamConfig streamConfig;
 	
 	public LightFrame() {
 		super(Light.THING_TYPE);
 		
-		this.light = new Light(this);
-		this.light.addDeviceListener(this);
+		setupUiWithoutLightEmulatorPanel();
 		
-		setupUi();
+		if (streamConfig == null) {
+			StreamConfigDialog streamConfigDialog = new StreamConfigDialog(this);
+			UiUtils.showDialog(this, streamConfigDialog);
+			
+			streamConfig = streamConfigDialog.getStreamConfig();
+		}
 		
+		lightEmulator = new LightEmulator(this, streamConfig);
+		
+		addLightEmulatorPanelToUi();
 		refreshPowerRelativedMenus();
 	}
 
-	private void setupUi() {
+	private void addLightEmulatorPanelToUi() {
+		panel = (LightEmulatorPanel)lightEmulator.getPanel();
+		getContentPane().add(panel, BorderLayout.CENTER);
+	}
+
+	private void setupUiWithoutLightEmulatorPanel() {
 		JFrame.setDefaultLookAndFeelDecorated(true);
 		
 		setDefaultUiFont(new javax.swing.plaf.FontUIResource("Serif", Font.PLAIN, 20));
@@ -88,9 +100,6 @@ public class LightFrame extends JFrame implements ActionListener, WindowListener
 		
 		menuBar = createMenuBar();
 		setJMenuBar(menuBar);
-		
-		panel = (LightEmulatorPanel)light.getPanel();
-		getContentPane().add(panel, BorderLayout.CENTER);
 		
 		setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 		addWindowListener(this);		
@@ -169,11 +178,26 @@ public class LightFrame extends JFrame implements ActionListener, WindowListener
 		if (MENU_ITEM_NAME_QUIT.equals(actionCommand)) {
 			quit();
 		} else if (MENU_ITEM_NAME_POWER_ON.equals(actionCommand)) {
-			powerOn();
+			new Thread(new Runnable() {	
+				@Override
+				public void run() {
+					powerOn();					
+				}
+			}).start();
 		} else if (MENU_ITEM_NAME_POWER_OFF.equals(actionCommand)) {
-			powerOff();
+			new Thread(new Runnable() {	
+				@Override
+				public void run() {
+					powerOff();
+				}
+			}).start();
 		} else if (MENU_ITEM_NAME_RESTART.equals(actionCommand)) {
-			restart();
+			new Thread(new Runnable() {	
+				@Override
+				public void run() {
+					restart();
+				}
+			}).start();
 		} else if (MENU_ITEM_NAME_SHOW_LOG_CONSOLE.equals(actionCommand)) {
 			showLogConsoleDialog();
 		} else if (MENU_ITEM_NAME_ABOUT.equals(actionCommand)) {
@@ -189,38 +213,29 @@ public class LightFrame extends JFrame implements ActionListener, WindowListener
 	}
 	
 	private void powerOn() {
-		if (light.isPowered())
+		if (lightEmulator.isPowered())
 			return;
 		
-		if (light.getStreamConfig() == null) {
-			StreamConfigDialog streamConfigDialog = new StreamConfigDialog(this);
-			UiUtils.showDialog(this, streamConfigDialog);
-			
-			streamConfig = streamConfigDialog.getStreamConfig();
-			
-			light.setStreamConfig(streamConfig);
-		}
-		
-		if (light.getInternetLogListener() == null && logConsolesDialog != null)
-			light.setInternetLogListener(
+		if (lightEmulator.getInternetLogListener() == null && logConsolesDialog != null)
+			lightEmulator.setInternetLogListener(
 					logConsolesDialog.getInternetLogListener());
 		
-		light.powerOn();
+		lightEmulator.powerOn();
 		
 		refreshPowerRelativedMenus();
 	}
 	
 	private void powerOff() {
-		if (!light.isPowered())
+		if (!lightEmulator.isPowered())
 			return;
 		
-		light.powerOff();
+		lightEmulator.powerOff();
 		
 		refreshPowerRelativedMenus();
 	}
 	
 	private void refreshPowerRelativedMenus() {
-		if (light.isPowered()) {
+		if (lightEmulator.isPowered()) {
 			UiUtils.getMenuItem(menuBar, MENU_NAME_EDIT, MENU_ITEM_NAME_POWER_ON).setEnabled(false);
 			UiUtils.getMenuItem(menuBar, MENU_NAME_EDIT, MENU_ITEM_NAME_POWER_OFF).setEnabled(true);
 			UiUtils.getMenuItem(menuBar, MENU_NAME_EDIT, MENU_ITEM_NAME_RESTART).setEnabled(true);
@@ -244,8 +259,8 @@ public class LightFrame extends JFrame implements ActionListener, WindowListener
 			logConsolesDialog.addWindowListener(this);
 		}
 		
-		if (light != null)
-			light.setInternetLogListener(logConsolesDialog.getInternetLogListener());
+		if (lightEmulator != null)
+			lightEmulator.setInternetLogListener(logConsolesDialog.getInternetLogListener());
 		
 		logConsolesDialog.setVisible(true);
 		
@@ -287,7 +302,9 @@ public class LightFrame extends JFrame implements ActionListener, WindowListener
 	public void windowDeactivated(WindowEvent e) {}
 
 	@Override
-	public void batteryPowerChanged(BatteryPowerEvent event) {}
+	public void batteryPowerChanged(BatteryPowerEvent event) {
+		lightEmulator.getPanel().updateStatus(lightEmulator.getThingStatus());
+	}
 	
 	@Override
 	public void windowOpened(WindowEvent e) {}

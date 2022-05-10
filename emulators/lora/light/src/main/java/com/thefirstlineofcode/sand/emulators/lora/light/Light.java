@@ -3,7 +3,6 @@ package com.thefirstlineofcode.sand.emulators.lora.light;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
-import java.util.Collections;
 import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -96,12 +95,18 @@ public class Light extends AbstractLoraThingEmulator implements ILightEmulator {
 
 	@Override
 	public void turnOn() {
+		if (!isPowered() || batteryPower == 0)
+			return;
+		
 		panel.turnOn();
 
 	}
 
 	@Override
 	public void turnOff() {
+		if (!isPowered() || batteryPower == 0)
+			return;
+		
 		panel.turnOff();
 	}
 
@@ -109,6 +114,7 @@ public class Light extends AbstractLoraThingEmulator implements ILightEmulator {
 	public AbstractThingEmulatorPanel<?> getPanel() {
 		if (panel == null) {
 			panel = new LightEmulatorPanel(this);
+			addDeviceListener(panel);
 		}
 		
 		return panel;
@@ -123,12 +129,12 @@ public class Light extends AbstractLoraThingEmulator implements ILightEmulator {
 
 	@Override
 	protected void doPowerOn() {
+		super.doPowerOn();
+		
 		if (switchState == SwitchState.ON || lightState == LightState.ON) {
 			lightState = LightState.ON;					
 			panel.turnOn();
 		}
-		
-		super.doPowerOn();
 	}
 
 	@Override
@@ -139,14 +145,6 @@ public class Light extends AbstractLoraThingEmulator implements ILightEmulator {
 		panel.turnOff();
 		
 		super.doPowerOff();
-	}
-
-	@Override
-	public void configure(String key, Object value) {}
-
-	@Override
-	public Map<String, Object> getConfiguration() {
-		return Collections.emptyMap();
 	}
 
 	@Override
@@ -182,7 +180,7 @@ public class Light extends AbstractLoraThingEmulator implements ILightEmulator {
 	}
 	
 	public void flash(int repeat) throws ExecutionException {
-		if (!isPowered())
+		if (!isPowered() || batteryPower == 0)
 			return;
 		
 		if (repeat < 0)
@@ -283,4 +281,10 @@ public class Light extends AbstractLoraThingEmulator implements ILightEmulator {
 			panel.turnOff();
 		}		
 	}
+
+	@Override
+	protected void loadDeviceAttributes() {}
+
+	@Override
+	protected void saveDeviceId(String deviceId) {}
 }

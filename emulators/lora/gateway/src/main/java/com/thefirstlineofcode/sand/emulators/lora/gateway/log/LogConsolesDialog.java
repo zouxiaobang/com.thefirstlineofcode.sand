@@ -8,7 +8,7 @@ import javax.swing.JFrame;
 import com.thefirstlineofcode.sand.client.lora.IDualLoraChipsCommunicator;
 import com.thefirstlineofcode.sand.client.things.commuication.ICommunicationNetwork;
 import com.thefirstlineofcode.sand.client.things.commuication.ICommunicationNetworkListener;
-import com.thefirstlineofcode.sand.client.things.obm.IObmFactory;
+import com.thefirstlineofcode.sand.client.things.obx.IObxFactory;
 import com.thefirstlineofcode.sand.emulators.commons.ui.AbstractLogConsolesDialog;
 import com.thefirstlineofcode.sand.emulators.lora.things.AbstractLoraThingEmulator;
 import com.thefirstlineofcode.sand.protocols.lora.LoraAddress;
@@ -25,8 +25,8 @@ public class LogConsolesDialog extends AbstractLogConsolesDialog {
 	
 	public LogConsolesDialog(JFrame parent,  ICommunicationNetwork<LoraAddress, byte[], ?> network,
 			IDualLoraChipsCommunicator gatewayCommunicator, Map<String, List<AbstractLoraThingEmulator>> allThings,
-			IObmFactory obmFactory) {
-		super(parent, obmFactory);
+			IObxFactory obxFactory) {
+		super(parent, obxFactory);
 		
 		this.network = network;
 		this.gatewayCommunicator = gatewayCommunicator;
@@ -51,16 +51,16 @@ public class LogConsolesDialog extends AbstractLogConsolesDialog {
 	}
 
 	public void createThingLogConsole(AbstractLoraThingEmulator thing) {
-		createLogConsole(thing.getDeviceId(), new ThingLogConsolePanel(thing, obmFactory));
+		createLogConsole(thing.getDeviceId(), new ThingLogConsolePanel(thing, obxFactory));
 	}
 
 	private void createGatewayConsole(IDualLoraChipsCommunicator gatewayCommunicator) {
-		createLogConsole(NAME_GATEWAY, new GatewayLogConsolePanel(gatewayCommunicator, obmFactory));
+		createLogConsole(NAME_GATEWAY, new GatewayLogConsolePanel(gatewayCommunicator, obxFactory));
 	}
 
 	@SuppressWarnings("unchecked")
 	private void createCommunicationNetworkLogConsole(ICommunicationNetwork<LoraAddress, byte[], ?> network) {
-		createLogConsole(NAME_COMMUNICATION_NETWORK, new CommunicationNetworkLogConsolePanel(network, obmFactory));
+		createLogConsole(NAME_COMMUNICATION_NETWORK, new CommunicationNetworkLogConsolePanel(network, obxFactory));
 		network.addListener((ICommunicationNetworkListener<LoraAddress, byte[]>)logConsoles.get(NAME_COMMUNICATION_NETWORK));
 	}
 	

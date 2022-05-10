@@ -4,7 +4,7 @@ import com.thefirstlineofcode.sand.client.things.commuication.CommunicationExcep
 import com.thefirstlineofcode.sand.client.things.commuication.IAddressConfigurator;
 import com.thefirstlineofcode.sand.client.things.commuication.ICommunicationListener;
 import com.thefirstlineofcode.sand.client.things.commuication.ICommunicator;
-import com.thefirstlineofcode.sand.client.things.obm.IObmFactory;
+import com.thefirstlineofcode.sand.client.things.obx.IObxFactory;
 import com.thefirstlineofcode.sand.emulators.lora.network.LoraCommunicator;
 import com.thefirstlineofcode.sand.protocols.lora.DualLoraAddress;
 import com.thefirstlineofcode.sand.protocols.lora.LoraAddress;
@@ -24,7 +24,7 @@ public class NodeDynamicalAddressConfigurator implements IAddressConfigurator<IC
 	
 	private AbstractLoraThingEmulator thing;
 	private LoraCommunicator communicator;
-	private IObmFactory obmFactory;
+	private IObxFactory obmFactory;
 	
 	private DualLoraAddress gatewayAddress;
 	private LoraAddress allocatedAddress;
@@ -35,7 +35,7 @@ public class NodeDynamicalAddressConfigurator implements IAddressConfigurator<IC
 	
 	private boolean configurating;
 	
-	public NodeDynamicalAddressConfigurator(AbstractLoraThingEmulator thing, LoraCommunicator communicator, IObmFactory obmFactory) {
+	public NodeDynamicalAddressConfigurator(AbstractLoraThingEmulator thing, LoraCommunicator communicator, IObxFactory obmFactory) {
 		this.thing = thing;
 
 		this.communicator = communicator;

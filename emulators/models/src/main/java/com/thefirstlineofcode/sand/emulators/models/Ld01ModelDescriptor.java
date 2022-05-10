@@ -7,11 +7,11 @@ import com.thefirstlineofcode.basalt.protocol.core.Protocol;
 import com.thefirstlineofcode.sand.protocols.core.ModelDescriptor;
 import com.thefirstlineofcode.sand.protocols.devices.light.Flash;
 
-public class Le02ModelDescriptor extends ModelDescriptor {
-	public static final String MODEL_NAME = "LE02";
+public class Ld01ModelDescriptor extends ModelDescriptor {
+	public static final String MODEL_NAME = "LD01";
 
-	public Le02ModelDescriptor() {
-		super(MODEL_NAME, false, createSupportedActions(), null);
+	public Ld01ModelDescriptor() {
+		super(MODEL_NAME, true, createSupportedActions(), null);
 	}
 
 	private static Map<Protocol, Class<?>> createSupportedActions() {

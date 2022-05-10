@@ -13,23 +13,20 @@
 	</parent>
 
 	<groupId>com.thefirstlineofcode.sand.client</groupId>
-	<artifactId>sand-client-things</artifactId>
-	<name>Sand client things library</name>
+	<artifactId>sand-client-edge</artifactId>
+	<name>Sand client edge implementation</name>
 	<packaging>jar</packaging>
 	
 	<dependencies>
 		<dependency>
-			<groupId>com.thefirstlineofcode.sand.protocols</groupId>
-			<artifactId>sand-protocols-concentrator</artifactId>
+			<groupId>com.thefirstlineofcode.sand.client</groupId>
+			<artifactId>sand-client-things</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>com.thefirstlineofcode.sand.protocols</groupId>
-			<artifactId>sand-protocols-actuator</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>com.thefirstlineofcode.basalt</groupId>
-			<artifactId>basalt-oxm</artifactId>
+			<groupId>com.thefirstlineofcode.sand.client</groupId>
+			<artifactId>sand-client-ibdr</artifactId>
 		</dependency>
 	</dependencies>
+	
 </project>
 

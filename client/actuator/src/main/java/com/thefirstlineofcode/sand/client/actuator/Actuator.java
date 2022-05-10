@@ -45,7 +45,7 @@ import com.thefirstlineofcode.sand.client.things.commuication.ICommunicationList
 import com.thefirstlineofcode.sand.client.things.commuication.ICommunicator;
 import com.thefirstlineofcode.sand.client.things.concentrator.IConcentrator;
 import com.thefirstlineofcode.sand.client.things.concentrator.Node;
-import com.thefirstlineofcode.sand.client.things.obm.IObmFactory;
+import com.thefirstlineofcode.sand.client.things.obx.IObxFactory;
 import com.thefirstlineofcode.sand.protocols.actuator.Execution;
 import com.thefirstlineofcode.sand.protocols.actuator.LanExecution;
 import com.thefirstlineofcode.sand.protocols.core.Address;
@@ -72,7 +72,7 @@ public class Actuator implements IActuator, IIqListener {
 	private long defaultLanExecutionTimeout;
 	private int lanExecutionTimeoutCheckInterval;
 	private ExpiredLanExecutionsChecker expiredLanExecutionsChecker;
-	private IObmFactory obmFactory;
+	private IObxFactory obxFactory;
 	private IOxmFactory oxmFactory;
 	private JabberId host;
 	private boolean started;
@@ -99,10 +99,10 @@ public class Actuator implements IActuator, IIqListener {
 	}
 	
 	@Override
-	public void setToConcentrator(IConcentrator concentrator, ITraceIdFactory traceIdFactory, IObmFactory obmFactory) {
+	public void setToConcentrator(IConcentrator concentrator, ITraceIdFactory traceIdFactory, IObxFactory obxFactory) {
 		this.concentrator = concentrator;
 		this.traceIdFactory = traceIdFactory;
-		this.obmFactory = obmFactory;
+		this.obxFactory = obxFactory;
 	}
 	
 	@Override
@@ -423,9 +423,9 @@ public class Actuator implements IActuator, IIqListener {
 			if (lanTraceable) {			
 				LanExecution lanExecution = new LanExecution(traceIdFactory.generateRequestId(), action);
 				traceLanExecution(iq.getFrom(), iq.getTo(), iq.getId(), node, lanExecution, lanTimeout);
-				communicator.send((PA)node.getCommunicationNet().parse(node.getAddress()), obmFactory.toBinary(lanExecution));
+				communicator.send((PA)node.getCommunicationNet().parse(node.getAddress()), obxFactory.toBinary(lanExecution));
 			} else {
-				communicator.send((PA)node.getCommunicationNet().parse(node.getAddress()), obmFactory.toBinary(action));			
+				communicator.send((PA)node.getCommunicationNet().parse(node.getAddress()), obxFactory.toBinary(action));			
 			}
 		} catch (BadAddressException e) {
 			throw new ProtocolException(new InternalServerError(String.format("Bad communication network address: '%s'.", node.getAddress())));
@@ -521,7 +521,7 @@ public class Actuator implements IActuator, IIqListener {
 		if (!isLanExecutionMessage(data))
 			return;
 		
-		LanExecution response = (LanExecution)obmFactory.toObject(data);
+		LanExecution response = (LanExecution)obxFactory.toObject(data);
 		ITraceId responseId = response.getTraceId();
 		for (Node node : concentrator.getNodes().values()) {
 			try {
@@ -617,7 +617,7 @@ public class Actuator implements IActuator, IIqListener {
 	}
 	
 	private boolean isLanExecutionMessage(byte[] data) {
-		return LanExecution.PROTOCOL.equals(obmFactory.readProtocol(data));
+		return LanExecution.PROTOCOL.equals(obxFactory.readProtocol(data));
 	}
 	
 	@Override
@@ -630,7 +630,7 @@ public class Actuator implements IActuator, IIqListener {
 		Protocol lanActionProtocol = new Protocol(protocolObject.namespace(), protocolObject.localName());
 		oxmFactory.unregister(new IqProtocolChain(Execution.PROTOCOL).next(lanActionProtocol));
 
-		return obmFactory.unregisterLanAction(lanActionType);
+		return obxFactory.unregisterLanAction(lanActionType);
 	}
 
 	@Override
@@ -719,7 +719,7 @@ public class Actuator implements IActuator, IIqListener {
 		oxmFactory.register(new IqProtocolChain(Execution.PROTOCOL).next(lanActionProtocol),
 				new NamingConventionParserFactory<>(lanActionType));
 		
-		obmFactory.registerLanAction(lanActionType);
+		obxFactory.registerLanAction(lanActionType);
 	}
 	
 	@Override

@@ -5,8 +5,8 @@ import java.awt.event.WindowEvent;
 import com.thefirstlineofcode.sand.client.lora.IDualLoraChipsCommunicator;
 import com.thefirstlineofcode.sand.client.things.commuication.CommunicationException;
 import com.thefirstlineofcode.sand.client.things.commuication.ICommunicationListener;
-import com.thefirstlineofcode.sand.client.things.obm.IObmFactory;
-import com.thefirstlineofcode.sand.client.things.obm.ObmData;
+import com.thefirstlineofcode.sand.client.things.obx.IObxFactory;
+import com.thefirstlineofcode.sand.client.things.obx.ObxData;
 import com.thefirstlineofcode.sand.emulators.commons.ui.AbstractLogConsolePanel;
 import com.thefirstlineofcode.sand.protocols.lora.DualLoraAddress;
 import com.thefirstlineofcode.sand.protocols.lora.LoraAddress;
@@ -16,7 +16,7 @@ public class GatewayLogConsolePanel extends AbstractLogConsolePanel implements I
 	
 	private IDualLoraChipsCommunicator communicator;
 
-	public GatewayLogConsolePanel(IDualLoraChipsCommunicator communicator, IObmFactory obmFactory) {
+	public GatewayLogConsolePanel(IDualLoraChipsCommunicator communicator, IObxFactory obmFactory) {
 		super(obmFactory);
 		
 		this.communicator = communicator;
@@ -30,20 +30,25 @@ public class GatewayLogConsolePanel extends AbstractLogConsolePanel implements I
 
 	@Override
 	public void sent(LoraAddress to, byte[] data) {
-		ObmData obmData = new ObmData(toObject(data), data);
+		Object obj = toObject(data);
+		ObxData obmData = new ObxData(obj, toXml(data), data);
 		log(String.format("-->%s\n" +
 						"    O: %s\n" +
+						"    X(%d bytes): %s\n" +
 						"    B(%d bytes): %s",
-				to, obmData.getProtocolObjectInfoString(), obmData.getBinary().length, obmData.getHexString()));
+				to, obmData.getProtocolObjectInfoString(), obmData.getBinary().length,
+				obmData.getXml(), obmData.getXml().length(), obmData.getHexString()));
 	}
 
 	@Override
 	public void received(LoraAddress from, byte[] data) {
-		ObmData obmData = new ObmData(toObject(data), data);
+		ObxData obmData = new ObxData(toObject(data), toXml(data), data);
 		log(String.format("<--%s\n" +
 						"    O: %s\n" +
+						"    X(%d bytes): %s\n" +
 						"    B(%d bytes): %s",
-				from, obmData.getProtocolObjectInfoString(), obmData.getBinary().length, obmData.getHexString()));
+				from, obmData.getProtocolObjectInfoString(), obmData.getBinary().length,
+				obmData.getXml(), obmData.getXml().length(), obmData.getHexString()));
 	}
 
 	@Override

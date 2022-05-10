@@ -13,7 +13,7 @@ import com.thefirstlineofcode.sand.client.things.commuication.CommunicationExcep
 import com.thefirstlineofcode.sand.client.things.commuication.IAddressConfigurator;
 import com.thefirstlineofcode.sand.client.things.commuication.ICommunicationListener;
 import com.thefirstlineofcode.sand.client.things.concentrator.IConcentrator;
-import com.thefirstlineofcode.sand.client.things.obm.IObmFactory;
+import com.thefirstlineofcode.sand.client.things.obx.IObxFactory;
 import com.thefirstlineofcode.sand.protocols.lora.DualLoraAddress;
 import com.thefirstlineofcode.sand.protocols.lora.LoraAddress;
 import com.thefirstlineofcode.sand.protocols.lora.dac.Allocated;
@@ -42,17 +42,17 @@ public class ConcentratorDynamicalAddressConfigurator implements IAddressConfigu
 	private String nodeDeviceId;
 	private LoraAddress nodeAddress;
 	
-	private IObmFactory obmFactory;
+	private IObxFactory obxFactory;
 	
 	private State state;
 	
 	private List<Listener> listeners;
 	
 	public ConcentratorDynamicalAddressConfigurator(IDualLoraChipsCommunicator communicator,
-			IConcentrator concentrator, IObmFactory obmFactory) {
+			IConcentrator concentrator, IObxFactory obxFactory) {
 		this.communicator = communicator;
 		this.concentrator =  concentrator;
-		this.obmFactory = obmFactory;
+		this.obxFactory = obxFactory;
 		
 		workingAddress = communicator.getAddress();
 		state = State.STOPPED;
@@ -157,7 +157,7 @@ public class ConcentratorDynamicalAddressConfigurator implements IAddressConfigu
 		
 		try {
 			if (state == State.WAITING) {
-				Introduction introduction = (Introduction)obmFactory.toObject(Introduction.class, data);
+				Introduction introduction = (Introduction)obxFactory.toObject(Introduction.class, data);
 
 				nodeDeviceId = introduction.getDeviceId();
 				LoraAddress introductedAddress = new LoraAddress(introduction.getAddress(), introduction.getFrequencyBand());
@@ -181,7 +181,7 @@ public class ConcentratorDynamicalAddressConfigurator implements IAddressConfigu
 									allocation.getAllocatedFrequencyBand())));
 				};
 
-				byte[] response = obmFactory.toBinary(allocation);
+				byte[] response = obxFactory.toBinary(allocation);
 				communicator.send(introductedAddress, response);
 
 				state = State.ALLOCATING;
@@ -190,7 +190,7 @@ public class ConcentratorDynamicalAddressConfigurator implements IAddressConfigu
 				if (nodeDeviceId == null || nodeAddress == null)
 					throw new IllegalStateException("Null node device ID or Null node address.");
 				
-				Allocated allocated = (Allocated)obmFactory.toObject(Allocated.class, data);
+				Allocated allocated = (Allocated)obxFactory.toObject(Allocated.class, data);
 
 				if (logger.isInfoEnabled()) {
 					logger.info(String.format("Node which's device ID is '%s' has allocated.", allocated.getDeviceId()));
@@ -249,7 +249,7 @@ public class ConcentratorDynamicalAddressConfigurator implements IAddressConfigu
 
 	@Override
 	public void received(LoraAddress from, byte[] data) {
-		Protocol protocol = obmFactory.readProtocol(data);
+		Protocol protocol = obxFactory.readProtocol(data);
 		if (!NAMESPACE_LORA_DAC.equals(protocol.getNamespace())) {
 			return;
 		}

@@ -1,4 +1,4 @@
-package com.thefirstlineofcode.sand.client.things.obm;
+package com.thefirstlineofcode.sand.client.things.obx;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import com.thefirstlineofcode.sand.client.things.ThingsUtils;
+import com.thefirstlineofcode.basalt.oxm.binary.BinaryUtils;
 import com.thefirstlineofcode.sand.protocols.core.ITraceId;
 
 /**
@@ -16,13 +16,15 @@ import com.thefirstlineofcode.sand.protocols.core.ITraceId;
  * @date 2020/4/25
  * @option the data of obm converted
  */
-public class ObmData {
+public class ObxData {
 
 	private Object protocolObject;
+	private String xml;
 	private byte[] binary;
 
-	public ObmData(Object protocolObject, byte[] binary) {
+	public ObxData(Object protocolObject, String xml, byte[] binary) {
 		this.protocolObject = protocolObject;
+		this.xml = xml;
 		this.binary = binary;
 	}
 
@@ -33,6 +35,14 @@ public class ObmData {
 
 	public void setProtocolObject(Object protocolObject) {
 		this.protocolObject = protocolObject;
+	}
+	
+	public String getXml() {
+		return xml;
+	}
+
+	public void setXml(String xml) {
+		this.xml = xml;
 	}
 
 	public byte[] getBinary() {
@@ -47,7 +57,7 @@ public class ObmData {
 		if (binary == null) {
 			return null;
 		}
-		return ThingsUtils.getHexString(binary);
+		return BinaryUtils.getHexStringFromBytes(binary);
 	}
 
 	public String getProtocolObjectInfoString() {

@@ -7,21 +7,20 @@ import java.util.Map;
 
 import com.thefirstlineofcode.basalt.oxm.binary.BinaryUtils;
 import com.thefirstlineofcode.basalt.protocol.core.Protocol;
-import com.thefirstlineofcode.sand.client.things.IDeviceListener;
 import com.thefirstlineofcode.sand.client.things.commuication.CommunicationException;
 import com.thefirstlineofcode.sand.client.things.commuication.ICommunicationListener;
 import com.thefirstlineofcode.sand.client.things.commuication.ICommunicator;
-import com.thefirstlineofcode.sand.client.things.obm.IObmFactory;
-import com.thefirstlineofcode.sand.client.things.obm.IObmFactoryAware;
+import com.thefirstlineofcode.sand.client.things.obx.IObxFactory;
+import com.thefirstlineofcode.sand.client.things.obx.IObxFactoryAware;
 import com.thefirstlineofcode.sand.protocols.actuator.ExecutionException;
 import com.thefirstlineofcode.sand.protocols.actuator.LanExecution;
 import com.thefirstlineofcode.sand.protocols.core.Address;
 
 public abstract class AbstractCommunicationNetworkThingEmulator<OA, PA extends Address> extends AbstractThingEmulator
 		implements ICommunicationNetworkThingEmulator<OA, PA, byte[]>, ICommunicationListener<OA, PA, byte[]>,
-			IObmFactoryAware {
+			IObxFactoryAware {
 	protected ICommunicator<OA, PA, byte[]> communicator;
-	protected IObmFactory obmFactory;
+	protected IObxFactory obxFactory;
 	protected boolean dataReceiving;
 	protected Map<Protocol, Class<?>> supportedActions;
 	
@@ -79,16 +78,6 @@ public abstract class AbstractCommunicationNetworkThingEmulator<OA, PA extends A
 	}
 	
 	@Override
-	public void addDeviceListener(IDeviceListener listener) {
-		deviceListeners.add(listener);
-	}
-	
-	@Override
-	public boolean removeDeviceListener(IDeviceListener listener) {
-		return deviceListeners.remove(listener);
-	}
-	
-	@Override
 	public ICommunicator<OA, PA, byte[]> getCommunicator() {
 		return communicator;
 	}
@@ -130,7 +119,7 @@ public abstract class AbstractCommunicationNetworkThingEmulator<OA, PA extends A
 	}
 
 	private void processLanExecution(PA from, byte[] data) {
-		LanExecution request = (LanExecution)obmFactory.toObject(data);		
+		LanExecution request = (LanExecution)obxFactory.toObject(data);		
 		Object action = request.getLanActionObj();
 		
 		try {
@@ -147,7 +136,7 @@ public abstract class AbstractCommunicationNetworkThingEmulator<OA, PA extends A
 
 	protected void sendToPeer(PA from, LanExecution response) {
 		try {
-			communicator.send(from, obmFactory.toBinary(response));
+			communicator.send(from, obxFactory.toBinary(response));
 		} catch (CommunicationException ce) {
 			ce.printStackTrace();
 		}
@@ -174,19 +163,19 @@ public abstract class AbstractCommunicationNetworkThingEmulator<OA, PA extends A
 	}
 	
 	@Override
-	public void setObmFactory(IObmFactory obmFactory) {
-		this.obmFactory = obmFactory;
+	public void setObxFactory(IObxFactory obxFactory) {
+		this.obxFactory = obxFactory;
 	}
 
 	@Override
 	public void occurred(CommunicationException e) {}
 	
 	protected Protocol readProtocol(byte[] data) {
-		return obmFactory.getBinaryXmppProtocolConverter().readProtocol(data);
+		return obxFactory.getBinaryXmppProtocolConverter().readProtocol(data);
 	}
 	
 	protected <A> A readAction(Class<A> actionType, byte[] data) {
-		return (A)obmFactory.toObject(actionType, data);
+		return (A)obxFactory.toObject(actionType, data);
 	}
 	
 	protected String getDataInfoString(byte[] data) {

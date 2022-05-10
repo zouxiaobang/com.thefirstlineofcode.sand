@@ -1,38 +1,25 @@
 package com.thefirstlineofcode.sand.emulators.wifi.light;
 
-import java.io.IOException;
-import java.io.ObjectInput;
-import java.io.ObjectOutput;
-import java.util.Map;
-
-import javax.naming.OperationNotSupportedException;
-import javax.swing.JOptionPane;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.thefirstlineofcode.chalk.core.IChatClient;
+import com.thefirstlineofcode.chalk.core.AuthFailureException;
 import com.thefirstlineofcode.chalk.core.stream.StandardStreamConfig;
-import com.thefirstlineofcode.chalk.core.stream.StreamConfig;
 import com.thefirstlineofcode.chalk.network.ConnectionException;
-import com.thefirstlineofcode.chalk.network.IConnectionListener;
+import com.thefirstlineofcode.sand.client.actuator.ActuatorPlugin;
+import com.thefirstlineofcode.sand.client.edge.AbstractEdgeDevice;
 import com.thefirstlineofcode.sand.client.ibdr.RegistrationException;
-import com.thefirstlineofcode.sand.emulators.commons.AbstractThingEmulator;
+import com.thefirstlineofcode.sand.client.things.ThingsUtils;
+import com.thefirstlineofcode.sand.client.things.actuator.IActuator;
+import com.thefirstlineofcode.sand.client.things.actuator.IExecutor;
+import com.thefirstlineofcode.sand.client.things.actuator.IExecutorFactory;
 import com.thefirstlineofcode.sand.emulators.commons.Constants;
-import com.thefirstlineofcode.sand.emulators.commons.ILightEmulator;
-import com.thefirstlineofcode.sand.emulators.commons.ui.AbstractThingEmulatorPanel;
 import com.thefirstlineofcode.sand.emulators.commons.ui.LightEmulatorPanel;
 import com.thefirstlineofcode.sand.emulators.things.ILight;
 import com.thefirstlineofcode.sand.protocols.actuator.ExecutionException;
 import com.thefirstlineofcode.sand.protocols.core.DeviceIdentity;
+import com.thefirstlineofcode.sand.protocols.devices.light.Flash;
 
-public class Light extends AbstractThingEmulator implements ILightEmulator, IBgProcessListener {
-	private static final long serialVersionUID = 272824587125544136L;
-	
-	private static final Logger logger = LoggerFactory.getLogger(Light.class);
-	
-	public static final String THING_TYPE = "Light WiFi Emulator";
-	public static final String THING_MODEL = "LE02";
+public class Light extends AbstractEdgeDevice implements ILight {
+	public static final String THING_TYPE = "Light WiFi Device";
+	public static final String THING_MODEL = "LD01";
 	
 	private static final SwitchState DEFAULT_SWITCH_STATE = SwitchState.OFF;
 	private static final LightState DEFAULT_LIGHT_STATE = LightState.OFF;
@@ -40,67 +27,72 @@ public class Light extends AbstractThingEmulator implements ILightEmulator, IBgP
 	private SwitchState switchState;
 	private LightState lightState;
 	
-	private LightFrame lightFrame;
-	
-	private StandardStreamConfig streamConfig;
-	private DeviceIdentity deviceIdentity;
-	
 	private LightEmulatorPanel panel;
 	
-	private IBgProcess bgProcess;
+	private IActuator actuator;
 	
-	private IConnectionListener internetLogListener;
-	
-	public Light(LightFrame lightFrame) {
-		super(THING_TYPE, THING_MODEL);
+	public Light(StandardStreamConfig streamConfig) {
+		super(THING_TYPE, THING_MODEL, streamConfig);
 		
-		this.lightFrame = lightFrame;
-		
-		deviceId = generateDeviceId();
 		switchState = DEFAULT_SWITCH_STATE;
 		lightState = DEFAULT_LIGHT_STATE;
 	}
 	
-	public StreamConfig getStreamConfig() {
-		return streamConfig;
-	}
-	
-	public void setStreamConfig(StandardStreamConfig streamConfig) {
-		this.streamConfig = streamConfig;
-	}
-	
-	public DeviceIdentity getDeviceIdentity() {
-		return deviceIdentity;
+	public void setLightEmulatorPanel(LightEmulatorPanel panel) {
+		this.panel = panel;
 	}
 
-	public void setDeviceIdentity(DeviceIdentity deviceIdentity) {
-		this.deviceIdentity = deviceIdentity;
+	@Override
+	public String getSoftwareVersion() {
+		return Constants.SOFTWARE_VERSION;
 	}
-	
+
 	@Override
 	public SwitchState getSwitchState() {
 		return switchState;
 	}
-	
+
 	@Override
 	public LightState getLightState() {
 		return lightState;
 	}
 	
+	public void changeSwitchState(SwitchState switchState) {
+		if (this.switchState == switchState)
+			return;
+		
+		this.switchState = switchState;		
+		if (switchState == ILight.SwitchState.ON && lightState == ILight.LightState.OFF) {
+			lightState = ILight.LightState.ON;
+			try {
+				turnOn();
+			} catch (ExecutionException e) {
+				throw new RuntimeException("Can't turn on light.", e);
+			}
+		} else if (switchState != ILight.SwitchState.ON && lightState == ILight.LightState.ON) {
+			lightState = ILight.LightState.OFF;
+			try {
+				turnOff();
+			} catch (ExecutionException e) {
+				throw new RuntimeException("Can't turn off light.", e);
+			}
+		}
+	}
+
 	@Override
 	public void turnOn() throws ExecutionException {
 		panel.turnOn();
+		lightState = ILight.LightState.ON;
 	}
-	
+
 	@Override
 	public void turnOff() throws ExecutionException {
 		panel.turnOff();
+		lightState = ILight.LightState.OFF;
 	}
-	
+
+	@Override
 	public void flash(int repeat) throws ExecutionException {
-		if (!isPowered())
-			return;
-		
 		if (repeat < 0)
 			throw new IllegalArgumentException("Repeat must be an positive integer.");
 		
@@ -122,7 +114,7 @@ public class Light extends AbstractThingEmulator implements ILightEmulator, IBgP
 			e.printStackTrace();
 		}
 	}
-
+	
 	private class FlashRunnable implements Runnable {
 		private int repeat;
 		
@@ -179,198 +171,76 @@ public class Light extends AbstractThingEmulator implements ILightEmulator, IBgP
 			}
 		}			
 	}
-	
-	@Override
-	public String getSoftwareVersion() {
-		return Constants.SOFTWARE_VERSION;
-	}
-	
-	@Override
-	public AbstractThingEmulatorPanel<?> getPanel() {
-		if (panel == null) {
-			panel = new LightEmulatorPanel(this);
-		}
-		
-		return panel;
-	}
-	
-	public String getThingStatus() {
-		StringBuilder sb = new StringBuilder();
-		if (powered) {
-			sb.append("Power On, ");
-		} else {
-			sb.append("Power Off, ");
-		}
-		
-		if (bgProcess != null && bgProcess.isConnected()) {
-			sb.append("Connected, ");
-		} else if (deviceIdentity != null) {
-			sb.append("Registered, ");			
-		} else {
-			sb.append("Unregistered, ");			
-		}
-		
-		
-		sb.append("Battery: ").append(batteryPower).append("%, ");
-		
-		sb.append("Device ID: ").append(deviceId);
-		
-		return sb.toString();
 
-	}
-	
 	@Override
-	public void configure(String key, Object value) {
-		// TODO Auto-generated method stub
-		
-	}
-	
+	protected void registerExceptionOccurred(RegistrationException e) {}
+
 	@Override
-	public Map<String, Object> getConfiguration() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-	
+	protected void saveDeviceIdentity(DeviceIdentity identity) {}
+
 	@Override
-	protected void doWriteExternal(ObjectOutput out) throws IOException {
-		if (deviceIdentity != null) {
-			out.writeObject(deviceIdentity);
-		} else {
-			out.writeObject(null);
-		}
-		
-		out.writeObject(switchState);
-		out.writeObject(lightState);
-	}
-	
-	@Override
-	protected void doReadExternal(ObjectInput in) throws IOException, ClassNotFoundException {
-		deviceIdentity = (DeviceIdentity)in.readObject();
-		
-		switchState = (SwitchState)in.readObject();
-		lightState = (LightState)in.readObject();
-	}
-	
-	@Override
-	protected void doPowerOn() {
-		if (switchState == SwitchState.ON || lightState == LightState.ON) {
-			lightState = LightState.ON;					
-			panel.turnOn();
-		}
-		
-		if (streamConfig == null)
-			throw new IllegalStateException("Null stream config. Please set stream config first.");
-		
-		if (bgProcess == null) {
-			bgProcess = new BgProcess(this, streamConfig);	
-		}
-		
-		bgProcess.addBgProcessListener(this);
-		
-		if (internetLogListener != null)
-			bgProcess.addConnectionListener(internetLogListener);
-		
-		bgProcess.start();
+	protected void registerChalkPlugins() {
+		chatClient.register(ActuatorPlugin.class);
 	}
 
 	@Override
-	protected void doPowerOff() {
-		if (switchState == SwitchState.OFF || lightState == LightState.OFF) {			
-			lightState = LightState.OFF;
+	protected void FailedToConnect(ConnectionException e) {}
+
+	@Override
+	protected void failedToAuth(AuthFailureException e) {}
+
+	@Override
+	protected void startIotComponents() {
+		startActuator();
+	}
+	
+	protected void startActuator() {
+		if (actuator == null) {
+			actuator = createActuator();
 		}
-		panel.turnOff();
 		
-		if (bgProcess != null) {			
-			bgProcess.stop();
-			bgProcess = null;
+		actuator.start();
+	}
+
+	protected IActuator createActuator() {
+		IActuator actuator = chatClient.createApi(IActuator.class);
+		actuator.setDeviceModel(getDeviceModel());
+		actuator.registerExecutorFactory(Flash.class, new IExecutorFactory<Flash>() {
+			private IExecutor<Flash> executor = new FlashExecutor(Light.this);
+			
+			@Override
+			public IExecutor<Flash> create() {
+				return executor;
+			}
+			
+		});
+		
+		return actuator;
+	}
+
+	@Override
+	protected void stopIotComponents() {
+		stopActuator();
+	}
+	
+	private void stopActuator() {
+		if (actuator != null) {
+			actuator.stop();
+			actuator = null;
 		}
 	}
-	
+
 	@Override
-	protected void doReset() {
-		throw new RuntimeException(new OperationNotSupportedException("Can't reset WIFI light."));
-	}
-	
+	protected void disconnected() {}
+
 	@Override
-	public void changeSwitchState(SwitchState switchState) {
-		if (this.switchState == switchState)
-			return;
-		
-		this.switchState = switchState;		
-		if (switchState == ILight.SwitchState.ON && lightState == ILight.LightState.OFF) {
-			lightState = ILight.LightState.ON;
-			panel.turnOn();
-		} else if (switchState != ILight.SwitchState.ON && lightState == ILight.LightState.ON) {
-			lightState = ILight.LightState.OFF;
-			panel.turnOff();
-		}
-	}
-	
-	public void setInternetLogListener(IConnectionListener internetLogListener) {
-		this.internetLogListener = internetLogListener;
-		if (bgProcess != null)
-			bgProcess.addConnectionListener(internetLogListener);
-	}
-	
-	public IConnectionListener getInternetLogListener() {
-		return internetLogListener;
-	}
-	
+	protected void loadDeviceAttributes() {}
+
 	@Override
-	public void registered(DeviceIdentity identity) {
-		this.deviceIdentity = identity;
-		panel.updateStatus();
-	}
-	
-	@Override
-	public void registerExceptionOccurred(RegistrationException e) {
-		if (logger.isErrorEnabled())
-			logger.error("Can't connect to host. Failed to auth.", e);
-		
-		JOptionPane.showMessageDialog(lightFrame, "Can't register device. Error: " +
-				e.getError(), "Registration Error", JOptionPane.ERROR_MESSAGE);
-	}
-	
-	@Override
-	public void failedToAuth() {
-		if (logger.isErrorEnabled())
-			logger.error("Can't connect to host. Failed to auth.");
-		
-		JOptionPane.showMessageDialog(lightFrame, "Can't connect to host. Failed to auth.",
-				"Auth Error", JOptionPane.ERROR_MESSAGE);
+	protected String generateDeviceId() {
+		return getDeviceModel() + ThingsUtils.generateRandomId(8);
 	}
 
 	@Override
-	public void FailedToConnect(ConnectionException e) {
-		if (logger.isErrorEnabled())
-			logger.error("Can't connect to host. Connection exception occurred.", e);
-		
-		JOptionPane.showMessageDialog(lightFrame, "Can't connect to host. Connection exception occurred.",
-				"Connection Exception", JOptionPane.ERROR_MESSAGE);
-	}
-
-	@Override
-	public void connected(IChatClient chatClient) {
-		if (logger.isInfoEnabled())
-			logger.info("Connected to host.");
-		
-		panel.updateStatus();
-	}
-
-	@Override
-	public void disconnected() {
-		if (logger.isInfoEnabled())
-			logger.info("disconnected from host.");
-		
-		panel.updateStatus();
-	}
-
-	@Override
-	public void connectionExceptionOccurred(ConnectionException e) {
-		if (logger.isErrorEnabled())
-			logger.error("Connection exception occurred.", e);
-		
-		JOptionPane.showMessageDialog(lightFrame, "Connection exception occurred.",
-				"Connection Exception", JOptionPane.ERROR_MESSAGE);
-	}
+	protected void saveDeviceId(String deviceId) {}
 }

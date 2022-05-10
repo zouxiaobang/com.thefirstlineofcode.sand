@@ -1,4 +1,4 @@
-package com.thefirstlineofcode.sand.client.things.obm;
+package com.thefirstlineofcode.sand.client.things.obx;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -31,7 +31,7 @@ import com.thefirstlineofcode.sand.protocols.actuator.oxm.LanExecutionParserFact
 import com.thefirstlineofcode.sand.protocols.actuator.oxm.LanExecutionTranslatorFactory;
 import com.thefirstlineofcode.sand.protocols.core.ITraceIdFactory;
 
-public class ObmFactory implements IObmFactory {
+public class ObxFactory implements IObxFactory {
 	private static final byte[] MESSAGE_WRAPPER_DATA = new byte[] {(byte)0x60, (byte)0, (byte)1};
 	
 	private IOxmFactory oxmFactory;
@@ -39,11 +39,11 @@ public class ObmFactory implements IObmFactory {
 	private List<Class<?>> registeredObjectTypes;
 	private List<Class<?>> registeredLanActionTypes;
 	
-	public ObmFactory() {
+	public ObxFactory() {
 		this(null);
 	}
 	
-	public ObmFactory(ITraceIdFactory traceIdFactory) {
+	public ObxFactory(ITraceIdFactory traceIdFactory) {
 		oxmFactory = OxmService.createStandardOxmFactory();
 		registeredObjectTypes = new ArrayList<>();
 		registeredLanActionTypes = new ArrayList<>();
@@ -333,5 +333,10 @@ public class ObmFactory implements IObmFactory {
 		registeredLanActionTypes.remove(lanActionType);
 		
 		return true;
+	}
+
+	@Override
+	public String toXml(byte[] data) {
+		return binaryXmppProtocolConverter.toXml(data);
 	}
 }

@@ -102,7 +102,7 @@ public abstract class AbstractLoraThingEmulator extends AbstractCommunicationNet
 			}
 			
 			if (addressConfigurator == null) {
-				addressConfigurator = new NodeDynamicalAddressConfigurator(this, (LoraCommunicator)communicator, obmFactory);
+				addressConfigurator = new NodeDynamicalAddressConfigurator(this, (LoraCommunicator)communicator, obxFactory);
 			}
 			
 			addressConfigurator.introduce();
@@ -184,7 +184,7 @@ public abstract class AbstractLoraThingEmulator extends AbstractCommunicationNet
 	
 	protected void sendToPeer(LoraAddress from, LanExecution response) {
 		try {
-			communicator.send(gatewayUplinkAddress, obmFactory.toBinary(response));
+			communicator.send(gatewayUplinkAddress, obxFactory.toBinary(response));
 		} catch (CommunicationException ce) {
 			ce.printStackTrace();
 		}

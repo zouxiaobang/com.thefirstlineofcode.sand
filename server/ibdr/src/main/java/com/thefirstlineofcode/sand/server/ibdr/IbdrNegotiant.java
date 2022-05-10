@@ -1,5 +1,6 @@
 package com.thefirstlineofcode.sand.server.ibdr;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 
 import com.thefirstlineofcode.basalt.oxm.OxmService;
@@ -156,6 +157,14 @@ public class IbdrNegotiant extends InitialStreamNegotiant {
 			
 			if (t instanceof ProtocolException)
 				return (ProtocolException)t;
+			
+			if (t instanceof InvocationTargetException) {
+				t = ((InvocationTargetException)t).getTargetException();
+				if (t instanceof ProtocolException)
+					return (ProtocolException)t;
+				
+				return new ProtocolException(new InternalServerError(t.getMessage()));
+			}
 		}
 		
 		return null;

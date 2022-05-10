@@ -5,8 +5,8 @@ import java.awt.event.WindowEvent;
 import com.thefirstlineofcode.sand.client.things.commuication.CommunicationException;
 import com.thefirstlineofcode.sand.client.things.commuication.ICommunicationListener;
 import com.thefirstlineofcode.sand.client.things.commuication.ICommunicator;
-import com.thefirstlineofcode.sand.client.things.obm.IObmFactory;
-import com.thefirstlineofcode.sand.client.things.obm.ObmData;
+import com.thefirstlineofcode.sand.client.things.obx.IObxFactory;
+import com.thefirstlineofcode.sand.client.things.obx.ObxData;
 import com.thefirstlineofcode.sand.emulators.commons.ui.AbstractLogConsolePanel;
 import com.thefirstlineofcode.sand.emulators.lora.things.AbstractLoraThingEmulator;
 import com.thefirstlineofcode.sand.protocols.lora.LoraAddress;
@@ -15,7 +15,7 @@ public class ThingLogConsolePanel extends AbstractLogConsolePanel
 		implements ICommunicationListener<LoraAddress, LoraAddress, byte[]> {
 	private static final long serialVersionUID = 506009089461387655L;
 
-	public ThingLogConsolePanel(AbstractLoraThingEmulator thing, IObmFactory obmFactory) {
+	public ThingLogConsolePanel(AbstractLoraThingEmulator thing, IObxFactory obmFactory) {
 		super(obmFactory);
 		
 		((ICommunicator<LoraAddress, LoraAddress, byte[]>)thing.getCommunicator()).addCommunicationListener(this);
@@ -29,20 +29,26 @@ public class ThingLogConsolePanel extends AbstractLogConsolePanel
 
 	@Override
 	public void sent(LoraAddress to, byte[] data) {
-		ObmData obmData = new ObmData(toObject(data), data);
+		ObxData obmData = new ObxData(toObject(data), toXml(data), data);
 		log(String.format("-->%s\n" +
 				"    O: %s\n" +
+				"    X(%d bytes): %s\n" +
 				"    B(%d bytes): %s",
-				to, obmData.getProtocolObjectInfoString(), obmData.getBinary().length, obmData.getHexString()));
+				to, obmData.getProtocolObjectInfoString(),
+				obmData.getXml().length(), obmData.getXml(),
+		obmData.getBinary().length, obmData.getHexString()));
 	}
 
 	@Override
 	public void received(LoraAddress from, byte[] data) {
-		ObmData obmData = new ObmData(toObject(data), data);
+		ObxData obmData = new ObxData(toObject(data), toXml(data), data);
 		log(String.format("<--%s\n" +
 				"    O: %s\n" +
+				"    X(%d bytes): %s\n" +
 				"    B(%d bytes): %s",
-				from, obmData.getProtocolObjectInfoString(), obmData.getBinary().length, obmData.getHexString()));
+				from, obmData.getProtocolObjectInfoString(),
+				obmData.getXml().length(), obmData.getXml(),
+				obmData.getBinary().length, obmData.getHexString()));
 	}
 
 	@Override

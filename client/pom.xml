@@ -20,6 +20,7 @@
 		<module>things</module>
 		<module>ibdr</module>
 		<module>lora</module>
+		<module>edge</module>
 		<module>concentrator</module>
 		<module>actuator</module>
 		<module>operator</module>

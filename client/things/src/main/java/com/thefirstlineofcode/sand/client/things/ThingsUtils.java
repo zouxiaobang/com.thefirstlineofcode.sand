@@ -3,16 +3,6 @@ package com.thefirstlineofcode.sand.client.things;
 import java.util.UUID;
 
 public class ThingsUtils {
-	public static String getHexString(byte[] bytes) {
-		StringBuilder sb = new StringBuilder();
-		for (byte b : bytes) {
-			sb.append(String.format("0x%02x ", b));
-		}
-		
-		sb.deleteCharAt(sb.length() - 1);
-		return sb.toString();
-	}
-	
 	public static String generateRandomId() {
 		return generateRandomId(12);
 	}
@@ -37,7 +27,7 @@ public class ThingsUtils {
 	}
 	
 	public static String getExecutionErrorDescription(String model, String errorCode) {
-		return String.format("Execution error. Global error code: %s", getGlobalErrorCode(model, errorCode));
+		return String.format("Execution error. Global error code: %s.", getGlobalErrorCode(model, errorCode));
 	}
 }
 

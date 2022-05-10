@@ -146,12 +146,19 @@ public class LightEmulatorPanel extends AbstractThingEmulatorPanel<ILightEmulato
 		
 		flash.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent event) {
-				try {
-					light.flash(1);
-				} catch (ExecutionException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
+				new Thread(new Runnable() {
+
+					@Override
+					public void run() {
+						try {
+							light.flash(1);
+						} catch (ExecutionException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}						
+					}
+					
+				}).start();
 			}
 		});
 		
@@ -159,9 +166,6 @@ public class LightEmulatorPanel extends AbstractThingEmulatorPanel<ILightEmulato
 	}
 	
 	public void flash() {
-		if (!light.isPowered())
-			return;
-		
 		turnOn();
 		
 		try {
@@ -206,9 +210,10 @@ public class LightEmulatorPanel extends AbstractThingEmulatorPanel<ILightEmulato
 	}
 	
 	public void turnOn() {
-		if (light.isPowered())
-			lightImage.setIcon(getLightImageIcon(LightState.ON));
+		if (!light.isPowered())
+			return;
 		
+		lightImage.setIcon(getLightImageIcon(LightState.ON));		
 		lightImage.repaint();
 	}
 	

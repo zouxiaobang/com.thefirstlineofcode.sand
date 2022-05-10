@@ -19,7 +19,7 @@ import javax.swing.JTextArea;
 
 import com.thefirstlineofcode.basalt.oxm.binary.BinaryUtils;
 import com.thefirstlineofcode.basalt.protocol.core.Protocol;
-import com.thefirstlineofcode.sand.client.things.obm.IObmFactory;
+import com.thefirstlineofcode.sand.client.things.obx.IObxFactory;
 import com.thefirstlineofcode.sand.emulators.commons.ILogger;
 import com.thefirstlineofcode.sand.protocols.lora.dac.Allocated;
 import com.thefirstlineofcode.sand.protocols.lora.dac.Allocation;
@@ -34,9 +34,9 @@ public abstract class AbstractLogConsolePanel extends JPanel implements ILogger,
 	
 	private JTextArea logConsole;
 	private JButton clear;
-	private final IObmFactory obmFactory;
+	private final IObxFactory obmFactory;
 	
-	public AbstractLogConsolePanel(IObmFactory obmFactory) {
+	public AbstractLogConsolePanel(IObxFactory obmFactory) {
 		this.obmFactory = obmFactory;
 		
 		registerAddressConfigurationProtocolTypes();
@@ -121,7 +121,10 @@ public abstract class AbstractLogConsolePanel extends JPanel implements ILogger,
 			return obmFactory.toObject(actionType, data);
 		}
 		
-		return obmFactory.toObject(data);
-		
+		return obmFactory.toObject(data);		
+	}
+	
+	protected String toXml(byte[] data) {
+		return obmFactory.toXml(data);
 	}
 }
