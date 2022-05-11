@@ -26,8 +26,7 @@ public class UiUtils {
 			public void run() {
 				final JDialog dialog = new JDialog(window, title, ModalityType.MODELESS);
 				dialog.setBounds(getParentCenterBounds(window, 400, 160));
-				JLabel text = new JLabel(message);
-				dialog.add(text);
+				dialog.add(new JLabel(message));
 				dialog.setVisible(true);
 				
 				final Timer timer = new Timer();
