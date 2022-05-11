@@ -32,7 +32,7 @@
 					<plugin>
 						<groupId>org.apache.maven.plugins</groupId>
 						<artifactId>maven-compiler-plugin</artifactId>
-						<version>2.4</version>
+						<version>3.10.1</version>
 						<configuration>
 							<source>1.7</source>
 							<target>1.7</target>
@@ -96,7 +96,7 @@
 	</pluginRepositories>
 
 	<repositories>
-				<repository>
+		<repository>
                         <id>com.thefirstlineofcode.releases</id>
                         <name>TheFirstLineOfCode Repository - Releases</name>
                         <url>http://47.115.36.99/repository/maven-releases/</url>
@@ -111,7 +111,7 @@
 			<name>Central Repository</name>
 			<url>https://repo1.maven.org/maven2</url>
 		</repository>
-  </repositories>
+	</repositories>
 
 	<dependencyManagement>
 		<dependencies>
