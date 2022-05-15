@@ -20,4 +20,15 @@ public class Le01ModelDescriptor extends ModelDescriptor {
 		
 		return supportedActions;
 	}
+	
+	@Override
+	protected int calculateLanExecutionTimeout(Object action) {
+		if (action instanceof Flash) {
+			Flash flash = (Flash)action;
+			
+			return flash.getRepeat() * 2 + 2;
+		}
+		
+		return super.calculateLanExecutionTimeout(action);
+	}
 }

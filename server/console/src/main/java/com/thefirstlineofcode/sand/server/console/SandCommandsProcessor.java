@@ -1,6 +1,5 @@
 package com.thefirstlineofcode.sand.server.console;
 
-import java.lang.reflect.Field;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.HashMap;
@@ -22,8 +21,7 @@ import com.thefirstlineofcode.granite.framework.core.pipeline.stages.event.IEven
 import com.thefirstlineofcode.granite.framework.core.pipeline.stages.event.IEventFirerAware;
 import com.thefirstlineofcode.granite.framework.core.pipeline.stages.processing.IProcessingContext;
 import com.thefirstlineofcode.sand.protocols.actuator.Execution;
-import com.thefirstlineofcode.sand.protocols.devices.simple.gateway.ChangeMode;
-import com.thefirstlineofcode.sand.protocols.devices.simple.light.Flash;
+import com.thefirstlineofcode.sand.protocols.core.ModelDescriptor;
 import com.thefirstlineofcode.sand.server.actuator.ExecutionEvent;
 import com.thefirstlineofcode.sand.server.actuator.IExecutionCallback;
 import com.thefirstlineofcode.sand.server.concentrator.Confirmed;
@@ -71,8 +69,8 @@ public class SandCommandsProcessor extends AbstractCommandsProcessor implements 
 	
 	private Map<String, Protocol> createActionNameToProtocols() {
 		Map<String, Protocol> actionNameToProtocols = new HashMap<>();
-		actionNameToProtocols.put(ACTION_NAME_FLASH, Flash.PROTOCOL);
-		actionNameToProtocols.put(ACTION_NAME_CHANGE_MODE, ChangeMode.PROTOCOL);
+		actionNameToProtocols.put(ACTION_NAME_FLASH, new Protocol("urn:leps:iot:actuator:light", "flash"));
+		actionNameToProtocols.put(ACTION_NAME_CHANGE_MODE, new Protocol("urn:leps:iot:actuator:geteway", "change-mode"));
 		
 		return actionNameToProtocols;
 	}
@@ -190,8 +188,7 @@ public class SandCommandsProcessor extends AbstractCommandsProcessor implements 
 		return params;
 	}
 
-	private boolean isActionSupported(IConsoleSystem consoleSystem, Device device, Protocol protocol) {
-		String model = deviceManager.getModel(device.getDeviceId());
+	private boolean isActionSupported(IConsoleSystem consoleSystem, Device device, String model, Protocol protocol) {
 		if (!deviceManager.isActionSupported(model, protocol)) {
 			consoleSystem.printMessageLine(String.format("Error: Action which's protocol is '%s' isn't supported by device which's device ID is '%s'.",
 					protocol, device.getDeviceId()));
@@ -203,7 +200,8 @@ public class SandCommandsProcessor extends AbstractCommandsProcessor implements 
 	
 	private void executeOnDevice(IConsoleSystem consoleSystem, Device device, Protocol protocol,
 			Map<String, String> params) {
-		if (!isActionSupported(consoleSystem, device, protocol)) {
+		String model = deviceManager.getModel(device.getDeviceId());
+		if (!isActionSupported(consoleSystem, device, model, protocol)) {
 			return;
 		}
 		
@@ -220,44 +218,25 @@ public class SandCommandsProcessor extends AbstractCommandsProcessor implements 
 			return;
 		}
 		
-		if (!isActionSupported(consoleSystem, nodeDevice, protocol)) {
+		String model = deviceManager.getModel(nodeDevice.getDeviceId());
+		if (!isActionSupported(consoleSystem, nodeDevice, model, protocol)) {
 			return;
 		}
 		
 		Object actionObject = createActionObject(consoleSystem, nodeDevice.getModel(), protocol, params);
-		eventFirer.fire(new ExecutionEvent(concentratorDevice, lanId, createExecution(actionObject) ,
+		
+		ModelDescriptor modelDescriptor = deviceManager.getModelDescriptor(model);
+		int lanTimeout = modelDescriptor.guessLanExecutionTimeout(actionObject);
+		
+		eventFirer.fire(new ExecutionEvent(concentratorDevice, lanId, createExecution(actionObject, lanTimeout) ,
 				new ExecutionCallback(concentratorDevice.getDeviceId() + "/" + lanId, protocol, consoleSystem)));
 	}
 	
-	private Execution createExecution(Object actionObject) {
+	private Execution createExecution(Object actionObject, int lanTimeout) {
 		Execution execution = new Execution(actionObject, true);
-		calculateLanTimeout(execution, actionObject);
+		execution.setLanTimeout(lanTimeout);
 		
 		return execution;
-	}
-
-	private void calculateLanTimeout(Execution execute, Object actionObject) {
-		if (actionObject.getClass().getName().endsWith("simple.light.Flash")) {
-			try {
-				Field fRepeat = actionObject.getClass().getField("repeat");
-				int repeat = (int)fRepeat.get(actionObject);
-				
-				int lanTimeout = repeat * 2 + 4;
-				execute.setLanTimeout(lanTimeout);
-			} catch (NoSuchFieldException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (SecurityException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (IllegalArgumentException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (IllegalAccessException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
 	}
 
 	private class ExecutionCallback implements IExecutionCallback {

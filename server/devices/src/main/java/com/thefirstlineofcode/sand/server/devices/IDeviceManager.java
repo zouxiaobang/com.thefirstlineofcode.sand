@@ -20,6 +20,7 @@ public interface IDeviceManager {
 	boolean deviceNameExists(String deviceName);
 	String getDeviceNameByDeviceId(String deviceId);
 	void registerModel(String model, ModelDescriptor modelDescriptor);
+	ModelDescriptor getModelDescriptor(String model);
 	ModelDescriptor unregisterMode(String model);
 	boolean isRegistered(String deviceId);
 	boolean isConcentrator(String model);

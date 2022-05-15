@@ -3,6 +3,8 @@ package com.thefirstlineofcode.sand.protocols.core;
 import java.util.Collections;
 import java.util.Map;
 
+import javax.naming.OperationNotSupportedException;
+
 import com.thefirstlineofcode.basalt.protocol.core.Protocol;
 
 public class ModelDescriptor {
@@ -67,5 +69,20 @@ public class ModelDescriptor {
 	
 	public Map<Protocol, Class<?>> getSupportedEvents() {
 		return supportedEvents == null ? createEmptyMap() : Collections.unmodifiableMap(supportedEvents);
+	}
+	
+	public int guessLanExecutionTimeout(Object action) {
+		for (Class<?> actionType : supportedActions.values()) {
+			if (actionType.equals(action.getClass())) {
+				return calculateLanExecutionTimeout(action);
+			}
+		}
+		
+		throw new IllegalArgumentException(String.format("'%s' isn't an supported action.", action.getClass().getName()));
+	}
+
+	protected int calculateLanExecutionTimeout(Object action) {
+		throw new RuntimeException(String.format("Calculate LAN execution timeout for action '%s' not supported.",
+				action.getClass().getName()), new OperationNotSupportedException());
 	}
 }

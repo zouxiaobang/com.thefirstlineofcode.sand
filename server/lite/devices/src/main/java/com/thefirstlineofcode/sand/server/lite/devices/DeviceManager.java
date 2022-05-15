@@ -189,8 +189,9 @@ public class DeviceManager implements IDeviceManager {
 	public boolean isConcentrator(String model) {
 		return getModelDescriptor(model).isConcentrator();
 	}
-
-	private ModelDescriptor getModelDescriptor(String model) {
+	
+	@Override
+	public ModelDescriptor getModelDescriptor(String model) {
 		ModelDescriptor modelDescriptor = modelDescriptors.get(model);
 		if (modelDescriptor == null)
 			throw new IllegalArgumentException(String.format("Unsupported model: %s.", model));
