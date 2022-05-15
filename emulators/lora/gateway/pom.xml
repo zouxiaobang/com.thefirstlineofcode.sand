@@ -38,6 +38,10 @@
 			<artifactId>sand-client-actuator</artifactId>
 		</dependency>
 		<dependency>
+			<groupId>com.thefirstlineofcode.sand.client.devices</groupId>
+			<artifactId>sand-client-devices-simple-gateway</artifactId>
+		</dependency>
+		<dependency>
 			<groupId>com.thefirstlineofcode.sand.emulators.lora</groupId>
 			<artifactId>sand-emulators-lora-network</artifactId>
 		</dependency>

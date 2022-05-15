@@ -6,11 +6,11 @@ import java.util.Comparator;
 import java.util.List;
 
 import com.thefirstlineofcode.chalk.core.IOrder;
+import com.thefirstlineofcode.sand.client.core.commuication.CommunicationException;
+import com.thefirstlineofcode.sand.client.core.commuication.ICommunicationListener;
 import com.thefirstlineofcode.sand.client.lora.IDualLoraChipsCommunicator;
 import com.thefirstlineofcode.sand.client.lora.ILoraChip;
 import com.thefirstlineofcode.sand.client.lora.LoraData;
-import com.thefirstlineofcode.sand.client.things.commuication.CommunicationException;
-import com.thefirstlineofcode.sand.client.things.commuication.ICommunicationListener;
 import com.thefirstlineofcode.sand.protocols.lora.DualLoraAddress;
 import com.thefirstlineofcode.sand.protocols.lora.LoraAddress;
 

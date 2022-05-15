@@ -10,10 +10,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.thefirstlineofcode.basalt.oxm.binary.BinaryUtils;
+import com.thefirstlineofcode.sand.client.core.commuication.ICommunicationChip;
+import com.thefirstlineofcode.sand.client.core.commuication.ICommunicationNetworkListener;
 import com.thefirstlineofcode.sand.client.lora.ILoraChip;
 import com.thefirstlineofcode.sand.client.lora.LoraData;
-import com.thefirstlineofcode.sand.client.things.commuication.ICommunicationChip;
-import com.thefirstlineofcode.sand.client.things.commuication.ICommunicationNetworkListener;
 import com.thefirstlineofcode.sand.protocols.lora.LoraAddress;
 
 public class LoraNetwork implements ILoraNetwork {

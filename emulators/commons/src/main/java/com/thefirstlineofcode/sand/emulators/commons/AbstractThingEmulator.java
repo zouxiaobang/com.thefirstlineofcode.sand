@@ -7,10 +7,10 @@ import java.io.ObjectOutput;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import com.thefirstlineofcode.sand.client.things.AbstractDevice;
-import com.thefirstlineofcode.sand.client.things.BatteryPowerEvent;
-import com.thefirstlineofcode.sand.client.things.IDeviceListener;
-import com.thefirstlineofcode.sand.client.things.ThingsUtils;
+import com.thefirstlineofcode.sand.client.core.AbstractDevice;
+import com.thefirstlineofcode.sand.client.core.BatteryPowerEvent;
+import com.thefirstlineofcode.sand.client.core.IDeviceListener;
+import com.thefirstlineofcode.sand.client.core.ThingsUtils;
 
 public abstract class AbstractThingEmulator extends AbstractDevice implements IThingEmulator, Externalizable {
 	private static final long serialVersionUID = 5777576412420781910L;

@@ -17,6 +17,7 @@ import com.thefirstlineofcode.chalk.core.stream.StandardStreamConfig;
 import com.thefirstlineofcode.chalk.core.stream.StreamConfig;
 import com.thefirstlineofcode.chalk.network.ConnectionException;
 import com.thefirstlineofcode.chalk.network.IConnectionListener;
+import com.thefirstlineofcode.sand.client.devices.simple.light.ILight;
 import com.thefirstlineofcode.sand.client.edge.IEdgeThingListener;
 import com.thefirstlineofcode.sand.client.ibdr.RegistrationException;
 import com.thefirstlineofcode.sand.emulators.commons.AbstractThingEmulator;
@@ -25,7 +26,6 @@ import com.thefirstlineofcode.sand.emulators.commons.ILightEmulator;
 import com.thefirstlineofcode.sand.emulators.commons.ui.AbstractThingEmulatorPanel;
 import com.thefirstlineofcode.sand.emulators.commons.ui.LightEmulatorPanel;
 import com.thefirstlineofcode.sand.emulators.commons.ui.UiUtils;
-import com.thefirstlineofcode.sand.emulators.things.ILight;
 import com.thefirstlineofcode.sand.protocols.actuator.ExecutionException;
 import com.thefirstlineofcode.sand.protocols.core.DeviceIdentity;
 

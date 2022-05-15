@@ -4,9 +4,9 @@ import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
 
+import com.thefirstlineofcode.sand.client.core.commuication.CommunicationException;
+import com.thefirstlineofcode.sand.client.core.commuication.ICommunicator;
 import com.thefirstlineofcode.sand.client.lora.ILoraChip.PowerType;
-import com.thefirstlineofcode.sand.client.things.commuication.CommunicationException;
-import com.thefirstlineofcode.sand.client.things.commuication.ICommunicator;
 import com.thefirstlineofcode.sand.emulators.commons.AbstractCommunicationNetworkThingEmulator;
 import com.thefirstlineofcode.sand.emulators.lora.network.LoraChipCreationParams;
 import com.thefirstlineofcode.sand.emulators.lora.network.LoraCommunicator;

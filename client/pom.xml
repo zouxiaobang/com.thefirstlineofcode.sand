@@ -17,13 +17,14 @@
 	<name>Sand IoT client plugins</name>
 
 	<modules>
-		<module>things</module>
+		<module>core</module>
 		<module>ibdr</module>
 		<module>lora</module>
 		<module>edge</module>
 		<module>concentrator</module>
 		<module>actuator</module>
 		<module>operator</module>
+		<module>devices</module>
 	</modules>
 
 </project>

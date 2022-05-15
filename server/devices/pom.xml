@@ -22,12 +22,8 @@
 			<artifactId>granite-framework-adf-spring</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>com.thefirstlineofcode.sand.protocols.devices</groupId>
-			<artifactId>sand-protocols-devices-light</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>com.thefirstlineofcode.sand.protocols.devices</groupId>
-			<artifactId>sand-protocols-devices-gateway</artifactId>
+			<groupId>com.thefirstlineofcode.sand.protocols</groupId>
+			<artifactId>sand-protocols-core</artifactId>
 		</dependency>
 	</dependencies>
 </project>

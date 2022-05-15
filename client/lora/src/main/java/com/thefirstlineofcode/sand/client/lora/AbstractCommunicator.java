@@ -6,9 +6,9 @@ import java.util.Comparator;
 import java.util.List;
 
 import com.thefirstlineofcode.chalk.core.IOrder;
-import com.thefirstlineofcode.sand.client.things.commuication.CommunicationException;
-import com.thefirstlineofcode.sand.client.things.commuication.ICommunicationListener;
-import com.thefirstlineofcode.sand.client.things.commuication.ICommunicator;
+import com.thefirstlineofcode.sand.client.core.commuication.CommunicationException;
+import com.thefirstlineofcode.sand.client.core.commuication.ICommunicationListener;
+import com.thefirstlineofcode.sand.client.core.commuication.ICommunicator;
 import com.thefirstlineofcode.sand.protocols.core.Address;
 
 public abstract class AbstractCommunicator<OA, PA extends Address, D> implements ICommunicator<OA, PA, D> {

@@ -18,11 +18,11 @@
 	<dependencies>
 		<dependency>
 			<groupId>com.thefirstlineofcode.sand.protocols.devices</groupId>
-			<artifactId>sand-protocols-devices-gateway</artifactId>
+			<artifactId>sand-protocols-devices-simple-gateway</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>com.thefirstlineofcode.sand.protocols.devices</groupId>
-			<artifactId>sand-protocols-devices-light</artifactId>
+			<artifactId>sand-protocols-devices-simple-light</artifactId>
 		</dependency>
 	</dependencies>
 </project>

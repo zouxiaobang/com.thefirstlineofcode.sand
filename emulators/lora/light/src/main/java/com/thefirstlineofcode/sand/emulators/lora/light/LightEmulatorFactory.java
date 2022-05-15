@@ -1,6 +1,6 @@
 package com.thefirstlineofcode.sand.emulators.lora.light;
 
-import com.thefirstlineofcode.sand.client.things.commuication.ICommunicator;
+import com.thefirstlineofcode.sand.client.core.commuication.ICommunicator;
 import com.thefirstlineofcode.sand.emulators.lora.network.LoraCommunicator;
 import com.thefirstlineofcode.sand.emulators.lora.things.AbstractLoraThingEmulatorFactory;
 import com.thefirstlineofcode.sand.protocols.lora.LoraAddress;

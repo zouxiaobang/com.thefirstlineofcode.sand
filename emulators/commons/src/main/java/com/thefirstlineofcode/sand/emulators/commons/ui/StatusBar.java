@@ -7,7 +7,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 
-import com.thefirstlineofcode.sand.client.things.IDevice;
+import com.thefirstlineofcode.sand.client.core.IDevice;
 
 public class StatusBar extends JPanel {
 	private static final long serialVersionUID = -4540556323673700464L;

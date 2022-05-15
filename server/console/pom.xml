@@ -29,6 +29,14 @@
 			<groupId>com.thefirstlineofcode.sand.server</groupId>
 			<artifactId>sand-server-actuator</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>com.thefirstlineofcode.sand.protocols.devices</groupId>
+			<artifactId>sand-protocols-devices-simple-light</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.thefirstlineofcode.sand.protocols.devices</groupId>
+			<artifactId>sand-protocols-devices-simple-gateway</artifactId>
+		</dependency>
 	</dependencies>
 	
 </project>

@@ -1,6 +1,6 @@
 package com.thefirstlineofcode.sand.emulators.lora.network;
 
-import com.thefirstlineofcode.sand.client.things.commuication.ParamsMap;
+import com.thefirstlineofcode.sand.client.core.commuication.ParamsMap;
 import com.thefirstlineofcode.sand.protocols.lora.LoraAddress;
 
 public class LoraChipCreationParams extends ParamsMap {

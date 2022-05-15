@@ -31,11 +31,11 @@
 		</dependency>
 		<dependency>
 			<groupId>com.thefirstlineofcode.sand.client</groupId>
-			<artifactId>sand-client-things</artifactId>
+			<artifactId>sand-client-core</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>com.thefirstlineofcode.sand.emulators</groupId>
-			<artifactId>sand-emulators-things</artifactId>
+			<groupId>com.thefirstlineofcode.sand.client.devices</groupId>
+			<artifactId>sand-client-devices-simple-light</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>com.thefirstlineofcode.sand.protocols</groupId>

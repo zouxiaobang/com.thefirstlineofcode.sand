@@ -7,11 +7,11 @@ import java.util.Map;
 
 import com.thefirstlineofcode.basalt.oxm.binary.BinaryUtils;
 import com.thefirstlineofcode.basalt.protocol.core.Protocol;
-import com.thefirstlineofcode.sand.client.things.commuication.CommunicationException;
-import com.thefirstlineofcode.sand.client.things.commuication.ICommunicationListener;
-import com.thefirstlineofcode.sand.client.things.commuication.ICommunicator;
-import com.thefirstlineofcode.sand.client.things.obx.IObxFactory;
-import com.thefirstlineofcode.sand.client.things.obx.IObxFactoryAware;
+import com.thefirstlineofcode.sand.client.core.commuication.CommunicationException;
+import com.thefirstlineofcode.sand.client.core.commuication.ICommunicationListener;
+import com.thefirstlineofcode.sand.client.core.commuication.ICommunicator;
+import com.thefirstlineofcode.sand.client.core.obx.IObxFactory;
+import com.thefirstlineofcode.sand.client.core.obx.IObxFactoryAware;
 import com.thefirstlineofcode.sand.protocols.actuator.ExecutionException;
 import com.thefirstlineofcode.sand.protocols.actuator.LanExecution;
 import com.thefirstlineofcode.sand.protocols.core.Address;

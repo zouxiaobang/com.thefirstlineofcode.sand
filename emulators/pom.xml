@@ -17,7 +17,6 @@
 	<name>Sand IoT emulator plugins</name>
 
 	<modules>
-		<module>things</module>
 		<module>commons</module>
 		<module>lora</module>
 		<module>models</module>

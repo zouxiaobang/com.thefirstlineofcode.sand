@@ -18,8 +18,8 @@ import javax.swing.UIManager;
 import javax.swing.plaf.FontUIResource;
 
 import com.thefirstlineofcode.chalk.core.stream.StandardStreamConfig;
-import com.thefirstlineofcode.sand.client.things.BatteryPowerEvent;
-import com.thefirstlineofcode.sand.client.things.IDeviceListener;
+import com.thefirstlineofcode.sand.client.core.BatteryPowerEvent;
+import com.thefirstlineofcode.sand.client.core.IDeviceListener;
 import com.thefirstlineofcode.sand.emulators.commons.Constants;
 import com.thefirstlineofcode.sand.emulators.commons.ui.AboutDialog;
 import com.thefirstlineofcode.sand.emulators.commons.ui.LightEmulatorPanel;

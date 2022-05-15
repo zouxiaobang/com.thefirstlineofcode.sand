@@ -1,9 +1,9 @@
 package com.thefirstlineofcode.sand.emulators.lora.network;
 
+import com.thefirstlineofcode.sand.client.core.commuication.CommunicationException;
 import com.thefirstlineofcode.sand.client.lora.AbstractCommunicator;
 import com.thefirstlineofcode.sand.client.lora.ILoraChip;
 import com.thefirstlineofcode.sand.client.lora.LoraData;
-import com.thefirstlineofcode.sand.client.things.commuication.CommunicationException;
 import com.thefirstlineofcode.sand.protocols.lora.LoraAddress;
 
 public class LoraCommunicator extends AbstractCommunicator<LoraAddress, LoraAddress, byte[]> {

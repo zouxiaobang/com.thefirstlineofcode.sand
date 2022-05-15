@@ -10,7 +10,7 @@ import javax.swing.JFrame;
 import javax.swing.JTabbedPane;
 
 import com.thefirstlineofcode.chalk.network.IConnectionListener;
-import com.thefirstlineofcode.sand.client.things.obx.IObxFactory;
+import com.thefirstlineofcode.sand.client.core.obx.IObxFactory;
 
 public abstract class AbstractLogConsolesDialog extends JDialog {
 	private static final long serialVersionUID = 5197344780011371803L;

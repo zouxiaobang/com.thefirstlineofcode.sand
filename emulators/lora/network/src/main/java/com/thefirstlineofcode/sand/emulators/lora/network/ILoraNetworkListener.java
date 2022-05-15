@@ -1,6 +1,6 @@
 package com.thefirstlineofcode.sand.emulators.lora.network;
 
-import com.thefirstlineofcode.sand.client.things.commuication.ICommunicationNetworkListener;
+import com.thefirstlineofcode.sand.client.core.commuication.ICommunicationNetworkListener;
 import com.thefirstlineofcode.sand.protocols.lora.LoraAddress;
 
 public interface ILoraNetworkListener extends ICommunicationNetworkListener<LoraAddress, byte[]> {

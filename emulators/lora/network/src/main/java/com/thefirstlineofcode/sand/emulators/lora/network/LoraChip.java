@@ -8,9 +8,9 @@ import java.util.TimerTask;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.thefirstlineofcode.sand.client.core.commuication.ICommunicationListener;
 import com.thefirstlineofcode.sand.client.lora.ILoraChip;
 import com.thefirstlineofcode.sand.client.lora.LoraData;
-import com.thefirstlineofcode.sand.client.things.commuication.ICommunicationListener;
 import com.thefirstlineofcode.sand.protocols.lora.LoraAddress;
 
 public class LoraChip implements ILoraChip {

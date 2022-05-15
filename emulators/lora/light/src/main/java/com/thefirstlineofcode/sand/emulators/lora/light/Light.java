@@ -8,15 +8,15 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import com.thefirstlineofcode.basalt.protocol.core.Protocol;
+import com.thefirstlineofcode.sand.client.devices.simple.light.ILight;
 import com.thefirstlineofcode.sand.emulators.commons.ILightEmulator;
 import com.thefirstlineofcode.sand.emulators.commons.ui.AbstractThingEmulatorPanel;
 import com.thefirstlineofcode.sand.emulators.commons.ui.LightEmulatorPanel;
 import com.thefirstlineofcode.sand.emulators.lora.network.LoraCommunicator;
 import com.thefirstlineofcode.sand.emulators.lora.things.AbstractLoraThingEmulator;
 import com.thefirstlineofcode.sand.emulators.models.Le01ModelDescriptor;
-import com.thefirstlineofcode.sand.emulators.things.ILight;
 import com.thefirstlineofcode.sand.protocols.actuator.ExecutionException;
-import com.thefirstlineofcode.sand.protocols.devices.light.Flash;
+import com.thefirstlineofcode.sand.protocols.devices.simple.light.Flash;
 
 public class Light extends AbstractLoraThingEmulator implements ILightEmulator {
 	public static final String THING_TYPE = "Light Emulator";

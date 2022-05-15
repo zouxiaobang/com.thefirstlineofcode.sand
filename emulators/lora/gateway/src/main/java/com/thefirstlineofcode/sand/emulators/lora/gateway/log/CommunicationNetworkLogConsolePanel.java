@@ -5,9 +5,9 @@ import java.awt.event.WindowEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.thefirstlineofcode.sand.client.things.commuication.ICommunicationNetwork;
-import com.thefirstlineofcode.sand.client.things.obx.IObxFactory;
-import com.thefirstlineofcode.sand.client.things.obx.ObxData;
+import com.thefirstlineofcode.sand.client.core.commuication.ICommunicationNetwork;
+import com.thefirstlineofcode.sand.client.core.obx.IObxFactory;
+import com.thefirstlineofcode.sand.client.core.obx.ObxData;
 import com.thefirstlineofcode.sand.emulators.commons.ui.AbstractLogConsolePanel;
 import com.thefirstlineofcode.sand.emulators.lora.network.ILoraNetworkListener;
 import com.thefirstlineofcode.sand.protocols.lora.LoraAddress;

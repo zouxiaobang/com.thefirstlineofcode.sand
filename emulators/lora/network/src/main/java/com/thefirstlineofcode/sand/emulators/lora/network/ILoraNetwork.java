@@ -1,7 +1,7 @@
 package com.thefirstlineofcode.sand.emulators.lora.network;
 
+import com.thefirstlineofcode.sand.client.core.commuication.ICommunicationNetwork;
 import com.thefirstlineofcode.sand.client.lora.ILoraChip;
-import com.thefirstlineofcode.sand.client.things.commuication.ICommunicationNetwork;
 import com.thefirstlineofcode.sand.protocols.lora.LoraAddress;
 
 public interface ILoraNetwork extends ICommunicationNetwork<LoraAddress, byte[], LoraChipCreationParams> {

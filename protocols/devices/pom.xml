@@ -17,8 +17,8 @@
 	<name>Sand IoT protocol libraries for devices</name>
 
 	<modules>
-		<module>gateway</module>
-		<module>light</module>
+		<module>simple-light</module>
+		<module>simple-gateway</module>
 	</modules>
 
 </project>

@@ -1,10 +1,10 @@
 package com.thefirstlineofcode.sand.emulators.lora.things;
 
-import com.thefirstlineofcode.sand.client.things.commuication.CommunicationException;
-import com.thefirstlineofcode.sand.client.things.commuication.IAddressConfigurator;
-import com.thefirstlineofcode.sand.client.things.commuication.ICommunicationListener;
-import com.thefirstlineofcode.sand.client.things.commuication.ICommunicator;
-import com.thefirstlineofcode.sand.client.things.obx.IObxFactory;
+import com.thefirstlineofcode.sand.client.core.commuication.CommunicationException;
+import com.thefirstlineofcode.sand.client.core.commuication.IAddressConfigurator;
+import com.thefirstlineofcode.sand.client.core.commuication.ICommunicationListener;
+import com.thefirstlineofcode.sand.client.core.commuication.ICommunicator;
+import com.thefirstlineofcode.sand.client.core.obx.IObxFactory;
 import com.thefirstlineofcode.sand.emulators.lora.network.LoraCommunicator;
 import com.thefirstlineofcode.sand.protocols.lora.DualLoraAddress;
 import com.thefirstlineofcode.sand.protocols.lora.LoraAddress;

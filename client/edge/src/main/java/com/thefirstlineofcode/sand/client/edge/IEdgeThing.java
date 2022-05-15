@@ -2,7 +2,7 @@ package com.thefirstlineofcode.sand.client.edge;
 
 import com.thefirstlineofcode.chalk.core.stream.StreamConfig;
 import com.thefirstlineofcode.chalk.network.IConnectionListener;
-import com.thefirstlineofcode.sand.client.things.IDevice;
+import com.thefirstlineofcode.sand.client.core.IDevice;
 
 public interface IEdgeThing extends IDevice {
 	StreamConfig getStreamConfig();

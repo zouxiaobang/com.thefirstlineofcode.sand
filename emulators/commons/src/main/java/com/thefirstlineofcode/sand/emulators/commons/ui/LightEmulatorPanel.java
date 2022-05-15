@@ -14,10 +14,10 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 
+import com.thefirstlineofcode.sand.client.devices.simple.light.ILight;
+import com.thefirstlineofcode.sand.client.devices.simple.light.ILight.LightState;
+import com.thefirstlineofcode.sand.client.devices.simple.light.ILight.SwitchState;
 import com.thefirstlineofcode.sand.emulators.commons.ILightEmulator;
-import com.thefirstlineofcode.sand.emulators.things.ILight;
-import com.thefirstlineofcode.sand.emulators.things.ILight.LightState;
-import com.thefirstlineofcode.sand.emulators.things.ILight.SwitchState;
 import com.thefirstlineofcode.sand.protocols.actuator.ExecutionException;
 
 public class LightEmulatorPanel extends AbstractThingEmulatorPanel<ILightEmulator> implements ActionListener  {

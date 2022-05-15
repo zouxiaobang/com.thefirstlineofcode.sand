@@ -11,10 +11,10 @@ import com.thefirstlineofcode.chalk.core.stream.StreamConfig;
 import com.thefirstlineofcode.chalk.core.stream.UsernamePasswordToken;
 import com.thefirstlineofcode.chalk.network.ConnectionException;
 import com.thefirstlineofcode.chalk.network.IConnectionListener;
+import com.thefirstlineofcode.sand.client.core.AbstractDevice;
 import com.thefirstlineofcode.sand.client.ibdr.IRegistration;
 import com.thefirstlineofcode.sand.client.ibdr.IbdrPlugin;
 import com.thefirstlineofcode.sand.client.ibdr.RegistrationException;
-import com.thefirstlineofcode.sand.client.things.AbstractDevice;
 import com.thefirstlineofcode.sand.protocols.core.DeviceIdentity;
 
 public abstract class AbstractEdgeDevice extends AbstractDevice implements IEdgeThing, IConnectionListener {

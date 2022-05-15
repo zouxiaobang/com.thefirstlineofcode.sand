@@ -9,8 +9,8 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 
-import com.thefirstlineofcode.sand.client.things.BatteryPowerEvent;
-import com.thefirstlineofcode.sand.client.things.IDeviceListener;
+import com.thefirstlineofcode.sand.client.core.BatteryPowerEvent;
+import com.thefirstlineofcode.sand.client.core.IDeviceListener;
 import com.thefirstlineofcode.sand.emulators.commons.IThingEmulator;
 
 public abstract class AbstractThingEmulatorPanel<T extends IThingEmulator> extends JPanel implements IDeviceListener {	

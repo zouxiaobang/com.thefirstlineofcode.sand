@@ -19,10 +19,10 @@ import com.thefirstlineofcode.basalt.protocol.core.stanza.error.StanzaError;
 import com.thefirstlineofcode.chalk.core.IChatServices;
 import com.thefirstlineofcode.chalk.core.ITask;
 import com.thefirstlineofcode.chalk.core.IUnidirectionalStream;
-import com.thefirstlineofcode.sand.client.things.commuication.ICommunicator;
-import com.thefirstlineofcode.sand.client.things.concentrator.IConcentrator;
-import com.thefirstlineofcode.sand.client.things.concentrator.IModelRegistrar;
-import com.thefirstlineofcode.sand.client.things.concentrator.Node;
+import com.thefirstlineofcode.sand.client.core.commuication.ICommunicator;
+import com.thefirstlineofcode.sand.client.core.concentrator.IConcentrator;
+import com.thefirstlineofcode.sand.client.core.concentrator.IModelRegistrar;
+import com.thefirstlineofcode.sand.client.core.concentrator.Node;
 import com.thefirstlineofcode.sand.protocols.core.CommunicationNet;
 
 public class Concentrator implements IConcentrator {

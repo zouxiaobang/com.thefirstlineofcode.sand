@@ -1,6 +1,6 @@
 package com.thefirstlineofcode.sand.client.lora;
 
-import com.thefirstlineofcode.sand.client.things.commuication.ICommunicationChip;
+import com.thefirstlineofcode.sand.client.core.commuication.ICommunicationChip;
 import com.thefirstlineofcode.sand.protocols.lora.LoraAddress;
 
 public interface ILoraChip extends ICommunicationChip<LoraAddress, byte[]> {

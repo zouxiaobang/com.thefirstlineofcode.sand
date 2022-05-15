@@ -5,7 +5,7 @@ import java.util.Map;
 
 import com.thefirstlineofcode.basalt.protocol.core.Protocol;
 import com.thefirstlineofcode.sand.protocols.core.ModelDescriptor;
-import com.thefirstlineofcode.sand.protocols.devices.gateway.ChangeMode;
+import com.thefirstlineofcode.sand.protocols.devices.simple.gateway.ChangeMode;
 
 public class Ge01ModelDescriptor extends ModelDescriptor {
 	public static final String MODEL_NAME = "GE01";

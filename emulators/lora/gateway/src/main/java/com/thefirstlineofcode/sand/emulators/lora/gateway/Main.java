@@ -2,8 +2,8 @@ package com.thefirstlineofcode.sand.emulators.lora.gateway;
 
 import com.thefirstlineofcode.chalk.utils.LogConfigurator;
 import com.thefirstlineofcode.chalk.utils.LogConfigurator.LogLevel;
+import com.thefirstlineofcode.sand.client.core.commuication.ICommunicator;
 import com.thefirstlineofcode.sand.client.lora.IDualLoraChipsCommunicator;
-import com.thefirstlineofcode.sand.client.things.commuication.ICommunicator;
 import com.thefirstlineofcode.sand.emulators.lora.light.LightEmulatorFactory;
 import com.thefirstlineofcode.sand.emulators.lora.network.DualLoraChipsCommunicator;
 import com.thefirstlineofcode.sand.emulators.lora.network.LoraChip;

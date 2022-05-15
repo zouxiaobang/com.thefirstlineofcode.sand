@@ -4,18 +4,19 @@ import com.thefirstlineofcode.chalk.core.AuthFailureException;
 import com.thefirstlineofcode.chalk.core.stream.StandardStreamConfig;
 import com.thefirstlineofcode.chalk.network.ConnectionException;
 import com.thefirstlineofcode.sand.client.actuator.ActuatorPlugin;
+import com.thefirstlineofcode.sand.client.core.ThingsUtils;
+import com.thefirstlineofcode.sand.client.core.actuator.IActuator;
+import com.thefirstlineofcode.sand.client.core.actuator.IExecutor;
+import com.thefirstlineofcode.sand.client.core.actuator.IExecutorFactory;
+import com.thefirstlineofcode.sand.client.devices.simple.light.FlashExecutor;
+import com.thefirstlineofcode.sand.client.devices.simple.light.ILight;
 import com.thefirstlineofcode.sand.client.edge.AbstractEdgeDevice;
 import com.thefirstlineofcode.sand.client.ibdr.RegistrationException;
-import com.thefirstlineofcode.sand.client.things.ThingsUtils;
-import com.thefirstlineofcode.sand.client.things.actuator.IActuator;
-import com.thefirstlineofcode.sand.client.things.actuator.IExecutor;
-import com.thefirstlineofcode.sand.client.things.actuator.IExecutorFactory;
 import com.thefirstlineofcode.sand.emulators.commons.Constants;
 import com.thefirstlineofcode.sand.emulators.commons.ui.LightEmulatorPanel;
-import com.thefirstlineofcode.sand.emulators.things.ILight;
 import com.thefirstlineofcode.sand.protocols.actuator.ExecutionException;
 import com.thefirstlineofcode.sand.protocols.core.DeviceIdentity;
-import com.thefirstlineofcode.sand.protocols.devices.light.Flash;
+import com.thefirstlineofcode.sand.protocols.devices.simple.light.Flash;
 
 public class Light extends AbstractEdgeDevice implements ILight {
 	public static final String THING_TYPE = "Light WiFi Device";

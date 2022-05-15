@@ -22,7 +22,7 @@ import com.google.zxing.BarcodeFormat;
 import com.google.zxing.client.j2se.MatrixToImageWriter;
 import com.google.zxing.common.BitMatrix;
 import com.google.zxing.qrcode.QRCodeWriter;
-import com.thefirstlineofcode.sand.client.things.IDevice;
+import com.thefirstlineofcode.sand.client.core.IDevice;
 
 public class CopyDeviceIdOrShowQrCodeButton extends JSplitButton {
 	private static final long serialVersionUID = -2163217242326846012L;

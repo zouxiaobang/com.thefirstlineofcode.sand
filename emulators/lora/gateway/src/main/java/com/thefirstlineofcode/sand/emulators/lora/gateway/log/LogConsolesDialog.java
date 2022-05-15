@@ -5,10 +5,10 @@ import java.util.Map;
 
 import javax.swing.JFrame;
 
+import com.thefirstlineofcode.sand.client.core.commuication.ICommunicationNetwork;
+import com.thefirstlineofcode.sand.client.core.commuication.ICommunicationNetworkListener;
+import com.thefirstlineofcode.sand.client.core.obx.IObxFactory;
 import com.thefirstlineofcode.sand.client.lora.IDualLoraChipsCommunicator;
-import com.thefirstlineofcode.sand.client.things.commuication.ICommunicationNetwork;
-import com.thefirstlineofcode.sand.client.things.commuication.ICommunicationNetworkListener;
-import com.thefirstlineofcode.sand.client.things.obx.IObxFactory;
 import com.thefirstlineofcode.sand.emulators.commons.ui.AbstractLogConsolesDialog;
 import com.thefirstlineofcode.sand.emulators.lora.things.AbstractLoraThingEmulator;
 import com.thefirstlineofcode.sand.protocols.lora.LoraAddress;

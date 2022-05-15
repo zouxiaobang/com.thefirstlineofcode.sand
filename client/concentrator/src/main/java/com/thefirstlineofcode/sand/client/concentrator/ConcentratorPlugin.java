@@ -9,7 +9,7 @@ import com.thefirstlineofcode.basalt.oxm.convention.NamingConventionTranslatorFa
 import com.thefirstlineofcode.basalt.protocol.core.IqProtocolChain;
 import com.thefirstlineofcode.chalk.core.IChatSystem;
 import com.thefirstlineofcode.chalk.core.IPlugin;
-import com.thefirstlineofcode.sand.client.things.concentrator.IConcentrator;
+import com.thefirstlineofcode.sand.client.core.concentrator.IConcentrator;
 
 public class ConcentratorPlugin implements IPlugin {
 	@Override
