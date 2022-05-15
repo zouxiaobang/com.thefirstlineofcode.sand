@@ -19,8 +19,8 @@
 	<modules>
 		<module>network</module>
 		<module>things</module>
-		<module>gateway</module>
-		<module>light</module>
+		<module>simple-light</module>
+		<module>simple-gateway</module>
 	</modules>
 
 </project>
