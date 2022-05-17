@@ -27,7 +27,7 @@ public class DeviceClientMessageProcessor extends StandardClientMessageProcessor
 		IStreamNegotiant resourceBinding = new DeviceResourceBindingNegotiant(
 				hostName, sessionManager);
 		IStreamNegotiant sessionEstablishment = new SessionEstablishmentNegotiant(
-				router, sessionManager, eventMessageChannel, sessionListenerDelegate);
+				router, sessionManager, eventFirer, sessionListenerDelegate);
 		
 		resourceBinding.setNext(sessionEstablishment);
 		sasl.setNext(resourceBinding);

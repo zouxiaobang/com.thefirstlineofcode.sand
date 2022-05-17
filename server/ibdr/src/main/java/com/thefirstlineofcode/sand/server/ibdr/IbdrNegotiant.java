@@ -20,8 +20,7 @@ import com.thefirstlineofcode.basalt.protocol.core.stream.Feature;
 import com.thefirstlineofcode.basalt.protocol.core.stream.Stream;
 import com.thefirstlineofcode.granite.framework.core.connection.IClientConnectionContext;
 import com.thefirstlineofcode.granite.framework.core.pipeline.IMessage;
-import com.thefirstlineofcode.granite.framework.core.pipeline.IMessageChannel;
-import com.thefirstlineofcode.granite.framework.core.pipeline.SimpleMessage;
+import com.thefirstlineofcode.granite.framework.core.pipeline.stages.event.IEventFirer;
 import com.thefirstlineofcode.granite.pipeline.stages.stream.negotiants.InitialStreamNegotiant;
 import com.thefirstlineofcode.sand.protocols.ibdr.DeviceRegister;
 import com.thefirstlineofcode.sand.protocols.ibdr.oxm.DeviceRegisterParserFactory;
@@ -56,13 +55,13 @@ public class IbdrNegotiant extends InitialStreamNegotiant {
 	}
 	
 	private IDeviceRegistrar registrar;
-	private IMessageChannel eventMessageChannel;
+	private IEventFirer eventFirer;
 	
-	public IbdrNegotiant(String domainName, List<Feature> features, IDeviceRegistrar registrar, IMessageChannel eventMessageChannel) {
+	public IbdrNegotiant(String domainName, List<Feature> features, IDeviceRegistrar registrar, IEventFirer eventFirer) {
 		super(domainName, features);
 		
 		this.registrar = registrar;
-		this.eventMessageChannel = eventMessageChannel;
+		this.eventFirer = eventFirer;
 	}
 	
 	protected boolean doNegotiate(IClientConnectionContext context, IMessage message) {
@@ -119,7 +118,7 @@ public class IbdrNegotiant extends InitialStreamNegotiant {
 			
 			context.write(translatingFactory.translate(result));
 			
-			eventMessageChannel.send(new SimpleMessage(registrationEvent));
+			eventFirer.fire(registrationEvent);
 		} catch (RuntimeException e) {
 			// Standard client message processor doesn't support processing stanza error in normal situation.
 			// So we process the exception by self.

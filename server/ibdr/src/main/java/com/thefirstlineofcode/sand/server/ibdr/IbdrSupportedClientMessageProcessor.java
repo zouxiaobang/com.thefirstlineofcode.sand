@@ -33,7 +33,7 @@ public class IbdrSupportedClientMessageProcessor extends DeviceClientMessageProc
 					getTlsNegotiantAdvertisements());
 			
 			IStreamNegotiant ibdrAfterTls = new IbdrNegotiant(hostName, getTlsNegotiantAdvertisements(),
-					registrar, eventMessageChannel);
+					registrar, eventFirer);
 			
 			IStreamNegotiant sasl = new SaslNegotiant(hostName,
 					saslSupportedMechanisms, saslAbortRetries, saslFailureRetries,
@@ -42,7 +42,7 @@ public class IbdrSupportedClientMessageProcessor extends DeviceClientMessageProc
 			IStreamNegotiant resourceBinding = new ResourceBindingNegotiant(
 					hostName, sessionManager);
 			IStreamNegotiant sessionEstablishment = new SessionEstablishmentNegotiant(
-					router, sessionManager, eventMessageChannel, sessionListenerDelegate);
+					router, sessionManager, eventFirer, sessionListenerDelegate);
 			
 			resourceBinding.setNext(sessionEstablishment);
 			sasl.setNext(resourceBinding);
@@ -56,13 +56,13 @@ public class IbdrSupportedClientMessageProcessor extends DeviceClientMessageProc
 					getInitialStreamNegotiantAdvertisements());
 			
 			IStreamNegotiant ibdrBeforeTls = new IbdrNegotiant(hostName, getInitialStreamNegotiantAdvertisements(),
-					registrar, eventMessageChannel);
+					registrar, eventFirer);
 			
 			IStreamNegotiant tls = new IbdrSupportedTlsNegotiant(hostName, tlsRequired,
 					getTlsNegotiantAdvertisements());
 			
 			IStreamNegotiant ibdrAfterTls = new IbdrNegotiant(hostName, getTlsNegotiantAdvertisements(),
-					registrar, eventMessageChannel);
+					registrar, eventFirer);
 			
 			IStreamNegotiant sasl = new SaslNegotiant(hostName,
 					saslSupportedMechanisms, saslAbortRetries, saslFailureRetries,
@@ -71,7 +71,7 @@ public class IbdrSupportedClientMessageProcessor extends DeviceClientMessageProc
 			IStreamNegotiant resourceBinding = new ResourceBindingNegotiant(
 					hostName, sessionManager);
 			IStreamNegotiant sessionEstablishment = new SessionEstablishmentNegotiant(
-					router, sessionManager, eventMessageChannel, sessionListenerDelegate);
+					router, sessionManager, eventFirer, sessionListenerDelegate);
 			
 			resourceBinding.setNext(sessionEstablishment);
 			sasl.setNext(resourceBinding);
