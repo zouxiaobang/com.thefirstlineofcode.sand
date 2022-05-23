@@ -56,7 +56,6 @@
 	</dependencies>
 	
 	<build>
-		<finalName>lora-gateway-${project.version}</finalName>
 		<plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -66,8 +65,8 @@
 					<archive>
 						<manifest>
 							<addClasspath>true</addClasspath>
-							<classpathPrefix>lib/</classpathPrefix>
-							<mainClass>com.thefirstlineofcode.sand.emulators.lora.gateway.Main</mainClass>
+							<classpathPrefix>libs/</classpathPrefix>
+							<mainClass>com.thefirstlineofcode.sand.emulators.lora.simple.gateway.Main</mainClass>
 						</manifest>
 					</archive>
 				</configuration>

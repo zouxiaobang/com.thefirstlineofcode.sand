@@ -118,13 +118,13 @@ public class Actuator implements IActuator, IIqListener {
 			execute(iq, execute);
 		} catch (ProtocolException e) {
 			if (logger.isErrorEnabled())
-				logger.error(String.format("Failed to execute the action {} which was sent from '{}' on device '{}'.",
+				logger.error(String.format("Failed to execute the action %s which was sent from '%s' on device '%s'.",
 						execute.getAction(), iq.getFrom() == null ? host : iq.getFrom()), e);
 			
 			throw e;
 		} catch (RuntimeException e) {
 			if (logger.isErrorEnabled())
-				logger.error(String.format("Failed to execute the action {} which was sent from '{}' on device '{}'.",
+				logger.error(String.format("Failed to execute the action %s which was sent from '%s' on device '%s'.",
 						execute.getAction(), iq.getFrom() == null ? host : iq.getFrom()), e);
 			
 			throw new ProtocolException(new InternalServerError(), e);
@@ -180,12 +180,12 @@ public class Actuator implements IActuator, IIqListener {
 			executeOnLanNode(iq, action, execution.isLanTraceable(), execution.getLanTimeout());
 		} else {
 			if (logger.isErrorEnabled()) {
-				logger.error(String.format("Can't find the device which's JID is '{}' to execute the action which was sent from '%s'.",
-						iq.getTo(), from));
+				logger.error("Can't find the device which's JID is '{}' to execute the action which was sent from '{}'.",
+						iq.getTo(), from);
 			}
 			
 			throw new ProtocolException(new BadRequest(
-					String.format("Can't find the device which's JID is '{}' to execute the action which was sent from '%s'.",
+					String.format("Can't find the device which's JID is '%s' to execute the action which was sent from '%s'.",
 							iq.getTo(), from)));
 		}
 	}
@@ -541,7 +541,7 @@ public class Actuator implements IActuator, IIqListener {
 									break;
 								} else {
 									if (logger.isErrorEnabled()) {
-										logger.error(String.format("Can't find the request trace ID which generate the response ID: %s. Maybe the request is timeout.", BinaryUtils.getHexStringFromBytes(data)));
+										logger.error("Can't find the request trace ID which generate the response ID: {}. Maybe the request is timeout.", BinaryUtils.getHexStringFromBytes(data));
 									}
 								}
 							}

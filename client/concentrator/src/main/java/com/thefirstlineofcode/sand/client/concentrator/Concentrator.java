@@ -89,7 +89,7 @@ public class Concentrator implements IConcentrator {
 			for (Entry<String, Node> entry : nodes.entrySet()) {
 				if (entry.getValue().getDeviceId().equals(node.getDeviceId())) {
 					if (logger.isErrorEnabled()) {
-						logger.error(String.format("Reduplicate device ID: %s.", node.getDeviceId()));
+						logger.error("Reduplicate device ID: {}.", node.getDeviceId());
 					}
 					
 					for (Listener listener : listeners) {
@@ -101,7 +101,7 @@ public class Concentrator implements IConcentrator {
 				
 				if (entry.getValue().getAddress().equals(node.getAddress())) {
 					if (logger.isErrorEnabled()) {
-						logger.error(String.format("Reduplicate device address: %s.", node.getAddress()));
+						logger.error("Reduplicate device address: {}.", node.getAddress());
 					}
 					
 					for (Listener listener : listeners) {
@@ -115,8 +115,8 @@ public class Concentrator implements IConcentrator {
 			chatServices.getTaskService().execute(new NodeCreationTask(node));
 			
 			if (logger.isDebugEnabled()) {
-				logger.debug(String.format("Node creation request for node which's deviceID is '%s' and address is %s has sent.",
-						deviceId, nodeAddress));
+				logger.debug("Node creation request for node which's deviceID is '{}' and address is '{}' has sent.",
+						deviceId, nodeAddress);
 			}
 		}
 	}
@@ -148,7 +148,7 @@ public class Concentrator implements IConcentrator {
 		public void processResponse(IUnidirectionalStream<Iq> stream, Iq iq) {
 			if (iq.getType() != Iq.Type.RESULT || iq.getObject() == null) {
 				if (logger.isErrorEnabled()) {
-					logger.error(String.format("Server returns a bad response. Result is %s.", iq));
+					logger.error("Server returns a bad response. Result is {}.", iq);
 				}
 				
 				for (IConcentrator.Listener listener : listeners) {
@@ -163,7 +163,7 @@ public class Concentrator implements IConcentrator {
 			Node confirmingNode = nodes.get(iq.getId());
 			if (confirmingNode == null) {
 				if (logger.isErrorEnabled()) {
-					logger.error(String.format("Confirming node which's device ID is '%s' not found.", nodeCreated.getNode()));
+					logger.error("Confirming node which's device ID is '{}' not found.", nodeCreated.getNode());
 				}
 				
 				for (IConcentrator.Listener listener : listeners) {
@@ -178,8 +178,8 @@ public class Concentrator implements IConcentrator {
 					nodeCreated.getLanId() == null ||
 					nodeCreated.getModel() == null) {
 				if (logger.isErrorEnabled()) {
-					logger.error(String.format("Bad node created response. Confirming node is %s and created node is %s.",
-							getConfirmingNodeInfo(confirmingNode), getNodeCreatedInfo(nodeCreated)));
+					logger.error("Bad node created response. Confirming node is {} and created node is {}.",
+							getConfirmingNodeInfo(confirmingNode), getNodeCreatedInfo(nodeCreated));
 				}
 				
 				for (IConcentrator.Listener listener : listeners) {
@@ -193,7 +193,7 @@ public class Concentrator implements IConcentrator {
 				for (String existedLanId : nodes.keySet()) {
 					if (existedLanId.equals(nodeCreated.getLanId())) {
 						if (logger.isErrorEnabled()) {
-							logger.error(String.format("Server assigned a reduplicate LAN ID: %s.", nodeCreated.getLanId()));
+							logger.error("Server assigned a reduplicate LAN ID: {}.", nodeCreated.getLanId());
 						}
 						
 						for (IConcentrator.Listener listener : listeners) {
@@ -238,8 +238,8 @@ public class Concentrator implements IConcentrator {
 		@Override
 		public boolean processError(IUnidirectionalStream<Iq> stream, StanzaError error) {
 			if (logger.isErrorEnabled()) {
-				logger.error(String.format("Some errors occurred while creating node. Error defined condition: '%s'. Error text: '%s'.",
-						error.getDefinedCondition(), error.getText()));
+				logger.error("Some errors occurred while creating node. Error defined condition: '{}'. Error text: '{}'.",
+						error.getDefinedCondition(), error.getText());
 			}
 			
 			try {
@@ -262,8 +262,7 @@ public class Concentrator implements IConcentrator {
 		@Override
 		public boolean processTimeout(IUnidirectionalStream<Iq> stream, Iq iq) {
 			if (logger.isErrorEnabled()) {
-				logger.error(String.format("Timeout on node[%s, %s] creation.",
-						node.getDeviceId(), node.getLanId()));
+				logger.error("Timeout on node[{}, {}] creation.", node.getDeviceId(), node.getLanId());
 			}
 			
 			nodes.remove(node.getLanId());

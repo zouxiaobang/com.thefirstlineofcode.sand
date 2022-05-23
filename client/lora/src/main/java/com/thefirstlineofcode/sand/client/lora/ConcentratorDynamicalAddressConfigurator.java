@@ -106,7 +106,7 @@ public class ConcentratorDynamicalAddressConfigurator implements IAddressConfigu
 				communicator.changeAddress(workingAddress);
 				
 				if (logger.isDebugEnabled()) {
-					logger.debug("Change to working mode. Current address is " + communicator.getAddress());
+					logger.debug("Change to working mode. Current address is '{}'.", communicator.getAddress());
 				}
 			} catch (CommunicationException e) {
 				throw new RuntimeException("Failed to change address.", e);
@@ -145,7 +145,7 @@ public class ConcentratorDynamicalAddressConfigurator implements IAddressConfigu
 	public synchronized void negotiate(LoraAddress peerAddress, byte[] data) {
 		if (state == State.STOPPED) {
 			if (logger.isWarnEnabled()) {
-				logger.warn(String.format("Receiving address configuration request from '%s' in State.STOPPED state.", peerAddress));
+				logger.warn("Receiving address configuration request from '{}' in State.STOPPED state.", peerAddress);
 			}
 
 			return;
@@ -163,7 +163,7 @@ public class ConcentratorDynamicalAddressConfigurator implements IAddressConfigu
 				LoraAddress introductedAddress = new LoraAddress(introduction.getAddress(), introduction.getFrequencyBand());
 				
 				if (logger.isInfoEnabled()) {
-					logger.info(String.format("Receving an intrduction request from %s, %s.", introduction.getAddress(), introduction.getFrequencyBand()));
+					logger.info("Receving an intrduction request from {}, {}.", introduction.getAddress(), introduction.getFrequencyBand());
 				}
 				
 				Allocation allocation = new Allocation();
@@ -176,9 +176,9 @@ public class ConcentratorDynamicalAddressConfigurator implements IAddressConfigu
 				allocation.setAllocatedFrequencyBand(nodeAddress.getFrequencyBand());
 
 				if (logger.isInfoEnabled()) {
-					logger.info(String.format("Node allocation: %s: %s => %s.",
-							nodeDeviceId, peerAddress, new LoraAddress(allocation.getAllocatedAddress(),
-									allocation.getAllocatedFrequencyBand())));
+					logger.info("Node allocation: {}: {} => {}.", nodeDeviceId, peerAddress,
+							new LoraAddress(allocation.getAllocatedAddress(),
+									allocation.getAllocatedFrequencyBand()));
 				};
 
 				byte[] response = obxFactory.toBinary(allocation);
@@ -193,7 +193,7 @@ public class ConcentratorDynamicalAddressConfigurator implements IAddressConfigu
 				Allocated allocated = (Allocated)obxFactory.toObject(Allocated.class, data);
 
 				if (logger.isInfoEnabled()) {
-					logger.info(String.format("Node which's device ID is '%s' has allocated.", allocated.getDeviceId()));
+					logger.info("Node which's device ID is '{}' has allocated.", allocated.getDeviceId());
 				}
 				
 				if (!nodeDeviceId.equals(allocated.getDeviceId())) {
@@ -228,7 +228,7 @@ public class ConcentratorDynamicalAddressConfigurator implements IAddressConfigu
 
 	private void processParallelAddressConfigurationRequest(LoraAddress peerAddress) {
 		if (logger.isWarnEnabled()) {
-			logger.warn(String.format("Parallel address configuration request from '%s'.", peerAddress.getAddress()));
+			logger.warn("Parallel address configuration request from '{}'.", peerAddress.getAddress());
 		}
 		
 		throw new ProtocolException(new Conflict(String.format("Parallel address configuration request from %s.", peerAddress.getAddress())));

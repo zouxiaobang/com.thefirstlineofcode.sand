@@ -192,9 +192,9 @@ public class LoraNetwork implements ILoraNetwork {
 		signals.remove(received);
 		if (isLost(received)) {
 			if (logger.isDebugEnabled()) {
-				logger.debug(String.format("Lora signal[%s, %s, %s] is lost.",
+				logger.debug("Lora signal[{}, {}, {}] is lost.",
 							BinaryUtils.getHexStringFromBytes(received.data),
-							received.from, received.to));
+							received.from, received.to);
 			}
 			
 			for (ILoraNetworkListener listener : listeners) {
