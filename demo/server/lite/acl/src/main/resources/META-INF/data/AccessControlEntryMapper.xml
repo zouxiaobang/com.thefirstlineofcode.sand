@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thefirstlineofcode.sand.demo.server.lite.acl.AccessControlEntryMapper">
+	<insert id="insert" parameterType="AccessControlEntry">
+		INSERT INTO ACCESS_CONTROL_ENTRIES(id, user, device, role, removed, update_time) VALUES(#{id}, #{user}, #{role}, FALSE, CURRENT_TIMESTAMP)
+	</insert>
+	
+	<update id="remove">
+		UPDATE ACCESS_CONTROL_ENTRIES SET removed = TRUE, update_time = CURRENT_TIMESTAMP WHERE user = #{arg0} AND device_id = #{arg1} AND removed = FALSE
+	</update>
+	
+	<update id="updateRole">
+		UPDATE ACCESS_CONTROL_ENTRIES SET role = #{2}, update_time = CURRENT_TIMESTAMP WHERE user = #{arg0} AND device_id = #{arg1} AND removed = FALSE
+	</update>
+	
+	<select id="selectByUser" resultMap="accessControlEntryResultMap">
+		SELECT * FROM ACCESS_CONTROL_ENTRIES WHERE user = #{arg0} AND removed = FALSE ORDER BY update_time DESC
+	</select>
+	
+	<select id="selectByDeviceId" resultMap="accessControlEntryResultMap">
+		SELECT * FROM ACCESS_CONTROL_ENTRIES WHERE device_id = #{arg0} AND removed = FALSE ORDER BY update_time DESC
+	</select>
+	
+	<select id="selectOwnerByDeviceId" resultType="string">
+		SELECT user FROM ACCESS_CONTROL_ENTRIES WHERE device_id = #{arg0} AND role = "OWNER" AND removed = FALSE
+	</select>
+	
+	<select id="selectRoleByUserAndDeviceId" resultType="com.thefirstlineofcode.sand.demo.protocols.AccessControlList$Role">
+		SELECT role FROM ACCESS_CONTROL_ENTRIES WHERE device_id = #{arg0} AND role = "OWNER" AND removed = FALSE
+	</select>
+	
+	<resultMap id="accessControlEntryResultMap" type="AccessControlEntry">
+		<result property="user" column="user"/>
+		<result property="deviceId" column="device_id"/>
+		<result property="role" column="role"/>
+		<result property="updateTime" column="update_time"/>
+	</resultMap>
+</mapper>

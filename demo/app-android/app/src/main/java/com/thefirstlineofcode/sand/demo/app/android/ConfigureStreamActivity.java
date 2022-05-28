@@ -1,4 +1,4 @@
-package com.firstlinecode.sand.demo.app.android;
+package com.thefirstlineofcode.sand.demo.app.android;
 
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -9,7 +9,8 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.firstlinecode.chalk.core.stream.StandardStreamConfig;
+import com.thefirstlineofcode.sand.demo.app.android.R;
+import com.thefirstlineofcode.chalk.core.stream.StandardStreamConfig;
 
 import java.net.Inet4Address;
 import java.net.InetAddress;

@@ -46,11 +46,11 @@ public class CreateNodeProcessor implements IXepProcessor<Iq, CreateNode>, IData
 			throw new RuntimeException("Can't get the concentrator.");
 		
 		if (concentrator.containsNode(xep.getDeviceId())) {
-			throw new ProtocolException(new Conflict(String.format("Duplicated node which's ID is '%s'.", xep.getDeviceId())));
+			throw new ProtocolException(new Conflict(String.format("Reduplicate node which's ID is '%s'.", xep.getDeviceId())));
 		}
 		
 		if (concentrator.containsLanId(xep.getLanId())) {
-			throw new ProtocolException(new Conflict(String.format("Duplicated LAN ID: '%s'.", xep.getLanId())));
+			throw new ProtocolException(new Conflict(String.format("Reduplicate LAN ID: '%s'.", xep.getLanId())));
 			
 		}
 		

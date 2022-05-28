@@ -4,14 +4,15 @@ import com.thefirstlineofcode.basalt.protocol.core.ProtocolException;
 import com.thefirstlineofcode.basalt.protocol.core.stanza.Iq;
 import com.thefirstlineofcode.basalt.protocol.core.stanza.error.BadRequest;
 import com.thefirstlineofcode.basalt.protocol.core.stanza.error.Forbidden;
-import com.thefirstlineofcode.granite.framework.core.annotations.Dependency;
+import com.thefirstlineofcode.granite.framework.core.annotations.BeanDependency;
 import com.thefirstlineofcode.granite.framework.core.pipeline.stages.processing.IProcessingContext;
 import com.thefirstlineofcode.granite.framework.core.pipeline.stages.processing.IXepProcessor;
+import com.thefirstlineofcode.sand.demo.protocols.AccessControlEntry;
 import com.thefirstlineofcode.sand.demo.protocols.AccessControlList;
 import com.thefirstlineofcode.sand.demo.protocols.AccessControlList.Role;
 
 public class AccessControlListProcessor implements IXepProcessor<Iq, AccessControlList> {
-	@Dependency("access.control.list.service")
+	@BeanDependency
 	private IAccessControlListService aclService;
 
 	@Override
@@ -40,20 +41,26 @@ public class AccessControlListProcessor implements IXepProcessor<Iq, AccessContr
 	private void getAccessControlList(IProcessingContext context, Iq iq, AccessControlList xep) {
 		AccessControlList acl = null;
 		if (xep.getDeviceId() == null) {
-			acl = aclService.getByUser(context.getJid().getBareIdString(), xep.getLastModifiedTime());
+			acl = aclService.getUserAcl(context.getJid().getBareIdString());
 		} else {
 			Role role = aclService.getRole(context.getJid().getBareIdString(), xep.getDeviceId());
 			if (role == null)
 				throw new ProtocolException(new Forbidden());
 			
 			if (role == AccessControlList.Role.OWNER) {
-				acl = aclService.getByOwnerAndDevice(context.getJid().getBareIdString(), xep.getDeviceId(), xep.getLastModifiedTime());
+				acl = aclService.getOwnerAcl(xep.getDeviceId());
 			} else {
-				acl = aclService.getByUserAndDevice(context.getJid().getBareIdString(), xep.getDeviceId(), xep.getLastModifiedTime());
+				AccessControlEntry entry = new AccessControlEntry();
+				entry.setDeviceId(xep.getDeviceId());
+				entry.setUser(context.getJid().getBareIdString());
+				entry.setRole(role);
+				
+				acl = new AccessControlList();
+				acl.add(entry);
 			}
-			
-			context.write(new Iq(acl, Iq.Type.RESULT, iq.getId()));
 		}
+		
+		context.write(new Iq(Iq.Type.RESULT, acl, iq.getId()));
 	}
 
 }

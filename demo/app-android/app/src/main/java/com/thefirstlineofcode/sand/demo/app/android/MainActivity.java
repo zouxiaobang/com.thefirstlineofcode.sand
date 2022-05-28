@@ -1,4 +1,4 @@
-package com.firstlinecode.sand.demo.app.android;
+package com.thefirstlineofcode.sand.demo.app.android;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -13,15 +13,16 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
-import com.firstlinecode.basalt.protocol.core.IError;
-import com.firstlinecode.basalt.protocol.core.stanza.Iq;
-import com.firstlinecode.basalt.protocol.core.stream.error.StreamError;
-import com.firstlinecode.chalk.core.IChatClient;
-import com.firstlinecode.chalk.core.IErrorListener;
-import com.firstlinecode.sand.client.operator.IOperator;
-import com.firstlinecode.sand.demo.client.AclError;
-import com.firstlinecode.sand.demo.client.IAclService;
-import com.firstlinecode.sand.demo.protocols.AccessControlList;
+import com.thefirstlineofcode.sand.demo.app.android.R;
+import com.thefirstlineofcode.basalt.protocol.core.IError;
+import com.thefirstlineofcode.basalt.protocol.core.stanza.Iq;
+import com.thefirstlineofcode.basalt.protocol.core.stream.error.StreamError;
+import com.thefirstlineofcode.chalk.core.IChatClient;
+import com.thefirstlineofcode.chalk.core.IErrorListener;
+import com.thefirstlineofcode.sand.client.operator.IOperator;
+import com.thefirstlineofcode.sand.demo.client.AclError;
+import com.thefirstlineofcode.sand.demo.client.IAclService;
+import com.thefirstlineofcode.sand.demo.protocols.AccessControlList;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 

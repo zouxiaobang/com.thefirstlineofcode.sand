@@ -27,6 +27,7 @@
     <string name="stream_config_enable_tls" translatable="false">stream-config-enable-tls</string>
     <string name="user_name_has_existed">User name %s has already existed. Please change your user name.</string>
     <string name="invalid_user_name">Invalid user name. Please change your user name.</string>
+    <string name="ibr_not_supported">Can\'t register. IBR protocol not be supported.</string>
     <string name="network_error">Network error. Please try later.</string>
     <string name="unknown_error">Unknown error: %s. Please contact the developer.</string>
     <string name="user_has_registered">User has already registered.</string>

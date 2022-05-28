@@ -1,4 +1,4 @@
-package com.firstlinecode.sand.demo.app.android;
+package com.thefirstlineofcode.sand.demo.app.android;
 
 import android.content.Context;
 

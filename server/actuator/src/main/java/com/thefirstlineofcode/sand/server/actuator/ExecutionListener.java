@@ -59,7 +59,7 @@ public class ExecutionListener implements IEventListener<ExecutionEvent>, IIqRes
 		
 		String deviceName = deviceManager.getDeviceNameByDeviceId(event.getDevice().getDeviceId());
 		
-		Iq iq = new Iq(event.getExecution(), Iq.Type.SET);
+		Iq iq = new Iq(Iq.Type.SET, event.getExecution());
 		
 		if (isConcentrator && event.getNodeLanId() != null) {			
 			iq.setTo(new JabberId(deviceName, domain, event.getNodeLanId()));

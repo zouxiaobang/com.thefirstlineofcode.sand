@@ -36,8 +36,11 @@ public abstract class AbstractThingEmulator extends AbstractDevice implements IT
 	}
 	
 	protected void stopBatteryTimer() {
-		batteryTimer.stop();
-		batteryTimer = null;
+		if (batteryTimer != null) {
+			batteryTimer.stop();
+			
+			batteryTimer = null;
+		}
 	}
 
 	protected String generateDeviceId() {

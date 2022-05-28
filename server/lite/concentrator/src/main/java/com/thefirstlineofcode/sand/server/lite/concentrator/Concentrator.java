@@ -51,7 +51,7 @@ public class Concentrator implements IConcentrator, IDataObjectFactoryAware {
 			throw new RuntimeException(String.format("Invalid node device ID '%s'.", nodeDeviceId));
 		
 		if (containsNode(nodeDeviceId))
-			throw new ProtocolException(new Conflict(String.format("Duplicated node which's ID is '%s'.", nodeDeviceId)));
+			throw new ProtocolException(new Conflict(String.format("Reduplicate node which's ID is '%s'.", nodeDeviceId)));
 		
 		D_NodeConfirmation confirmation = getNodeConfirmation(deviceId, nodeDeviceId);
 		if (confirmation == null) {
@@ -64,12 +64,12 @@ public class Concentrator implements IConcentrator, IDataObjectFactoryAware {
 		}
 		
 		if (containsLanId(nodeDeviceId))
-			throw new ProtocolException(new Conflict(String.format("Duplicated LAN ID('%'). The node's ID is '%s'.",
+			throw new ProtocolException(new Conflict(String.format("Reduplicate LAN ID('%'). The node's ID is '%s'.",
 					confirmation.getNode().getLanId(), nodeDeviceId)));
 		
 		Device device = dataObjectFactory.create(Device.class);
 		device.setDeviceId(nodeDeviceId);
-		device.setModel(deviceManager.getModel(nodeDeviceId));
+		device.setModel(model);
 		device.setRegistrationTime(Calendar.getInstance().getTime());
 		deviceManager.create(device);
 		
@@ -118,11 +118,11 @@ public class Concentrator implements IConcentrator, IDataObjectFactoryAware {
 		}
 		
 		if (containsNode(confirmation.getNode().getDeviceId())) {
-			throw new ProtocolException(new Conflict(String.format("Duplicated node which's ID is '%s'.", confirmation.getNode().getDeviceId())));
+			throw new ProtocolException(new Conflict(String.format("Reduplicate node which's ID is '%s'.", confirmation.getNode().getDeviceId())));
 		}
 		
 		if (containsLanId(confirmation.getNode().getLanId()))
-			throw new ProtocolException(new Conflict(String.format("Duplicated land ID '%s'.", confirmation.getNode().getLanId())));
+			throw new ProtocolException(new Conflict(String.format("Reduplicate land ID '%s'.", confirmation.getNode().getLanId())));
 		
 		getNodeComfirmationMapper().insert(confirmation);
 	}

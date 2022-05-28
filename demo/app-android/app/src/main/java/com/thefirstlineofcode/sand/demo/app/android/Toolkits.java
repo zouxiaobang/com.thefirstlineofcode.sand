@@ -1,17 +1,15 @@
-package com.firstlinecode.sand.demo.app.android;
+package com.thefirstlineofcode.sand.demo.app.android;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.SharedPreferences;
-import android.view.View;
 
-import com.firstlinecode.basalt.protocol.core.IError;
-import com.firstlinecode.chalk.core.stream.NegotiationException;
-import com.firstlinecode.chalk.core.stream.StandardStreamConfig;
-import com.firstlinecode.chalk.core.stream.UsernamePasswordToken;
+import com.thefirstlineofcode.basalt.protocol.core.IError;
+import com.thefirstlineofcode.chalk.core.stream.NegotiationException;
+import com.thefirstlineofcode.chalk.core.stream.StandardStreamConfig;
+import com.thefirstlineofcode.chalk.core.stream.UsernamePasswordToken;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -104,6 +102,9 @@ class Toolkits {
 	}
 
 	static NegotiationException findNegotiationException(RuntimeException e) {
+		if (e instanceof NegotiationException)
+			return (NegotiationException)e;
+
 		Throwable t = e;
 		while (t.getCause() != null) {
 			if (t.getCause() instanceof NegotiationException)

@@ -1,2 +1,2 @@
-rootProject.name='com.firstlinecode.sand.demo.app.android'
+rootProject.name='com.thefirstlineofcode.sand.demo.app.android'
 include ':app'

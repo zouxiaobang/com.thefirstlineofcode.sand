@@ -1,11 +1,11 @@
-package com.firstlinecode.sand.demo.app.android;
+package com.thefirstlineofcode.sand.demo.app.android;
 
 import android.content.Context;
 
-import com.firstlinecode.chalk.core.IChatClient;
-import com.firstlinecode.chalk.android.StandardChatClient;
-import com.firstlinecode.sand.client.operator.OperatorPlugin;
-import com.firstlinecode.sand.demo.client.DemoPlugin;
+import com.thefirstlineofcode.chalk.core.IChatClient;
+import com.thefirstlineofcode.chalk.android.StandardChatClient;
+import com.thefirstlineofcode.sand.client.operator.OperatorPlugin;
+import com.thefirstlineofcode.sand.demo.client.DemoPlugin;
 
 class ChatClientSingleton {
 	private static IChatClient chatClient;

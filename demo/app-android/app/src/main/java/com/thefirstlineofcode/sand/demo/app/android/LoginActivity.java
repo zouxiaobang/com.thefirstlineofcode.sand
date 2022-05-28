@@ -1,4 +1,4 @@
-package com.firstlinecode.sand.demo.app.android;
+package com.thefirstlineofcode.sand.demo.app.android;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -13,12 +13,13 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import com.firstlinecode.basalt.protocol.core.IError;
-import com.firstlinecode.chalk.core.AuthFailureException;
-import com.firstlinecode.chalk.core.IChatClient;
-import com.firstlinecode.chalk.core.stream.NegotiationException;
-import com.firstlinecode.chalk.core.stream.UsernamePasswordToken;
-import com.firstlinecode.chalk.network.ConnectionException;
+import com.thefirstlineofcode.sand.demo.app.android.R;
+import com.thefirstlineofcode.basalt.protocol.core.IError;
+import com.thefirstlineofcode.chalk.core.AuthFailureException;
+import com.thefirstlineofcode.chalk.core.IChatClient;
+import com.thefirstlineofcode.chalk.core.stream.NegotiationException;
+import com.thefirstlineofcode.chalk.core.stream.UsernamePasswordToken;
+import com.thefirstlineofcode.chalk.network.ConnectionException;
 
 public class LoginActivity extends AppCompatActivity {
 	public static final int INTERNET_PERMISSION_REQUEST_CODE = 1;

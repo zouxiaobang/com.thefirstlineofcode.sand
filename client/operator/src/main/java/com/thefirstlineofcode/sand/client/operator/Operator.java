@@ -28,7 +28,7 @@ public class Operator implements IOperator {
 
 			@Override
 			public void trigger(IUnidirectionalStream<Iq> stream) {
-				stream.send(new Iq(new AuthorizeDevice(deviceId), Iq.Type.SET));
+				stream.send(new Iq(Iq.Type.SET, new AuthorizeDevice(deviceId)));
 			}
 
 			@Override
@@ -83,7 +83,7 @@ public class Operator implements IOperator {
 	@Override
 	public void cancelAuthorization(String deviceId) {
 		// TODO Auto-generated method stub
-		chatServices.getIqService().send(new Iq(new AuthorizeDevice(deviceId, true), Iq.Type.SET));
+		chatServices.getIqService().send(new Iq(Iq.Type.SET, new AuthorizeDevice(deviceId, true)));
 	}
 
 	@Override

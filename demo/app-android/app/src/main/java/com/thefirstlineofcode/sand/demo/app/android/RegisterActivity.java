@@ -1,4 +1,4 @@
-package com.firstlinecode.sand.demo.app.android;
+package com.thefirstlineofcode.sand.demo.app.android;
 
 import android.Manifest;
 import android.content.Context;
@@ -13,19 +13,20 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 
-import com.firstlinecode.basalt.protocol.core.IError;
-import com.firstlinecode.basalt.xeps.ibr.IqRegister;
-import com.firstlinecode.basalt.xeps.ibr.RegistrationField;
-import com.firstlinecode.basalt.xeps.ibr.RegistrationForm;
-import com.firstlinecode.chalk.android.StandardChatClient;
-import com.firstlinecode.chalk.core.IChatClient;
-import com.firstlinecode.chalk.core.stream.NegotiationException;
-import com.firstlinecode.chalk.core.stream.StandardStreamConfig;
-import com.firstlinecode.chalk.xeps.ibr.IRegistration;
-import com.firstlinecode.chalk.xeps.ibr.IRegistrationCallback;
-import com.firstlinecode.chalk.xeps.ibr.IbrError;
-import com.firstlinecode.chalk.xeps.ibr.IbrPlugin;
-import com.firstlinecode.chalk.xeps.ibr.RegistrationException;
+import com.thefirstlineofcode.sand.demo.app.android.R;
+import com.thefirstlineofcode.basalt.protocol.core.IError;
+import com.thefirstlineofcode.basalt.xeps.ibr.IqRegister;
+import com.thefirstlineofcode.basalt.xeps.ibr.RegistrationField;
+import com.thefirstlineofcode.basalt.xeps.ibr.RegistrationForm;
+import com.thefirstlineofcode.chalk.android.StandardChatClient;
+import com.thefirstlineofcode.chalk.core.IChatClient;
+import com.thefirstlineofcode.chalk.core.stream.NegotiationException;
+import com.thefirstlineofcode.chalk.core.stream.StandardStreamConfig;
+import com.thefirstlineofcode.chalk.xeps.ibr.IRegistration;
+import com.thefirstlineofcode.chalk.xeps.ibr.IRegistrationCallback;
+import com.thefirstlineofcode.chalk.xeps.ibr.IbrError;
+import com.thefirstlineofcode.chalk.xeps.ibr.IbrPlugin;
+import com.thefirstlineofcode.chalk.xeps.ibr.RegistrationException;
 
 public class RegisterActivity extends AppCompatActivity {
 	public static final int INTERNET_PERMISSION_REQUEST_CODE = 1;
@@ -96,7 +97,9 @@ public class RegisterActivity extends AppCompatActivity {
 				}
 			} catch (RuntimeException e) {
 				NegotiationException ne = Toolkits.findNegotiationException(e);
-				if (ne != null && ne.getAdditionalErrorInfo() instanceof IError) {
+				if (ne != null && (ne.getAdditionalErrorInfo() == IbrError.NOT_SUPPORTED)) {
+					Toast.makeText(context, context.getString(R.string.ibr_not_supported), Toast.LENGTH_LONG).show();
+				} else if (ne != null && ne.getAdditionalErrorInfo() instanceof IError) {
 					IError error = (IError)ne.getAdditionalErrorInfo();
 					Toast.makeText(context, context.getString(R.string.unknown_error,
 							Toolkits.getErrorInfo(error)), Toast.LENGTH_LONG).show();

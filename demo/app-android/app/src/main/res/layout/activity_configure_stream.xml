@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.firstlinecode.sand.demo.app.android.ConfigureStreamActivity">
+    tools:context="com.thefirstlineofcode.sand.demo.app.android.ConfigureStreamActivity">
 
     <EditText
         android:id="@+id/host"

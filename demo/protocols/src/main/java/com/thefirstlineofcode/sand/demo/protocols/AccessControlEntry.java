@@ -6,12 +6,10 @@ import com.thefirstlineofcode.basalt.protocol.HandyUtils;
 import com.thefirstlineofcode.sand.demo.protocols.AccessControlList.Role;
 
 public class AccessControlEntry {
-	public static final String USER_SELF = null;
-	
 	@NotNull
 	private String user;
-	private String device;
-	private String parent;
+	@NotNull
+	private String deviceId;
 	@NotNull
 	@String2Enum(Role.class)
 	private Role role;
@@ -19,28 +17,19 @@ public class AccessControlEntry {
 	
 	public AccessControlEntry() {}
 	
-	public AccessControlEntry(String user, String device) {
-		this(user, device, null, null);
-	}
-	
-	public AccessControlEntry(String user, String device, Role role) {
-		this(user, device, null, role);
-	}
-	
-	public AccessControlEntry(String user, String device, String parent , Role role) {
+	public AccessControlEntry(String user, String deviceId, Role role) {
 		this.user = user;
-		this.device = device;
-		this.parent = parent;
+		this.deviceId = deviceId;
 		this.role = role;
 		this.remove = null;
 	}
 	
-	public String getDevice() {
-		return device;
+	public String getDeviceId() {
+		return deviceId;
 	}
 	
-	public void setDevice(String device) {
-		this.device = device;
+	public void setDeviceId(String deviceId) {
+		this.deviceId = deviceId;
 	}
 	
 	public String getUser() {
@@ -59,16 +48,8 @@ public class AccessControlEntry {
 		this.role = role;
 	}
 	
-	public String getParent() {
-		return parent;
-	}
-	
-	public void setParent(String parent) {
-		this.parent = parent;
-	}
-	
-	public Boolean getRemove() {
-		return (remove != null && remove) ? remove : null;
+	public Boolean isRemove() {
+		return remove != null && remove;
 	}
 
 	public void setRemove(Boolean remove) {
@@ -82,11 +63,8 @@ public class AccessControlEntry {
 		if (user != null)
 			hash += 31 * hash + user.hashCode();
 		
-		if (device != null)
-			hash += 31 * hash + device.hashCode();
-		
-		if (parent != null)
-			hash += 31 * hash + parent.hashCode();
+		if (deviceId != null)
+			hash += 31 * hash + deviceId.hashCode();
 		
 		if (role != null)
 			hash += 31 * hash + role.hashCode();
@@ -104,10 +82,7 @@ public class AccessControlEntry {
 			if (!this.user.equals(other.user))
 				return false;
 			
-			if (!HandyUtils.equalsEvenNull(this.device, other.device))
-				return false;
-			
-			if (!HandyUtils.equalsEvenNull(this.parent, other.parent))
+			if (!HandyUtils.equalsEvenNull(this.deviceId, other.deviceId))
 				return false;
 			
 			if (!this.role.equals(other.role))

@@ -6,7 +6,6 @@ import java.util.List;
 
 import com.thefirstlineofcode.basalt.protocol.core.stanza.Iq;
 import com.thefirstlineofcode.basalt.protocol.core.stanza.error.StanzaError;
-import com.thefirstlineofcode.basalt.protocol.datetime.DateTime;
 import com.thefirstlineofcode.chalk.core.IChatServices;
 import com.thefirstlineofcode.chalk.core.ITask;
 import com.thefirstlineofcode.chalk.core.IUnidirectionalStream;
@@ -40,26 +39,16 @@ public class AclService implements IAclService, IIqListener {
 	
 	@Override
 	public void retrieve(String deviceId) {
-		retrieve(deviceId, null);
+		retrieve(deviceId, DEFAULT_RETRIEVE_TIMEOUT);
 	}
 
 	@Override
-	public void retrieve(String deviceId, DateTime lastModifiedTime) {
-		retrieve(deviceId, lastModifiedTime, DEFAULT_RETRIEVE_TIMEOUT);
-	}
-
-	@Override
-	public void retrieve(String deviceId, int timeout) {
-		retrieve(deviceId, null, DEFAULT_RETRIEVE_TIMEOUT);
-	}
-
-	@Override
-	public void retrieve(final String deviceId, final DateTime lastModifiedTime, final int timeout) {
+	public void retrieve(final String deviceId, final int timeout) {
 		chatServices.getTaskService().execute(new ITask<Iq>() {
 			@Override
 			public void trigger(IUnidirectionalStream<Iq> stream) {
 				Iq iq = new Iq(Iq.Type.GET);
-				iq.setObject(new AccessControlList(deviceId, lastModifiedTime));
+				iq.setObject(new AccessControlList());
 				
 				stream.send(iq, timeout);
 			}
@@ -110,8 +99,8 @@ public class AclService implements IAclService, IIqListener {
 		if (!acl.getEntries().isEmpty()) {
 			String deviceId = acl.getDeviceId();
 			for (AccessControlEntry ace : acl.getEntries()) {
-				if (deviceId != null && ace.getDevice() == null) {
-					ace.setDevice(deviceId);
+				if (deviceId != null && ace.getDeviceId() == null) {
+					ace.setDeviceId(deviceId);
 				}
 				
 				if (ace.getUser() == null) {

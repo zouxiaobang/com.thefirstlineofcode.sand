@@ -5,10 +5,8 @@ import java.util.List;
 
 import com.thefirstlineofcode.basalt.oxm.convention.annotations.Array;
 import com.thefirstlineofcode.basalt.oxm.convention.annotations.ProtocolObject;
-import com.thefirstlineofcode.basalt.oxm.convention.conversion.annotations.String2DateTime;
 import com.thefirstlineofcode.basalt.protocol.HandyUtils;
 import com.thefirstlineofcode.basalt.protocol.core.Protocol;
-import com.thefirstlineofcode.basalt.protocol.datetime.DateTime;
 
 @ProtocolObject(namespace = "http://thefirstlineofcode.com/sand-demo/acl", localName = "query")
 public class AccessControlList {
@@ -20,26 +18,18 @@ public class AccessControlList {
 	}
 	
 	private String deviceId;
-	@String2DateTime
-	private DateTime lastModifiedTime;
+	
 	@Array(AccessControlEntry.class)
 	private List<AccessControlEntry> entries;
 	
 	public AccessControlList() {
-		this(null);
-	}
-	
-	public AccessControlList(DateTime lastModDateTime) {
-		this(null, lastModDateTime);
-	}
-	
-	public AccessControlList(String deviceId, DateTime lastModDateTime) {
-		this.deviceId = deviceId;
-		this.lastModifiedTime = lastModDateTime;
-		
 		entries = new ArrayList<AccessControlEntry>();
 	}
 
+	public List<AccessControlEntry> getEntries() {
+		return entries;
+	}
+	
 	public String getDeviceId() {
 		return deviceId;
 	}
@@ -48,40 +38,23 @@ public class AccessControlList {
 		this.deviceId = deviceId;
 	}
 
-	public DateTime getLastModifiedTime() {
-		return lastModifiedTime;
-	}
-	
-	public void setLastModifiedTime(DateTime lastModifiedTime) {
-		this.lastModifiedTime = lastModifiedTime;
-	}
-
-	public List<AccessControlEntry> getEntries() {
-		return entries;
-	}
-	
 	public void setEntries(List<AccessControlEntry> entries) {
 		this.entries = entries;
-		
-		if (deviceId == null)
-			return;
-		
-		for (AccessControlEntry entry : entries) {
-			if (entry.getDevice() == null)
-				entry.setDevice(deviceId);
-		}
 	}
 	
-	public boolean contains(AccessControlEntry ace) {
-		if (ace.getDevice() == null)
+	public boolean contains(AccessControlEntry entry) {
+		if (entry.getUser() == null)
+			throw new RuntimeException("Null user.");
+		
+		if (entry.getDeviceId() == null)
 			throw new RuntimeException("Null device ID.");
 			
 		if (entries == null || entries.isEmpty())
 			return false;
 		
-		for (AccessControlEntry entry : entries) {
-			if (entry.getDevice().equals(ace.getDevice()) &&
-					HandyUtils.equalsEvenNull(entry.getUser(), ace.getUser()))
+		for (AccessControlEntry anEntry : entries) {
+			if (anEntry.getDeviceId().equals(entry.getDeviceId()) &&
+					HandyUtils.equalsEvenNull(anEntry.getUser(), entry.getUser()))
 				return true;
 		}
 		
@@ -97,13 +70,13 @@ public class AccessControlList {
 
 	public boolean update(AccessControlEntry entry) {
 		for (AccessControlEntry anEntry : entries) {
-			if (anEntry.getDevice().equals(entry.getDevice()) &&
+			if (anEntry.getDeviceId().equals(entry.getDeviceId()) &&
 					anEntry.getUser().equals(entry.getUser()))
 				anEntry.setRole(entry.getRole());
 			
 			return true;
 		}
 		
-		throw new RuntimeException(String.format("Entry[%s, %s] doesn't exist.", entry.getDevice(), entry.getUser()));
+		throw new RuntimeException(String.format("Entry[%s, %s] doesn't exist.", entry.getDeviceId(), entry.getUser()));
 	}
 }

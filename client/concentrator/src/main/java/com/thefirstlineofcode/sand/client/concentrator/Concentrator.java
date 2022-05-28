@@ -136,7 +136,7 @@ public class Concentrator implements IConcentrator {
 			createNode.setCommunicationNet(node.getCommunicationNet().toString());
 			createNode.setAddress(node.getAddress());
 			
-			Iq iq = new Iq(createNode, Iq.Type.SET);
+			Iq iq = new Iq(Iq.Type.SET, createNode);
 			stream.send(iq, DEFAULT_ADDRESS_CONFIGURATION_NODE_CREATION_TIMEOUT);
 			
 			synchronized (nodesLock) {

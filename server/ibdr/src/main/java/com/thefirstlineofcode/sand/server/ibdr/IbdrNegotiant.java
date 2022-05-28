@@ -25,6 +25,7 @@ import com.thefirstlineofcode.granite.pipeline.stages.stream.negotiants.InitialS
 import com.thefirstlineofcode.sand.protocols.ibdr.DeviceRegister;
 import com.thefirstlineofcode.sand.protocols.ibdr.oxm.DeviceRegisterParserFactory;
 import com.thefirstlineofcode.sand.protocols.ibdr.oxm.DeviceRegisterTranslatorFactory;
+import com.thefirstlineofcode.sand.server.devices.DeviceRegistered;
 
 public class IbdrNegotiant extends InitialStreamNegotiant {
 	public static final Object KEY_IBDR_REGISTERED = new Object();
@@ -112,13 +113,15 @@ public class IbdrNegotiant extends InitialStreamNegotiant {
 			if (register == null || !(register instanceof String))
 				throw new ProtocolException(new BadRequest("Register object isn't a string."));
 			
-			DeviceRegistrationEvent registrationEvent = registrar.register((String)register);
+			String deviceId = (String)register;
+			DeviceRegistered registered = registrar.register(deviceId);
 			Iq result = new Iq(Iq.Type.RESULT, iq.getId());
-			result.setObject(new DeviceRegister(registrationEvent.getIdentity()));
+			result.setObject(new DeviceRegister(registered.deviceIdentity));
 			
 			context.write(translatingFactory.translate(result));
 			
-			eventFirer.fire(registrationEvent);
+			eventFirer.fire(new DeviceRegistrationEvent(deviceId, registered.deviceIdentity.getDeviceName(),
+					registered.authorizer, registered.registrationTime));
 		} catch (RuntimeException e) {
 			// Standard client message processor doesn't support processing stanza error in normal situation.
 			// So we process the exception by self.

@@ -86,7 +86,7 @@ public class Registration extends ConnectionListenerAdapter implements IRegistra
 
 		@Override
 		public void trigger(IUnidirectionalStream<Iq> stream) {
-			Iq iq = new Iq(deviceRegister, Iq.Type.SET, Stanza.generateId("ibdr"));
+			Iq iq = new Iq(Iq.Type.SET, deviceRegister, Stanza.generateId("ibdr"));
 			iq.setObject(deviceRegister);
 			
 			stream.send(iq);

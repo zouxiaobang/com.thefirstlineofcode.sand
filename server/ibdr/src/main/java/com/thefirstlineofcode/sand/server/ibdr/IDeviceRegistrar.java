@@ -1,6 +1,8 @@
 package com.thefirstlineofcode.sand.server.ibdr;
 
+import com.thefirstlineofcode.sand.server.devices.DeviceRegistered;
+
 public interface IDeviceRegistrar {
-	DeviceRegistrationEvent register(String deviceId);
+	DeviceRegistered register(String deviceId);
 	void remove(String deviceId);
 }

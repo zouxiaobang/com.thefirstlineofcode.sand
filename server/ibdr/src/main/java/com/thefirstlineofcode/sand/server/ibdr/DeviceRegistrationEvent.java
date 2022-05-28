@@ -1,39 +1,41 @@
 package com.thefirstlineofcode.sand.server.ibdr;
 
+import java.util.Date;
+
 import com.thefirstlineofcode.granite.framework.core.pipeline.stages.event.IEvent;
-import com.thefirstlineofcode.sand.protocols.core.DeviceIdentity;
 
 public class DeviceRegistrationEvent implements IEvent {
-	private DeviceIdentity identity;
-	private Object customizedTaskResult;
+	private String deviceId;
+	private String deviceName;
+	private String authorizer;
+	private Date registrationTime;
 	
-	public DeviceRegistrationEvent(DeviceIdentity identity) {
-		this(identity, null);
+	public DeviceRegistrationEvent(String deviceId, String deviceName,
+			String authorizer, Date registrationTime) {
+		this.deviceId = deviceId;
+		this.deviceName = deviceName;
+		this.authorizer = authorizer;
+		this.registrationTime = registrationTime;
 	}
 	
-	public DeviceRegistrationEvent(DeviceIdentity identity, Object customizedTaskResult) {
-		this.identity = identity;
-		this.customizedTaskResult = customizedTaskResult;
+	public String getDeviceId() {
+		return deviceId;
 	}
 	
-	public DeviceIdentity getIdentity() {
-		return identity;
+	public String getDeviceName() {
+		return deviceName;
 	}
 	
-	public void setIdentity(DeviceIdentity identity) {
-		this.identity = identity;
+	public String getAuthorizer() {
+		return authorizer;
 	}
 	
-	public Object getCustomizedTaskResult() {
-		return customizedTaskResult;
-	}
-	
-	public void setCustomizedTaskResult(Object customizedTaskResult) {
-		this.customizedTaskResult = customizedTaskResult;
+	public Date getRegistrationTime() {
+		return registrationTime;
 	}
 	
 	@Override
 	public Object clone() {
-		return new DeviceRegistrationEvent(identity, customizedTaskResult);
+		return new DeviceRegistrationEvent(deviceId, deviceName, authorizer, registrationTime);
 	}
 }

@@ -1,4 +1,4 @@
-package com.firstlinecode.sand.demo.app.android;
+package com.thefirstlineofcode.sand.demo.app.android;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -9,8 +9,9 @@ import android.view.ViewGroup;
 import android.widget.BaseExpandableListAdapter;
 import android.widget.TextView;
 
-import com.firstlinecode.sand.demo.protocols.AccessControlEntry;
-import com.firstlinecode.sand.demo.protocols.AccessControlList;
+import com.thefirstlineofcode.sand.demo.app.android.R;
+import com.thefirstlineofcode.sand.demo.protocols.AccessControlEntry;
+import com.thefirstlineofcode.sand.demo.protocols.AccessControlList;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -109,7 +110,7 @@ public class ExpandableListViewAdapter extends BaseExpandableListAdapter {
 
 	@Override
 	public long getChildId(int groupPosition, int childPosition) {
-		return groupPosition * 10 + childPosition;
+		return groupPosition * 10L + childPosition;
 	}
 
 	@Override

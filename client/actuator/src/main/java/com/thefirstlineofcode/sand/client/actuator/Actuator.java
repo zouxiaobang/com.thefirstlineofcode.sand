@@ -119,7 +119,7 @@ public class Actuator implements IActuator, IIqListener {
 		} catch (ProtocolException e) {
 			if (logger.isErrorEnabled())
 				logger.error(String.format("Failed to execute the action %s which was sent from '%s' on device '%s'.",
-						execute.getAction(), iq.getFrom() == null ? host : iq.getFrom()), e);
+						execute.getAction(), iq.getFrom() == null ? host : iq.getFrom(), iq.getTo()), e);
 			
 			throw e;
 		} catch (RuntimeException e) {

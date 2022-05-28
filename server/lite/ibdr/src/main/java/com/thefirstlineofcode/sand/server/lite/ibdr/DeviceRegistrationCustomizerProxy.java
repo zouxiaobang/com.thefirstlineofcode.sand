@@ -10,7 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.thefirstlineofcode.granite.framework.core.adf.IApplicationComponentService;
 import com.thefirstlineofcode.granite.framework.core.adf.IApplicationComponentServiceAware;
 import com.thefirstlineofcode.granite.framework.core.repository.IInitializable;
-import com.thefirstlineofcode.sand.protocols.core.DeviceIdentity;
+import com.thefirstlineofcode.sand.server.devices.DeviceRegistered;
 import com.thefirstlineofcode.sand.server.ibdr.IDeviceRegistrationCustomizer;
 import com.thefirstlineofcode.sand.server.ibdr.IDeviceRegistrationCustomizerProxy;
 
@@ -24,11 +24,11 @@ public class DeviceRegistrationCustomizerProxy implements IDeviceRegistrationCus
 	private IDeviceRegistrationCustomizer real;
 	
 	@Override
-	public Object executeCustomizedTask(String deviceId, DeviceIdentity identity) {
+	public void executeCustomizedTask(DeviceRegistered registered) {
 		if (real == null)
-			return null;
+			return;
 		
-		return real.executeCustomizedTask(deviceId, identity);
+		real.executeCustomizedTask(registered);
 	}
 	
 	@Override

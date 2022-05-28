@@ -20,6 +20,7 @@ import com.thefirstlineofcode.sand.protocols.core.DeviceIdentity;
 import com.thefirstlineofcode.sand.protocols.core.ModelDescriptor;
 import com.thefirstlineofcode.sand.server.devices.Device;
 import com.thefirstlineofcode.sand.server.devices.DeviceAuthorization;
+import com.thefirstlineofcode.sand.server.devices.DeviceRegistered;
 import com.thefirstlineofcode.sand.server.devices.IDeviceIdRuler;
 import com.thefirstlineofcode.sand.server.devices.IDeviceManager;
 
@@ -61,7 +62,7 @@ public class DeviceManager implements IDeviceManager {
 	}
 	
 	@Override
-	public DeviceIdentity register(String deviceId) {
+	public DeviceRegistered register(String deviceId) {
 		if (!isValid(deviceId))
 			throw new RuntimeException(String.format("Invalid device ID '%s'.", deviceId));
 		
@@ -88,7 +89,8 @@ public class DeviceManager implements IDeviceManager {
 		identity.setCredentials(createCredentials());
 		getDeviceIdentityMapper().insert(identity);
 		
-		return new DeviceIdentity(identity.getDeviceName(), identity.getCredentials());
+		return new DeviceRegistered(deviceId, new DeviceIdentity(identity.getDeviceName(), identity.getCredentials()),
+				authorization.getAuthorizer(), device.getRegistrationTime());
 	}
 	
 	private boolean isExpired(DeviceAuthorization authorization) {

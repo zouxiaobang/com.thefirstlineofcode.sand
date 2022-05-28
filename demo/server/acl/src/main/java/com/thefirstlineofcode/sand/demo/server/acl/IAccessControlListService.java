@@ -1,20 +1,16 @@
 package com.thefirstlineofcode.sand.demo.server.acl;
 
-import com.thefirstlineofcode.basalt.protocol.datetime.DateTime;
 import com.thefirstlineofcode.sand.demo.protocols.AccessControlEntry;
 import com.thefirstlineofcode.sand.demo.protocols.AccessControlList;
 import com.thefirstlineofcode.sand.demo.protocols.AccessControlList.Role;
 
 public interface IAccessControlListService {
-	void add(AccessControlEntry entry);
-	void change(AccessControlEntry entry);
-	void remove(AccessControlEntry entry);
-	AccessControlList getByUser(String user);
-	AccessControlList getByUser(String user, DateTime lastModifiedTime);
-	AccessControlList getByOwnerAndDevice(String owner, String deviceId);
-	AccessControlList getByOwnerAndDevice(String owner, String deviceId, DateTime lastModifiedTime);
-	AccessControlList getByUserAndDevice(String user, String deviceId);
-	AccessControlList getByUserAndDevice(String user, String deviceId, DateTime lastModifiedTime);
+	void add(AccessControlEntry ace);
+	void change(AccessControlEntry ace);
+	void remove(String user, String deviceId);
+	AccessControlList getUserAcl(String user);
+	AccessControlList getOwnerAcl(String deviceId);
 	Role getRole(String user, String deviceId);
+	String getOwner(String deviceId);
 	boolean isOwner(String user, String deviceId);
 }
