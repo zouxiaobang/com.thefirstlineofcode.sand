@@ -10,8 +10,7 @@ public class DeviceRegistrationEvent implements IEvent {
 	private String authorizer;
 	private Date registrationTime;
 	
-	public DeviceRegistrationEvent(String deviceId, String deviceName,
-			String authorizer, Date registrationTime) {
+	public DeviceRegistrationEvent(String deviceId, String deviceName, String authorizer, Date registrationTime) {
 		this.deviceId = deviceId;
 		this.deviceName = deviceName;
 		this.authorizer = authorizer;

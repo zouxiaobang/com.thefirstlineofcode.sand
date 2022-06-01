@@ -15,6 +15,6 @@ public class PipelineExtendersContributor extends PipelineExtendersConfigurator 
 		configurator.registerNamingConventionParser(new IqProtocolChain(CreateNode.PROTOCOL), CreateNode.class);
 		configurator.registerSingletonXepProcessor(new IqProtocolChain(CreateNode.PROTOCOL), new CreateNodeProcessor());
 		configurator.registerNamingConventionTranslator(NodeCreated.class);
-		configurator.registerEventListener(ConfirmedEvent.class, new ConfirmedListener());
+		configurator.registerEventListener(NodeConfirmationEvent.class, new NodeConfirmationListener());
 	}
 }

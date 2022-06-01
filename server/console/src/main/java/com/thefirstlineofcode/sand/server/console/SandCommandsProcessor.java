@@ -24,11 +24,11 @@ import com.thefirstlineofcode.sand.protocols.actuator.Execution;
 import com.thefirstlineofcode.sand.protocols.core.ModelDescriptor;
 import com.thefirstlineofcode.sand.server.actuator.ExecutionEvent;
 import com.thefirstlineofcode.sand.server.actuator.IExecutionCallback;
-import com.thefirstlineofcode.sand.server.concentrator.Confirmed;
-import com.thefirstlineofcode.sand.server.concentrator.ConfirmedEvent;
 import com.thefirstlineofcode.sand.server.concentrator.IConcentrator;
 import com.thefirstlineofcode.sand.server.concentrator.IConcentratorFactory;
 import com.thefirstlineofcode.sand.server.concentrator.Node;
+import com.thefirstlineofcode.sand.server.concentrator.NodeConfirmationEvent;
+import com.thefirstlineofcode.sand.server.concentrator.NodeConfirmed;
 import com.thefirstlineofcode.sand.server.devices.Device;
 import com.thefirstlineofcode.sand.server.devices.DeviceAuthorizationDelegator;
 import com.thefirstlineofcode.sand.server.devices.IDeviceManager;
@@ -81,7 +81,7 @@ public class SandCommandsProcessor extends AbstractCommandsProcessor implements 
 		consoleSystem.printContentLine("sand help - Display the help information for sand application management.");
 		consoleSystem.printContentLine("sand authorize <DEVICE_ID> [AUTHORIZIER] - Authorize a device to register.");
 		consoleSystem.printContentLine("sand devices [START_INDEX] - Display registered devices. Twenty items each page.");
-		consoleSystem.printContentLine("sand confirm <CONCENTRATOR_DEVICE_ID> <NODE_DEVICE_ID> [CONFIRMER] - Confirm to add a node to concentrator.");
+		consoleSystem.printContentLine("sand confirm <CONCENTRATOR_DEVICE_NAME> <NODE_DEVICE_ID> [CONFIRMER] - Confirm to add a node to concentrator.");
 		consoleSystem.printContentLine("sand execute <DEVICE_LOCATION> <ACTION_NAME> [PARAMS...] - Execute an action on the specified device.");
 	}
 	
@@ -103,21 +103,21 @@ public class SandCommandsProcessor extends AbstractCommandsProcessor implements 
 			return;
 		}
 		
-		String deviceId = null;
+		String deviceName = null;
 		String lanId = null;
 		if (slashIndex == -1) {
-			deviceId = deviceLocation;
+			deviceName = deviceLocation;
 		} else {
-			deviceId = deviceLocation.substring(0, slashIndex);
+			deviceName = deviceLocation.substring(0, slashIndex);
 			lanId = deviceLocation.substring(slashIndex + 1, deviceLocation.length());
 		}
 		
-		deviceId = deviceId.trim();
+		deviceName = deviceName.trim();
 		if (lanId != null)
 			lanId = lanId.trim();
 		
-		if (!deviceManager.deviceIdExists(deviceId)) {
-			consoleSystem.printMessageLine(String.format("Error: Device which's device ID is '%s' not existed.", deviceId));	
+		if (!deviceManager.deviceNameExists(deviceName)) {
+			consoleSystem.printMessageLine(String.format("Error: Device which's device name is '%s' not existed.", deviceName));	
 			return;
 		}
 		
@@ -139,21 +139,21 @@ public class SandCommandsProcessor extends AbstractCommandsProcessor implements 
 			}
 		}
 		
-		if (!deviceManager.isRegistered(deviceId)) {
-			consoleSystem.printMessageLine(String.format("Error: Device which's device ID is '%s' isn't a registered device.", deviceId));
+		Device device = deviceManager.getByDeviceName(deviceName);
+		if (!deviceManager.isRegistered(device.getDeviceId())) {
+			consoleSystem.printMessageLine(String.format("Error: Device which's device ID is '%s' isn't a registered device.", deviceName));
 			return;
 		}
 		
-		if (concentratorFactory.isLanNode(deviceId)) {
+		if (concentratorFactory.isLanNode(device.getDeviceId())) {
 			consoleSystem.printMessageLine(String.format(
-					"Error: Device which's device ID is '%s' is a LAN node. You should access it by it's concentrator.", deviceId));
+					"Error: Device which's device ID is '%s' is a LAN node. You should access it by it's concentrator.", deviceName));
 			return;			
 		}
 		
-		Device device = deviceManager.getByDeviceId(deviceId);
 		if (!concentratorFactory.isConcentrator(device) && lanId != null &&
 				!IConcentrator.LAN_ID_CONCENTRATOR.equals(lanId)) {
-			consoleSystem.printMessageLine(String.format("Error: Try to deliver action by device '%s', but it isn't a concentrator.", deviceId));
+			consoleSystem.printMessageLine(String.format("Error: Try to deliver action by device '%s', but it isn't a concentrator.", deviceName));
 			return;
 		}
 		
@@ -460,8 +460,8 @@ public class SandCommandsProcessor extends AbstractCommandsProcessor implements 
 			return;
 		}
 		
-		Confirmed confirmed = concentratorFactory.getConcentrator(device).confirm(nodeDeviceId, confirmer);
-		eventFirer.fire(new ConfirmedEvent(confirmed.getRequestId(), confirmed.getNodeCreated()));
+		NodeConfirmed nodeConfirmed = concentratorFactory.getConcentrator(device).confirm(nodeDeviceId, confirmer);
+		eventFirer.fire(createNodeCreationEvent(nodeConfirmed, confirmer));
 
 		if (confirmer != null)
 			consoleSystem.printMessageLine(String.format("Concentrator device which's ID is '%s' has been confirmed to add device which's ID is '%s' as it's node by user '%s' in server console.",
@@ -469,6 +469,12 @@ public class SandCommandsProcessor extends AbstractCommandsProcessor implements 
 		else
 			consoleSystem.printMessageLine(String.format("Concentrator device which's ID is '%s' has been confirmed to add device which's ID is '%s' as it's node by unknown user in server console.",
 				concentratorDeviceId, nodeDeviceId));
+	}
+
+	private NodeConfirmationEvent createNodeCreationEvent(NodeConfirmed nodeConfirmed, String confirmer) {
+		return new NodeConfirmationEvent(nodeConfirmed.getRequestId(), nodeConfirmed.getConcentratorDeviceName(),
+				nodeConfirmed.getNodeDeviceId(), nodeConfirmed.getLanId(), nodeConfirmed.getModel(),
+				confirmer, nodeConfirmed.getCreationTime());
 	}
 	
 	@Override

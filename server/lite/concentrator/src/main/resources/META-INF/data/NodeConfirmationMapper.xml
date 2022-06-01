@@ -3,7 +3,7 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.thefirstlineofcode.sand.server.lite.concentrator.NodeConfirmationMapper">
     <insert id="insert" parameterType="com.thefirstlineofcode.sand.server.lite.concentrator.D_NodeConfirmation">
-        INSERT INTO NODE_CONFIRMATIONS(id, request_id, concentrator, node, lan_id, communication_net, address, confirmer, requested_time, confirmed_time, expired_time, canceled) VALUES(#{id}, #{requestId}, #{concentrator}, #{node.deviceId}, #{node.lanId}, #{node.communicationNet}, #{node.address},  #{confirmer}, #{requestedTime}, #{confirmedTime}, #{expiredTime}, FALSE)
+        INSERT INTO NODE_CONFIRMATIONS(id, request_id, concentrator, node, lan_id, communication_net, address, confirmer, requested_time, confirmed_time, expired_time, canceled) VALUES(#{id}, #{requestId}, #{concentratorDeviceName}, #{node.deviceId}, #{node.lanId}, #{node.communicationNet}, #{node.address},  #{confirmer}, #{requestedTime}, #{confirmedTime}, #{expiredTime}, FALSE)
     </insert>
     
     <update id="updateCanceled">
@@ -21,7 +21,7 @@
 	<resultMap id="nodeConfirmationResultMap" type="com.thefirstlineofcode.sand.server.lite.concentrator.D_NodeConfirmation">
 		<result property="id" column="id"/>
 		<result property="requestId" column="request_id"/>
-		<result property="concentrator" column="concentrator"/>
+		<result property="concentratorDeviceName" column="concentrator"/>
 		<result property="node.deviceId" column="node"/>
 		<result property="node.lanId" column="lan_id"/>
 		<result property="node.communicationNet" column="communication_net"/>

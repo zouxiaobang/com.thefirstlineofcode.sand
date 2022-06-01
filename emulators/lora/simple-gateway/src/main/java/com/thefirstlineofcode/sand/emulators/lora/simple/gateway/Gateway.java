@@ -98,7 +98,6 @@ import com.thefirstlineofcode.sand.emulators.lora.network.LoraChipCreationParams
 import com.thefirstlineofcode.sand.emulators.lora.network.LoraCommunicator;
 import com.thefirstlineofcode.sand.emulators.lora.network.LoraCommunicatorFactory;
 import com.thefirstlineofcode.sand.emulators.lora.simple.gateway.log.LogConsolesDialog;
-import com.thefirstlineofcode.sand.emulators.lora.simple.gateway.things.DeviceIdentityInfo;
 import com.thefirstlineofcode.sand.emulators.lora.simple.gateway.things.ThingInfo;
 import com.thefirstlineofcode.sand.emulators.lora.simple.gateway.things.ThingInternalFrame;
 import com.thefirstlineofcode.sand.emulators.lora.things.AbstractLoraThingEmulator;
@@ -579,7 +578,8 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 
 	private IConcentrator createConcentrator() {
 		IConcentrator concentrator = chatClient.createApi(IConcentrator.class);
-		concentrator.init(deviceId, nodes, modelRegistrar, Collections.singletonMap(CommunicationNet.LORA, gatewayCommunicator));
+		concentrator.init(deviceIdentity.getDeviceName(), nodes, modelRegistrar,
+				Collections.singletonMap(CommunicationNet.LORA, gatewayCommunicator));
 		concentrator.addListener(this);
 		
 		return concentrator;
@@ -819,7 +819,7 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 			}
 			
 			if (deviceIdentity != null) {
-				output.writeObject(new DeviceIdentityInfo(deviceIdentity.getDeviceName(), deviceIdentity.getCredentials()));
+				output.writeObject(deviceIdentity);
 			} else {
 				output.writeObject(null);
 			}
@@ -1023,8 +1023,7 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 			StreamConfigInfo streamConfigInfo = (StreamConfigInfo)input.readObject();
 			gatewayInfo.streamConfig = streamConfigInfo == null ? null : createStreamConfig(streamConfigInfo);
 			
-			DeviceIdentityInfo deviceIdentityInfo = (DeviceIdentityInfo)input.readObject();
-			gatewayInfo.deviceIdentity = deviceIdentityInfo == null ? null : createDeviceIdentity(deviceIdentityInfo);
+			gatewayInfo.deviceIdentity = (DeviceIdentity)input.readObject();
 			
 			gatewayInfo.autoReconnect = input.readBoolean();
 			
@@ -1064,10 +1063,6 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 		return gatewayInfo;
 	}
 	
-	private DeviceIdentity createDeviceIdentity(DeviceIdentityInfo deviceIdentityInfo) {
-		return new DeviceIdentity(deviceIdentityInfo.deviceName, deviceIdentityInfo.credentials);
-	}
-
 	private StandardStreamConfig createStreamConfig(StreamConfigInfo streamConfigInfo) {
 		StandardStreamConfig streamConfig = new StandardStreamConfig(streamConfigInfo.host, streamConfigInfo.port);
 		streamConfig.setTlsPreferred(streamConfigInfo.tlsPreferred);
@@ -1581,9 +1576,9 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 	}
 	
 	@Override
-	public void nodeCreated(String requestedId, String allocatedLanId, Node node) {
-		if (!requestedId.equals(allocatedLanId))
-			nodes.remove(requestedId);
+	public void nodeCreated(String requestedLanId, String allocatedLanId, Node node) {
+		if (!requestedLanId.equals(allocatedLanId))
+			nodes.remove(requestedLanId);
 		
 		nodes.put(allocatedLanId, node);
 		

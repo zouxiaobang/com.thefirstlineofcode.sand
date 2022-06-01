@@ -6,12 +6,12 @@ import com.thefirstlineofcode.granite.framework.core.adf.data.IIdProvider;
 
 public class Concentration implements IIdProvider<String> {
 	private String id;
-	private String concentrator;
-	private String node;
+	private String concentratorDeviceName;
+	private String nodeDeviceId;
 	private String lanId;
 	private String communicationNet;
 	private String address;
-	private Date confirmationTime;
+	private Date creationTime;
 	
 	public String getId() {
 		return id;
@@ -21,20 +21,20 @@ public class Concentration implements IIdProvider<String> {
 		this.id = id;
 	}
 	
-	public String getConcentrator() {
-		return concentrator;
+	public String getConcentratorDeviceName() {
+		return concentratorDeviceName;
 	}
 	
-	public void setConcentrator(String concentrator) {
-		this.concentrator = concentrator;
+	public void setConcentratorDeviceName(String concentratorDeviceName) {
+		this.concentratorDeviceName = concentratorDeviceName;
 	}
 	
-	public String getNode() {
-		return node;
+	public String getNodeDeviceId() {
+		return nodeDeviceId;
 	}
 	
-	public void setNode(String node) {
-		this.node = node;
+	public void setNodeDeviceId(String nodeDeviceId) {
+		this.nodeDeviceId = nodeDeviceId;
 	}
 	
 	public String getLanId() {
@@ -61,11 +61,11 @@ public class Concentration implements IIdProvider<String> {
 		this.address = address;
 	}
 	
-	public Date getConfirmationTime() {
-		return confirmationTime;
+	public Date getCreationTime() {
+		return creationTime;
 	}
 	
-	public void setConfirmationTime(Date confirmationTime) {
-		this.confirmationTime = confirmationTime;
+	public void setCreationTime(Date creationTime) {
+		this.creationTime = creationTime;
 	}
 }

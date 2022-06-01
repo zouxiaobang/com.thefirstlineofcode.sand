@@ -30,6 +30,10 @@
 			<artifactId>sand-server-ibdr</artifactId>
 		</dependency>
 		<dependency>
+			<groupId>com.thefirstlineofcode.sand.server</groupId>
+			<artifactId>sand-server-concentrator</artifactId>
+		</dependency>
+		<dependency>
 			<groupId>com.thefirstlineofcode.sand.demo</groupId>
 			<artifactId>sand-demo-protocols</artifactId>
 			<version>1.0.0-ALPHA1</version>

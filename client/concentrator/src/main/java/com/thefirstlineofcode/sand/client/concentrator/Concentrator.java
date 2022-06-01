@@ -34,7 +34,7 @@ public class Concentrator implements IConcentrator {
 	
 	private List<IConcentrator.Listener> listeners;
 	
-	private String deviceId;
+	private String deviceName;
 	private Map<String, Node> nodes;
 	private Object nodesLock;
 	
@@ -50,8 +50,8 @@ public class Concentrator implements IConcentrator {
 	}
 
 	@Override
-	public void init(String deviceId, Map<String, Node> nodes, IModelRegistrar modelRegistrar, Map<CommunicationNet, ? extends ICommunicator<?, ?, ?>> communicators) {
-		this.deviceId = deviceId;
+	public void init(String deviceName, Map<String, Node> nodes, IModelRegistrar modelRegistrar, Map<CommunicationNet, ? extends ICommunicator<?, ?, ?>> communicators) {
+		this.deviceName = deviceName;
 		this.modelRegistrar = modelRegistrar;
 		this.communicators = communicators;
 		
@@ -65,11 +65,11 @@ public class Concentrator implements IConcentrator {
 	}
 
 	@Override
-	public void createNode(final String deviceId, final String lanId, final NodeAddress<?> nodeAddress) {
+	public void createNode(String deviceId, String requestLanId, NodeAddress<?> nodeAddress) {
 		synchronized (nodesLock) {
 			Node node = new Node();
 			node.setDeviceId(deviceId);
-			node.setLanId(getBestSuitedNewLanId());
+			node.setLanId(requestLanId);
 			node.setCommunicationNet(nodeAddress.getCommunicationNet());
 			node.setAddress(nodeAddress.getAddress());
 			node.setConfirmed(false);
@@ -102,6 +102,18 @@ public class Concentrator implements IConcentrator {
 				if (entry.getValue().getAddress().equals(node.getAddress())) {
 					if (logger.isErrorEnabled()) {
 						logger.error("Reduplicate device address: {}.", node.getAddress());
+					}
+					
+					for (Listener listener : listeners) {
+						listener.occurred(LanError.REDUPLICATE_DEVICE_ADDRESS, node);
+					}
+					
+					return;
+				}
+				
+				if (entry.getValue().getLanId().equals(node.getLanId())) {
+					if (logger.isErrorEnabled()) {
+						logger.error("Reduplicate device LAN ID: {}.", node.getLanId());
 					}
 					
 					for (Listener listener : listeners) {
@@ -163,7 +175,7 @@ public class Concentrator implements IConcentrator {
 			Node confirmingNode = nodes.get(iq.getId());
 			if (confirmingNode == null) {
 				if (logger.isErrorEnabled()) {
-					logger.error("Confirming node which's device ID is '{}' not found.", nodeCreated.getNode());
+					logger.error("Confirming node which's device ID is '{}' not found.", nodeCreated.getNodeDeviceId());
 				}
 				
 				for (IConcentrator.Listener listener : listeners) {
@@ -173,13 +185,13 @@ public class Concentrator implements IConcentrator {
 				return;
 			}
 			
-			if (!deviceId.equals(nodeCreated.getConcentrator()) ||
-					!nodeCreated.getNode().equals(confirmingNode.getDeviceId()) ||
+			if (!deviceName.equals(nodeCreated.getConcentratorDeviceName()) ||
+					!nodeCreated.getNodeDeviceId().equals(confirmingNode.getDeviceId()) ||
 					nodeCreated.getLanId() == null ||
 					nodeCreated.getModel() == null) {
 				if (logger.isErrorEnabled()) {
-					logger.error("Bad node created response. Confirming node is {} and created node is {}.",
-							getConfirmingNodeInfo(confirmingNode), getNodeCreatedInfo(nodeCreated));
+					logger.error("Bad node created response. Device name of concentrator is {}. Device ID of confirming node is {} and Device ID of created node is {}.",
+							deviceName, confirmingNode.getDeviceId(), nodeCreated.getNodeDeviceId());
 				}
 				
 				for (IConcentrator.Listener listener : listeners) {
@@ -224,17 +236,7 @@ public class Concentrator implements IConcentrator {
 				listener.nodeCreated(requestedLanId, nodeCreated.getLanId(), node);
 			}
 		}
-
-		private Object getNodeCreatedInfo(NodeCreated nodeCreated) {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		private Object getConfirmingNodeInfo(Node confirmingNode) {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
+		
 		@Override
 		public boolean processError(IUnidirectionalStream<Iq> stream, StanzaError error) {
 			if (logger.isErrorEnabled()) {
@@ -352,8 +354,8 @@ public class Concentrator implements IConcentrator {
 	}
 
 	@Override
-	public String getDeviceId() {
-		return deviceId;
+	public String getDeviceName() {
+		return deviceName;
 	}
 
 	@Override

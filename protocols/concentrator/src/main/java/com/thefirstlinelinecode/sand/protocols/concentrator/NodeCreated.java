@@ -9,9 +9,9 @@ public class NodeCreated {
 	public static final Protocol PROTOCOL = new Protocol("urn:leps:iot:concentrator", "node-created");
 	
 	@NotNull
-	private String concentrator;
+	private String concentratorDeviceName;
 	@NotNull
-	private String node;
+	private String nodeDeviceId;
 	@NotNull
 	private String lanId;
 	@NotNull
@@ -19,29 +19,29 @@ public class NodeCreated {
 	
 	public NodeCreated() {}
 	
-	public NodeCreated(String concentrator, String node, String lanId, String model) {
-		this.concentrator = concentrator;
-		this.node = node;
+	public NodeCreated(String concentratorDeviceName, String nodeDeviceId, String lanId, String model) {
+		this.concentratorDeviceName = concentratorDeviceName;
+		this.nodeDeviceId = nodeDeviceId;
 		this.lanId = lanId;
 		this.model = model;
 	}
 	
-	public String getConcentrator() {
-		return concentrator;
+	public String getConcentratorDeviceName() {
+		return concentratorDeviceName;
 	}
 
 
 
-	public void setConcentrator(String concentrator) {
-		this.concentrator = concentrator;
-	}
-	
-	public String getNode() {
-		return node;
+	public void setConcentratorDeviceName(String concentratorDeviceName) {
+		this.concentratorDeviceName = concentratorDeviceName;
 	}
 	
-	public void setNode(String node) {
-		this.node = node;
+	public String getNodeDeviceId() {
+		return nodeDeviceId;
+	}
+	
+	public void setNodeDeviceId(String nodeDeviceId) {
+		this.nodeDeviceId = nodeDeviceId;
 	}
 	
 	public String getLanId() {

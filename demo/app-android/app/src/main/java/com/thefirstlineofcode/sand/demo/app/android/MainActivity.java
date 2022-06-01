@@ -6,6 +6,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.widget.ExpandableListView;
+import android.widget.ListView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -27,13 +28,13 @@ import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 
 public class MainActivity extends AppCompatActivity implements IOperator.Listener, IAclService.Listener, IErrorListener {
-	private ExpandableListViewAdapter devicesListViewAdapter;
-
+	private DevicesAdapter devicesAdapter;
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
-
+		
 		Toolbar toolbar = findViewById(R.id.toolbar);
 		toolbar.setTitle(R.string.app_name);
 		setSupportActionBar(toolbar);
@@ -45,10 +46,9 @@ public class MainActivity extends AppCompatActivity implements IOperator.Listene
 			chatClient.getStream().addErrorListener(this);
 		}
 
-		ExpandableListView devicesListView = findViewById(R.id.devices);
-		devicesListViewAdapter = new ExpandableListViewAdapter(this, aclService.getLocal());
-		devicesListView.setAdapter(devicesListViewAdapter);
-
+		ListView devicesView = findViewById(R.id.devices_view);
+		devicesAdapter = new DevicesAdapter(aclService.getLocal());
+		devicesView.setAdapter(devicesAdapter);
 	}
 
 	@Override
@@ -176,12 +176,12 @@ public class MainActivity extends AppCompatActivity implements IOperator.Listene
 
 	@Override
 	public void updated(AccessControlList acl) {
-		devicesListViewAdapter.updateAcl(acl);
+		devicesAdapter.updateAcl(acl);
 
 		runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
-				devicesListViewAdapter.notifyDataSetChanged();
+				devicesAdapter.notifyDataSetChanged();
 				Toast.makeText(MainActivity.this, getString(R.string.devices_has_updated), Toast.LENGTH_LONG).show();
 			}
 		});

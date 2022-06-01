@@ -2,8 +2,8 @@ package com.thefirstlineofcode.sand.server.concentrator;
 
 public class Node {
 	private String deviceId;
-	private String model;
 	private String lanId;
+	private String model;
 	private String communicationNet;
 	private String address;
 	

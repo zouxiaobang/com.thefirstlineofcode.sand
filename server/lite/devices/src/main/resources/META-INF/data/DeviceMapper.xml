@@ -14,6 +14,10 @@
 		SELECT * FROM DEVICES WHERE device_id=#{0}
     </select>
     
+	<select id="selectByDeviceName" resultType="com.thefirstlineofcode.sand.server.lite.devices.D_Device">
+		SELECT devices.* FROM DEVICES AS devices LEFT JOIN DEVICE_IDENTITIES as device_identities ON devices.device_id = device_identities.device_id WHERE device_identities.device_name=#{0}
+    </select>
+    
 	<resultMap id="deviceResultMap" type="Device">
 		<id property="id" column="id"/>
 		<result property="deviceId" column="device_id"/>
@@ -24,5 +28,9 @@
     
 	<select id="selectCountByDeviceId" resultType="int">
 		SELECT count(*) FROM DEVICES WHERE device_id=#{0}
+    </select>
+    
+	<select id="selectCountByDeviceName" resultType="int">
+		SELECT count(*) FROM DEVICES AS devices LEFT JOIN DEVICE_IDENTITIES as device_identities ON devices.device_id = device_identities.device_id WHERE device_identities.device_name=#{0}
     </select>
 </mapper>

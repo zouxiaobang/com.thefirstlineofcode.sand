@@ -85,7 +85,7 @@ public class DeviceManager implements IDeviceManager {
 		D_DeviceIdentity identity = new D_DeviceIdentity();
 		identity.setId(UUID.randomUUID().toString());
 		identity.setDeviceId(deviceId);
-		identity.setDeviceName(createDeviceName(deviceId));
+		identity.setDeviceName(getDeviceName(deviceId));
 		identity.setCredentials(createCredentials());
 		getDeviceIdentityMapper().insert(identity);
 		
@@ -108,7 +108,7 @@ public class DeviceManager implements IDeviceManager {
 		return generateRandomCredentials(8);
 	}
 
-	protected String createDeviceName(String deviceId) {
+	protected String getDeviceName(String deviceId) {
 		return deviceId;
 	}
 	

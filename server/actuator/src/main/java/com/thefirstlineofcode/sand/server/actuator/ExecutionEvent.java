@@ -6,7 +6,7 @@ import com.thefirstlineofcode.sand.server.devices.Device;
 
 public class ExecutionEvent implements IEvent {
 	private Device device;
-	private String nodeLanId;
+	private String lanId;
 	private Execution execution;
 	private IExecutionCallback callback;
 	
@@ -14,13 +14,13 @@ public class ExecutionEvent implements IEvent {
 		this(device, null, execution);
 	}
 	
-	public ExecutionEvent(Device device, String nodeLanId, Execution execute) {
+	public ExecutionEvent(Device device, String lanId, Execution execute) {
 		this(device, null, execute, null);
 	}
 	
-	public ExecutionEvent(Device device, String nodeLanId, Execution execution, IExecutionCallback callback) {
+	public ExecutionEvent(Device device, String lanId, Execution execution, IExecutionCallback callback) {
 		this.device = device;
-		this.nodeLanId = nodeLanId;
+		this.lanId = lanId;
 		this.execution = execution;
 		this.callback = callback;
 	}
@@ -29,8 +29,8 @@ public class ExecutionEvent implements IEvent {
 		return device;
 	}
 	
-	public String getNodeLanId() {
-		return nodeLanId;
+	public String getLanId() {
+		return lanId;
 	}
 	
 	public Execution getExecution() {
@@ -43,6 +43,6 @@ public class ExecutionEvent implements IEvent {
 	
 	@Override
 	public Object clone() {
-		return new ExecutionEvent(device, nodeLanId, execution, callback);
+		return new ExecutionEvent(device, lanId, execution, callback);
 	}
 }

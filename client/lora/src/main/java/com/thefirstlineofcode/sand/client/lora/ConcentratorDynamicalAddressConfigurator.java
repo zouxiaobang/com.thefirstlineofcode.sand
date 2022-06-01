@@ -122,7 +122,7 @@ public class ConcentratorDynamicalAddressConfigurator implements IAddressConfigu
 		state = State.WAITING;
 		new Thread(new DataReceiver(), String.format("Data Receiver Thread for %s of %s '%s'",
 				this.getClass().getSimpleName(), concentrator.getClass().getSimpleName(),
-				concentrator.getDeviceId())).start();
+				concentrator.getDeviceName())).start();
 	}
 	
 	private class DataReceiver implements Runnable {

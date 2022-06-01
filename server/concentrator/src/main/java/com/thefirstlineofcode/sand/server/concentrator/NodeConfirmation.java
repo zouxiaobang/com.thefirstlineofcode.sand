@@ -4,7 +4,7 @@ import java.util.Date;
 
 public class NodeConfirmation {
 	private String requestId;
-	private String concentrator;
+	private String concentratorDeviceName;
 	private Node node;
 	private String confirmer;
 	private Date requestedTime;
@@ -20,12 +20,12 @@ public class NodeConfirmation {
 		this.requestId = requestId;
 	}
 	
-	public String getConcentrator() {
-		return concentrator;
+	public String getConcentratorDeviceName() {
+		return concentratorDeviceName;
 	}
 
-	public void setConcentrator(String concentrator) {
-		this.concentrator = concentrator;
+	public void setConcentratorDeviceName(String concentratorDeviceName) {
+		this.concentratorDeviceName = concentratorDeviceName;
 	}
 
 	public Node getNode() {

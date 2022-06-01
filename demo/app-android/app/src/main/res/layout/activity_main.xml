@@ -5,7 +5,6 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     tools:context="com.thefirstlineofcode.sand.demo.app.android.MainActivity">
-
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
@@ -18,9 +17,15 @@
         app:layout_constraintTop_toTopOf="parent"
         app:titleTextColor="@android:color/black" />
 
-    <ExpandableListView
-        android:id="@+id/devices"
+    <ListView
+        android:id="@+id/devices_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@id/toolbar" />
+        android:layout_marginTop="16dp"
+        android:layout_marginBottom="16dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+    </ListView>
 </androidx.constraintlayout.widget.ConstraintLayout>

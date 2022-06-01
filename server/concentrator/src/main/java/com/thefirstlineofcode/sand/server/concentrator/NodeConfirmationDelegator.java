@@ -36,16 +36,16 @@ public class NodeConfirmationDelegator implements IServerConfigurationAware, ICo
 	private int nodeConfirmationValidityTime;
 	
 	public void requestToConfirm(NodeConfirmation confirmation) {
-		String concentratorId = confirmation.getConcentrator();
+		String concentratorDeviceName = confirmation.getConcentratorDeviceName();
 		
-		Device device = deviceManager.getByDeviceName(concentratorId);
+		Device device = deviceManager.getByDeviceName(concentratorDeviceName);
 		if (device == null)
 			throw new ProtocolException(new ItemNotFound(String.format("Device which's device name is '%s' not be found.",
-					concentratorId)));
+					concentratorDeviceName)));
 		
 		if (!deviceManager.isConcentrator(device.getModel()))
 			throw new ProtocolException(new NotAcceptable("Device which's device name is '%s' isn't a concentrator.",
-					concentratorId));
+					concentratorDeviceName));
 		
 		IConcentrator concentrator = concentratorFactory.getConcentrator(device);
 		if (concentrator == null)
@@ -63,15 +63,15 @@ public class NodeConfirmationDelegator implements IServerConfigurationAware, ICo
 		return expiredTime.getTime();
 	}
 	
-	public Confirmed confirm(String concentratorId, String nodeId, String confirmer) {
-		Device device = deviceManager.getByDeviceName(concentratorId);
+	public NodeConfirmed confirm(String concentratorDeviceName, String nodeId, String confirmer) {
+		Device device = deviceManager.getByDeviceName(concentratorDeviceName);
 		if (device == null)
 			throw new ProtocolException(new ItemNotFound(String.format("Device which's device name is '%s' not be found.",
-					concentratorId)));
+					concentratorDeviceName)));
 		
 		if (!deviceManager.isConcentrator(device.getModel()))
 			throw new ProtocolException(new NotAcceptable("Device which's device name is '%s' isn't a concentrator.",
-					concentratorId));
+					concentratorDeviceName));
 		
 		IConcentrator concentrator = concentratorFactory.getConcentrator(device);
 		if (concentrator == null)

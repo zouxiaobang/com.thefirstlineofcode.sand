@@ -62,7 +62,7 @@ public class CreateNodeProcessor implements IXepProcessor<Iq, CreateNode>, IData
 		
 		NodeConfirmation confirmation = dataObjectFactory.create(NodeConfirmation.class);
 		confirmation.setRequestId(iq.getId());
-		confirmation.setConcentrator(device.getDeviceId());
+		confirmation.setConcentratorDeviceName(device.getDeviceId());
 		confirmation.setNode(node);
 		Date currentTime = Calendar.getInstance().getTime();
 		confirmation.setRequestedTime(currentTime);

@@ -5,38 +5,43 @@ import java.util.Date;
 import java.util.UUID;
 
 import org.apache.ibatis.session.SqlSession;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
-import com.thefirstlinelinecode.sand.protocols.concentrator.NodeCreated;
 import com.thefirstlineofcode.basalt.protocol.core.ProtocolException;
 import com.thefirstlineofcode.basalt.protocol.core.stanza.error.Conflict;
 import com.thefirstlineofcode.basalt.protocol.core.stanza.error.NotAcceptable;
 import com.thefirstlineofcode.granite.framework.core.adf.data.IDataObjectFactory;
 import com.thefirstlineofcode.granite.framework.core.adf.data.IDataObjectFactoryAware;
-import com.thefirstlineofcode.granite.framework.core.annotations.BeanDependency;
-import com.thefirstlineofcode.sand.server.concentrator.Confirmed;
 import com.thefirstlineofcode.sand.server.concentrator.IConcentrator;
 import com.thefirstlineofcode.sand.server.concentrator.Node;
 import com.thefirstlineofcode.sand.server.concentrator.NodeConfirmation;
+import com.thefirstlineofcode.sand.server.concentrator.NodeConfirmed;
 import com.thefirstlineofcode.sand.server.devices.Device;
 import com.thefirstlineofcode.sand.server.devices.IDeviceManager;
 
+@Component
+@Transactional
+@Scope("prototype")
 public class Concentrator implements IConcentrator, IDataObjectFactoryAware {
-	private String deviceId;
+	private String deviceName;
 	private SqlSession sqlSession;
 	
-	@BeanDependency
+	@Autowired
 	private IDeviceManager deviceManager;
 	
 	private IDataObjectFactory dataObjectFactory;
 	
-	public Concentrator(String deviceId, SqlSession sqlSession) {
-		this.deviceId = deviceId;
+	public Concentrator(String deviceName, SqlSession sqlSession) {
+		this.deviceName = deviceName;
 		this.sqlSession = sqlSession;
 	}
 	
 	@Override
 	public Node getNode(String lanId) {
-		return getConcentrationMapper().selectNodeByLanId(deviceId, lanId);
+		return getConcentrationMapper().selectNodeByConcentratorAndLanId(deviceName, lanId);
 	}
 
 	@Override
@@ -46,14 +51,14 @@ public class Concentrator implements IConcentrator, IDataObjectFactoryAware {
 	}
 
 	@Override
-	public Confirmed confirm(String nodeDeviceId, String confirmer) {
+	public NodeConfirmed confirm(String nodeDeviceId, String confirmer) {
 		if (!deviceManager.isValid(nodeDeviceId))
 			throw new RuntimeException(String.format("Invalid node device ID '%s'.", nodeDeviceId));
 		
 		if (containsNode(nodeDeviceId))
 			throw new ProtocolException(new Conflict(String.format("Reduplicate node which's ID is '%s'.", nodeDeviceId)));
 		
-		D_NodeConfirmation confirmation = getNodeConfirmation(deviceId, nodeDeviceId);
+		D_NodeConfirmation confirmation = getNodeConfirmation(deviceName, nodeDeviceId);
 		if (confirmation == null) {
 			throw new ProtocolException(new NotAcceptable("No node confirmation found."));
 		}
@@ -67,30 +72,38 @@ public class Concentrator implements IConcentrator, IDataObjectFactoryAware {
 			throw new ProtocolException(new Conflict(String.format("Reduplicate LAN ID('%'). The node's ID is '%s'.",
 					confirmation.getNode().getLanId(), nodeDeviceId)));
 		
-		Device device = dataObjectFactory.create(Device.class);
-		device.setDeviceId(nodeDeviceId);
-		device.setModel(model);
-		device.setRegistrationTime(Calendar.getInstance().getTime());
-		deviceManager.create(device);
+		Device node = dataObjectFactory.create(Device.class);
+		node.setDeviceId(nodeDeviceId);
+		node.setModel(model);
+		node.setRegistrationTime(Calendar.getInstance().getTime());
+		deviceManager.create(node);
 		
 		Concentration concentration = new Concentration();
 		concentration.setId(UUID.randomUUID().toString());
-		concentration.setConcentrator(confirmation.getConcentrator());
-		concentration.setNode(confirmation.getNode().getDeviceId());
+		concentration.setConcentratorDeviceName(confirmation.getConcentratorDeviceName());
+		concentration.setNodeDeviceId(confirmation.getNode().getDeviceId());
 		concentration.setLanId(confirmation.getNode().getLanId());
 		concentration.setCommunicationNet(confirmation.getNode().getCommunicationNet());
 		concentration.setAddress(confirmation.getNode().getAddress());
-		concentration.setConfirmationTime(Calendar.getInstance().getTime());
+		Date creationTime = Calendar.getInstance().getTime();
+		concentration.setCreationTime(creationTime);
 		getConcentrationMapper().insert(concentration);
 		
-		getNodeComfirmationMapper().updateConfirmed(confirmation.getId(), confirmer, concentration.getConfirmationTime());
+		Date confirmedTime = Calendar.getInstance().getTime();
+		getNodeConfirmationMapper().updateConfirmed(confirmation.getId(), confirmer, confirmedTime);
 		
-		return new Confirmed(confirmation.getRequestId(), new NodeCreated(deviceId, nodeDeviceId,
-				confirmation.getNode().getLanId(), model));
+		return createNodeConfirmed(confirmation, node, concentration);
+	}
+
+	private NodeConfirmed createNodeConfirmed(NodeConfirmation confirmation, Device node,
+			Concentration concentration) {
+		return new NodeConfirmed(confirmation.getRequestId(), confirmation.getConcentratorDeviceName(),
+				node.getDeviceId(), confirmation.getNode().getLanId(), node.getModel(),
+				confirmation.getConfirmer(), concentration.getCreationTime(), confirmation.getConfirmedTime());
 	}
 	
 	private D_NodeConfirmation getNodeConfirmation(String concentrator, String node) {
-		NodeConfirmation[] confirmations = getNodeComfirmationMapper().selectByConcentratorAndNode(concentrator, node);
+		NodeConfirmation[] confirmations = getNodeConfirmationMapper().selectByConcentratorAndNode(concentrator, node);
 		if (confirmations == null || confirmations.length == 0)
 			return null;
 		
@@ -108,12 +121,12 @@ public class Concentrator implements IConcentrator, IDataObjectFactoryAware {
 
 	@Override
 	public boolean containsNode(String nodeDeviceId) {
-		return getConcentrationMapper().selectCountByConcentratorAndNode(deviceId, nodeDeviceId) != 0;
+		return getConcentrationMapper().selectCountByConcentratorAndNode(deviceName, nodeDeviceId) != 0;
 	}
 
 	@Override
 	public void requestToConfirm(NodeConfirmation confirmation) {
-		if (!deviceId.equals(confirmation.getConcentrator())) {
+		if (!deviceName.equals(confirmation.getConcentratorDeviceName())) {
 			throw new ProtocolException(new NotAcceptable("Wrong device ID of concentrator. Your program maybe has a bug."));
 		}
 		
@@ -124,7 +137,7 @@ public class Concentrator implements IConcentrator, IDataObjectFactoryAware {
 		if (containsLanId(confirmation.getNode().getLanId()))
 			throw new ProtocolException(new Conflict(String.format("Reduplicate land ID '%s'.", confirmation.getNode().getLanId())));
 		
-		getNodeComfirmationMapper().insert(confirmation);
+		getNodeConfirmationMapper().insert(confirmation);
 	}
 	
 	@Override
@@ -133,7 +146,7 @@ public class Concentrator implements IConcentrator, IDataObjectFactoryAware {
 		
 	}
 	
-	private NodeConfirmationMapper getNodeComfirmationMapper() {
+	private NodeConfirmationMapper getNodeConfirmationMapper() {
 		return sqlSession.getMapper(NodeConfirmationMapper.class);
 	}
 	
@@ -148,7 +161,7 @@ public class Concentrator implements IConcentrator, IDataObjectFactoryAware {
 
 	@Override
 	public boolean containsLanId(String lanId) {
-		return getConcentrationMapper().selectCountByConcentratorAndLanId(deviceId, lanId) != 0;
+		return getConcentrationMapper().selectCountByConcentratorAndLanId(deviceName, lanId) != 0;
 	}
 	
 }

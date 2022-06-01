@@ -1,12 +1,13 @@
 package com.thefirstlineofcode.sand.server.lite.concentrator;
 
 import org.apache.ibatis.session.SqlSession;
+import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.thefirstlineofcode.granite.framework.core.adf.IApplicationComponentService;
-import com.thefirstlineofcode.granite.framework.core.adf.IApplicationComponentServiceAware;
 import com.thefirstlineofcode.sand.server.concentrator.IConcentrator;
 import com.thefirstlineofcode.sand.server.concentrator.IConcentratorFactory;
 import com.thefirstlineofcode.sand.server.concentrator.Node;
@@ -15,8 +16,8 @@ import com.thefirstlineofcode.sand.server.devices.IDeviceManager;
 
 @Component
 @Transactional
-public class ConcentratorFactory implements IConcentratorFactory, IApplicationComponentServiceAware {
-	private IApplicationComponentService appComponentService;
+public class ConcentratorFactory implements IConcentratorFactory, ApplicationContextAware {
+	private ApplicationContext applicationContext;
 	
 	@Autowired
 	private IDeviceManager deviceManager;
@@ -37,16 +38,9 @@ public class ConcentratorFactory implements IConcentratorFactory, IApplicationCo
 		if (!isConcentrator(device))
 			throw new IllegalArgumentException(String.format("Device[%s] isn't a concentrator.", device.getDeviceId()));
 		
-		Concentrator concentrator = new Concentrator(device.getDeviceId(), sqlSession);
-		appComponentService.inject(concentrator);
+		String concentratorDeviceName = deviceManager.getDeviceNameByDeviceId(device.getDeviceId());
 		
-		return concentrator;
-		
-	}
-
-	@Override
-	public void setApplicationComponentService(IApplicationComponentService appComponentService) {
-		this.appComponentService = appComponentService;
+		return applicationContext.getBean(Concentrator.class, concentratorDeviceName, sqlSession);
 	}
 
 	@Override
@@ -61,6 +55,11 @@ public class ConcentratorFactory implements IConcentratorFactory, IApplicationCo
 	
 	private ConcentrationMapper getConcentrationMapper() {
 		return sqlSession.getMapper(ConcentrationMapper.class);
+	}
+
+	@Override
+	public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+		this.applicationContext = applicationContext;
 	}
 
 }

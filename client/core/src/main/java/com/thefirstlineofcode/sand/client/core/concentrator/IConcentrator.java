@@ -14,12 +14,13 @@ public interface IConcentrator {
 		SIZE_OVERFLOW,
 		REDUPLICATE_DEVICE_ID,
 		REDUPLICATE_DEVICE_ADDRESS,
+		REDUPLICATE_LAN_ID,
 		BAD_NODE_CREATED_RESPONSE,
 		CREATED_NODE_NOT_FOUND,
 		SERVER_ASSIGNED_A_EXISTED_LAN_ID
 	}
 	
-	void init(String deviceId, Map<String, Node> nodes, IModelRegistrar modeRegistrar,
+	void init(String deviceName, Map<String, Node> nodes, IModelRegistrar modeRegistrar,
 			Map<CommunicationNet, ? extends ICommunicator<?, ?, ?>> communicators);
 	String getBestSuitedNewLanId();
 	void createNode(String deviceId, String lanId, NodeAddress<?> address);
@@ -29,7 +30,7 @@ public interface IConcentrator {
 	Node[] pullNodes();
 	IModelRegistrar getModeRegistrar();
 	ICommunicator<?, ?, ?> getCommunicator(CommunicationNet communicationNet);
-	String getDeviceId();
+	String getDeviceName();
 	void addListener(IConcentrator.Listener listener);
 	IConcentrator.Listener removeListener(IConcentrator.Listener listener);
 	

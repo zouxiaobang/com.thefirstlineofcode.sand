@@ -41,14 +41,14 @@ public class ExecutionListener implements IEventListener<ExecutionEvent>, IIqRes
 		Device actuator = event.getDevice();
 		
 		boolean isConcentrator = concentratorFactory.isConcentrator(event.getDevice());
-		if (isConcentrator && event.getNodeLanId() != null) {
+		if (isConcentrator && event.getLanId() != null) {
 			IConcentrator concentrator = concentratorFactory.getConcentrator(event.getDevice());
-			if (!concentrator.containsLanId(event.getNodeLanId())) {
+			if (!concentrator.containsLanId(event.getLanId())) {
 				throw new IllegalArgumentException(String.format("Concentrator '%s' doesn't contain a node which's LAN ID is '%s'.",
-						event.getDevice().getDeviceId(), event.getNodeLanId()));
+						event.getDevice().getDeviceId(), event.getLanId()));
 			}
 			
-			Node node = concentrator.getNode(event.getNodeLanId());
+			Node node = concentrator.getNode(event.getLanId());
 			actuator = deviceManager.getByDeviceId(node.getDeviceId());
 		}
 		
@@ -61,8 +61,8 @@ public class ExecutionListener implements IEventListener<ExecutionEvent>, IIqRes
 		
 		Iq iq = new Iq(Iq.Type.SET, event.getExecution());
 		
-		if (isConcentrator && event.getNodeLanId() != null) {			
-			iq.setTo(new JabberId(deviceName, domain, event.getNodeLanId()));
+		if (isConcentrator && event.getLanId() != null) {			
+			iq.setTo(new JabberId(deviceName, domain, event.getLanId()));
 		} else {
 			iq.setTo(new JabberId(deviceName, domain, DeviceIdentity.DEFAULT_RESOURCE_NAME));
 		}
@@ -76,7 +76,7 @@ public class ExecutionListener implements IEventListener<ExecutionEvent>, IIqRes
 	}
 	
 	private JabberId getTarget(ExecutionEvent event, String deviceName, boolean isConcentrator) {
-		if (!isConcentrator && event.getNodeLanId() != null) {
+		if (!isConcentrator && event.getLanId() != null) {
 			throw new IllegalArgumentException("Device which's ID is %s isn't a concentrator.");
 		}
 		

@@ -3,7 +3,7 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.thefirstlineofcode.sand.demo.server.lite.acl.AccessControlEntryMapper">
 	<insert id="insert" parameterType="AccessControlEntry">
-		INSERT INTO ACCESS_CONTROL_ENTRIES(id, user, device, role, removed, update_time) VALUES(#{id}, #{user}, #{role}, FALSE, CURRENT_TIMESTAMP)
+		INSERT INTO ACCESS_CONTROL_ENTRIES(id, user, device_id, role, removed, update_time) VALUES(#{id}, #{user}, #{deviceId}, #{role}, FALSE, CURRENT_TIMESTAMP)
 	</insert>
 	
 	<update id="remove">
