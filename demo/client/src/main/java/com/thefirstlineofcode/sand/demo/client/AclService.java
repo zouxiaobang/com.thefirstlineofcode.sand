@@ -86,16 +86,24 @@ public class AclService implements IAclService, IIqListener {
 	
 	private void processRetrived(Iq iq) {
 		if (iq.getType() != Iq.Type.RESULT) {
-			notifyError(new AclError(AclError.Type.INVALID_RESPONSE));
+			notifyError(new AclError(AclError.Type.INVALID_UPDATE_REQUEST));
 			
 			return;
 		}
 		
-		updateAcl(iq);
+		AccessControlList acl = iq.getObject();
+		local = acl;
+		
+		if (acl == null || acl.getEntries() == null || acl.getEntries().size() == 0) {
+			return;
+		}
+		
+		for (Listener listener : listeners) {
+			listener.retrived(acl);
+		}
 	}
 
-	private void updateAcl(Iq iq) {
-		AccessControlList acl = iq.getObject();
+	private void updateAcl(AccessControlList acl) {
 		if (!acl.getEntries().isEmpty()) {
 			String deviceId = acl.getDeviceId();
 			for (AccessControlEntry ace : acl.getEntries()) {
@@ -178,12 +186,12 @@ public class AclService implements IAclService, IIqListener {
 	@Override
 	public void received(Iq iq) {
 		if (iq.getType() != Iq.Type.SET) {
-			notifyError(new AclError(AclError.Type.INVALID_RESPONSE));
+			notifyError(new AclError(AclError.Type.INVALID_UPDATE_REQUEST));
 			
 			return;
 		}
 		
-		updateAcl(iq);
+		updateAcl((AccessControlList)iq.getObject());
 	}
 
 }

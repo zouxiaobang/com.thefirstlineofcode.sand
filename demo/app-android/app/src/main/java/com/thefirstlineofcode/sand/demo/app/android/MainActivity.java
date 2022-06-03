@@ -5,8 +5,9 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.widget.ExpandableListView;
+import android.view.View;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -14,7 +15,8 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
-import com.thefirstlineofcode.sand.demo.app.android.R;
+import com.google.zxing.integration.android.IntentIntegrator;
+import com.google.zxing.integration.android.IntentResult;
 import com.thefirstlineofcode.basalt.protocol.core.IError;
 import com.thefirstlineofcode.basalt.protocol.core.stanza.Iq;
 import com.thefirstlineofcode.basalt.protocol.core.stream.error.StreamError;
@@ -24,8 +26,6 @@ import com.thefirstlineofcode.sand.client.operator.IOperator;
 import com.thefirstlineofcode.sand.demo.client.AclError;
 import com.thefirstlineofcode.sand.demo.client.IAclService;
 import com.thefirstlineofcode.sand.demo.protocols.AccessControlList;
-import com.google.zxing.integration.android.IntentIntegrator;
-import com.google.zxing.integration.android.IntentResult;
 
 public class MainActivity extends AppCompatActivity implements IOperator.Listener, IAclService.Listener, IErrorListener {
 	private DevicesAdapter devicesAdapter;
@@ -45,12 +45,26 @@ public class MainActivity extends AppCompatActivity implements IOperator.Listene
 			aclService.addListener(this);
 			chatClient.getStream().addErrorListener(this);
 		}
-
+		
+		AccessControlList acl = aclService.getLocal();
 		ListView devicesView = findViewById(R.id.devices_view);
-		devicesAdapter = new DevicesAdapter(aclService.getLocal());
+		devicesAdapter = new DevicesAdapter(acl);
 		devicesView.setAdapter(devicesAdapter);
+		
+		if (acl == null) {
+			retrieveDevices(aclService);
+		}
 	}
-
+	
+	private void retrieveDevices(IAclService aclService) {
+		Toast.makeText(this, getString(R.string.retriving_your_devices), Toast.LENGTH_LONG).show();
+		
+		aclService.retrieve();
+		
+		ProgressBar progressBar = (ProgressBar)findViewById(R.id.progress_bar);
+		progressBar.setVisibility(View.VISIBLE);
+	}
+	
 	@Override
 	protected void onStart() {
 		super.onStart();
@@ -116,7 +130,7 @@ public class MainActivity extends AppCompatActivity implements IOperator.Listene
 
 	private void logout() {
 		finish();
-
+		
 		Intent intent = new Intent(this, LoginActivity.class);
 		intent.putExtra(getString(R.string.auto_login), false);
 		startActivity(intent);
@@ -130,12 +144,7 @@ public class MainActivity extends AppCompatActivity implements IOperator.Listene
 
 	@Override
 	public void authorized(String deviceId) {
-		runOnUiThread(new Runnable() {
-			@Override
-			public void run() {
-				Toast.makeText(MainActivity.this, getString(R.string.device_has_authorized, deviceId), Toast.LENGTH_LONG).show();
-			}
-		});
+		runOnUiThread(() ->Toast.makeText(MainActivity.this, getString(R.string.device_has_authorized, deviceId), Toast.LENGTH_LONG).show());
 	}
 
 	@Override
@@ -155,12 +164,7 @@ public class MainActivity extends AppCompatActivity implements IOperator.Listene
 
 	@Override
 	public void occurred(IOperator.AuthorizationError error, String deviceId) {
-		runOnUiThread(new Runnable() {
-			@Override
-			public void run() {
-				Toast.makeText(MainActivity.this, getString(R.string.failed_to_authorize_device, error.getReason()), Toast.LENGTH_LONG).show();
-			}
-		});
+		runOnUiThread(() -> Toast.makeText(MainActivity.this, getString(R.string.failed_to_authorize_device, error.getReason()), Toast.LENGTH_LONG).show());
 
 	}
 
@@ -171,19 +175,16 @@ public class MainActivity extends AppCompatActivity implements IOperator.Listene
 
 	@Override
 	public void retrived(AccessControlList acl) {
-
+		ProgressBar progressBar = (ProgressBar)findViewById(R.id.progress_bar);
+		progressBar.setVisibility(View.GONE);
 	}
 
 	@Override
 	public void updated(AccessControlList acl) {
 		devicesAdapter.updateAcl(acl);
-
-		runOnUiThread(new Runnable() {
-			@Override
-			public void run() {
-				devicesAdapter.notifyDataSetChanged();
-				Toast.makeText(MainActivity.this, getString(R.string.devices_has_updated), Toast.LENGTH_LONG).show();
-			}
+		runOnUiThread(() -> {
+			devicesAdapter.notifyDataSetChanged();
+			Toast.makeText(MainActivity.this, getString(R.string.devices_has_updated), Toast.LENGTH_LONG).show();
 		});
 	}
 
@@ -199,14 +200,11 @@ public class MainActivity extends AppCompatActivity implements IOperator.Listene
 
 	@Override
 	public void occurred(IError error) {
-		runOnUiThread(new Runnable() {
-			@Override
-			public void run() {
-				if (error instanceof StreamError) {
-					Toast.makeText(MainActivity.this, getString(R.string.stream_error_occurred, error.getDefinedCondition()), Toast.LENGTH_LONG).show();
-				} else {
-					Toast.makeText(MainActivity.this, getString(R.string.stanza_error_occurred, error.getDefinedCondition()), Toast.LENGTH_LONG).show();
-				}
+		runOnUiThread(() -> {
+			if (error instanceof StreamError) {
+				Toast.makeText(MainActivity.this, getString(R.string.stream_error_occurred, error.getDefinedCondition()), Toast.LENGTH_LONG).show();
+			} else {
+				Toast.makeText(MainActivity.this, getString(R.string.stanza_error_occurred, error.getDefinedCondition()), Toast.LENGTH_LONG).show();
 			}
 		});
 	}

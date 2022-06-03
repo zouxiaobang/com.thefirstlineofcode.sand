@@ -26,6 +26,7 @@
     <string name="user_has_registered">用户已经注册</string>
     <string name="incorrect_user_name_or_password">用户名或密码不正确</string>
     <string name="authorize_device">授权设备</string>
+    <string name="retriving_your_devices">正在获取你的设备，请等待....</string>
     <string name="logout">注销</string>
     <string name="can_not_connect_to_internet">不能访问因特网。为了程序能正常运行，你需要授权访问因特网</string>
     <string name="device_has_authorized">ID为%s的设备已经成功授权</string>

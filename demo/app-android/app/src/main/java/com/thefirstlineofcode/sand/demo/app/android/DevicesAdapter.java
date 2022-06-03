@@ -19,7 +19,7 @@ public class DevicesAdapter extends BaseAdapter {
 	
 	@Override
 	public int getCount() {
-		if (acl.getEntries() == null || acl.getEntries().size() == 0)
+		if (acl == null || acl.getEntries() == null || acl.getEntries().size() == 0)
 			return 0;
 		
 		return acl.getEntries().size();
@@ -27,6 +27,9 @@ public class DevicesAdapter extends BaseAdapter {
 	
 	@Override
 	public Object getItem(int position) {
+		if (acl == null || acl.getEntries() == null || acl.getEntries().size() == 0)
+			return null;
+		
 		return acl.getEntries().get(position);
 	}
 	

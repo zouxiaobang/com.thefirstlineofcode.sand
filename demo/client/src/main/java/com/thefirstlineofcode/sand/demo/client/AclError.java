@@ -5,7 +5,7 @@ import com.thefirstlineofcode.basalt.protocol.core.stanza.error.StanzaError;
 public class AclError {
 	public enum Type {
 		SERVER_RETURNS_AN_ERROR,
-		INVALID_RESPONSE
+		INVALID_UPDATE_REQUEST
 	}
 	
 	private Type type;

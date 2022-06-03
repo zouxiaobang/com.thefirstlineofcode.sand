@@ -19,7 +19,7 @@ public class AccessControlListProcessor implements IXepProcessor<Iq, AccessContr
 	public void process(IProcessingContext context, Iq iq, AccessControlList xep) {
 		// TODO Auto-generated method stub
 		if (iq.getType() == Iq.Type.GET) {
-			if (xep.getEntries() != null)
+			if (xep.getEntries() != null && xep.getEntries().size() != 0)
 				throw new ProtocolException(new BadRequest("Access control list entries must be null when IQ type is set to 'get'."));
 			
 			getAccessControlList(context, iq, xep);
@@ -41,7 +41,7 @@ public class AccessControlListProcessor implements IXepProcessor<Iq, AccessContr
 	private void getAccessControlList(IProcessingContext context, Iq iq, AccessControlList xep) {
 		AccessControlList acl = null;
 		if (xep.getDeviceId() == null) {
-			acl = aclService.getUserAcl(context.getJid().getBareIdString());
+			acl = aclService.getUserAcl(context.getJid().getNode());
 		} else {
 			Role role = aclService.getRole(context.getJid().getBareIdString(), xep.getDeviceId());
 			if (role == null)

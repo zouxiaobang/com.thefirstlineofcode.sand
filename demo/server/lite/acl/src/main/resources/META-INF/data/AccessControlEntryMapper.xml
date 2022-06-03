@@ -7,15 +7,15 @@
 	</insert>
 	
 	<update id="remove">
-		UPDATE ACCESS_CONTROL_ENTRIES SET removed = TRUE, update_time = CURRENT_TIMESTAMP WHERE user = #{arg0} AND device_id = #{arg1} AND removed = FALSE
+		UPDATE ACCESS_CONTROL_ENTRIES SET removed = TRUE, update_time = CURRENT_TIMESTAMP WHERE ACCESS_CONTROL_ENTRIES.user = #{arg0} AND device_id = #{arg1} AND removed = FALSE
 	</update>
 	
 	<update id="updateRole">
-		UPDATE ACCESS_CONTROL_ENTRIES SET role = #{2}, update_time = CURRENT_TIMESTAMP WHERE user = #{arg0} AND device_id = #{arg1} AND removed = FALSE
+		UPDATE ACCESS_CONTROL_ENTRIES SET role = #{2}, update_time = CURRENT_TIMESTAMP WHERE ACCESS_CONTROL_ENTRIES.user = #{arg0} AND device_id = #{arg1} AND removed = FALSE
 	</update>
 	
 	<select id="selectByUser" resultMap="accessControlEntryResultMap">
-		SELECT * FROM ACCESS_CONTROL_ENTRIES WHERE user = #{arg0} AND removed = FALSE ORDER BY update_time DESC
+		SELECT * FROM ACCESS_CONTROL_ENTRIES WHERE ACCESS_CONTROL_ENTRIES.user = #{arg0} AND removed = FALSE ORDER BY update_time DESC
 	</select>
 	
 	<select id="selectByDeviceId" resultMap="accessControlEntryResultMap">
@@ -27,7 +27,7 @@
 	</select>
 	
 	<select id="selectRoleByUserAndDeviceId" resultType="com.thefirstlineofcode.sand.demo.protocols.AccessControlList$Role">
-		SELECT role FROM ACCESS_CONTROL_ENTRIES WHERE device_id = #{arg0} AND role = "OWNER" AND removed = FALSE
+		SELECT role FROM ACCESS_CONTROL_ENTRIES WHERE ACCESS_CONTROL_ENTRIES.user = #{arg0} AND device_id = #{arg1} AND removed = FALSE
 	</select>
 	
 	<resultMap id="accessControlEntryResultMap" type="AccessControlEntry">
