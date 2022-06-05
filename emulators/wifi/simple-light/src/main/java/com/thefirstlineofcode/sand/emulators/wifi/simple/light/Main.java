@@ -4,7 +4,7 @@ import com.thefirstlineofcode.chalk.utils.LogConfigurator;
 import com.thefirstlineofcode.chalk.utils.LogConfigurator.LogLevel;
 
 public class Main {
-	private static final String APP_NAME_SAND_WIFI_LIGHT = "sand-wifi-light";
+	private static final String APP_NAME_SAND_WIFI_LIGHT = "sand-emulators-wifi-simple-ight";
 	
 	public static void main(String[] args) {
 		new Main().run();

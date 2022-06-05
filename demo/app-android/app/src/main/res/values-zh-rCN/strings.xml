@@ -21,6 +21,7 @@
     <string name="port_must_be_an_positive_integer">端口必须是一个正整数</string>
     <string name="user_name_has_existed">用户名已经存在，请修改你的用户名</string>
     <string name="invalid_user_name">无效的用户名，请修改你的用户名</string>
+    <string name="ibr_not_supported">不能注册，不支持IBR协议</string>
     <string name="network_error">网络故障，请稍后重试</string>
     <string name="unknown_error">未知错误： %s。请联系开发者</string>
     <string name="user_has_registered">用户已经注册</string>
@@ -35,4 +36,5 @@
     <string name="stanza_error_occurred">Stanza错误：%s。请联系开发者</string>
     <string name="refresh_devices">刷新设备列表</string>
     <string name="devices_has_updated">设备列表被更新</string>
+    <string name="control_the_device">控制这个设备</string>
 </resources>

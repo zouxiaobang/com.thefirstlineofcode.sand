@@ -13,7 +13,7 @@ import com.thefirstlineofcode.sand.protocols.lora.DualLoraAddress;
 import com.thefirstlineofcode.sand.protocols.lora.LoraAddress;
 
 public class Main {
-	private static final String APP_NAME_SAND_LORA_GATEWAY = "sand-lora-gateway";
+	private static final String APP_NAME_SAND_LORA_GATEWAY = "sand-emulators-lora-simple-gateway";
 
 	public static void main(String[] args) {
 		new Main().run();

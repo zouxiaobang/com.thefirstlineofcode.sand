@@ -44,4 +44,5 @@
     <string name="stanza_error_occurred">Stanza error %s occurred. Please contact the developer.</string>
     <string name="refresh_devices">Refresh Devices</string>
     <string name="devices_has_updated">Devices has updated.</string>
+    <string name="control_the_device">Control the Device</string>
 </resources>

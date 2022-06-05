@@ -38,33 +38,41 @@ public class RegisterActivity extends AppCompatActivity {
 	}
 
 	public void register(View view) {
-		EditText etUserName = findViewById(R.id.userName);
+		EditText etUserName = findViewById(R.id.et_user_name);
 		if (TextUtils.isEmpty(etUserName.getText().toString())) {
-			Toast.makeText(this, getString(R.string.user_name_cant_be_null), Toast.LENGTH_LONG).show();
-			etUserName.requestFocus();
-
+			runOnUiThread(() -> {
+				Toast.makeText(this, getString(R.string.user_name_cant_be_null), Toast.LENGTH_LONG).show();
+				etUserName.requestFocus();
+			});
+			
 			return;
 		}
 
-		EditText etPassword = findViewById(R.id.password);
+		EditText etPassword = findViewById(R.id.et_password);
 		if (TextUtils.isEmpty(etPassword.getText().toString())) {
-			Toast.makeText(this, getString(R.string.password_cant_be_null), Toast.LENGTH_LONG).show();
-			etPassword.requestFocus();
+			runOnUiThread(() -> {
+				Toast.makeText(this, getString(R.string.password_cant_be_null), Toast.LENGTH_LONG).show();
+				etPassword.requestFocus();
+			});
 
 			return;
 		}
 
-		EditText etConfirmPassword = findViewById(R.id.confirmPassword);
+		EditText etConfirmPassword = findViewById(R.id.et_confirm_password);
 		if (TextUtils.isEmpty(etConfirmPassword.getText().toString())) {
-			Toast.makeText(this, getString(R.string.confirm_password_cant_be_null), Toast.LENGTH_LONG).show();
-			etConfirmPassword.requestFocus();
+			runOnUiThread(() -> {
+				Toast.makeText(this, getString(R.string.confirm_password_cant_be_null), Toast.LENGTH_LONG).show();
+				etConfirmPassword.requestFocus();
+			});
 
 			return;
 		}
 
 		if (!etPassword.getText().toString().equals(etConfirmPassword.getText().toString())) {
-			Toast.makeText(this, getString(R.string.password_not_equal_to_confirm_password), Toast.LENGTH_LONG).show();
-			etPassword.requestFocus();
+			runOnUiThread(() -> {
+				Toast.makeText(this, getString(R.string.password_not_equal_to_confirm_password), Toast.LENGTH_LONG).show();
+				etPassword.requestFocus();
+			});
 
 			return;
 		}
@@ -76,35 +84,39 @@ public class RegisterActivity extends AppCompatActivity {
 		if (ContextCompat.checkSelfPermission(context, Manifest.permission.INTERNET) == PackageManager.PERMISSION_GRANTED) {
 			try {
 				register(userName.getText().toString(), password.getText().toString());
-				Toast.makeText(context, context.getString(R.string.user_has_registered), Toast.LENGTH_LONG).show();
+				runOnUiThread(() -> Toast.makeText(context, context.getString(R.string.user_has_registered), Toast.LENGTH_LONG).show());
 				finish();
 			} catch (RegistrationException e) {
 				IbrError error = e.getError();
 				if (error == IbrError.CONFLICT) {
-					Toast.makeText(context, context.getString(R.string.user_name_has_existed), Toast.LENGTH_LONG).show();
-					userName.selectAll();
-					userName.requestFocus();
+					runOnUiThread(() -> {
+						Toast.makeText(context, context.getString(R.string.user_name_has_existed), Toast.LENGTH_LONG).show();
+						userName.selectAll();
+						userName.requestFocus();
+					});
 				} else if (error == IbrError.NOT_ACCEPTABLE) {
-					Toast.makeText(context, context.getString(R.string.invalid_user_name), Toast.LENGTH_LONG).show();
-					userName.selectAll();
-					userName.requestFocus();
+					runOnUiThread(() -> {
+						Toast.makeText(context, context.getString(R.string.invalid_user_name), Toast.LENGTH_LONG).show();
+						userName.selectAll();
+						userName.requestFocus();
+					});
 				} else if (error == IbrError.CONNECTION_ERROR || error == IbrError.TIMEOUT) {
-					Toast.makeText(context, context.getString(R.string.network_error), Toast.LENGTH_LONG).show();
+					runOnUiThread(() -> Toast.makeText(context, context.getString(R.string.network_error), Toast.LENGTH_LONG).show());
 				} else {
-					Toast.makeText(context, context.getString(R.string.unknown_error,
-							 e.getCause() == null ? "No cause found" :  e.getCause().getClass().getName()),
-							Toast.LENGTH_LONG).show();
+					runOnUiThread(() -> Toast.makeText(context, context.getString(R.string.unknown_error,
+									e.getCause() == null ? "No cause found" :  e.getCause().getClass().getName()),
+							Toast.LENGTH_LONG).show());
 				}
 			} catch (RuntimeException e) {
 				NegotiationException ne = Toolkits.findNegotiationException(e);
 				if (ne != null && (ne.getAdditionalErrorInfo() == IbrError.NOT_SUPPORTED)) {
-					Toast.makeText(context, context.getString(R.string.ibr_not_supported), Toast.LENGTH_LONG).show();
+					runOnUiThread(() -> Toast.makeText(context, context.getString(R.string.ibr_not_supported), Toast.LENGTH_LONG).show());
 				} else if (ne != null && ne.getAdditionalErrorInfo() instanceof IError) {
 					IError error = (IError)ne.getAdditionalErrorInfo();
-					Toast.makeText(context, context.getString(R.string.unknown_error,
-							Toolkits.getErrorInfo(error)), Toast.LENGTH_LONG).show();
+					runOnUiThread(() -> Toast.makeText(context, context.getString(R.string.unknown_error,
+							Toolkits.getErrorInfo(error)), Toast.LENGTH_LONG).show());
 				} else {
-					Toast.makeText(context, context.getString(R.string.unknown_error, e.getClass().getName()), Toast.LENGTH_LONG).show();
+					runOnUiThread(() -> Toast.makeText(context, context.getString(R.string.unknown_error, e.getClass().getName()), Toast.LENGTH_LONG).show());
 				}
 			}
 		} else {
@@ -144,7 +156,7 @@ public class RegisterActivity extends AppCompatActivity {
 	@Override
 	public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
 		if (requestCode == INTERNET_PERMISSION_REQUEST_CODE) {
-			register(findViewById(R.id.register));
+			register(findViewById(R.id.bt_register));
 		} else {
 			Toolkits.showAlertMessage(this, getString(R.string.can_not_connect_to_internet));
 		}

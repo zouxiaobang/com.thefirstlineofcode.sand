@@ -7,7 +7,7 @@
     tools:context="com.thefirstlineofcode.sand.demo.app.android.MainActivity">
 
     <androidx.appcompat.widget.Toolbar
-        android:id="@+id/toolbar"
+        android:id="@+id/tb_tool_bar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="24dp"
@@ -21,7 +21,7 @@
         app:titleTextColor="@android:color/black" />
 
     <ProgressBar
-        android:id="@+id/progress_bar"
+        android:id="@+id/pb_retrieving_devices"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
@@ -31,16 +31,16 @@
         android:progress="0"
         style="@android:style/Widget.ProgressBar.Large"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/toolbar"
+        app:layout_constraintTop_toBottomOf="@+id/tb_tool_bar"
         app:titleTextColor="@android:color/black" />
 
     <ListView
-        android:id="@+id/devices_view"
+        android:id="@+id/lv_devices"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="16dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/toolbar"></ListView>
+        app:layout_constraintTop_toBottomOf="@+id/tb_tool_bar"></ListView>
 </androidx.constraintlayout.widget.ConstraintLayout>

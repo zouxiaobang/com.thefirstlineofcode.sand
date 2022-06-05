@@ -1,31 +1,46 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical" >
+    android:orientation="horizontal" >
 
-    <TextView
-        android:id="@+id/device_name"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="10dp"
-        android:layout_marginTop="5dp"
-        android:padding="2dp"
-        android:text="Medium Text"
-        android:textAppearance="?android:attr/textAppearanceMedium"
-        android:textColor="#4d4d4d"
-        android:textStyle="bold" />
+    <LinearLayout
+        android:layout_width="256dp"
+        android:layout_height="64dp"
+        android:orientation="vertical">
+        <TextView android:id="@+id/tv_device_id"
+            android:layout_width="wrap_content"
+            android:layout_height="32dp"
+            android:layout_marginStart="10dp"
+            android:layout_marginTop="5dp"
+            android:padding="2dp"
+            android:text="Device ID"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:textColor="#4d4d4d"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/tv_user_role"
+            android:layout_width="wrap_content"
+            android:text="User Role"
+            android:layout_height="32dp"
+            android:layout_marginStart="10dp" />
+    </LinearLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="horizontal">
-
+        android:layout_height="64dp"
+        android:orientation="vertical">
         <TextView
-            android:id="@+id/role"
+            android:id="@+id/tv_control"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="10dp"
-            android:text="TextView" />
+            android:layout_marginTop="16dp"
+            android:text="@string/control_the_device"
+            android:textStyle="bold" />
+        <Spinner
+            android:id="@+id/spn_control_actions"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
     </LinearLayout>
 
 </LinearLayout>

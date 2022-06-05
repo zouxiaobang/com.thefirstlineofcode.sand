@@ -35,9 +35,9 @@ public class MainActivity extends AppCompatActivity implements IOperator.Listene
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 		
-		Toolbar toolbar = findViewById(R.id.toolbar);
-		toolbar.setTitle(R.string.app_name);
-		setSupportActionBar(toolbar);
+		Toolbar tbToolbar = findViewById(R.id.tb_tool_bar);
+		tbToolbar.setTitle(R.string.app_name);
+		setSupportActionBar(tbToolbar);
 
 		IChatClient chatClient = ChatClientSingleton.get(this);
 		IAclService aclService = chatClient.createApi(IAclService.class);
@@ -47,9 +47,9 @@ public class MainActivity extends AppCompatActivity implements IOperator.Listene
 		}
 		
 		AccessControlList acl = aclService.getLocal();
-		ListView devicesView = findViewById(R.id.devices_view);
-		devicesAdapter = new DevicesAdapter(acl);
-		devicesView.setAdapter(devicesAdapter);
+		ListView lvDevices = findViewById(R.id.lv_devices);
+		devicesAdapter = new DevicesAdapter(this, acl);
+		lvDevices.setAdapter(devicesAdapter);
 		
 		if (acl == null) {
 			retrieveDevices(aclService);
@@ -57,12 +57,12 @@ public class MainActivity extends AppCompatActivity implements IOperator.Listene
 	}
 	
 	private void retrieveDevices(IAclService aclService) {
-		Toast.makeText(this, getString(R.string.retriving_your_devices), Toast.LENGTH_LONG).show();
+		runOnUiThread(() -> Toast.makeText(this, getString(R.string.retriving_your_devices), Toast.LENGTH_LONG).show());
 		
 		aclService.retrieve();
 		
-		ProgressBar progressBar = (ProgressBar)findViewById(R.id.progress_bar);
-		progressBar.setVisibility(View.VISIBLE);
+		ProgressBar pbRetrievingDevices = findViewById(R.id.pb_retrieving_devices);
+		pbRetrievingDevices.setVisibility(View.VISIBLE);
 	}
 	
 	@Override
@@ -83,13 +83,13 @@ public class MainActivity extends AppCompatActivity implements IOperator.Listene
 
 	@Override
 	public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-		if (item.getItemId() == R.id.refresh_devices) {
+		if (item.getItemId() == R.id.item_refresh_devices) {
 			refreshDevices();
 			return true;
-		} else if (item.getItemId() == R.id.authorize_device) {
+		} else if (item.getItemId() == R.id.item_authorize_device) {
 			authorizeDevice();
 			return true;
-		} else if (item.getItemId() == R.id.logout) {
+		} else if (item.getItemId() == R.id.item_logout) {
 			logout();
 			return true;
 		} else {
@@ -175,8 +175,11 @@ public class MainActivity extends AppCompatActivity implements IOperator.Listene
 
 	@Override
 	public void retrived(AccessControlList acl) {
-		ProgressBar progressBar = (ProgressBar)findViewById(R.id.progress_bar);
-		progressBar.setVisibility(View.GONE);
+		ProgressBar pbRetrievingDevices = (ProgressBar)findViewById(R.id.pb_retrieving_devices);
+		pbRetrievingDevices.setVisibility(View.INVISIBLE);
+		
+		devicesAdapter.setAcl(acl);
+		runOnUiThread(() -> devicesAdapter.notifyDataSetChanged());
 	}
 
 	@Override
@@ -207,5 +210,17 @@ public class MainActivity extends AppCompatActivity implements IOperator.Listene
 				Toast.makeText(MainActivity.this, getString(R.string.stanza_error_occurred, error.getDefinedCondition()), Toast.LENGTH_LONG).show();
 			}
 		});
+	}
+	
+	public void takeAPhoto(String deviceId) {
+		System.out.println(String.format("Take a photo from device %s.", deviceId));
+	}
+	
+	public void takeAVideo(String deviceId) {
+		System.out.println(String.format("Take a video from device %s.", deviceId));
+	}
+	
+	public void openLiveSteaming(String deviceId) {
+		System.out.println(String.format("Open the live streaming of device %s.", deviceId));
 	}
 }

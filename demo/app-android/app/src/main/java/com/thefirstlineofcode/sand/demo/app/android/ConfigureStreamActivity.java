@@ -9,7 +9,6 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.thefirstlineofcode.sand.demo.app.android.R;
 import com.thefirstlineofcode.chalk.core.stream.StandardStreamConfig;
 
 import java.net.Inet4Address;
@@ -22,20 +21,22 @@ public class ConfigureStreamActivity extends AppCompatActivity {
 		setContentView(R.layout.activity_configure_stream);
 
 		StandardStreamConfig streamConfig = Toolkits.getStreamConfig(this);
-		EditText etHost = findViewById(R.id.host);
+		EditText etHost = findViewById(R.id.et_host);
 		etHost.setText(streamConfig.getHost());
-		EditText etPort = findViewById(R.id.port);
+		EditText etPort = findViewById(R.id.et_port);
 		etPort.setText(String.valueOf(streamConfig.getPort()));
 
-		CheckBox cbEnableTls = findViewById(R.id.enableTls);
+		CheckBox cbEnableTls = findViewById(R.id.cb_enable_tls);
 		cbEnableTls.setChecked(streamConfig.isTlsPreferred());
 	}
 
 	public void configureStream(View view) {
-		EditText etHost = findViewById(R.id.host);
+		EditText etHost = findViewById(R.id.et_host);
 		if (TextUtils.isEmpty(etHost.getText().toString())) {
-			Toast.makeText(this, getString(R.string.host_cant_be_null), Toast.LENGTH_LONG).show();
-			etHost.requestFocus();
+			runOnUiThread(() -> {
+				Toast.makeText(this, getString(R.string.host_cant_be_null), Toast.LENGTH_LONG).show();
+				etHost.requestFocus();
+			});
 
 			return;
 		}
@@ -46,17 +47,21 @@ public class ConfigureStreamActivity extends AppCompatActivity {
 				throw new IllegalArgumentException("Not an IPv4 address.");
 			}
 		} catch (Exception e) {
-			Toast.makeText(this, getString(R.string.host_must_be_an_ipv4_address), Toast.LENGTH_LONG).show();
-			etHost.selectAll();
-			etHost.requestFocus();
+			runOnUiThread(() -> {
+				Toast.makeText(this, getString(R.string.host_must_be_an_ipv4_address), Toast.LENGTH_LONG).show();
+				etHost.selectAll();
+				etHost.requestFocus();
+			});
 
 			return;
 		}
 
-		EditText etPort = findViewById(R.id.port);
+		EditText etPort = findViewById(R.id.et_port);
 		if (TextUtils.isEmpty(etHost.getText().toString())) {
-			Toast.makeText(this, getString(R.string.port_cant_be_null), Toast.LENGTH_LONG).show();
-			etPort.requestFocus();
+			runOnUiThread(() -> {
+				Toast.makeText(this, getString(R.string.port_cant_be_null), Toast.LENGTH_LONG).show();
+				etPort.requestFocus();
+			});
 
 			return;
 		}
@@ -81,7 +86,7 @@ public class ConfigureStreamActivity extends AppCompatActivity {
 			return;
 		}
 
-		CheckBox cbEnableTls = findViewById(R.id.enableTls);
+		CheckBox cbEnableTls = findViewById(R.id.cb_enable_tls);
 
 		StandardStreamConfig streamConfig = new StandardStreamConfig(etHost.getText().toString(), port);
 		streamConfig.setTlsPreferred(cbEnableTls.isChecked());

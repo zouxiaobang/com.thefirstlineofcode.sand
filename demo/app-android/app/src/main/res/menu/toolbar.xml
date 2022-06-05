@@ -1,17 +1,17 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
-        android:id="@+id/refresh_devices"
+        android:id="@+id/item_refresh_devices"
         android:title="@string/refresh_devices"
         app:showAsAction="never"/>
 
     <item
-        android:id="@+id/authorize_device"
+        android:id="@+id/item_authorize_device"
         android:title="@string/authorize_device"
         app:showAsAction="never"/>
 
     <item
-        android:id="@+id/logout"
+        android:id="@+id/item_logout"
         android:title="@string/logout"
         app:showAsAction="never"/>
 </menu>
