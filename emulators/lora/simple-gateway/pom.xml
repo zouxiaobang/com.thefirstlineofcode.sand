@@ -13,13 +13,17 @@
 
 	<groupId>com.thefirstlineofcode.sand.emulators.lora</groupId>
 	<artifactId>sand-emulators-lora-simple-gateway</artifactId>
-	<name>Sand LoRa simple gateway emulator</name>
+	<name>Sand simple gateway LoRa emulator</name>
 	<packaging>jar</packaging>
 	
 	<dependencies>
 		<dependency>
 			<groupId>com.thefirstlineofcode.chalk</groupId>
 			<artifactId>chalk-core</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.thefirstlineofcode.chalk</groupId>
+			<artifactId>chalk-logger</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>com.thefirstlineofcode.sand.client</groupId>
@@ -38,8 +42,8 @@
 			<artifactId>sand-client-actuator</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>com.thefirstlineofcode.sand.client.devices</groupId>
-			<artifactId>sand-client-devices-simple-gateway</artifactId>
+			<groupId>com.thefirstlineofcode.sand.client.things</groupId>
+			<artifactId>sand-client-things-simple-gateway</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>com.thefirstlineofcode.sand.emulators.lora</groupId>
@@ -47,7 +51,7 @@
 		</dependency>
 		<dependency>
 			<groupId>com.thefirstlineofcode.sand.emulators.lora</groupId>
-			<artifactId>sand-emulators-lora-light</artifactId>
+			<artifactId>sand-emulators-lora-simple-light</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>com.thefirstlineofcode.sand.emulators</groupId>

@@ -17,12 +17,12 @@
 	
 	<dependencies>
 		<dependency>
-			<groupId>com.thefirstlineofcode.sand.protocols.devices</groupId>
-			<artifactId>sand-protocols-devices-simple-gateway</artifactId>
+			<groupId>com.thefirstlineofcode.sand.protocols.things</groupId>
+			<artifactId>sand-protocols-things-simple-gateway</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>com.thefirstlineofcode.sand.protocols.devices</groupId>
-			<artifactId>sand-protocols-devices-simple-light</artifactId>
+			<groupId>com.thefirstlineofcode.sand.protocols.things</groupId>
+			<artifactId>sand-protocols-things-simple-light</artifactId>
 		</dependency>
 	</dependencies>
 </project>

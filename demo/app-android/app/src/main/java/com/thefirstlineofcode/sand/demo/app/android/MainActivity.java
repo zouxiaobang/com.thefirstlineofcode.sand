@@ -27,7 +27,12 @@ import com.thefirstlineofcode.sand.demo.client.AclError;
 import com.thefirstlineofcode.sand.demo.client.IAclService;
 import com.thefirstlineofcode.sand.demo.protocols.AccessControlList;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class MainActivity extends AppCompatActivity implements IOperator.Listener, IAclService.Listener, IErrorListener {
+	private static final Logger logger = LoggerFactory.getLogger(MainActivity.class);
+	
 	private DevicesAdapter devicesAdapter;
 	
 	@Override
@@ -213,6 +218,7 @@ public class MainActivity extends AppCompatActivity implements IOperator.Listene
 	}
 	
 	public void takeAPhoto(String deviceId) {
+		logger.info("Take a photo from device {}.", deviceId);
 		System.out.println(String.format("Take a photo from device %s.", deviceId));
 	}
 	

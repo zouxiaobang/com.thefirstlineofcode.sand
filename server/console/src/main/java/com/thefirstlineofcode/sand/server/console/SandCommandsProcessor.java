@@ -69,8 +69,8 @@ public class SandCommandsProcessor extends AbstractCommandsProcessor implements 
 	
 	private Map<String, Protocol> createActionNameToProtocols() {
 		Map<String, Protocol> actionNameToProtocols = new HashMap<>();
-		actionNameToProtocols.put(ACTION_NAME_FLASH, new Protocol("urn:leps:iot:actuator:light", "flash"));
-		actionNameToProtocols.put(ACTION_NAME_CHANGE_MODE, new Protocol("urn:leps:iot:actuator:geteway", "change-mode"));
+		actionNameToProtocols.put(ACTION_NAME_FLASH, new Protocol("urn:leps:iot:actuator:simple-light", "flash"));
+		actionNameToProtocols.put(ACTION_NAME_CHANGE_MODE, new Protocol("urn:leps:iot:actuator:simple-geteway", "change-mode"));
 		
 		return actionNameToProtocols;
 	}

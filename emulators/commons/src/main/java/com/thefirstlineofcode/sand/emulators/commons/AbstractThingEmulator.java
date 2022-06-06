@@ -44,7 +44,7 @@ public abstract class AbstractThingEmulator extends AbstractDevice implements IT
 	}
 
 	protected String generateDeviceId() {
-		return getDeviceModel() + ThingsUtils.generateRandomId(8);
+		return getDeviceModel() + "-" + ThingsUtils.generateRandomId(8);
 	}
 	
 	public String getThingStatus() {

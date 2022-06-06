@@ -34,8 +34,8 @@
 			<artifactId>sand-client-core</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>com.thefirstlineofcode.sand.client.devices</groupId>
-			<artifactId>sand-client-devices-simple-light</artifactId>
+			<groupId>com.thefirstlineofcode.sand.client.things</groupId>
+			<artifactId>sand-client-things-simple-light</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>com.thefirstlineofcode.sand.protocols</groupId>

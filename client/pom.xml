@@ -24,7 +24,7 @@
 		<module>concentrator</module>
 		<module>actuator</module>
 		<module>operator</module>
-		<module>devices</module>
+		<module>things</module>
 	</modules>
 
 </project>

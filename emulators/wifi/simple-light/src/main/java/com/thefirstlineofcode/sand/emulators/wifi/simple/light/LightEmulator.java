@@ -4,6 +4,7 @@ import java.awt.Window;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
+import java.util.Map;
 
 import javax.naming.OperationNotSupportedException;
 import javax.swing.JOptionPane;
@@ -17,9 +18,9 @@ import com.thefirstlineofcode.chalk.core.stream.StandardStreamConfig;
 import com.thefirstlineofcode.chalk.core.stream.StreamConfig;
 import com.thefirstlineofcode.chalk.network.ConnectionException;
 import com.thefirstlineofcode.chalk.network.IConnectionListener;
-import com.thefirstlineofcode.sand.client.devices.simple.light.ILight;
 import com.thefirstlineofcode.sand.client.edge.IEdgeThingListener;
 import com.thefirstlineofcode.sand.client.ibdr.RegistrationException;
+import com.thefirstlineofcode.sand.client.things.simple.light.ILight;
 import com.thefirstlineofcode.sand.emulators.commons.AbstractThingEmulator;
 import com.thefirstlineofcode.sand.emulators.commons.Constants;
 import com.thefirstlineofcode.sand.emulators.commons.ILightEmulator;
@@ -258,8 +259,12 @@ public class LightEmulator extends AbstractThingEmulator implements ILightEmulat
 	}
 
 	@Override
-	protected void loadDeviceAttributes() {}
+	protected Map<String, String> loadDeviceAttributes() {
+		return null;
+	}
 	
 	@Override
-	protected void saveDeviceId(String deviceId) {}
+	protected void saveAttributes(Map<String, String> attributes) {
+		light.saveAttributes(attributes);
+	}
 }

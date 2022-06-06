@@ -8,20 +8,20 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import com.thefirstlineofcode.basalt.protocol.core.Protocol;
-import com.thefirstlineofcode.sand.client.devices.simple.light.ILight;
+import com.thefirstlineofcode.sand.client.things.simple.light.ILight;
+import com.thefirstlineofcode.sand.emulators.commons.Constants;
 import com.thefirstlineofcode.sand.emulators.commons.ILightEmulator;
 import com.thefirstlineofcode.sand.emulators.commons.ui.AbstractThingEmulatorPanel;
 import com.thefirstlineofcode.sand.emulators.commons.ui.LightEmulatorPanel;
 import com.thefirstlineofcode.sand.emulators.lora.network.LoraCommunicator;
 import com.thefirstlineofcode.sand.emulators.lora.things.AbstractLoraThingEmulator;
-import com.thefirstlineofcode.sand.emulators.models.Le01ModelDescriptor;
+import com.thefirstlineofcode.sand.emulators.models.SlLe01ModelDescriptor;
 import com.thefirstlineofcode.sand.protocols.actuator.ExecutionException;
-import com.thefirstlineofcode.sand.protocols.devices.simple.light.Flash;
+import com.thefirstlineofcode.sand.protocols.things.simple.light.Flash;
 
 public class Light extends AbstractLoraThingEmulator implements ILightEmulator {
-	public static final String THING_TYPE = "Light Emulator";
-	public static final String THING_MODEL = "LE01";
-	public static final String SOFTWARE_VERSION = "0.1.0.RELEASE";
+	public static final String THING_TYPE = SlLe01ModelDescriptor.THING_TYPE;
+	public static final String THING_MODEL = SlLe01ModelDescriptor.MODEL_NAME;
 	
 	private static final SwitchState DEFAULT_SWITCH_STATE = SwitchState.OFF;
 	private static final LightState DEFAULT_LIGHT_STATE = LightState.OFF;
@@ -65,7 +65,7 @@ public class Light extends AbstractLoraThingEmulator implements ILightEmulator {
 	
 	@Override
 	public String getSoftwareVersion() {
-		return SOFTWARE_VERSION;
+		return Constants.SOFTWARE_VERSION;
 	}
 
 	@Override
@@ -264,7 +264,7 @@ public class Light extends AbstractLoraThingEmulator implements ILightEmulator {
 
 	@Override
 	protected Map<Protocol, Class<?>> createSupportedActions() {
-		return new Le01ModelDescriptor().getSupportedActions();
+		return new SlLe01ModelDescriptor().getSupportedActions();
 	}
 	
 	@Override
@@ -283,8 +283,10 @@ public class Light extends AbstractLoraThingEmulator implements ILightEmulator {
 	}
 
 	@Override
-	protected void loadDeviceAttributes() {}
+	protected Map<String, String> loadDeviceAttributes() {
+		return null;
+	}
 
 	@Override
-	protected void saveDeviceId(String deviceId) {}
+	protected void saveAttributes(Map<String, String> attributes) {}
 }

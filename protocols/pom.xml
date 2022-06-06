@@ -18,7 +18,7 @@
 
 	<modules>
 		<module>core</module>
-		<module>devices</module>
+		<module>things</module>
 		<module>ibdr</module>
 		<module>lora</module>
 		<module>concentrator</module>

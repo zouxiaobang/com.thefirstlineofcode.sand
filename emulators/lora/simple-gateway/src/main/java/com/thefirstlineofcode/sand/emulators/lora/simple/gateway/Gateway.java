@@ -76,14 +76,14 @@ import com.thefirstlineofcode.sand.client.core.concentrator.ModelRegistrar;
 import com.thefirstlineofcode.sand.client.core.concentrator.Node;
 import com.thefirstlineofcode.sand.client.core.obx.IObxFactory;
 import com.thefirstlineofcode.sand.client.core.obx.ObxFactory;
-import com.thefirstlineofcode.sand.client.devices.simple.gateway.ChangeModeExecutor;
-import com.thefirstlineofcode.sand.client.devices.simple.gateway.IGateway;
-import com.thefirstlineofcode.sand.client.devices.simple.light.ILight;
 import com.thefirstlineofcode.sand.client.ibdr.IRegistration;
 import com.thefirstlineofcode.sand.client.ibdr.IbdrPlugin;
 import com.thefirstlineofcode.sand.client.ibdr.RegistrationException;
 import com.thefirstlineofcode.sand.client.lora.ConcentratorDynamicalAddressConfigurator;
 import com.thefirstlineofcode.sand.client.lora.IDualLoraChipsCommunicator;
+import com.thefirstlineofcode.sand.client.things.simple.gateway.ChangeModeExecutor;
+import com.thefirstlineofcode.sand.client.things.simple.gateway.IGateway;
+import com.thefirstlineofcode.sand.client.things.simple.light.ILight;
 import com.thefirstlineofcode.sand.emulators.commons.Constants;
 import com.thefirstlineofcode.sand.emulators.commons.IThingEmulator;
 import com.thefirstlineofcode.sand.emulators.commons.IThingEmulatorFactory;
@@ -102,23 +102,24 @@ import com.thefirstlineofcode.sand.emulators.lora.simple.gateway.things.ThingInf
 import com.thefirstlineofcode.sand.emulators.lora.simple.gateway.things.ThingInternalFrame;
 import com.thefirstlineofcode.sand.emulators.lora.things.AbstractLoraThingEmulator;
 import com.thefirstlineofcode.sand.emulators.lora.things.AbstractLoraThingEmulatorFactory;
-import com.thefirstlineofcode.sand.emulators.models.Le01ModelDescriptor;
+import com.thefirstlineofcode.sand.emulators.models.SgLe01ModelDescriptor;
+import com.thefirstlineofcode.sand.emulators.models.SlLe01ModelDescriptor;
 import com.thefirstlineofcode.sand.protocols.core.CommunicationNet;
 import com.thefirstlineofcode.sand.protocols.core.DeviceIdentity;
 import com.thefirstlineofcode.sand.protocols.core.HourTimeBasedId;
 import com.thefirstlineofcode.sand.protocols.core.ITraceId;
 import com.thefirstlineofcode.sand.protocols.core.ITraceIdFactory;
-import com.thefirstlineofcode.sand.protocols.devices.simple.gateway.ChangeMode;
-import com.thefirstlineofcode.sand.protocols.devices.simple.light.Flash;
 import com.thefirstlineofcode.sand.protocols.lora.LoraAddress;
+import com.thefirstlineofcode.sand.protocols.things.simple.gateway.ChangeMode;
+import com.thefirstlineofcode.sand.protocols.things.simple.light.Flash;
 
 public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionListener, InternalFrameListener,
 		ComponentListener, WindowListener, IGateway, IConnectionListener, ConcentratorDynamicalAddressConfigurator.Listener,
 		IConcentrator.Listener {
 	private static final long serialVersionUID = -7894418812878036627L;
 	
-	private static final String THING_NAME = "Lora Gateway Emulator";
-	private static final String THING_MODEL = "GE01";
+	private static final String THING_TYPE = SgLe01ModelDescriptor.THING_TYPE;
+	private static final String THING_MODEL = SgLe01ModelDescriptor.MODEL_NAME;
 	
 	private static final String DEFAULT_GATEWAY_LAN_ID = "00";
 	private static final int ALWAYS_FULL_POWER = 100;
@@ -208,7 +209,7 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 	private LanDataListener lanDataListener;
 		
 	public Gateway(ILoraNetwork network, IDualLoraChipsCommunicator gatewayCommunicator) {
-		super(THING_NAME);
+		super(THING_TYPE);
 		
 		this.network = network;
 		this.gatewayCommunicator = gatewayCommunicator;
@@ -243,7 +244,7 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 	}
 
 	protected String generateDeviceId() {
-		return getDeviceModel() + ThingsUtils.generateRandomId(8);
+		return getDeviceModel() + "-" + ThingsUtils.generateRandomId(8);
 	}
 	
 	private class AutoReconnectThread implements Runnable {
@@ -587,7 +588,7 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 	
 	private IModelRegistrar createModeRegistrar() {
 		IModelRegistrar modeRegistrar = new ModelRegistrar();
-		modeRegistrar.registerModeDescriptor(new Le01ModelDescriptor());
+		modeRegistrar.registerModeDescriptor(new SlLe01ModelDescriptor());
 		
 		return modeRegistrar;
 	}
@@ -632,20 +633,19 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 				}
 			});
 			
-			actuator.setDeviceModel(THING_MODEL);
 			actuator.setToConcentrator(concentrator, traceIdFactory, obxFactory);
 			actuator.registerLanAction(Flash.class);
-			actuator.registerLanExecutionErrorProcessor(getLe01ModelLanExecutionErrorProcessor());
+			actuator.registerLanExecutionErrorProcessor(getSlLe01ModelLanExecutionErrorProcessor());
 		}
 		
 		actuator.start();
 	}
 	
-	public static ILanExecutionErrorProcessor getLe01ModelLanExecutionErrorProcessor() {
-		return new ErrorCodeToXmppErrorsConverter(Le01ModelDescriptor.MODEL_NAME, getLe01ModelErrorCodeToErrorTypes());
+	public static ILanExecutionErrorProcessor getSlLe01ModelLanExecutionErrorProcessor() {
+		return new ErrorCodeToXmppErrorsConverter(SlLe01ModelDescriptor.MODEL_NAME, getSlLe01ModelErrorCodeToErrorTypes());
 	}
 
-	private static Map<String, Class<? extends IError>> getLe01ModelErrorCodeToErrorTypes() {
+	private static Map<String, Class<? extends IError>> getSlLe01ModelErrorCodeToErrorTypes() {
 		Map<String, Class<? extends IError>> errorCodeToXmppErrors = new HashMap<>();
 		errorCodeToXmppErrors.put(ILight.ERROR_CODE_NOT_REMOTE_CONTROL_STATE,
 				UnexpectedRequest.class);
@@ -864,7 +864,7 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 	}
 	
 	private void showAboutDialog() {
-		UiUtils.showDialog(this, new AboutDialog(this, THING_NAME, Constants.SOFTWARE_VERSION));
+		UiUtils.showDialog(this, new AboutDialog(this, THING_TYPE, Constants.SOFTWARE_VERSION));
 	}
 
 	private void quit() {
@@ -1635,7 +1635,7 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 
 	@Override
 	public String getDeviceType() {
-		return THING_NAME;
+		return THING_TYPE;
 	}
 
 	@Override
@@ -1645,7 +1645,7 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 
 	@Override
 	public String getDeviceName() {
-		return THING_NAME + "-" + THING_MODEL;
+		return THING_TYPE + "-" + THING_MODEL;
 	}
 	
 	private void listenLan() {

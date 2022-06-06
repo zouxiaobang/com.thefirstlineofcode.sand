@@ -2,14 +2,19 @@ package com.thefirstlineofcode.sand.client.core;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public abstract class AbstractDevice implements IDevice {
+	protected static final String ATTRIBUTE_NAME_DEVICE_ID = "device_id";
+	
 	protected String deviceId;
 	protected String type;
 	protected String model;
 	protected String name;
 	protected boolean powered;
 	protected int batteryPower;
+	
+	protected Map<String, String> attributes;
 	
 	protected List<IDeviceListener> listeners;
 	
@@ -28,17 +33,19 @@ public abstract class AbstractDevice implements IDevice {
 		
 		listeners =  new ArrayList<>();
 		
-		loadDeviceAttributes();
+		attributes = loadDeviceAttributes();
 		
 		if (deviceId == null) {
 			deviceId = generateDeviceId();
-			saveDeviceId(deviceId);
+			
+			attributes.put(ATTRIBUTE_NAME_DEVICE_ID, deviceId);
+			saveAttributes(attributes);
 		}
 	}
 	
-	protected abstract void loadDeviceAttributes();
+	protected abstract Map<String, String> loadDeviceAttributes();
 	protected abstract String generateDeviceId();
-	protected abstract void saveDeviceId(String deviceId);
+	protected abstract void saveAttributes(Map<String, String> attributes);
 	
 	@Override
 	public String getDeviceId() {

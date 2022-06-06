@@ -1,9 +1,5 @@
 package com.thefirstlineofcode.sand.demo.app.android;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.content.ContextCompat;
-
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -13,7 +9,10 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import com.thefirstlineofcode.sand.demo.app.android.R;
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
+
 import com.thefirstlineofcode.basalt.protocol.core.IError;
 import com.thefirstlineofcode.chalk.core.AuthFailureException;
 import com.thefirstlineofcode.chalk.core.IChatClient;
@@ -23,7 +22,7 @@ import com.thefirstlineofcode.chalk.network.ConnectionException;
 
 public class LoginActivity extends AppCompatActivity {
 	public static final int INTERNET_PERMISSION_REQUEST_CODE = 1;
-
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -37,7 +36,7 @@ public class LoginActivity extends AppCompatActivity {
 		etUserName.setText(token.getUsername());
 		EditText etPassword = findViewById(R.id.et_password);
 		etPassword.setText(new String(token.getPassword()));
-
+		
 		Intent intent = getIntent();
 		if (intent != null && intent.getBooleanExtra(getString(R.string.auto_login), true))
 			login(findViewById(R.id.bt_login));

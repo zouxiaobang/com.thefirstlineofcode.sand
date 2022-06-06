@@ -62,7 +62,6 @@ public class Actuator implements IActuator, IIqListener {
 	
 	private IChatServices chatServices;
 	private Map<Class<?>, IExecutorFactory<?>> executorFactories;
-	private String deviceModel;
 	private IConcentrator concentrator;
 	private ITraceIdFactory traceIdFactory;
 	private Map<CommunicationNet, ICommunicator<?, ?, byte[]>> communicators;
@@ -91,11 +90,6 @@ public class Actuator implements IActuator, IIqListener {
 		host = JabberId.parse(chatServices.getStream().getStreamConfig().getHost());
 		started = false;
 		lanEnabled = false;
-	}
-	
-	@Override
-	public void setDeviceModel(String deivceModel) {
-		this.deviceModel = deivceModel;
 	}
 	
 	@Override
@@ -133,9 +127,6 @@ public class Actuator implements IActuator, IIqListener {
 	
 	@SuppressWarnings("unchecked")
 	private <T> void execute(Iq iq, Execution execution) {	
-		if (deviceModel == null)
-			throw new IllegalStateException("Null device model. You should call setDeviceModel(String deviceModel) method before you start actuator.");
-		
 		JabberId from = iq.getFrom();
 		if (from == null) {
 			from = host;

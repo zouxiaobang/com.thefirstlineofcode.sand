@@ -13,7 +13,7 @@
 
 	<groupId>com.thefirstlineofcode.sand.emulators.lora</groupId>
 	<artifactId>sand-emulators-lora-simple-light</artifactId>
-	<name>Sand LoRa simple light emulator</name>
+	<name>Sand simple light LoRa emulator</name>
 	<packaging>jar</packaging>
 	
 	<dependencies>

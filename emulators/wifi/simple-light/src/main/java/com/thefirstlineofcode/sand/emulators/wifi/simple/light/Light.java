@@ -1,5 +1,7 @@
 package com.thefirstlineofcode.sand.emulators.wifi.simple.light;
 
+import java.util.Map;
+
 import com.thefirstlineofcode.chalk.core.AuthFailureException;
 import com.thefirstlineofcode.chalk.core.stream.StandardStreamConfig;
 import com.thefirstlineofcode.chalk.network.ConnectionException;
@@ -8,19 +10,20 @@ import com.thefirstlineofcode.sand.client.core.ThingsUtils;
 import com.thefirstlineofcode.sand.client.core.actuator.IActuator;
 import com.thefirstlineofcode.sand.client.core.actuator.IExecutor;
 import com.thefirstlineofcode.sand.client.core.actuator.IExecutorFactory;
-import com.thefirstlineofcode.sand.client.devices.simple.light.FlashExecutor;
-import com.thefirstlineofcode.sand.client.devices.simple.light.ILight;
-import com.thefirstlineofcode.sand.client.edge.AbstractEdgeDevice;
+import com.thefirstlineofcode.sand.client.edge.AbstractEdgeThing;
 import com.thefirstlineofcode.sand.client.ibdr.RegistrationException;
+import com.thefirstlineofcode.sand.client.things.simple.light.FlashExecutor;
+import com.thefirstlineofcode.sand.client.things.simple.light.ILight;
 import com.thefirstlineofcode.sand.emulators.commons.Constants;
 import com.thefirstlineofcode.sand.emulators.commons.ui.LightEmulatorPanel;
+import com.thefirstlineofcode.sand.emulators.models.SlWe01ModelDescriptor;
 import com.thefirstlineofcode.sand.protocols.actuator.ExecutionException;
 import com.thefirstlineofcode.sand.protocols.core.DeviceIdentity;
-import com.thefirstlineofcode.sand.protocols.devices.simple.light.Flash;
+import com.thefirstlineofcode.sand.protocols.things.simple.light.Flash;
 
-public class Light extends AbstractEdgeDevice implements ILight {
-	public static final String THING_TYPE = "WiFi Simple Light Device";
-	public static final String THING_MODEL = "LD01";
+public class Light extends AbstractEdgeThing implements ILight {
+	public static final String THING_TYPE = SlWe01ModelDescriptor.THING_TYPE;
+	public static final String THING_MODEL = SlWe01ModelDescriptor.MODEL_NAME;
 	
 	private static final SwitchState DEFAULT_SWITCH_STATE = SwitchState.OFF;
 	private static final LightState DEFAULT_LIGHT_STATE = LightState.OFF;
@@ -33,7 +36,7 @@ public class Light extends AbstractEdgeDevice implements ILight {
 	private IActuator actuator;
 	
 	public Light(StandardStreamConfig streamConfig) {
-		super(THING_TYPE, THING_MODEL, streamConfig);
+		super(THING_TYPE, THING_MODEL);
 		
 		switchState = DEFAULT_SWITCH_STATE;
 		lightState = DEFAULT_LIGHT_STATE;
@@ -174,10 +177,10 @@ public class Light extends AbstractEdgeDevice implements ILight {
 	}
 
 	@Override
-	protected void registerExceptionOccurred(RegistrationException e) {}
+	protected void registrationExceptionOccurred(RegistrationException e) {}
 
 	@Override
-	protected void saveDeviceIdentity(DeviceIdentity identity) {}
+	protected void saveAttributes(Map<String, String> attributes) {}
 
 	@Override
 	protected void registerChalkPlugins() {
@@ -205,7 +208,6 @@ public class Light extends AbstractEdgeDevice implements ILight {
 
 	protected IActuator createActuator() {
 		IActuator actuator = chatClient.createApi(IActuator.class);
-		actuator.setDeviceModel(getDeviceModel());
 		actuator.registerExecutorFactory(Flash.class, new IExecutorFactory<Flash>() {
 			private IExecutor<Flash> executor = new FlashExecutor(Light.this);
 			
@@ -235,13 +237,22 @@ public class Light extends AbstractEdgeDevice implements ILight {
 	protected void disconnected() {}
 
 	@Override
-	protected void loadDeviceAttributes() {}
-
-	@Override
-	protected String generateDeviceId() {
-		return getDeviceModel() + ThingsUtils.generateRandomId(8);
+	protected Map<String, String> loadDeviceAttributes() {
+		return null;
 	}
 
 	@Override
-	protected void saveDeviceId(String deviceId) {}
+	protected String generateDeviceId() {
+		return getDeviceModel() + "-" + ThingsUtils.generateRandomId(8);
+	}
+	
+	@Override
+	protected StandardStreamConfig getStreamConfig(Map<String, String> attributes) {
+		return null;
+	}
+
+	@Override
+	protected DeviceIdentity getIdentity(Map<String, String> attributes) {
+		return null;
+	}
 }

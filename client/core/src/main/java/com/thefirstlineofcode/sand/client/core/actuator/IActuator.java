@@ -5,7 +5,6 @@ import com.thefirstlineofcode.sand.client.core.obx.IObxFactory;
 import com.thefirstlineofcode.sand.protocols.core.ITraceIdFactory;
 
 public interface IActuator {
-	void setDeviceModel(String deivceModel);
 	void setToConcentrator(IConcentrator concentrator, ITraceIdFactory traceIdFactory, IObxFactory obxFactory);
 	<T> void registerExecutor(Class<T> actionType, Class<? extends IExecutor<T>> executorType);
 	<T> void registerExecutorFactory(Class<T> actionType, IExecutorFactory<T> executorFactory);

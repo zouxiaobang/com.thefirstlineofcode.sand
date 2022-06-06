@@ -6,9 +6,9 @@ import java.util.Map;
 import org.pf4j.Extension;
 
 import com.thefirstlineofcode.granite.framework.core.repository.IInitializable;
-import com.thefirstlineofcode.sand.emulators.models.Ge01ModelDescriptor;
-import com.thefirstlineofcode.sand.emulators.models.Ld01ModelDescriptor;
-import com.thefirstlineofcode.sand.emulators.models.Le01ModelDescriptor;
+import com.thefirstlineofcode.sand.emulators.models.SgLe01ModelDescriptor;
+import com.thefirstlineofcode.sand.emulators.models.SlLe01ModelDescriptor;
+import com.thefirstlineofcode.sand.emulators.models.SlWe01ModelDescriptor;
 import com.thefirstlineofcode.sand.protocols.core.ModelDescriptor;
 import com.thefirstlineofcode.sand.server.devices.IDeviceModelsProvider;
 
@@ -23,12 +23,11 @@ public class DeviceModelsProvider implements IDeviceModelsProvider, IInitializab
 
 	@Override
 	public void init() {
-		Ge01ModelDescriptor ge01 = new Ge01ModelDescriptor();
-		models.put(ge01.getName(), ge01);
-		Le01ModelDescriptor le01 = new Le01ModelDescriptor();
-		models.put(le01.getName(), le01);
-		
-		Ld01ModelDescriptor ld01 = new Ld01ModelDescriptor();
-		models.put(ld01.getName(), ld01);
+		SgLe01ModelDescriptor sgLe01 = new SgLe01ModelDescriptor();
+		models.put(sgLe01.getName(), sgLe01);
+		SlLe01ModelDescriptor slLe01 = new SlLe01ModelDescriptor();
+		models.put(slLe01.getName(), slLe01);
+		SlWe01ModelDescriptor slWe01 = new SlWe01ModelDescriptor();
+		models.put(slWe01.getName(), slWe01);
 	}
 }

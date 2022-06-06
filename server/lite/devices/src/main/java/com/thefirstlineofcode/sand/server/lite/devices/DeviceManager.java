@@ -227,21 +227,31 @@ public class DeviceManager implements IDeviceManager {
 
 	@Override
 	public boolean isValid(String deviceId) {
+		if (deviceId == null || deviceId.length() == 0)
+			return false;
+		
 		if (deviceIdRuler != null)
 			return deviceIdRuler.isValid(deviceId);
 		
-		return deviceId.length() == 12;
+		for  (ModelDescriptor modelDescriptor : modelDescriptors.values()) {
+			if (deviceId.length() > modelDescriptor.getName().length() &&
+					deviceId.startsWith(modelDescriptor.getName() + "-") &&
+					deviceId.substring(modelDescriptor.getName().length(), deviceId.length()).length() == 9)
+				return true;
+		}
+		
+		return false;
 	}
 
 	@Override
 	public String getModel(String deviceId) {
-		String model = null;
 		if (deviceIdRuler != null)
-			model = deviceIdRuler.guessModel(deviceId);
+			return deviceIdRuler.guessModel(deviceId);
 		
-		model = deviceId.substring(0, 4);
-		if (getModelDescriptor(model) != null)
-			return model;
+		for (ModelDescriptor modelDescriptor : modelDescriptors.values()) {
+			if (deviceId.startsWith(modelDescriptor.getName()))
+				return modelDescriptor.getName();
+		}
 		
 		return null;
 	}
