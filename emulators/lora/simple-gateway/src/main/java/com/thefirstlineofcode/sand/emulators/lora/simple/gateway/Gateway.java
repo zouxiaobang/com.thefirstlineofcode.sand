@@ -14,6 +14,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import java.beans.PropertyVetoException;
+import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -47,6 +48,10 @@ import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileSystemView;
 import javax.swing.plaf.FontUIResource;
 
+import com.google.zxing.BarcodeFormat;
+import com.google.zxing.client.j2se.MatrixToImageWriter;
+import com.google.zxing.common.BitMatrix;
+import com.google.zxing.qrcode.QRCodeWriter;
 import com.thefirstlinelinecode.sand.protocols.concentrator.NodeAddress;
 import com.thefirstlineofcode.basalt.protocol.core.IError;
 import com.thefirstlineofcode.basalt.protocol.core.stanza.error.StanzaError;
@@ -172,6 +177,8 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 	private static final String MENU_NAME_HELP = "help";
 	private static final String MENU_ITEM_TEXT_ABOUT = "About";
 	private static final String MENU_ITEM_NAME_ABOUT = "about";
+	private static final String MENU_ITEM_TEXT_GENERATE_QR_CODE_PIC = "Generate QR code picture";
+	private static final String MENU_ITEM_NAME_GENERATE_QR_CODE_PIC = "generate_qr_code_picture";
 	
 	private JCheckBoxMenuItem addressConfigurationModeMenuItem;
 	
@@ -387,6 +394,8 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 			showLogConsoleDialog();
 		} else if (MENU_ITEM_NAME_ABOUT.equals(actionCommand)) {
 			showAboutDialog();
+		} else if (MENU_ITEM_NAME_GENERATE_QR_CODE_PIC.equals(actionCommand)) {
+			generateQrCodePic();
 		} else {
 			throw new IllegalArgumentException("Illegal action command: " + actionCommand);
 		}
@@ -759,7 +768,7 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 	}
 
 	private void saveAs() {
-		JFileChooser fileChooser = createFileChooser();
+		JFileChooser fileChooser = createGatewayInfoFileChooser();
 		fileChooser.setDialogTitle("Choose a file to save your LoRa gateway info");
 		File defaultDirectory = FileSystemView.getFileSystemView().getDefaultDirectory();
 		fileChooser.setSelectedFile(new File(defaultDirectory, deviceId + ".lgi"));
@@ -770,7 +779,7 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 		}
 	}
 
-	private JFileChooser createFileChooser() {
+	private JFileChooser createGatewayInfoFileChooser() {
 		JFileChooser fileChooser = new JFileChooser();
 		fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
 		fileChooser.setMultiSelectionEnabled(false);
@@ -866,6 +875,65 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 	private void showAboutDialog() {
 		UiUtils.showDialog(this, new AboutDialog(this, THING_TYPE, Constants.SOFTWARE_VERSION));
 	}
+	
+	private void generateQrCodePic() {
+		String deviceId = JOptionPane.showInputDialog(this, "Please input a device ID for QR code picture", "Generate QR code picture",
+				JOptionPane.QUESTION_MESSAGE);
+		
+		if (deviceId == null || deviceId.isEmpty()) {
+			return;
+		}
+		
+		JFileChooser fileChooser = createJpgFileChooser();
+		fileChooser.setDialogTitle("Choose a file to save your QR code picture");
+		File defaultDirectory = FileSystemView.getFileSystemView().getDefaultDirectory();
+		fileChooser.setSelectedFile(new File(defaultDirectory, deviceId + ".jpg"));
+		
+		int result = fileChooser.showSaveDialog(this);
+		if (result == JFileChooser.APPROVE_OPTION) {
+			generateQrCodePic(fileChooser.getSelectedFile());
+		}
+	}
+	
+	private void generateQrCodePic(File file) {
+		QRCodeWriter qrCodeWriter = new QRCodeWriter();
+		BufferedOutputStream output = null;
+		try {
+			output = new BufferedOutputStream(new FileOutputStream(file));
+			BitMatrix matrix = qrCodeWriter.encode(deviceId, BarcodeFormat.QR_CODE, 400, 400);
+			MatrixToImageWriter.writeToStream(matrix, "JPEG", output);
+		} catch (Exception e) {
+			throw new RuntimeException("Can't generate QR code picture.", e);
+		} finally {
+			if (output != null)
+				try {
+					output.close();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+		}
+	}
+
+	private JFileChooser createJpgFileChooser() {
+		JFileChooser fileChooser = new JFileChooser();
+		fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+		fileChooser.setMultiSelectionEnabled(false);
+		fileChooser.setFileFilter(new FileFilter() {
+			
+			@Override
+			public boolean accept(File f) {
+				return f.getName().endsWith(".jpg");
+			}
+
+			@Override
+			public String getDescription() {
+				return "JPEG file (.jpg)";
+			}
+		});
+		
+		return fileChooser;
+	}
 
 	private void quit() {
 		autoReconnect = false;
@@ -897,7 +965,7 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 			}
 		}
 		
-		JFileChooser fileChooser = createFileChooser();
+		JFileChooser fileChooser = createGatewayInfoFileChooser();
 		fileChooser.setDialogTitle("Choose a gateway info file you want to open");
 		File defaultDirectory = FileSystemView.getFileSystemView().getDefaultDirectory();
 		fileChooser.setCurrentDirectory(defaultDirectory);
@@ -1324,6 +1392,10 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 		helpMenu.setMnemonic(KeyEvent.VK_H);
 		
 		helpMenu.add(UiUtils.createMenuItem(MENU_ITEM_NAME_ABOUT, MENU_ITEM_TEXT_ABOUT, -1, null, this));
+		
+		helpMenu.addSeparator();
+		
+		helpMenu.add(UiUtils.createMenuItem(MENU_ITEM_NAME_GENERATE_QR_CODE_PIC, MENU_ITEM_TEXT_GENERATE_QR_CODE_PIC, -1, null, this));
 		
 		return helpMenu;
 	}
