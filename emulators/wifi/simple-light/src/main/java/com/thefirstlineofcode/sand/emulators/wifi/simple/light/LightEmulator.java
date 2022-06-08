@@ -34,7 +34,7 @@ public class LightEmulator extends AbstractThingEmulator implements ILightEmulat
 	private static final long serialVersionUID = 272824587125544136L;
 	
 	public static final String THING_TYPE = "Light WiFi Emulator";
-	public static final String THING_MODEL = "LE02";
+	public static final String THING_MODEL = "SL-WE02";
 	
 	private static final Logger logger = LoggerFactory.getLogger(LightEmulator.class);
 	
@@ -264,7 +264,10 @@ public class LightEmulator extends AbstractThingEmulator implements ILightEmulat
 	}
 	
 	@Override
-	protected void saveAttributes(Map<String, String> attributes) {
-		light.saveAttributes(attributes);
+	protected void saveAttributes(Map<String, String> attributes) {}
+
+	@Override
+	protected String getDeviceId(Map<String, String> attributes) {
+		return null;
 	}
 }

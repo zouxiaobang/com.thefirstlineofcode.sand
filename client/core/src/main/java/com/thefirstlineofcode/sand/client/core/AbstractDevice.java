@@ -1,6 +1,7 @@
 package com.thefirstlineofcode.sand.client.core;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -33,14 +34,25 @@ public abstract class AbstractDevice implements IDevice {
 		
 		listeners =  new ArrayList<>();
 		
-		attributes = loadDeviceAttributes();
+		attributes = loadDeviceAttributes();		
+		if (attributes == null)
+			attributes = new HashMap<>();
+		
+		deviceId = getDeviceId(attributes);
 		
 		if (deviceId == null) {
 			deviceId = generateDeviceId();
 			
+			if (deviceId == null)
+				throw new RuntimeException("Failed to generate device ID. Null device ID.");
+			
 			attributes.put(ATTRIBUTE_NAME_DEVICE_ID, deviceId);
 			saveAttributes(attributes);
 		}
+	}
+	
+	protected String getDeviceId(Map<String, String> attributes) {
+		return attributes.get(ATTRIBUTE_NAME_DEVICE_ID).trim();
 	}
 	
 	protected abstract Map<String, String> loadDeviceAttributes();

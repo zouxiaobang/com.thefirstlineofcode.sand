@@ -9,7 +9,7 @@ public class Main {
 	}
 	
 	private void run(String[] args) {
-		new LogConfigurator().configure("simple-webcam", LogLevel.INFO);
+		new LogConfigurator().configure(Webcam.THING_MODEL, LogLevel.INFO);
 		new Webcam().start();
 	}
 }

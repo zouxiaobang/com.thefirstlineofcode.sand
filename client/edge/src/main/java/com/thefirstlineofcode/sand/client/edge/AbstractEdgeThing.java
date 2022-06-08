@@ -5,6 +5,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.thefirstlineofcode.chalk.core.AuthFailureException;
 import com.thefirstlineofcode.chalk.core.IChatClient;
 import com.thefirstlineofcode.chalk.core.StandardChatClient;
@@ -22,6 +25,8 @@ import com.thefirstlineofcode.sand.protocols.core.DeviceIdentity;
 public abstract class AbstractEdgeThing extends AbstractDevice implements IEdgeThing, IConnectionListener {
 	protected static final String ATTRIBUTE_NAME_STREAM_CONFIG = "stream_config";
 	protected static final String ATTRIBUTE_NAME_DEVICE_IDENTITY = "device_identity";
+	
+	private static final Logger logger = LoggerFactory.getLogger(AbstractEdgeThing.class);
 	
 	protected StandardStreamConfig streamConfig;
 	protected DeviceIdentity identity;
@@ -50,7 +55,10 @@ public abstract class AbstractEdgeThing extends AbstractDevice implements IEdgeT
 		if (this.streamConfig == null)
 			this.streamConfig = getStreamConfig(attributes);
 		
-		identity = getIdentity(attributes);
+		identity = getDeviceIdentity(attributes);
+		
+		logger.info("I'm an edge thing[device_id='{}', host='{}', port='{}', tls_preferred='{}'].",
+				deviceId, this.streamConfig.getHost(), this.streamConfig.getPort(), this.streamConfig.isTlsPreferred());
 		
 		edgeThingListeners = new ArrayList<>();
 		connectionListeners = new ArrayList<>();
@@ -61,12 +69,16 @@ public abstract class AbstractEdgeThing extends AbstractDevice implements IEdgeT
 	
 	protected StandardStreamConfig getStreamConfig(Map<String, String> attributes) {
 		String sStreamConfig = attributes.get(ATTRIBUTE_NAME_STREAM_CONFIG);
-		if (sStreamConfig == null)
+		if (sStreamConfig == null) {
+			logger.error("Can't read stream config. Null stream config string.");
 			throw new IllegalArgumentException("Can't read stream config. Null stream config string.");
+		}
 		
-		StringTokenizer st = new StringTokenizer(sStreamConfig);
-		if (st.countTokens() != 3)
+		StringTokenizer st = new StringTokenizer(sStreamConfig, ",");
+		if (st.countTokens() != 3) {
+			logger.error("Can't read stream config. Not a valid stream config string.");
 			throw new IllegalArgumentException("Can't read stream config. Not a valid stream config string.");
+		}
 		
 		StandardStreamConfig streamConfig = createStreamConfig(st);
 		streamConfig.setResource(DeviceIdentity.DEFAULT_RESOURCE_NAME);
@@ -75,9 +87,9 @@ public abstract class AbstractEdgeThing extends AbstractDevice implements IEdgeT
 	}
 	
 	protected StandardStreamConfig createStreamConfig(StringTokenizer st) {
-		String host = st.nextToken();
-		int port = Integer.parseInt(st.nextToken());
-		boolean tlsRequired = Boolean.parseBoolean(st.nextToken());
+		String host = st.nextToken().trim();
+		int port = Integer.parseInt(st.nextToken().trim());
+		boolean tlsRequired = Boolean.parseBoolean(st.nextToken().trim());
 		
 		return new StandardStreamConfig(host, port, tlsRequired);
 	}
@@ -113,7 +125,10 @@ public abstract class AbstractEdgeThing extends AbstractDevice implements IEdgeT
 			connect();
 		}
 		
-		started = true;
+		if (isConnected()) {
+			logger.info("The thing has started.");
+			started = true;
+		}
 	}
 
 	@Override
@@ -127,6 +142,8 @@ public abstract class AbstractEdgeThing extends AbstractDevice implements IEdgeT
 			chatClient.getConnection().addListener(connectionListener);
 		}
 		chatClient.getConnection().addListener(this);
+		
+		logger.info("The thing tries to connect to server.");
 		
 		try {
 			chatClient.connect(new UsernamePasswordToken(identity.getDeviceName().toString(),
@@ -148,6 +165,8 @@ public abstract class AbstractEdgeThing extends AbstractDevice implements IEdgeT
 			FailedToConnect(e);
 		} catch (AuthFailureException e) {
 			removeConnectionListenersFromChatClient(chatClient);
+			
+			chatClient.close();
 			
 			for (IEdgeThingListener edgeThingListener : edgeThingListeners) {
 				edgeThingListener.failedToAuth(e);
@@ -190,6 +209,8 @@ public abstract class AbstractEdgeThing extends AbstractDevice implements IEdgeT
 		saveAttributes(attributes);
 		
 		this.identity = identity;
+		
+		logger.info("The thing has registered. Device name is '{}'.", identity.getDeviceName());
 	}
 	
 	@Override
@@ -207,6 +228,7 @@ public abstract class AbstractEdgeThing extends AbstractDevice implements IEdgeT
 			disconnect();
 		}
 		
+		logger.info("The thing has stopped.");
 		started = false;
 	}
 	
@@ -255,6 +277,8 @@ public abstract class AbstractEdgeThing extends AbstractDevice implements IEdgeT
 		IChatClient chatClient = new StandardChatClient(streamConfig);
 		chatClient.register(IbdrPlugin.class);
 		
+		logger.info("The thing tries to register to server.");
+		
 		IRegistration registration = null;
 		try {
 			registration = chatClient.createApi(IRegistration.class);
@@ -289,8 +313,7 @@ public abstract class AbstractEdgeThing extends AbstractDevice implements IEdgeT
 	}
 	
 	private String getDeviceIdentityString(DeviceIdentity identity) {
-		// TODO Auto-generated method stub
-		return null;
+		return String.format("%s,%s", identity.getDeviceName(), identity.getCredentials());
 	}
 
 	@Override
@@ -358,12 +381,16 @@ public abstract class AbstractEdgeThing extends AbstractDevice implements IEdgeT
 					break;
 				
 				synchronized (AbstractEdgeThing.this) {
-					if (!isConnected())
+					if (!isConnected()) {
+						if (logger.isInfoEnabled())
+							logger.info("The thing has disconnected. Try to reconnect to server....");
+						
 						connect();
+					}
 				}
 				
 				try {
-					Thread.sleep(1000 * 10);
+					Thread.sleep(1000 * 60);
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
@@ -372,16 +399,48 @@ public abstract class AbstractEdgeThing extends AbstractDevice implements IEdgeT
 	}
 	
 	protected void connected(IChatClient chatClient) {
+		if (logger.isInfoEnabled())
+			logger.info("The thing has connected to server.");
+		
 		startIotComponents();
 		startAutoReconnectThread();		
 	}
 	
-	protected abstract DeviceIdentity getIdentity(Map<String, String> attributes);
-	protected abstract void registrationExceptionOccurred(RegistrationException e);
+	protected void FailedToConnect(ConnectionException e) {
+		logger.error("The thing failed to connect to server.", e);
+	}
+	
+	protected void failedToAuth(AuthFailureException e) {
+		logger.error("The thing failed to auth to server.", e);
+	}
+	
+	protected void disconnected() {
+		if (logger.isInfoEnabled())
+			logger.info("The thing has disconnected from server.");
+	}
+	
+	protected void registrationExceptionOccurred(RegistrationException e) {
+		logger.error("Registration exception occurred.", e);
+	}
+	
+	protected DeviceIdentity getDeviceIdentity(Map<String, String> attributes) {
+		String sDeviceIdentity = attributes.get(ATTRIBUTE_NAME_DEVICE_IDENTITY);
+		if (sDeviceIdentity == null)
+			return null;
+		
+		int commaIndex = sDeviceIdentity.indexOf(',');
+		if (commaIndex == -1) {
+			throw new IllegalArgumentException("Cant read device identity. Not a valid device identity string.");
+		}
+			
+		DeviceIdentity identity = new DeviceIdentity();
+		identity.setDeviceName(sDeviceIdentity.substring(0, commaIndex).trim());
+		identity.setCredentials(sDeviceIdentity.substring(commaIndex + 1, sDeviceIdentity.length()).trim());
+		
+		return identity;
+	}
+	
 	protected abstract void registerChalkPlugins();
-	protected abstract void FailedToConnect(ConnectionException e);
-	protected abstract void failedToAuth(AuthFailureException e);
 	protected abstract void startIotComponents();
 	protected abstract void stopIotComponents();
-	protected abstract void disconnected();
 }

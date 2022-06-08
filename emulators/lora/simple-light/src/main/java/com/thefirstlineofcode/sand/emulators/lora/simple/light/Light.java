@@ -286,7 +286,7 @@ public class Light extends AbstractLoraThingEmulator implements ILightEmulator {
 	protected Map<String, String> loadDeviceAttributes() {
 		return null;
 	}
-
+	
 	@Override
 	protected void saveAttributes(Map<String, String> attributes) {}
 }

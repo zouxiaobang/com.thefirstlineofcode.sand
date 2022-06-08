@@ -29,5 +29,9 @@
 			<groupId>com.thefirstlineofcode.sand.emulators</groupId>
 			<artifactId>sand-emulators-models</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>com.thefirstlineofcode.sand.client.things</groupId>
+			<artifactId>sand-client-things-simple-webcam</artifactId>
+		</dependency>
 	</dependencies>
 </project>

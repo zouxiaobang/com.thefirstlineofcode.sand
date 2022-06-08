@@ -37,7 +37,8 @@
             android:layout_marginTop="16dp"
             android:text="@string/control_the_device"
             android:textStyle="bold" />
-        <Spinner
+        <view xmlns:android="http://schemas.android.com/apk/res/android"
+            class="com.thefirstlineofcode.sand.demo.app.android.DevicesAdapter$ControlSpinner"
             android:id="@+id/spn_control_actions"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />

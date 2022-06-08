@@ -29,5 +29,8 @@ public class DeviceModelsProvider implements IDeviceModelsProvider, IInitializab
 		models.put(slLe01.getName(), slLe01);
 		SlWe01ModelDescriptor slWe01 = new SlWe01ModelDescriptor();
 		models.put(slWe01.getName(), slWe01);
+		
+		SwcRbp3bModelDescriptor swcRbp3b = new SwcRbp3bModelDescriptor();
+		models.put(swcRbp3b.getName(), swcRbp3b);
 	}
 }

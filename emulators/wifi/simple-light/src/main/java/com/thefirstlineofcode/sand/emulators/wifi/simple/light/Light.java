@@ -38,6 +38,8 @@ public class Light extends AbstractEdgeThing implements ILight {
 	public Light(StandardStreamConfig streamConfig) {
 		super(THING_TYPE, THING_MODEL);
 		
+		this.streamConfig = streamConfig;
+		
 		switchState = DEFAULT_SWITCH_STATE;
 		lightState = DEFAULT_LIGHT_STATE;
 	}
@@ -252,7 +254,7 @@ public class Light extends AbstractEdgeThing implements ILight {
 	}
 
 	@Override
-	protected DeviceIdentity getIdentity(Map<String, String> attributes) {
+	protected DeviceIdentity getDeviceIdentity(Map<String, String> attributes) {
 		return null;
 	}
 }

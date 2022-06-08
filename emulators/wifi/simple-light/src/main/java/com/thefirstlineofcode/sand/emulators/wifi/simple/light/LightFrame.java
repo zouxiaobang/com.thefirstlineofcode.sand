@@ -213,8 +213,10 @@ public class LightFrame extends JFrame implements ActionListener, WindowListener
 	}
 	
 	private void powerOn() {
-		if (lightEmulator.isPowered())
+		if (lightEmulator.isPowered()) {
+			refreshPowerRelativedMenus();
 			return;
+		}
 		
 		if (lightEmulator.getInternetLogListener() == null && logConsolesDialog != null)
 			lightEmulator.setInternetLogListener(
