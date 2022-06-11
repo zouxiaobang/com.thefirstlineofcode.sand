@@ -1,9 +1,8 @@
 package com.thefirstlineofcode.sand.server.concentrator;
 
-import com.thefirstlineofcode.sand.server.devices.Device;
-
 public interface IConcentratorFactory {
-	boolean isConcentrator(Device device);
-	IConcentrator getConcentrator(Device device);
+	boolean isConcentrator(String deviceId);
+	IConcentrator getConcentrator(String deviceId);
+	String getConcentratorDeviceNameByNodeDeviceId(String nodeDeviceId);
 	boolean isLanNode(String deviceId);
 }

@@ -36,6 +36,7 @@
 		<module>devices</module>
 		<module>ibdr</module>
 		<module>concentrator</module>
+		<module>location</module>
 		<module>actuator</module>
 		<module>operator</module>
 		<module>lite</module>

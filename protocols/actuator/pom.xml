@@ -14,7 +14,7 @@
 
 	<groupId>com.thefirstlineofcode.sand.protocols</groupId>
 	<artifactId>sand-protocols-actuator</artifactId>
-	<name>Sand Actuator protocol</name>
+	<name>Sand actuator protocol</name>
 	
 	<dependencies>
 		<dependency>

@@ -17,6 +17,10 @@
 		SELECT * FROM DEVICE_IDENTITIES WHERE device_name = #{0}
     </select>
     
+	<select id="selectDeviceIdByDeviceName" resultType="string">
+		SELECT device_id FROM DEVICE_IDENTITIES WHERE device_name = #{0}
+    </select>
+    
 	<select id="selectByDeviceId" resultType="com.thefirstlineofcode.sand.server.lite.devices.D_DeviceIdentity">
 		SELECT * FROM DEVICE_IDENTITIES WHERE device_id = #{0}
     </select>

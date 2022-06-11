@@ -19,7 +19,7 @@
 	<modules>
 		<module>simple-light</module>
 		<module>simple-gateway</module>
-		<module>simple-webcam</module>
+		<module>simple-camera</module>
 	</modules>
 
 </project>

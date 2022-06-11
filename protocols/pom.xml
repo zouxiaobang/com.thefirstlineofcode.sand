@@ -22,6 +22,7 @@
 		<module>ibdr</module>
 		<module>lora</module>
 		<module>concentrator</module>
+		<module>location</module>
 		<module>actuator</module>
 		<module>operator</module>
 	</modules>

@@ -2,8 +2,9 @@ package com.thefirstlineofcode.sand.demo.app.android;
 
 import android.content.Context;
 
-import com.thefirstlineofcode.chalk.core.IChatClient;
 import com.thefirstlineofcode.chalk.android.StandardChatClient;
+import com.thefirstlineofcode.chalk.core.IChatClient;
+import com.thefirstlineofcode.sand.client.location.LocationPlugin;
 import com.thefirstlineofcode.sand.client.operator.OperatorPlugin;
 import com.thefirstlineofcode.sand.demo.client.DemoPlugin;
 
@@ -15,6 +16,7 @@ class ChatClientSingleton {
 			chatClient = new StandardChatClient(Toolkits.getStreamConfig(context));
 			chatClient.register(OperatorPlugin.class);
 			chatClient.register(DemoPlugin.class);
+			chatClient.register(LocationPlugin.class);
 		}
 
 		return chatClient;

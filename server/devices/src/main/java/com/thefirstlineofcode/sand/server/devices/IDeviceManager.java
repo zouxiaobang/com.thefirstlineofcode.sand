@@ -18,6 +18,7 @@ public interface IDeviceManager {
 	boolean deviceIdExists(String deviceId);
 	boolean deviceNameExists(String deviceName);
 	String getDeviceNameByDeviceId(String deviceId);
+	String getDeviceIdByDeviceName(String deviceName);
 	void registerModel(String model, ModelDescriptor modelDescriptor);
 	ModelDescriptor getModelDescriptor(String model);
 	ModelDescriptor unregisterMode(String model);

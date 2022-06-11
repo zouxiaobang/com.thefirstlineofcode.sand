@@ -891,16 +891,16 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 		
 		int result = fileChooser.showSaveDialog(this);
 		if (result == JFileChooser.APPROVE_OPTION) {
-			generateQrCodePic(fileChooser.getSelectedFile());
+			generateQrCodePic(deviceId, fileChooser.getSelectedFile());
 		}
 	}
 	
-	private void generateQrCodePic(File file) {
+	private void generateQrCodePic(String deviceId, File file) {
 		QRCodeWriter qrCodeWriter = new QRCodeWriter();
 		BufferedOutputStream output = null;
 		try {
 			output = new BufferedOutputStream(new FileOutputStream(file));
-			BitMatrix matrix = qrCodeWriter.encode(deviceId, BarcodeFormat.QR_CODE, 400, 400);
+			BitMatrix matrix = qrCodeWriter.encode(deviceId, BarcodeFormat.QR_CODE, 200, 200);
 			MatrixToImageWriter.writeToStream(matrix, "JPEG", output);
 		} catch (Exception e) {
 			throw new RuntimeException("Can't generate QR code picture.", e);

@@ -5,6 +5,7 @@ import com.thefirstlineofcode.sand.protocols.core.DeviceIdentity;
 public interface DeviceIdentityMapper {
 	void insert(DeviceIdentity identity);
 	DeviceIdentity selectByDeviceName(String deviceName);
+	String selectDeviceIdByDeviceName(String deviceName);
 	DeviceIdentity selectByDeviceId(String deviceId);
 	int selectCountByDeviceName(String deviceName);
 }

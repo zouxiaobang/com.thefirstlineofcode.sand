@@ -8,6 +8,7 @@ public interface IConcentrator {
 	void requestToConfirm(NodeConfirmation confirmation);
 	void cancelConfirmation(String nodeDeviceId);
 	NodeConfirmed confirm(String nodeDeviceId, String confirmer);
-	Node getNode(String lanId);
+	Node getNodeByLanId(String lanId);
+	Node getNodeByDeviceId(String nodeDeviceId);
 	Node[] getNodes();
 }

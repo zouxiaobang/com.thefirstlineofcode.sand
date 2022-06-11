@@ -17,8 +17,7 @@
 	<name>Sand IoT demo things projects</name>
 
 	<modules>
-		<module>client</module>
-		<!--	<module>server</module> -->
+		<module>sc-rbp3b</module>
 	</modules>
 
 </project>

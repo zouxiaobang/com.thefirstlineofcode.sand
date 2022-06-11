@@ -83,7 +83,6 @@ public class Operator implements IOperator {
 	@Override
 	public void cancelAuthorization(String deviceId) {
 		// TODO Auto-generated method stub
-		chatServices.getIqService().send(new Iq(Iq.Type.SET, new AuthorizeDevice(deviceId, true)));
 	}
 
 	@Override
@@ -113,5 +112,4 @@ public class Operator implements IOperator {
 	public List<Listener> getListeners() {
 		return Collections.unmodifiableList(listeners);
 	}
-
 }

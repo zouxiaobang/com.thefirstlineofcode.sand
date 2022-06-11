@@ -29,7 +29,6 @@ import com.thefirstlineofcode.sand.server.concentrator.IConcentratorFactory;
 import com.thefirstlineofcode.sand.server.concentrator.Node;
 import com.thefirstlineofcode.sand.server.concentrator.NodeConfirmationEvent;
 import com.thefirstlineofcode.sand.server.concentrator.NodeConfirmed;
-import com.thefirstlineofcode.sand.server.devices.Device;
 import com.thefirstlineofcode.sand.server.devices.DeviceAuthorizationDelegator;
 import com.thefirstlineofcode.sand.server.devices.IDeviceManager;
 
@@ -139,28 +138,28 @@ public class SandCommandsProcessor extends AbstractCommandsProcessor implements 
 			}
 		}
 		
-		Device device = deviceManager.getByDeviceName(deviceName);
-		if (!deviceManager.isRegistered(device.getDeviceId())) {
+		String deviceId = deviceManager.getDeviceIdByDeviceName(deviceName);
+		if (!deviceManager.isRegistered(deviceId)) {
 			consoleSystem.printMessageLine(String.format("Error: Device which's device ID is '%s' isn't a registered device.", deviceName));
 			return;
 		}
 		
-		if (concentratorFactory.isLanNode(device.getDeviceId())) {
+		if (concentratorFactory.isLanNode(deviceId)) {
 			consoleSystem.printMessageLine(String.format(
 					"Error: Device which's device ID is '%s' is a LAN node. You should access it by it's concentrator.", deviceName));
 			return;			
 		}
 		
-		if (!concentratorFactory.isConcentrator(device) && lanId != null &&
+		if (!concentratorFactory.isConcentrator(deviceId) && lanId != null &&
 				!IConcentrator.LAN_ID_CONCENTRATOR.equals(lanId)) {
 			consoleSystem.printMessageLine(String.format("Error: Try to deliver action by device '%s', but it isn't a concentrator.", deviceName));
 			return;
 		}
 		
 		if (lanId == null || IConcentrator.LAN_ID_CONCENTRATOR.equals(lanId)) {
-			executeOnDevice(consoleSystem, device, protocol, params);
+			executeOnDevice(consoleSystem, deviceId, protocol, params);
 		} else {
-			executeOnNode(consoleSystem, device, lanId, protocol, params);			
+			executeOnNode(consoleSystem, deviceId, lanId, protocol, params);			
 		}
 	}
 	
@@ -188,48 +187,48 @@ public class SandCommandsProcessor extends AbstractCommandsProcessor implements 
 		return params;
 	}
 
-	private boolean isActionSupported(IConsoleSystem consoleSystem, Device device, String model, Protocol protocol) {
+	private boolean isActionSupported(IConsoleSystem consoleSystem, String deviceId, String model, Protocol protocol) {
 		if (!deviceManager.isActionSupported(model, protocol)) {
 			consoleSystem.printMessageLine(String.format("Error: Action which's protocol is '%s' isn't supported by device which's device ID is '%s'.",
-					protocol, device.getDeviceId()));
+					protocol, deviceId));
 			return false;
 		}
 		
 		return true;
 	}
 	
-	private void executeOnDevice(IConsoleSystem consoleSystem, Device device, Protocol protocol,
+	private void executeOnDevice(IConsoleSystem consoleSystem, String deviceId, Protocol protocol,
 			Map<String, String> params) {
-		String model = deviceManager.getModel(device.getDeviceId());
-		if (!isActionSupported(consoleSystem, device, model, protocol)) {
+		String model = deviceManager.getModel(deviceId);
+		if (!isActionSupported(consoleSystem, deviceId, model, protocol)) {
 			return;
 		}
 		
-		Object actionObject = createActionObject(consoleSystem, device.getModel(), protocol, params);
-		eventFirer.fire(new ExecutionEvent(device, null, new Execution(actionObject),
-				new ExecutionCallback(device.getDeviceId(), protocol, consoleSystem)));
+		Object actionObject = createActionObject(consoleSystem, model, protocol, params);
+		eventFirer.fire(new ExecutionEvent(deviceId, null, new Execution(actionObject),
+				new ExecutionCallback(deviceId, protocol, consoleSystem)));
 	}
 	
-	private void executeOnNode(IConsoleSystem consoleSystem, Device concentratorDevice, String lanId, Protocol protocol, Map<String, String> params) {
-		Device nodeDevice = getNodeDevice(concentratorDevice, lanId);
-		if (nodeDevice == null) {
+	private void executeOnNode(IConsoleSystem consoleSystem, String concentratorDeviceId, String lanId, Protocol protocol, Map<String, String> params) {
+		String nodeDeviceId = getNodeDeviceId(concentratorDeviceId, lanId);
+		if (nodeDeviceId == null) {
 			consoleSystem.printMessageLine(String.format("Error: Node not existed. Concentrator's device ID is '%s'. Lan ID is '%s'.\n",
-					concentratorDevice.getDeviceId(), lanId));
+					concentratorDeviceId, lanId));
 			return;
 		}
 		
-		String model = deviceManager.getModel(nodeDevice.getDeviceId());
-		if (!isActionSupported(consoleSystem, nodeDevice, model, protocol)) {
+		String model = deviceManager.getModel(nodeDeviceId);
+		if (!isActionSupported(consoleSystem, nodeDeviceId, model, protocol)) {
 			return;
 		}
 		
-		Object actionObject = createActionObject(consoleSystem, nodeDevice.getModel(), protocol, params);
+		Object actionObject = createActionObject(consoleSystem, model, protocol, params);
 		
 		ModelDescriptor modelDescriptor = deviceManager.getModelDescriptor(model);
 		int lanTimeout = modelDescriptor.guessLanExecutionTimeout(actionObject);
 		
-		eventFirer.fire(new ExecutionEvent(concentratorDevice, lanId, createExecution(actionObject, lanTimeout) ,
-				new ExecutionCallback(concentratorDevice.getDeviceId() + "/" + lanId, protocol, consoleSystem)));
+		eventFirer.fire(new ExecutionEvent(concentratorDeviceId, lanId, createExecution(actionObject, lanTimeout) ,
+				new ExecutionCallback(concentratorDeviceId + "/" + lanId, protocol, consoleSystem)));
 	}
 	
 	private Execution createExecution(Object actionObject, int lanTimeout) {
@@ -304,12 +303,12 @@ public class SandCommandsProcessor extends AbstractCommandsProcessor implements 
 		
 	}
 	
-	private Device getNodeDevice(Device concentratorDevice, String lanId) {
-		IConcentrator concentrator = concentratorFactory.getConcentrator(concentratorDevice);
-		Node node = concentrator.getNode(lanId);
+	private String getNodeDeviceId(String concentratorDeviceId, String lanId) {
+		IConcentrator concentrator = concentratorFactory.getConcentrator(concentratorDeviceId);
+		Node node = concentrator.getNodeByLanId(lanId);
 		
 		if (node != null) {
-			return deviceManager.getByDeviceId(node.getDeviceId());
+			return node.getDeviceId();
 		}
 		
 		return null;
@@ -437,13 +436,12 @@ public class SandCommandsProcessor extends AbstractCommandsProcessor implements 
 	
 	void processConfirm(IConsoleSystem consoleSystem, String[] args) {
 		String concentratorDeviceId = args[0];		
-		Device device = deviceManager.getByDeviceId(concentratorDeviceId);
-		if (device == null) {
+		if (!deviceManager.deviceIdExists(concentratorDeviceId)) {
 			consoleSystem.printMessageLine(String.format("Error: Concentrator which's device ID is '%s' not existed.", concentratorDeviceId));	
 			return;
 		}
 		
-		if (!concentratorFactory.isConcentrator(device)) {
+		if (!concentratorFactory.isConcentrator(concentratorDeviceId)) {
 			consoleSystem.printMessageLine(String.format("Error: Device which's device ID is '%s' isn't a concentrator.", concentratorDeviceId));
 			return;
 		}
@@ -460,7 +458,7 @@ public class SandCommandsProcessor extends AbstractCommandsProcessor implements 
 			return;
 		}
 		
-		NodeConfirmed nodeConfirmed = concentratorFactory.getConcentrator(device).confirm(nodeDeviceId, confirmer);
+		NodeConfirmed nodeConfirmed = concentratorFactory.getConcentrator(concentratorDeviceId).confirm(nodeDeviceId, confirmer);
 		eventFirer.fire(createNodeCreationEvent(nodeConfirmed, confirmer));
 
 		if (confirmer != null)

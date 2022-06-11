@@ -36,9 +36,7 @@ public class Light extends AbstractEdgeThing implements ILight {
 	private IActuator actuator;
 	
 	public Light(StandardStreamConfig streamConfig) {
-		super(THING_TYPE, THING_MODEL);
-		
-		this.streamConfig = streamConfig;
+		super(THING_TYPE, THING_MODEL, streamConfig);
 		
 		switchState = DEFAULT_SWITCH_STATE;
 		lightState = DEFAULT_LIGHT_STATE;

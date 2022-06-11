@@ -15,6 +15,7 @@ import com.thefirstlineofcode.basalt.protocol.core.stanza.error.Conflict;
 import com.thefirstlineofcode.basalt.protocol.core.stanza.error.NotAcceptable;
 import com.thefirstlineofcode.granite.framework.core.adf.data.IDataObjectFactory;
 import com.thefirstlineofcode.granite.framework.core.adf.data.IDataObjectFactoryAware;
+import com.thefirstlineofcode.sand.server.concentrator.Concentration;
 import com.thefirstlineofcode.sand.server.concentrator.IConcentrator;
 import com.thefirstlineofcode.sand.server.concentrator.Node;
 import com.thefirstlineofcode.sand.server.concentrator.NodeConfirmation;
@@ -40,8 +41,13 @@ public class Concentrator implements IConcentrator, IDataObjectFactoryAware {
 	}
 	
 	@Override
-	public Node getNode(String lanId) {
+	public Node getNodeByLanId(String lanId) {
 		return getConcentrationMapper().selectNodeByConcentratorAndLanId(deviceName, lanId);
+	}
+	
+	@Override
+	public Node getNodeByDeviceId(String nodeDeviceId) {
+		return getConcentrationMapper().selectNodeByConcentratorAndNode(deviceName, nodeDeviceId);
 	}
 
 	@Override
@@ -78,7 +84,7 @@ public class Concentrator implements IConcentrator, IDataObjectFactoryAware {
 		node.setRegistrationTime(Calendar.getInstance().getTime());
 		deviceManager.create(node);
 		
-		Concentration concentration = new Concentration();
+		D_Concentration concentration = dataObjectFactory.create(Concentration.class);
 		concentration.setId(UUID.randomUUID().toString());
 		concentration.setConcentratorDeviceName(confirmation.getConcentratorDeviceName());
 		concentration.setNodeDeviceId(confirmation.getNode().getDeviceId());
@@ -96,7 +102,7 @@ public class Concentrator implements IConcentrator, IDataObjectFactoryAware {
 	}
 
 	private NodeConfirmed createNodeConfirmed(NodeConfirmation confirmation, Device node,
-			Concentration concentration) {
+			D_Concentration concentration) {
 		return new NodeConfirmed(confirmation.getRequestId(), confirmation.getConcentratorDeviceName(),
 				node.getDeviceId(), confirmation.getNode().getLanId(), node.getModel(),
 				confirmation.getConfirmer(), concentration.getCreationTime(), confirmation.getConfirmedTime());

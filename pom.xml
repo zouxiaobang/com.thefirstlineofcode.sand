@@ -293,6 +293,12 @@
 
 			<dependency>
 				<groupId>com.thefirstlineofcode.sand.protocols</groupId>
+				<artifactId>sand-protocols-location</artifactId>
+				<version>${sand.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>com.thefirstlineofcode.sand.protocols</groupId>
 				<artifactId>sand-protocols-actuator</artifactId>
 				<version>${sand.version}</version>
 			</dependency>
@@ -317,7 +323,7 @@
 
 			<dependency>
 				<groupId>com.thefirstlineofcode.sand.protocols.things</groupId>
-				<artifactId>sand-protocols-things-simple-webcam</artifactId>
+				<artifactId>sand-protocols-things-simple-camera</artifactId>
 				<version>${sand.version}</version>
 			</dependency>
 				
@@ -353,6 +359,12 @@
 
 			<dependency>
 				<groupId>com.thefirstlineofcode.sand.client</groupId>
+				<artifactId>sand-client-location</artifactId>
+				<version>${sand.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>com.thefirstlineofcode.sand.client</groupId>
 				<artifactId>sand-client-actuator</artifactId>
 				<version>${sand.version}</version>
 			</dependency>
@@ -371,7 +383,7 @@
 
 			<dependency>
 				<groupId>com.thefirstlineofcode.sand.client.things</groupId>
-				<artifactId>sand-client-things-simple-webcam</artifactId>
+				<artifactId>sand-client-things-simple-camera</artifactId>
 				<version>${sand.version}</version>
 			</dependency>
 
@@ -395,12 +407,6 @@
 
 			<dependency>
 				<groupId>com.thefirstlineofcode.sand.server</groupId>
-				<artifactId>sand-server-platform</artifactId>
-				<version>${sand.version}</version>
-			</dependency>
-
-			<dependency>
-				<groupId>com.thefirstlineofcode.sand.server</groupId>
 				<artifactId>sand-server-concentrator</artifactId>
 				<version>${sand.version}</version>
 			</dependency>
@@ -418,55 +424,8 @@
 			</dependency>
 
 			<dependency>
-				<groupId>com.thefirstlineofcode.sand.client.things</groupId>
-				<artifactId>sand-client-things-simple-webcam</artifactId>
-				<version>${sand.version}</version>
-			</dependency>
-
-			<dependency>
-				<groupId>com.thefirstlineofcode.sand.server</groupId>
-				<artifactId>sand-server-devices</artifactId>
-				<version>${sand.version}</version>
-			</dependency>
-
-			<dependency>
-				<groupId>com.thefirstlineofcode.sand.server</groupId>
-				<artifactId>sand-server-stream</artifactId>
-				<version>${sand.version}</version>
-			</dependency>
-
-			<dependency>
-				<groupId>com.thefirstlineofcode.sand.server</groupId>
-				<artifactId>sand-server-ibdr</artifactId>
-				<version>${sand.version}</version>
-			</dependency>
-
-			<dependency>
-				<groupId>com.thefirstlineofcode.sand.server</groupId>
-				<artifactId>sand-server-platform</artifactId>
-				<version>${sand.version}</version>
-			</dependency>
-
-			<dependency>
-				<groupId>com.thefirstlineofcode.sand.server</groupId>
-				<artifactId>sand-server-concentrator</artifactId>
-				<version>${sand.version}</version>
-			</dependency>
-
-			<dependency>
-				<groupId>com.thefirstlineofcode.sand.server</groupId>
-				<artifactId>sand-server-actuator</artifactId>
-				<version>${sand.version}</version>
-			</dependency>
-			
-			<dependency>
 				<groupId>com.thefirstlineofcode.sand.demo</groupId>
-				<artifactId>sand-demo-protocols</artifactId>
-				<version>${sand.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>com.thefirstlineofcode.sand.demo.server</groupId>
-				<artifactId>sand-demo-server-acl</artifactId>
+				<artifactId>sand-demo-server</artifactId>
 				<version>${sand.version}</version>
 			</dependency>
 		</dependencies>

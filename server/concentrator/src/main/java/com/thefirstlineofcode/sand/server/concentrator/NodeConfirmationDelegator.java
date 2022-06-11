@@ -14,7 +14,6 @@ import com.thefirstlineofcode.granite.framework.core.config.IConfiguration;
 import com.thefirstlineofcode.granite.framework.core.config.IConfigurationAware;
 import com.thefirstlineofcode.granite.framework.core.config.IServerConfiguration;
 import com.thefirstlineofcode.granite.framework.core.config.IServerConfigurationAware;
-import com.thefirstlineofcode.sand.server.devices.Device;
 import com.thefirstlineofcode.sand.server.devices.IDeviceManager;
 
 @AppComponent("node.confirmation.delegator")
@@ -38,16 +37,16 @@ public class NodeConfirmationDelegator implements IServerConfigurationAware, ICo
 	public void requestToConfirm(NodeConfirmation confirmation) {
 		String concentratorDeviceName = confirmation.getConcentratorDeviceName();
 		
-		Device device = deviceManager.getByDeviceName(concentratorDeviceName);
-		if (device == null)
+		String deviceId = deviceManager.getDeviceIdByDeviceName(concentratorDeviceName);
+		if (deviceId == null)
 			throw new ProtocolException(new ItemNotFound(String.format("Device which's device name is '%s' not be found.",
 					concentratorDeviceName)));
 		
-		if (!deviceManager.isConcentrator(device.getModel()))
+		if (!deviceManager.isConcentrator(deviceManager.getModel(deviceId)))
 			throw new ProtocolException(new NotAcceptable("Device which's device name is '%s' isn't a concentrator.",
 					concentratorDeviceName));
 		
-		IConcentrator concentrator = concentratorFactory.getConcentrator(device);
+		IConcentrator concentrator = concentratorFactory.getConcentrator(deviceId);
 		if (concentrator == null)
 			throw new RuntimeException("Can't get the concentrator.");
 		
@@ -64,16 +63,16 @@ public class NodeConfirmationDelegator implements IServerConfigurationAware, ICo
 	}
 	
 	public NodeConfirmed confirm(String concentratorDeviceName, String nodeId, String confirmer) {
-		Device device = deviceManager.getByDeviceName(concentratorDeviceName);
-		if (device == null)
+		String deviceId = deviceManager.getDeviceIdByDeviceName(concentratorDeviceName);
+		if (deviceId == null)
 			throw new ProtocolException(new ItemNotFound(String.format("Device which's device name is '%s' not be found.",
 					concentratorDeviceName)));
 		
-		if (!deviceManager.isConcentrator(device.getModel()))
+		if (!deviceManager.isConcentrator(deviceManager.getModel(deviceId)))
 			throw new ProtocolException(new NotAcceptable("Device which's device name is '%s' isn't a concentrator.",
 					concentratorDeviceName));
 		
-		IConcentrator concentrator = concentratorFactory.getConcentrator(device);
+		IConcentrator concentrator = concentratorFactory.getConcentrator(deviceId);
 		if (concentrator == null)
 			throw new RuntimeException("Can't get the concentrator.");
 		

@@ -12,32 +12,33 @@ import android.widget.BaseAdapter;
 import android.widget.Spinner;
 import android.widget.TextView;
 
-import com.thefirstlineofcode.sand.demo.protocols.AccessControlEntry;
 import com.thefirstlineofcode.sand.demo.protocols.AccessControlList;
+
+import java.util.Arrays;
 
 public class DevicesAdapter extends BaseAdapter {
 	private final MainActivity mainActivity;
-	private AccessControlList acl;
+	private Device[] devices;
 	
-	public DevicesAdapter(MainActivity mainActivity, AccessControlList acl) {
+	public DevicesAdapter(MainActivity mainActivity, Device[] devices) {
 		this.mainActivity = mainActivity;
-		this.acl = acl;
+		this.devices = devices;
 	}
 	
 	@Override
 	public int getCount() {
-		if (acl == null || acl.getEntries() == null || acl.getEntries().size() == 0)
+		if (devices == null || devices.length == 0)
 			return 0;
 		
-		return acl.getEntries().size();
+		return devices.length;
 	}
 	
 	@Override
 	public Object getItem(int position) {
-		if (acl == null || acl.getEntries() == null || acl.getEntries().size() == 0)
+		if (devices == null || devices.length == 0)
 			return null;
 		
-		return acl.getEntries().get(position);
+		return devices[position];
 	}
 	
 	@Override
@@ -47,7 +48,7 @@ public class DevicesAdapter extends BaseAdapter {
 	
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent) {
-		AccessControlEntry ace = acl.getEntries().get(position);
+		Device device = devices[position];
 		
 		ViewHolder viewHolder;
 		if (convertView == null) {
@@ -62,8 +63,8 @@ public class DevicesAdapter extends BaseAdapter {
 			viewHolder = (ViewHolder)convertView.getTag();
 		}
 		
-		viewHolder.tvDeviceId.setText(ace.getDeviceId());
-		viewHolder.tvUserRole.setText(ace.getRole().toString());
+		viewHolder.tvDeviceId.setText(device.getDeviceId());
+		viewHolder.tvUserRole.setText(device.getAce().getRole().toString());
 		
 		Spinner spnControlActions = convertView.findViewById(R.id.spn_control_actions);
 		String[] sActions = new String[] {"Take a Photo", "Take a Video", "Open Live Streaming"};
@@ -71,13 +72,13 @@ public class DevicesAdapter extends BaseAdapter {
 				android.R.layout.simple_spinner_dropdown_item, sActions);
 		spnControlActions.setAdapter(actionsAdapter);
 		
-		if (ace.getRole() != AccessControlList.Role.OWNER &&
-				ace.getRole() != AccessControlList.Role.CONTROLLER) {
+		if (device.getAce().getRole() != AccessControlList.Role.OWNER &&
+				device.getAce().getRole() != AccessControlList.Role.CONTROLLER) {
 			TextView tvControl = convertView.findViewById(R.id.tv_control);
 			tvControl.setVisibility(View.INVISIBLE);
 			spnControlActions.setVisibility(View.INVISIBLE);
 		} else {
-			spnControlActions.setOnItemSelectedListener(new ControlActionsListener(ace.getDeviceId()));
+			spnControlActions.setOnItemSelectedListener(new ControlActionsListener(device.getDeviceId()));
 		}
 		
 		return convertView;
@@ -173,24 +174,58 @@ public class DevicesAdapter extends BaseAdapter {
 		public void onNothingSelected(AdapterView<?> parent) {}
 	}
 	
-	public void setAcl(AccessControlList acl) {
-		this.acl = acl;
+	public void setDevices(Device[] devices) {
+		this.devices = devices;
 	}
 	
-	public void updateAcl(AccessControlList updatedAcl) {
-		if (acl == null) {
-			acl = updatedAcl;
+	public void updateDevices(Device[] updatedDevices) {
+		if (devices == null) {
+			devices = updatedDevices;
 		} else {
-			if (updatedAcl.getEntries() == null || updatedAcl.getEntries().size() == 0)
+			if (updatedDevices == null || updatedDevices.length == 0)
 				return;
 			
-			for (AccessControlEntry entry : updatedAcl.getEntries()) {
-				if (acl.getEntries().contains(entry)) {
-					acl.update(entry);
+			for (Device device : updatedDevices) {
+				if (containsDevice(device)) {
+					updateDevice(device);
 				} else {
-					acl.add(entry);
+					addDevice(device);
 				}
 			}
 		}
+	}
+	
+	private void addDevice(Device device) {
+		if (devices == null || devices.length == 0) {
+			devices = new Device[]{device};
+		} else {
+			devices = new Device[devices.length + 1];
+			
+			devices = Arrays.copyOf(devices, devices.length + 1);
+			devices[devices.length - 1] = device;
+		}
+	}
+	
+	private void updateDevice(Device device) {
+		for (int i = 0; i < devices.length; i++) {
+			if (devices[i].getDeviceId().equals(device.getDeviceId())) {
+				devices[i] = device;
+				return;
+			}
+		}
+		
+		throw new RuntimeException("Can't find a device for update.");
+	}
+	
+	private boolean containsDevice(Device device) {
+		if (devices == null || devices.length == 0)
+			return false;
+		
+		for (Device aDevice : devices) {
+			if (aDevice.equals(device))
+				return true;
+		}
+		
+		return false;
 	}
 }

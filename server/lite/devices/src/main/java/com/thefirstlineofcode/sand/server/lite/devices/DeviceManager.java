@@ -314,6 +314,11 @@ public class DeviceManager implements IDeviceManager {
 		
 		return null;
 	}
+	
+	@Override
+	public String getDeviceIdByDeviceName(String deviceName) {
+		return getDeviceIdentityMapper().selectDeviceIdByDeviceName(deviceName);
+	}
 
 	@Override
 	public boolean isActionSupported(String mode, Class<?> actionType) {

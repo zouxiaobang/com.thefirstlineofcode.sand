@@ -26,7 +26,7 @@ public class DeviceAuthorizationProcessor implements IXepProcessor<Iq, Authorize
 		deviceAuthorizationDelegator.authorize(xep.getDeviceId(), context.getJid().getNode());
 		
 		if (logger.isInfoEnabled())
-			logger.info("Device '{}' has authorized by authorizer '{}'.", xep.getDeviceId(), context.getJid().getBareIdString());
+			logger.info("Device '{}' has authorized by authorizer '{}'.", xep.getDeviceId(), context.getJid().getNode());
 		
 		context.write(context.getJid(), new Iq(Iq.Type.RESULT, iq.getId()));
 	}

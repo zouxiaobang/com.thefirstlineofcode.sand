@@ -14,7 +14,7 @@
 
 	<groupId>com.thefirstlineofcode.sand.protocols</groupId>
 	<artifactId>sand-protocols-operator</artifactId>
-	<name>Sand Operator protocol</name>
+	<name>Sand operator protocol</name>
 	
 	<dependencies>
 		<dependency>

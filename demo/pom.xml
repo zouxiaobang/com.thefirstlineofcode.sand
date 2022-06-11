@@ -20,6 +20,8 @@
 		<module>protocols</module>
 		<module>client</module>
 		<module>server</module>
+		<module>server-lite</module>
+		<module>server-console</module>
 		<module>things</module>
 	</modules>
 

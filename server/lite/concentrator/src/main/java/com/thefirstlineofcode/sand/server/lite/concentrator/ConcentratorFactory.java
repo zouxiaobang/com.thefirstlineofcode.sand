@@ -10,7 +10,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.thefirstlineofcode.sand.server.concentrator.IConcentrator;
 import com.thefirstlineofcode.sand.server.concentrator.IConcentratorFactory;
-import com.thefirstlineofcode.sand.server.concentrator.Node;
 import com.thefirstlineofcode.sand.server.devices.Device;
 import com.thefirstlineofcode.sand.server.devices.IDeviceManager;
 
@@ -25,32 +24,32 @@ public class ConcentratorFactory implements IConcentratorFactory, ApplicationCon
 	private SqlSession sqlSession;
 	
 	@Override
-	public boolean isConcentrator(Device device) {
-		if (!deviceManager.isRegistered(device.getDeviceId())) {			
+	public boolean isConcentrator(String deviceId) {
+		if (!deviceManager.isRegistered(deviceId)) {			
 			return false;
 		}
 		
+		Device device = deviceManager.getByDeviceId(deviceId);
 		return deviceManager.isConcentrator(device.getModel());
 	}
 
 	@Override
-	public IConcentrator getConcentrator(Device device) {		
-		if (!isConcentrator(device))
-			throw new IllegalArgumentException(String.format("Device[%s] isn't a concentrator.", device.getDeviceId()));
+	public IConcentrator getConcentrator(String deviceId) {		
+		if (!isConcentrator(deviceId))
+			throw new IllegalArgumentException(String.format("Device[%s] isn't a concentrator.", deviceId));
 		
-		String concentratorDeviceName = deviceManager.getDeviceNameByDeviceId(device.getDeviceId());
+		String concentratorDeviceName = deviceManager.getDeviceNameByDeviceId(deviceId);
 		
 		return applicationContext.getBean(Concentrator.class, concentratorDeviceName, sqlSession);
 	}
 
 	@Override
-	public boolean isLanNode(String deviceId) {
-		if (!deviceManager.isRegistered(deviceId)) {			
+	public boolean isLanNode(String nodeDeviceId) {
+		if (!deviceManager.isRegistered(nodeDeviceId)) {			
 			return false;
 		}
 		
-		Node node = getConcentrationMapper().selectNodeByDeviceId(deviceId);
-		return node != null;
+		return getConcentrationMapper().selectCountByNode(nodeDeviceId) != 0;
 	}
 	
 	private ConcentrationMapper getConcentrationMapper() {
@@ -60,6 +59,15 @@ public class ConcentratorFactory implements IConcentratorFactory, ApplicationCon
 	@Override
 	public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
 		this.applicationContext = applicationContext;
+	}
+
+	@Override
+	public String getConcentratorDeviceNameByNodeDeviceId(String nodeDeviceId) {
+		D_Concentration concentration = getConcentrationMapper().selectConcentrationByNode(nodeDeviceId);
+		if (concentration == null)
+			return null;
+		
+		return concentration.getConcentratorDeviceName();
 	}
 
 }

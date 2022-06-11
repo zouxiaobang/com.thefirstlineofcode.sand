@@ -14,7 +14,7 @@
 
 	<groupId>com.thefirstlineofcode.sand.protocols</groupId>
 	<artifactId>sand-protocols-concentrator</artifactId>
-	<name>Sand Concentrator protocol</name>
+	<name>Sand concentrator protocol</name>
 	
 	<dependencies>
 		<dependency>

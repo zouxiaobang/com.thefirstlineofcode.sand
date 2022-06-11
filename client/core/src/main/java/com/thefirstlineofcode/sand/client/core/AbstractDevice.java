@@ -52,7 +52,9 @@ public abstract class AbstractDevice implements IDevice {
 	}
 	
 	protected String getDeviceId(Map<String, String> attributes) {
-		return attributes.get(ATTRIBUTE_NAME_DEVICE_ID).trim();
+		String deviceId = attributes.get(ATTRIBUTE_NAME_DEVICE_ID);
+		
+		return deviceId == null ? null : deviceId.trim();
 	}
 	
 	protected abstract Map<String, String> loadDeviceAttributes();

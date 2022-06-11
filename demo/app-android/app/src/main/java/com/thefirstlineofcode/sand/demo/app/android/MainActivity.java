@@ -19,21 +19,30 @@ import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 import com.thefirstlineofcode.basalt.protocol.core.IError;
 import com.thefirstlineofcode.basalt.protocol.core.stanza.Iq;
+import com.thefirstlineofcode.basalt.protocol.core.stanza.error.StanzaError;
 import com.thefirstlineofcode.basalt.protocol.core.stream.error.StreamError;
 import com.thefirstlineofcode.chalk.core.IChatClient;
 import com.thefirstlineofcode.chalk.core.IErrorListener;
+import com.thefirstlineofcode.sand.client.location.IDeviceLocator;
 import com.thefirstlineofcode.sand.client.operator.IOperator;
 import com.thefirstlineofcode.sand.demo.client.AclError;
 import com.thefirstlineofcode.sand.demo.client.IAclService;
+import com.thefirstlineofcode.sand.demo.protocols.AccessControlEntry;
 import com.thefirstlineofcode.sand.demo.protocols.AccessControlList;
+import com.thefirstlineofcode.sand.protocols.location.DeviceLocation;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class MainActivity extends AppCompatActivity implements IOperator.Listener, IAclService.Listener, IErrorListener {
+import java.util.ArrayList;
+import java.util.List;
+
+public class MainActivity extends AppCompatActivity implements IOperator.Listener,
+		IAclService.Listener, IErrorListener {
 	private static final Logger logger = LoggerFactory.getLogger(MainActivity.class);
 	
 	private DevicesAdapter devicesAdapter;
+	private DevicesLocationListener devicesLocationListener;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -51,23 +60,16 @@ public class MainActivity extends AppCompatActivity implements IOperator.Listene
 			chatClient.getStream().addErrorListener(this);
 		}
 		
-		AccessControlList acl = aclService.getLocal();
-		ListView lvDevices = findViewById(R.id.lv_devices);
-		devicesAdapter = new DevicesAdapter(this, acl);
-		lvDevices.setAdapter(devicesAdapter);
-		
-		if (acl == null) {
-			retrieveDevices(aclService);
-		}
+		retrieveAcl(aclService);
 	}
 	
-	private void retrieveDevices(IAclService aclService) {
-		runOnUiThread(() -> Toast.makeText(this, getString(R.string.retriving_your_devices), Toast.LENGTH_LONG).show());
-		
-		aclService.retrieve();
+	private void retrieveAcl(IAclService aclService) {
+		runOnUiThread(() -> Toast.makeText(this, getString(R.string.retrieving_your_devices), Toast.LENGTH_LONG).show());
 		
 		ProgressBar pbRetrievingDevices = findViewById(R.id.pb_retrieving_devices);
 		pbRetrievingDevices.setVisibility(View.VISIBLE);
+		
+		aclService.retrieve();
 	}
 	
 	@Override
@@ -180,32 +182,48 @@ public class MainActivity extends AppCompatActivity implements IOperator.Listene
 
 	@Override
 	public void retrived(AccessControlList acl) {
-		ProgressBar pbRetrievingDevices = (ProgressBar)findViewById(R.id.pb_retrieving_devices);
-		pbRetrievingDevices.setVisibility(View.INVISIBLE);
-		
-		devicesAdapter.setAcl(acl);
-		runOnUiThread(() -> devicesAdapter.notifyDataSetChanged());
+		locateDevices(acl);
 	}
-
+	
+	private void locateDevices(AccessControlList acl) {
+		if (devicesLocationListener == null)
+			devicesLocationListener = new DevicesLocationListener(acl);
+		
+		if (acl.getEntries() == null || acl.getEntries().size() == 0) {
+			devicesLocationListener.located(new ArrayList<DeviceLocation>());
+			return;
+		}
+		
+		List<String> deviceIds = new ArrayList<>();
+		for (int i = 0; i < acl.getEntries().size(); i++) {
+			deviceIds.add(acl.getEntries().get(i).getDeviceId());
+		}
+		
+		IChatClient chatClient = ChatClientSingleton.get(this);
+		IDeviceLocator deviceLocator = chatClient.createApi(IDeviceLocator.class);
+		deviceLocator.addListener(devicesLocationListener);
+		deviceLocator.locateDevices(deviceIds);
+	}
+	
 	@Override
 	public void updated(AccessControlList acl) {
-		devicesAdapter.updateAcl(acl);
-		runOnUiThread(() -> {
-			devicesAdapter.notifyDataSetChanged();
-			Toast.makeText(MainActivity.this, getString(R.string.devices_has_updated), Toast.LENGTH_LONG).show();
-		});
+		runOnUiThread(() -> Toast.makeText(this, getString(R.string.updating_your_devices), Toast.LENGTH_LONG).show());
+		
+		ProgressBar pbRetrievingDevices = findViewById(R.id.pb_retrieving_devices);
+		pbRetrievingDevices.setVisibility(View.VISIBLE);
+		
+		locateDevices(acl);
 	}
-
+	
 	@Override
 	public void timeout(Iq iq) {
-
+	
 	}
-
+	
 	@Override
 	public void occurred(AclError error) {
-
 	}
-
+	
 	@Override
 	public void occurred(IError error) {
 		runOnUiThread(() -> {
@@ -228,5 +246,63 @@ public class MainActivity extends AppCompatActivity implements IOperator.Listene
 	
 	public void openLiveSteaming(String deviceId) {
 		System.out.println(String.format("Open the live streaming of device %s.", deviceId));
+	}
+	
+	private class DevicesLocationListener implements IDeviceLocator.Listener {
+		private final AccessControlList acl;
+		
+		public DevicesLocationListener(AccessControlList acl) {
+			this.acl = acl;
+		}
+		
+		@Override
+		public void located(List<DeviceLocation> deviceLocations) {
+			Device[] devices = getDevices(deviceLocations);
+			
+			runOnUiThread(() -> {
+				ListView lvDevices = findViewById(R.id.lv_devices);
+				if (devicesAdapter == null) {
+					devicesAdapter = new DevicesAdapter(MainActivity.this, devices);
+					lvDevices.setAdapter(devicesAdapter);
+				} else {
+					devicesAdapter.updateDevices(devices);
+				}
+				
+				ProgressBar pbRetrievingDevices = (ProgressBar)findViewById(R.id.pb_retrieving_devices);
+				pbRetrievingDevices.setVisibility(View.INVISIBLE);
+			});
+		}
+		
+		private Device[] getDevices(List<DeviceLocation> deviceLocations) {
+			Device[] devices = new Device[deviceLocations.size()];
+			for (int i = 0; i < deviceLocations.size(); i++) {
+				Device device = new Device();
+				device.setDeviceId(deviceLocations.get(i).getDeviceId());
+				device.setDeviceLocation(deviceLocations.get(i).getLocation());
+				device.setAce(getAce(device.getDeviceId()));
+				devices[i] = device;
+			}
+			
+			return devices;
+		}
+		
+		private AccessControlEntry getAce(String deviceId) {
+			for (AccessControlEntry ace : acl.getEntries()) {
+				if (ace.getDeviceId().equals(deviceId))
+					return ace;
+			}
+			
+			return null;
+		}
+		
+		@Override
+		public void occurred(StanzaError error) {
+		
+		}
+		
+		@Override
+		public void timeout() {
+		
+		}
 	}
 }

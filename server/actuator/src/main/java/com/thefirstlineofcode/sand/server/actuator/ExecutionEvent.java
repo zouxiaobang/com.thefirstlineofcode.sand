@@ -2,31 +2,30 @@ package com.thefirstlineofcode.sand.server.actuator;
 
 import com.thefirstlineofcode.granite.framework.core.pipeline.stages.event.IEvent;
 import com.thefirstlineofcode.sand.protocols.actuator.Execution;
-import com.thefirstlineofcode.sand.server.devices.Device;
 
 public class ExecutionEvent implements IEvent {
-	private Device device;
+	private String deviceId;
 	private String lanId;
 	private Execution execution;
 	private IExecutionCallback callback;
 	
-	public ExecutionEvent(Device device, Execution execution) {
-		this(device, null, execution);
+	public ExecutionEvent(String deviceId, Execution execution) {
+		this(deviceId, null, execution);
 	}
 	
-	public ExecutionEvent(Device device, String lanId, Execution execute) {
-		this(device, null, execute, null);
+	public ExecutionEvent(String deviceId, String lanId, Execution execute) {
+		this(deviceId, null, execute, null);
 	}
 	
-	public ExecutionEvent(Device device, String lanId, Execution execution, IExecutionCallback callback) {
-		this.device = device;
+	public ExecutionEvent(String deviceId, String lanId, Execution execution, IExecutionCallback callback) {
+		this.deviceId = deviceId;
 		this.lanId = lanId;
 		this.execution = execution;
 		this.callback = callback;
 	}
 	
-	public Device getDevice() {
-		return device;
+	public String getDeviceId() {
+		return deviceId;
 	}
 	
 	public String getLanId() {
@@ -43,6 +42,6 @@ public class ExecutionEvent implements IEvent {
 	
 	@Override
 	public Object clone() {
-		return new ExecutionEvent(device, lanId, execution, callback);
+		return new ExecutionEvent(deviceId, lanId, execution, callback);
 	}
 }

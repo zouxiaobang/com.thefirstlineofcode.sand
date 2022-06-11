@@ -94,10 +94,6 @@ public class AclService implements IAclService, IIqListener {
 		AccessControlList acl = iq.getObject();
 		local = acl;
 		
-		if (acl == null || acl.getEntries() == null || acl.getEntries().size() == 0) {
-			return;
-		}
-		
 		for (Listener listener : listeners) {
 			listener.retrived(acl);
 		}

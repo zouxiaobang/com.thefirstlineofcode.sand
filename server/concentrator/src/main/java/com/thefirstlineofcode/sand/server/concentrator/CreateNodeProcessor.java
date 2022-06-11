@@ -15,7 +15,6 @@ import com.thefirstlineofcode.granite.framework.core.annotations.BeanDependency;
 import com.thefirstlineofcode.granite.framework.core.annotations.Dependency;
 import com.thefirstlineofcode.granite.framework.core.pipeline.stages.processing.IProcessingContext;
 import com.thefirstlineofcode.granite.framework.core.pipeline.stages.processing.IXepProcessor;
-import com.thefirstlineofcode.sand.server.devices.Device;
 import com.thefirstlineofcode.sand.server.devices.IDeviceManager;
 
 public class CreateNodeProcessor implements IXepProcessor<Iq, CreateNode>, IDataObjectFactoryAware {
@@ -32,16 +31,16 @@ public class CreateNodeProcessor implements IXepProcessor<Iq, CreateNode>, IData
 	
 	@Override
 	public void process(IProcessingContext context, Iq iq, CreateNode xep) {
-		Device device = deviceManager.getByDeviceName(context.getJid().getNode());
-		if (device == null)
+		String deviceId = deviceManager.getDeviceIdByDeviceName(context.getJid().getNode());
+		if (deviceId == null)
 			throw new ProtocolException(new ItemNotFound(String.format("Device which's device name is '%s' not be found.",
 					context.getJid().getNode())));
 		
-		if (!deviceManager.isConcentrator(device.getModel()))
+		if (!deviceManager.isConcentrator(deviceManager.getModel(deviceId)))
 			throw new ProtocolException(new NotAcceptable("Device which's device name is '%s' isn't a concentrator.",
 					context.getJid().getNode()));
 		
-		IConcentrator concentrator = concentratorFactory.getConcentrator(device);
+		IConcentrator concentrator = concentratorFactory.getConcentrator(deviceId);
 		if (concentrator == null)
 			throw new RuntimeException("Can't get the concentrator.");
 		
@@ -62,7 +61,7 @@ public class CreateNodeProcessor implements IXepProcessor<Iq, CreateNode>, IData
 		
 		NodeConfirmation confirmation = dataObjectFactory.create(NodeConfirmation.class);
 		confirmation.setRequestId(iq.getId());
-		confirmation.setConcentratorDeviceName(device.getDeviceId());
+		confirmation.setConcentratorDeviceName(deviceManager.getDeviceNameByDeviceId(deviceId));
 		confirmation.setNode(node);
 		Date currentTime = Calendar.getInstance().getTime();
 		confirmation.setRequestedTime(currentTime);

@@ -18,7 +18,6 @@ import com.thefirstlineofcode.sand.protocols.core.DeviceIdentity;
 import com.thefirstlineofcode.sand.server.concentrator.IConcentrator;
 import com.thefirstlineofcode.sand.server.concentrator.IConcentratorFactory;
 import com.thefirstlineofcode.sand.server.concentrator.Node;
-import com.thefirstlineofcode.sand.server.devices.Device;
 import com.thefirstlineofcode.sand.server.devices.IDeviceManager;
 
 public class ExecutionListener implements IEventListener<ExecutionEvent>, IIqResultProcessor, IServerConfigurationAware {
@@ -38,26 +37,27 @@ public class ExecutionListener implements IEventListener<ExecutionEvent>, IIqRes
 	
 	@Override
 	public void process(IEventContext context, ExecutionEvent event) {
-		Device actuator = event.getDevice();
+		String deviceId = event.getDeviceId();
+		String actuatorDeviceId = deviceId;
 		
-		boolean isConcentrator = concentratorFactory.isConcentrator(event.getDevice());
+		boolean isConcentrator = concentratorFactory.isConcentrator(deviceId);
 		if (isConcentrator && event.getLanId() != null) {
-			IConcentrator concentrator = concentratorFactory.getConcentrator(event.getDevice());
+			IConcentrator concentrator = concentratorFactory.getConcentrator(deviceId);
 			if (!concentrator.containsLanId(event.getLanId())) {
 				throw new IllegalArgumentException(String.format("Concentrator '%s' doesn't contain a node which's LAN ID is '%s'.",
-						event.getDevice().getDeviceId(), event.getLanId()));
+						deviceId, event.getLanId()));
 			}
 			
-			Node node = concentrator.getNode(event.getLanId());
-			actuator = deviceManager.getByDeviceId(node.getDeviceId());
+			Node node = concentrator.getNodeByLanId(event.getLanId());
+			actuatorDeviceId = node.getDeviceId();
 		}
 		
-		String model = deviceManager.getModel(actuator.getDeviceId());
+		String model = deviceManager.getModel(actuatorDeviceId);
 		if (!deviceManager.isActionSupported(model, event.getExecution().getAction().getClass())) {
 			throw new IllegalArgumentException(String.format("Unsupported action type: '%s'.", event.getExecution().getAction().getClass().getName()));
 		}
 		
-		String deviceName = deviceManager.getDeviceNameByDeviceId(event.getDevice().getDeviceId());
+		String deviceName = deviceManager.getDeviceNameByDeviceId(deviceId);
 		
 		Iq iq = new Iq(Iq.Type.SET, event.getExecution());
 		

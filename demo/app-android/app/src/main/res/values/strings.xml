@@ -34,7 +34,8 @@
     <string name="incorrect_user_name_or_password">Incorrect user name or password.</string>
     <string name="file_name_user_data_properties" translatable="false">user-data.properties</string>
     <string name="authorize_device">Authorize Device</string>
-    <string name="retriving_your_devices">Retrieving your devices. Please wait....</string>
+    <string name="retrieving_your_devices">Retrieving your devices. Please wait....</string>
+    <string name="updating_your_devices">Updating your devices. Please wait....</string>
     <string name="logout">Logout</string>
     <string name="auto_login" translatable="false">auto-login</string>
     <string name="can_not_connect_to_internet">Can not connect to internet. You needs to grant permission to connect to internet first for running app correctly.</string>

@@ -26,11 +26,11 @@ public interface IOperator {
 	
 	public interface Listener {
 		void authorized(String deviceId);
-		void confirmed(String concentratorId, String nodeId, String lanId);
+		void confirmed(String concentratorDeviceId, String nodeDeviceId, String lanId);
 		void canceled(String deviceId);
-		void canceled(String concentratorId, String nodeId);
+		void canceled(String concentratorDeviceId, String nodeDeviceId);
 		void occurred(AuthorizationError error, String deviceId);
-		void occurred(ConfirmationError error, String concentratorId, String nodeId);
+		void occurred(ConfirmationError error, String concentratorDeviceId, String nodeDeviceId);
 	}
 	
 	public class AuthorizationError {

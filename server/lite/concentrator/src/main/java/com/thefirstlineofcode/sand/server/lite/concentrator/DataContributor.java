@@ -9,7 +9,8 @@ public class DataContributor extends DataContributorAdapter {
 	@Override
 	protected Class<?>[] getDataObjects() {
 		return new Class<?>[] {
-			D_NodeConfirmation.class
+			D_NodeConfirmation.class,
+			D_Concentration.class
 		};
 	}
 	
