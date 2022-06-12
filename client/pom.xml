@@ -26,6 +26,7 @@
 		<module>actuator</module>
 		<module>operator</module>
 		<module>things</module>
+		<module>remoting</module>
 	</modules>
 
 </project>

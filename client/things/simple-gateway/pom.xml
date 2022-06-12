@@ -19,8 +19,8 @@
 	
 	<dependencies>
 		<dependency>
-			<groupId>com.thefirstlineofcode.basalt</groupId>
-			<artifactId>basalt-xmpp-core</artifactId>
+			<groupId>com.thefirstlineofcode.chalk</groupId>
+			<artifactId>chalk-core</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>com.thefirstlineofcode.sand.protocols.things</groupId>
@@ -29,6 +29,10 @@
 		<dependency>
 			<groupId>com.thefirstlineofcode.sand.client</groupId>
 			<artifactId>sand-client-core</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.thefirstlineofcode.sand.client</groupId>
+			<artifactId>sand-client-remoting</artifactId>
 		</dependency>
 	</dependencies>
 </project>
