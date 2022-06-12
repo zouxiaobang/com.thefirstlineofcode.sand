@@ -285,6 +285,7 @@ public class LightFrame extends JFrame implements ActionListener, WindowListener
 	}
 
 	private void quit() {
+		lightEmulator.powerOff();
 		System.exit(0);
 	}
 

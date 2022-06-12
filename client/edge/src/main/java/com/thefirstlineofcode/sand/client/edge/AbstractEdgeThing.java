@@ -390,7 +390,7 @@ public abstract class AbstractEdgeThing extends AbstractDevice implements IEdgeT
 				}
 				
 				try {
-					Thread.sleep(1000 * 60);
+					Thread.sleep(1000 * 20);
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
