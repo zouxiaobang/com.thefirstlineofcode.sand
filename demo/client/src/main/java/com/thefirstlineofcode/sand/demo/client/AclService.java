@@ -67,7 +67,7 @@ public class AclService implements IAclService, IIqListener {
 			@Override
 			public boolean processTimeout(IUnidirectionalStream<Iq> stream, Iq iq) {
 				for (Listener listener : listeners) {
-					listener.timeout(iq);
+					listener.timeout();
 				}
 				
 				return true;

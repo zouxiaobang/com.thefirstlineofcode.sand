@@ -16,7 +16,6 @@ class ChatClientSingleton {
 			chatClient = new StandardChatClient(Toolkits.getStreamConfig(context));
 			chatClient.register(OperatorPlugin.class);
 			chatClient.register(DemoPlugin.class);
-			chatClient.register(LocationPlugin.class);
 		}
 
 		return chatClient;

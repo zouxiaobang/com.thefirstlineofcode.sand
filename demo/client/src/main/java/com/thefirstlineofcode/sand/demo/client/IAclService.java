@@ -2,7 +2,6 @@ package com.thefirstlineofcode.sand.demo.client;
 
 import java.util.List;
 
-import com.thefirstlineofcode.basalt.protocol.core.stanza.Iq;
 import com.thefirstlineofcode.sand.demo.protocols.AccessControlEntry;
 import com.thefirstlineofcode.sand.demo.protocols.AccessControlList;
 
@@ -22,7 +21,7 @@ public interface IAclService {
 	public interface Listener {
 		void retrived(AccessControlList acl);
 		void updated(AccessControlList acl);
-		void timeout(Iq iq);
+		void timeout();
 		void occurred(AclError error);
 	}
 }

@@ -413,6 +413,12 @@
 
 			<dependency>
 				<groupId>com.thefirstlineofcode.sand.server</groupId>
+				<artifactId>sand-server-location</artifactId>
+				<version>${sand.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>com.thefirstlineofcode.sand.server</groupId>
 				<artifactId>sand-server-actuator</artifactId>
 				<version>${sand.version}</version>
 			</dependency>

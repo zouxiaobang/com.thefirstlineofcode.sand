@@ -43,6 +43,7 @@
     <string name="failed_to_authorize_device">Failed to authorize device. Error is: %s.</string>
     <string name="stream_error_occurred">Stream error %s occurred. Please contact the developer.</string>
     <string name="stanza_error_occurred">Stanza error %s occurred. Please contact the developer.</string>
+    <string name="retrieve_authorized_devices_timeout">Retrieve authorized devices timeout. You can refresh your devices by selecting \'Refresh Devices\' menu.</string>
     <string name="refresh_devices">Refresh Devices</string>
     <string name="devices_has_updated">Devices has updated.</string>
     <string name="control_the_device">Control the Device</string>

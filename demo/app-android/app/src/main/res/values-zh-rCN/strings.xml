@@ -35,6 +35,7 @@
     <string name="failed_to_authorize_device">授权设备失败。错误：%s</string>
     <string name="stream_error_occurred">Stream错误：%s。请联系开发者</string>
     <string name="stanza_error_occurred">Stanza错误：%s。请联系开发者</string>
+    <string name="retrieve_authorized_devices_timeout">获取设备超时. 你可以选择 \'刷新设备列表\' 菜单来刷新你的设备列表.</string>
     <string name="refresh_devices">刷新设备列表</string>
     <string name="devices_has_updated">设备列表被更新</string>
     <string name="control_the_device">控制这个设备</string>

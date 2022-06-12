@@ -12,15 +12,18 @@ import android.widget.BaseAdapter;
 import android.widget.Spinner;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+
 import com.thefirstlineofcode.sand.demo.protocols.AccessControlList;
+import com.thefirstlineofcode.sand.demo.protocols.AuthorizedDevice;
 
 import java.util.Arrays;
 
 public class DevicesAdapter extends BaseAdapter {
 	private final MainActivity mainActivity;
-	private Device[] devices;
+	private AuthorizedDevice[] devices;
 	
-	public DevicesAdapter(MainActivity mainActivity, Device[] devices) {
+	public DevicesAdapter(MainActivity mainActivity, AuthorizedDevice[] devices) {
 		this.mainActivity = mainActivity;
 		this.devices = devices;
 	}
@@ -48,7 +51,7 @@ public class DevicesAdapter extends BaseAdapter {
 	
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent) {
-		Device device = devices[position];
+		AuthorizedDevice device = devices[position];
 		
 		ViewHolder viewHolder;
 		if (convertView == null) {
@@ -64,16 +67,16 @@ public class DevicesAdapter extends BaseAdapter {
 		}
 		
 		viewHolder.tvDeviceId.setText(device.getDeviceId());
-		viewHolder.tvUserRole.setText(device.getAce().getRole().toString());
+		viewHolder.tvUserRole.setText(device.getRole().toString());
 		
 		Spinner spnControlActions = convertView.findViewById(R.id.spn_control_actions);
-		String[] sActions = new String[] {"Take a Photo", "Take a Video", "Open Live Streaming"};
+		String[] sActions = getActions(device.getDeviceId());
 		ArrayAdapter<String> actionsAdapter = new ArrayAdapter<>(mainActivity,
 				android.R.layout.simple_spinner_dropdown_item, sActions);
 		spnControlActions.setAdapter(actionsAdapter);
 		
-		if (device.getAce().getRole() != AccessControlList.Role.OWNER &&
-				device.getAce().getRole() != AccessControlList.Role.CONTROLLER) {
+		if (device.getRole() != AccessControlList.Role.OWNER &&
+				device.getRole() != AccessControlList.Role.CONTROLLER) {
 			TextView tvControl = convertView.findViewById(R.id.tv_control);
 			tvControl.setVisibility(View.INVISIBLE);
 			spnControlActions.setVisibility(View.INVISIBLE);
@@ -82,6 +85,19 @@ public class DevicesAdapter extends BaseAdapter {
 		}
 		
 		return convertView;
+	}
+	
+	@NonNull
+	private String[] getActions(String deviceId) {
+		if (deviceId.startsWith("SL-")) {
+			return new String[] {"Flash", "Turn On", "Turn Off"};
+		} else if (deviceId.startsWith("SG-")) {
+			return new String[] {"Change Mode"};
+		} else if (deviceId.startsWith("SC-")) {
+			return new String[] {"Take a Photo", "Take a Video", "Open Live Streaming"};
+		} else {
+			throw new RuntimeException("Unknown model of device which's ID is: " + deviceId);
+		}
 	}
 	
 	private static class ViewHolder {
@@ -165,8 +181,20 @@ public class DevicesAdapter extends BaseAdapter {
 				case "Open Live Streaming":
 					mainActivity.openLiveSteaming(deviceId);
 					break;
-				default:
+				case "Flash":
+					mainActivity.flash(deviceId);
 					break;
+				case "Turn On":
+					mainActivity.turnOn(deviceId);
+					break;
+				case "Turn Off":
+					mainActivity.turnOff(deviceId);
+					break;
+				case "Change Mode":
+					mainActivity.changeMode(deviceId);
+					break;
+				default:
+					throw new RuntimeException("Unknown command: " + selectedItem);
 			}
 		}
 		
@@ -174,18 +202,18 @@ public class DevicesAdapter extends BaseAdapter {
 		public void onNothingSelected(AdapterView<?> parent) {}
 	}
 	
-	public void setDevices(Device[] devices) {
+	public void setDevices(AuthorizedDevice[] devices) {
 		this.devices = devices;
 	}
 	
-	public void updateDevices(Device[] updatedDevices) {
+	public void updateDevices(AuthorizedDevice[] updatedDevices) {
 		if (devices == null) {
 			devices = updatedDevices;
 		} else {
 			if (updatedDevices == null || updatedDevices.length == 0)
 				return;
 			
-			for (Device device : updatedDevices) {
+			for (AuthorizedDevice device : updatedDevices) {
 				if (containsDevice(device)) {
 					updateDevice(device);
 				} else {
@@ -195,18 +223,18 @@ public class DevicesAdapter extends BaseAdapter {
 		}
 	}
 	
-	private void addDevice(Device device) {
+	private void addDevice(AuthorizedDevice device) {
 		if (devices == null || devices.length == 0) {
-			devices = new Device[]{device};
+			devices = new AuthorizedDevice[]{device};
 		} else {
-			devices = new Device[devices.length + 1];
+			devices = new AuthorizedDevice[devices.length + 1];
 			
 			devices = Arrays.copyOf(devices, devices.length + 1);
 			devices[devices.length - 1] = device;
 		}
 	}
 	
-	private void updateDevice(Device device) {
+	private void updateDevice(AuthorizedDevice device) {
 		for (int i = 0; i < devices.length; i++) {
 			if (devices[i].getDeviceId().equals(device.getDeviceId())) {
 				devices[i] = device;
@@ -217,11 +245,11 @@ public class DevicesAdapter extends BaseAdapter {
 		throw new RuntimeException("Can't find a device for update.");
 	}
 	
-	private boolean containsDevice(Device device) {
+	private boolean containsDevice(AuthorizedDevice device) {
 		if (devices == null || devices.length == 0)
 			return false;
 		
-		for (Device aDevice : devices) {
+		for (AuthorizedDevice aDevice : devices) {
 			if (aDevice.equals(device))
 				return true;
 		}

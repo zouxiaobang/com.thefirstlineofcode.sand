@@ -23,15 +23,11 @@
 		</dependency>
 		<dependency>
 			<groupId>com.thefirstlineofcode.sand.server</groupId>
-			<artifactId>sand-server-devices</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>com.thefirstlineofcode.sand.server</groupId>
 			<artifactId>sand-server-ibdr</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>com.thefirstlineofcode.sand.server</groupId>
-			<artifactId>sand-server-concentrator</artifactId>
+			<artifactId>sand-server-location</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>com.thefirstlineofcode.sand.demo</groupId>
@@ -40,10 +36,6 @@
 		<dependency>
 			<groupId>com.thefirstlineofcode.sand.protocols</groupId>
 			<artifactId>sand-protocols-actuator</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>com.thefirstlineofcode.sand.protocols</groupId>
-			<artifactId>sand-protocols-location</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>com.thefirstlineofcode.sand.protocols.things</groupId>
