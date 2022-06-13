@@ -3,6 +3,7 @@ package com.thefirstlineofcode.sand.server.lite.devices;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -16,6 +17,9 @@ import com.thefirstlineofcode.basalt.protocol.core.Protocol;
 import com.thefirstlineofcode.basalt.protocol.core.ProtocolException;
 import com.thefirstlineofcode.basalt.protocol.core.stanza.error.Conflict;
 import com.thefirstlineofcode.basalt.protocol.core.stanza.error.NotAuthorized;
+import com.thefirstlineofcode.granite.framework.core.adf.IApplicationComponentService;
+import com.thefirstlineofcode.granite.framework.core.adf.IApplicationComponentServiceAware;
+import com.thefirstlineofcode.granite.framework.core.repository.IInitializable;
 import com.thefirstlineofcode.sand.protocols.core.DeviceIdentity;
 import com.thefirstlineofcode.sand.protocols.core.ModelDescriptor;
 import com.thefirstlineofcode.sand.server.devices.Device;
@@ -23,20 +27,41 @@ import com.thefirstlineofcode.sand.server.devices.DeviceAuthorization;
 import com.thefirstlineofcode.sand.server.devices.DeviceRegistered;
 import com.thefirstlineofcode.sand.server.devices.IDeviceIdRuler;
 import com.thefirstlineofcode.sand.server.devices.IDeviceManager;
+import com.thefirstlineofcode.sand.server.devices.IDeviceModelsProvider;
 
 @Transactional
 @Component
-public class DeviceManager implements IDeviceManager {
+public class DeviceManager implements IDeviceManager, IInitializable, IApplicationComponentServiceAware {
 	@Autowired
 	private SqlSession sqlSession;
 	
 	@Autowired(required = false)
 	private IDeviceIdRuler deviceIdRuler;
 	
+	private IApplicationComponentService appComponentService;
+	
 	private Map<String, ModelDescriptor> modelDescriptors;
 	
 	public DeviceManager() {
 		modelDescriptors = new HashMap<>();
+	}
+	
+	@Override
+	public void init() {
+		List<IDeviceModelsProvider> modelsProviders = appComponentService.getPluginManager().getExtensions(IDeviceModelsProvider.class);
+		if (modelsProviders == null || modelsProviders.size() == 0)
+			return;
+		
+		for (IDeviceModelsProvider modelsProvider : modelsProviders) {
+			registerModels(modelsProvider);
+		}
+	}
+	
+	private void registerModels(IDeviceModelsProvider modesProvider) {
+		Map<String, ModelDescriptor> models = modesProvider.provide();
+		for (String model : models.keySet()) {
+			registerModel(model, models.get(model));
+		}
 	}
 	
 	@Override
@@ -338,5 +363,15 @@ public class DeviceManager implements IDeviceManager {
 			throw new RuntimeException(String.format("Device which's model is '%s' isn't a sensor.", model));
 		
 		return modelDescriptor.getSupportedEvents().containsValue(eventType);
+	}
+
+	@Override
+	public String[] getModels() {
+		return modelDescriptors.keySet().toArray(new String[0]);
+	}
+
+	@Override
+	public void setApplicationComponentService(IApplicationComponentService appComponentService) {
+		this.appComponentService = appComponentService;
 	}
 }

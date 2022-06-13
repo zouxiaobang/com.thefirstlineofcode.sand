@@ -1,5 +1,7 @@
 package com.thefirstlineofcode.sand.demo.app.android;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
@@ -18,14 +20,17 @@ import androidx.appcompat.widget.Toolbar;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 import com.thefirstlineofcode.basalt.protocol.core.IError;
+import com.thefirstlineofcode.basalt.protocol.core.JabberId;
 import com.thefirstlineofcode.basalt.protocol.core.stanza.error.StanzaError;
 import com.thefirstlineofcode.basalt.protocol.core.stream.error.StreamError;
 import com.thefirstlineofcode.chalk.core.IChatClient;
 import com.thefirstlineofcode.chalk.core.IErrorListener;
 import com.thefirstlineofcode.sand.client.operator.IOperator;
+import com.thefirstlineofcode.sand.client.remoting.IRemoting;
 import com.thefirstlineofcode.sand.demo.client.IAuthorizedDevicesService;
 import com.thefirstlineofcode.sand.demo.protocols.AuthorizedDevice;
 import com.thefirstlineofcode.sand.demo.protocols.AuthorizedDevices;
+import com.thefirstlineofcode.sand.protocols.things.simple.light.Flash;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,6 +39,7 @@ public class MainActivity extends AppCompatActivity implements IOperator.Listene
 		IAuthorizedDevicesService.Listener, IErrorListener {
 	private static final Logger logger = LoggerFactory.getLogger(MainActivity.class);
 	
+	private String host;
 	private DevicesAdapter devicesAdapter;
 	
 	@Override
@@ -58,6 +64,7 @@ public class MainActivity extends AppCompatActivity implements IOperator.Listene
 		pbRetrievingDevices.setVisibility(View.VISIBLE);
 		
 		IChatClient chatClient = ChatClientSingleton.get(this);
+		host = chatClient.getStreamConfig().getHost();
 		IAuthorizedDevicesService authorizedDevicesService =
 				chatClient.createApi(IAuthorizedDevicesService.class);
 		authorizedDevicesService.addListener(this);
@@ -186,7 +193,7 @@ public class MainActivity extends AppCompatActivity implements IOperator.Listene
 					new AuthorizedDevice[0]);
 			ListView lvDevices = findViewById(R.id.lv_devices);
 			if (devicesAdapter == null) {
-				devicesAdapter = new DevicesAdapter(MainActivity.this, devices);
+				devicesAdapter = new DevicesAdapter(MainActivity.this, host, devices);
 				lvDevices.setAdapter(devicesAdapter);
 			} else {
 				devicesAdapter.updateDevices(devices);
@@ -219,32 +226,83 @@ public class MainActivity extends AppCompatActivity implements IOperator.Listene
 				Toast.LENGTH_LONG).show());
 	}
 	
-	public void takeAPhoto(String deviceId) {
-		logger.info("Take a photo from camera {}.", deviceId);
+	public void takeAPhoto(JabberId target) {
+		logger.info("Take a photo from camera {}.", target);
+		AlertDialog.Builder builder = new AlertDialog.Builder(this);
+		builder.setTitle("Choose prepare time").setItems(new String[] {"5 Seconds", "10 Seconds", "15 Seconds"},
+				new DialogInterface.OnClickListener() {
+					public void onClick(DialogInterface dialog, int which) {
+						logger.info("Your chose item {}.", which);
+					}
+				});
+		AlertDialog dialog = builder.create();
+		dialog.show();
 	}
 	
-	public void takeAVideo(String deviceId) {
-		logger.info("Take a video from camera {}.", deviceId);
+	public void takeAVideo(JabberId target) {
+		logger.info("Take a video from camera {}.", target);
 	}
 	
-	public void openLiveSteaming(String deviceId) {
-		logger.info("Open live streaming of camera {}.", deviceId);
+	public void openLiveSteaming(JabberId target) {
+		logger.info("Open live streaming of camera {}.", target);
 	}
 	
-	public void flash(String deviceId) {
-		logger.info("Flash light {}.", deviceId);
+	public void flash(JabberId target) {
+		logger.info("Flash light {}.", target);
+		AlertDialog.Builder builder = new AlertDialog.Builder(this);
+		builder.setTitle("Choose repeat times").setItems(new String[] {"1", "2", "5"},
+				new DialogInterface.OnClickListener() {
+					public void onClick(DialogInterface dialog, int which) {
+						IChatClient chatClient = ChatClientSingleton.get(MainActivity.this);
+						IRemoting remoting = chatClient.createApi(IRemoting.class);
+						
+						Flash flash = new Flash();
+						if (which == 0) {
+							flash.setRepeat(1);
+						} else if (which == 1) {
+							flash.setRepeat(2);
+						} else {
+							flash.setRepeat(5);
+						}
+						
+						remoting.execute(target, flash, new IRemoting.Callback() {
+							@Override
+							public void executed(Object xep) {
+								runOnUiThread(() -> Toast.makeText(MainActivity.this,
+										"Flash executed.",
+										Toast.LENGTH_LONG).show());
+							}
+							
+							@Override
+							public void occurred(StanzaError error) {
+								runOnUiThread(() -> Toast.makeText(MainActivity.this,
+										"Flash execution error: " + error.toString(),
+										Toast.LENGTH_LONG).show());
+							}
+							
+							@Override
+							public void timeout() {
+								runOnUiThread(() -> Toast.makeText(MainActivity.this,
+										"Flash execution timeout.",
+										Toast.LENGTH_LONG).show());
+							}
+						});
+					}
+				});
+		AlertDialog dialog = builder.create();
+		dialog.show();
 	}
 	
-	public void turnOn(String deviceId) {
-		logger.info("Turn on light {}.", deviceId);
+	public void turnOn(JabberId target) {
+		logger.info("Turn on light {}.", target);
 	}
 	
-	public void turnOff(String deviceId) {
-		logger.info("Turn off light {}.", deviceId);
+	public void turnOff(JabberId target) {
+		logger.info("Turn off light {}.", target);
 	}
 	
-	public void changeMode(String deviceId) {
-		logger.info("Change mode of gateway {}.", deviceId);
+	public void changeMode(JabberId target) {
+		logger.info("Change mode of gateway {}.", target);
 	}
 	
 	@Override

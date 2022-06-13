@@ -195,12 +195,13 @@ public abstract class AbstractEdgeThing extends AbstractDevice implements IEdgeT
 	}
 	
 	protected void startAutoReconnectThread() {
-		if (autoReconnectThread == null || !autoReconnectThread.isAlive()) {
-			autoReconnectThread = new Thread(new AutoReconnectThread(),
-					String.format("%s Auto Reconnect Thread", getDeviceName()));			
-		}
-		
 		stopToReconnect = false;
+		if (autoReconnectThread != null && autoReconnectThread.isAlive())
+			return;
+		
+		autoReconnectThread = new Thread(new AutoReconnectThread(),
+				String.format("%s Auto Reconnect Thread", getDeviceName()));			
+		
 		autoReconnectThread.start();
 	}
 

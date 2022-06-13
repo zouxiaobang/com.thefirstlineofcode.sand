@@ -4,7 +4,9 @@ buildscript {
     
     repositories {
         // google()
-        // jcenter()
+        // jcenter(
+
+        mavenLocal()
 
         maven {
             allowInsecureProtocol = true

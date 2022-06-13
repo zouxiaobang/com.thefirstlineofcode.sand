@@ -14,6 +14,7 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 
+import com.thefirstlineofcode.basalt.protocol.core.JabberId;
 import com.thefirstlineofcode.sand.demo.protocols.AccessControlList;
 import com.thefirstlineofcode.sand.demo.protocols.AuthorizedDevice;
 
@@ -21,10 +22,12 @@ import java.util.Arrays;
 
 public class DevicesAdapter extends BaseAdapter {
 	private final MainActivity mainActivity;
+	private String host;
 	private AuthorizedDevice[] devices;
 	
-	public DevicesAdapter(MainActivity mainActivity, AuthorizedDevice[] devices) {
+	public DevicesAdapter(MainActivity mainActivity, String host, AuthorizedDevice[] devices) {
 		this.mainActivity = mainActivity;
+		this.host = host;
 		this.devices = devices;
 	}
 	
@@ -69,7 +72,7 @@ public class DevicesAdapter extends BaseAdapter {
 		viewHolder.tvDeviceId.setText(device.getDeviceId());
 		viewHolder.tvUserRole.setText(device.getRole().toString());
 		
-		Spinner spnControlActions = convertView.findViewById(R.id.spn_control_actions);
+		ControlSpinner spnControlActions = convertView.findViewById(R.id.spn_control_actions);
 		String[] sActions = getActions(device.getDeviceId());
 		ArrayAdapter<String> actionsAdapter = new ArrayAdapter<>(mainActivity,
 				android.R.layout.simple_spinner_dropdown_item, sActions);
@@ -81,7 +84,7 @@ public class DevicesAdapter extends BaseAdapter {
 			tvControl.setVisibility(View.INVISIBLE);
 			spnControlActions.setVisibility(View.INVISIBLE);
 		} else {
-			spnControlActions.setOnItemSelectedListener(new ControlActionsListener(device.getDeviceId()));
+			spnControlActions.setOnItemSelectedListener(new ControlActionsListener(spnControlActions, device.getDeviceId()));
 		}
 		
 		return convertView;
@@ -154,11 +157,13 @@ public class DevicesAdapter extends BaseAdapter {
 	}
 	
 	private class ControlActionsListener implements AdapterView.OnItemSelectedListener {
+		private ControlSpinner spinner;
 		private final String deviceId;
 		private boolean initialState;
 		private int lastSelection;
 		
-		public ControlActionsListener(String deviceId) {
+		public ControlActionsListener(ControlSpinner spinner, String deviceId) {
+			this.spinner = spinner;
 			this.deviceId = deviceId;
 			initialState = true;
 			lastSelection = -1;
@@ -167,31 +172,32 @@ public class DevicesAdapter extends BaseAdapter {
 		public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
 			if (initialState) {
 				initialState = false;
+				spinner.lastSelection = pos;
 				return;
 			}
 			
 			String selectedItem = parent.getItemAtPosition(pos).toString();
 			switch (selectedItem) {
 				case "Take a Photo":
-					mainActivity.takeAPhoto(deviceId);
+					mainActivity.takeAPhoto(getJidTargetByDeviceId(deviceId));
 					break;
 				case "Take a Video":
-					mainActivity.takeAVideo(deviceId);
+					mainActivity.takeAVideo(getJidTargetByDeviceId(deviceId));
 					break;
 				case "Open Live Streaming":
-					mainActivity.openLiveSteaming(deviceId);
+					mainActivity.openLiveSteaming(getJidTargetByDeviceId(deviceId));
 					break;
 				case "Flash":
-					mainActivity.flash(deviceId);
+					mainActivity.flash(getJidTargetByDeviceId(deviceId));
 					break;
 				case "Turn On":
-					mainActivity.turnOn(deviceId);
+					mainActivity.turnOn(getJidTargetByDeviceId(deviceId));
 					break;
 				case "Turn Off":
-					mainActivity.turnOff(deviceId);
+					mainActivity.turnOff(getJidTargetByDeviceId(deviceId));
 					break;
 				case "Change Mode":
-					mainActivity.changeMode(deviceId);
+					mainActivity.changeMode(getJidTargetByDeviceId(deviceId));
 					break;
 				default:
 					throw new RuntimeException("Unknown command: " + selectedItem);
@@ -200,6 +206,28 @@ public class DevicesAdapter extends BaseAdapter {
 		
 		@Override
 		public void onNothingSelected(AdapterView<?> parent) {}
+	}
+	
+	private JabberId getJidTargetByDeviceId(String deviceId) {
+		for (AuthorizedDevice device : devices) {
+			if (device.getDeviceId().equals(deviceId)) {
+				return getJidTargetByDeviceLocation(device.getDeviceLocation());
+			}
+		}
+		
+		throw new RuntimeException(String.format("Unknown device ID: %s.", deviceId));
+	}
+	
+	private JabberId getJidTargetByDeviceLocation(String deviceLocation) {
+		int slashIndex = deviceLocation.indexOf('/');
+		if (slashIndex == -1) {
+			return new JabberId(deviceLocation, host);
+		} else {
+			String node = deviceLocation.substring(0, slashIndex);
+			String resource = deviceLocation.substring(slashIndex + 1, deviceLocation.length());
+			
+			return new JabberId(node, host, resource);
+		}
 	}
 	
 	public void setDevices(AuthorizedDevice[] devices) {

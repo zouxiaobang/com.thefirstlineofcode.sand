@@ -102,7 +102,15 @@ public class ExecutionListener implements IEventListener<ExecutionEvent>, IIqRes
 	public boolean processResult(IProcessingContext context, Iq result) {
 		IExecutionCallback callback = getCallback(result);
 		
-		return callback == null ? false : callback.processResult(context, result);
+		boolean processed = false;
+		if (callback != null)
+			processed = callback.processResult(context, result);
+		
+		if (processed)
+			return true;
+		
+		context.write(result);
+		return true;
 	}
 
 	private synchronized IExecutionCallback getCallback(Stanza stanza) {
@@ -119,7 +127,15 @@ public class ExecutionListener implements IEventListener<ExecutionEvent>, IIqRes
 	public boolean processError(IProcessingContext context, StanzaError error) {
 		IExecutionCallback callback = getCallback(error);
 		
-		return callback == null ? false : callback.processError(context, error);
+		boolean processed = false;
+		if (callback != null)
+			processed = callback.processError(context, error);
+		
+		if (processed)
+			return true;
+		
+		context.write(error);;
+		return true;
 	}
 
 }

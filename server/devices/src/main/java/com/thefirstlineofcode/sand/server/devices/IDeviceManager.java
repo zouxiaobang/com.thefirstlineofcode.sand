@@ -20,6 +20,7 @@ public interface IDeviceManager {
 	String getDeviceNameByDeviceId(String deviceId);
 	String getDeviceIdByDeviceName(String deviceName);
 	void registerModel(String model, ModelDescriptor modelDescriptor);
+	String[] getModels();
 	ModelDescriptor getModelDescriptor(String model);
 	ModelDescriptor unregisterMode(String model);
 	boolean isRegistered(String deviceId);

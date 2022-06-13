@@ -101,25 +101,25 @@ public class Actuator implements IActuator, IIqListener {
 	
 	@Override
 	public void received(Iq iq) {
-		Execution execute = iq.getObject();
+		Execution execution = iq.getObject();
 		
 		if (logger.isInfoEnabled()) {
 			logger.info("Received a execution message which's action object is {} from '{}'.",
-					execute.getAction(), iq.getFrom() == null ? host : iq.getFrom());
+					execution.getAction(), iq.getFrom() == null ? host : iq.getFrom());
 		}
 		
 		try {
-			execute(iq, execute);
+			execute(iq, execution);
 		} catch (ProtocolException e) {
 			if (logger.isErrorEnabled())
 				logger.error(String.format("Failed to execute the action %s which was sent from '%s' on device '%s'.",
-						execute.getAction(), iq.getFrom() == null ? host : iq.getFrom(), iq.getTo()), e);
+						execution.getAction(), iq.getFrom() == null ? host : iq.getFrom(), iq.getTo()), e);
 			
 			throw e;
 		} catch (RuntimeException e) {
 			if (logger.isErrorEnabled())
 				logger.error(String.format("Failed to execute the action %s which was sent from '%s' on device '%s'.",
-						execute.getAction(), iq.getFrom() == null ? host : iq.getFrom()), e);
+						execution.getAction(), iq.getFrom() == null ? host : iq.getFrom()), e);
 			
 			throw new ProtocolException(new InternalServerError(), e);
 		}

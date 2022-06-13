@@ -12,7 +12,7 @@
 	</parent>
 
 	<groupId>com.thefirstlineofcode.sand.emulators.wifi</groupId>
-	<artifactId>sand-emulators-wifi-simple-ight</artifactId>
+	<artifactId>sand-emulators-wifi-simple-light</artifactId>
 	<name>Sand WiFi simple light emulator</name>
 	<packaging>jar</packaging>
 	

@@ -54,10 +54,19 @@ public class AclPipelinePreprocessor implements IPipelinePreprocessor {
 	}
 	
 	private Object afterParsingExecution(JabberId from, Iq iq) {
+		if (iq.getType() == Iq.Type.RESULT)
+			return iq;
+		
 		return isOwnerOrController(from, iq.getTo()) ? iq : null;
 	}
 
 	private Object afterParsingLocateDevices(JabberId from, Iq iq, LocateDevices locateDevices) {
+		if (iq.getType() == Iq.Type.RESULT)
+			return iq;
+		
+		if (iq.getType() != Iq.Type.GET )
+			throw new ProtocolException(new BadRequest("IQ type for LEPs location protocol Must be Iq.Type.GET."));
+		
 		if (locateDevices.getDeviceIds() == null || locateDevices.getDeviceIds().size() == 0)
 			throw new ProtocolException(new BadRequest("Null device IDs or zero length device IDs."));
 		

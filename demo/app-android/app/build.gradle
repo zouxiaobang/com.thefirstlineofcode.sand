@@ -10,7 +10,7 @@ android {
     defaultConfig {
         applicationId "com.thefirstlineofcode.sand.demo.app.android"
         minSdkVersion 25
-        targetSdkVersion 29
+        targetSdkVersion 30
         versionCode 1
         versionName "1.0"
 
@@ -43,8 +43,10 @@ dependencies {
     implementation 'com.thefirstlineofcode.chalk:chalk-android:1.0.0-ALPHA1'
     implementation 'com.thefirstlineofcode.chalk.xeps:chalk-xeps-ibr:1.0.0-ALPHA1'
     implementation 'com.thefirstlineofcode.sand.client:sand-client-operator:1.0.0-ALPHA1'
-    implementation 'com.thefirstlineofcode.sand.client:sand-client-location:1.0.0-ALPHA1'
     implementation 'com.thefirstlineofcode.sand.demo:sand-demo-client:1.0.0-ALPHA1'
+    implementation 'com.thefirstlineofcode.sand.client.things:sand-client-things-simple-light:1.0.0-ALPHA1'
+    implementation 'com.thefirstlineofcode.sand.client.things:sand-client-things-simple-gateway:1.0.0-ALPHA1'
+    implementation 'com.thefirstlineofcode.sand.client.things:sand-client-things-simple-camera:1.0.0-ALPHA1'
     implementation ('com.journeyapps:zxing-android-embedded:4.1.0') {
         transitive = false
     }

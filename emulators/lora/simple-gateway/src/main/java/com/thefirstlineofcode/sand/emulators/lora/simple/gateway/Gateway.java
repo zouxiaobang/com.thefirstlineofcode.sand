@@ -87,8 +87,10 @@ import com.thefirstlineofcode.sand.client.ibdr.RegistrationException;
 import com.thefirstlineofcode.sand.client.lora.ConcentratorDynamicalAddressConfigurator;
 import com.thefirstlineofcode.sand.client.lora.IDualLoraChipsCommunicator;
 import com.thefirstlineofcode.sand.client.things.simple.gateway.ChangeModeExecutor;
+import com.thefirstlineofcode.sand.client.things.simple.gateway.GatewayPlugin;
 import com.thefirstlineofcode.sand.client.things.simple.gateway.IGateway;
 import com.thefirstlineofcode.sand.client.things.simple.light.ILight;
+import com.thefirstlineofcode.sand.client.things.simple.light.LightPlugin;
 import com.thefirstlineofcode.sand.emulators.commons.Constants;
 import com.thefirstlineofcode.sand.emulators.commons.IThingEmulator;
 import com.thefirstlineofcode.sand.emulators.commons.IThingEmulatorFactory;
@@ -263,7 +265,7 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 				}
 				
 				try {
-					Thread.sleep(1000 * 10);
+					Thread.sleep(1000 * 20);
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
@@ -665,6 +667,8 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 	private void registerPlugins(IChatClient chatClient) {
 		chatClient.register(ConcentratorPlugin.class);
 		chatClient.register(ActuatorPlugin.class);
+		chatClient.register(GatewayPlugin.class);
+		chatClient.register(LightPlugin.class);
 	}
 
 	private StandardStreamConfig createStreamConfigWithResource() {

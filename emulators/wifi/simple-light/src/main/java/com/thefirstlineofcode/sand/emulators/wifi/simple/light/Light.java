@@ -14,6 +14,7 @@ import com.thefirstlineofcode.sand.client.edge.AbstractEdgeThing;
 import com.thefirstlineofcode.sand.client.ibdr.RegistrationException;
 import com.thefirstlineofcode.sand.client.things.simple.light.FlashExecutor;
 import com.thefirstlineofcode.sand.client.things.simple.light.ILight;
+import com.thefirstlineofcode.sand.client.things.simple.light.LightPlugin;
 import com.thefirstlineofcode.sand.emulators.commons.Constants;
 import com.thefirstlineofcode.sand.emulators.commons.ui.LightEmulatorPanel;
 import com.thefirstlineofcode.sand.emulators.models.SlWe01ModelDescriptor;
@@ -185,6 +186,7 @@ public class Light extends AbstractEdgeThing implements ILight {
 	@Override
 	protected void registerChalkPlugins() {
 		chatClient.register(ActuatorPlugin.class);
+		chatClient.register(LightPlugin.class);
 	}
 
 	@Override

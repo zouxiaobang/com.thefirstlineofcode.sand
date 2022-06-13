@@ -23,6 +23,7 @@ import com.thefirstlineofcode.sand.client.core.actuator.IActuator;
 import com.thefirstlineofcode.sand.client.core.actuator.IExecutor;
 import com.thefirstlineofcode.sand.client.core.actuator.IExecutorFactory;
 import com.thefirstlineofcode.sand.client.edge.AbstractEdgeThing;
+import com.thefirstlineofcode.sand.client.things.simple.camera.CameraPlugin;
 import com.thefirstlineofcode.sand.client.things.simple.camera.ICamera;
 import com.thefirstlineofcode.sand.protocols.actuator.ExecutionException;
 import com.thefirstlineofcode.sand.protocols.things.simple.camera.TakePhoto;
@@ -62,6 +63,7 @@ public class Camera extends AbstractEdgeThing implements ICamera {
 	@Override
 	protected void registerChalkPlugins() {
 		chatClient.register(ActuatorPlugin.class);
+		chatClient.register(CameraPlugin.class);
 	}
 	
 	@Override
