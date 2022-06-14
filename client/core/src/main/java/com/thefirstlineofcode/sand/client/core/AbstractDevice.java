@@ -16,6 +16,7 @@ public abstract class AbstractDevice implements IDevice {
 	protected int batteryPower;
 	
 	protected Map<String, String> attributes;
+	protected boolean attributesChanged;
 	
 	protected List<IDeviceListener> listeners;
 	
@@ -38,6 +39,8 @@ public abstract class AbstractDevice implements IDevice {
 		if (attributes == null)
 			attributes = new HashMap<>();
 		
+		attributesChanged = false;
+		
 		deviceId = getDeviceId(attributes);
 		
 		if (deviceId == null) {
@@ -47,7 +50,7 @@ public abstract class AbstractDevice implements IDevice {
 				throw new RuntimeException("Failed to generate device ID. Null device ID.");
 			
 			attributes.put(ATTRIBUTE_NAME_DEVICE_ID, deviceId);
-			saveAttributes(attributes);
+			attributesChanged = true;
 		}
 	}
 	

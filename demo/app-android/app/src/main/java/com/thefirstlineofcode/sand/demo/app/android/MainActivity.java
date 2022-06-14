@@ -30,10 +30,13 @@ import com.thefirstlineofcode.sand.client.remoting.IRemoting;
 import com.thefirstlineofcode.sand.demo.client.IAuthorizedDevicesService;
 import com.thefirstlineofcode.sand.demo.protocols.AuthorizedDevice;
 import com.thefirstlineofcode.sand.demo.protocols.AuthorizedDevices;
+import com.thefirstlineofcode.sand.protocols.things.simple.camera.TakePhoto;
 import com.thefirstlineofcode.sand.protocols.things.simple.light.Flash;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements IOperator.Listener,
 		IAuthorizedDevicesService.Listener, IErrorListener {
@@ -105,7 +108,7 @@ public class MainActivity extends AppCompatActivity implements IOperator.Listene
 	}
 
 	private void refreshDevices() {
-		// TODO
+		retrieveAuthorizedDevices();
 	}
 
 	private void authorizeDevice() {
@@ -189,14 +192,19 @@ public class MainActivity extends AppCompatActivity implements IOperator.Listene
 	@Override
 	public void retrieved(AuthorizedDevices authorizedDevices) {
 		runOnUiThread(() -> {
-			AuthorizedDevice[] devices = authorizedDevices.getDevices().toArray(
-					new AuthorizedDevice[0]);
-			ListView lvDevices = findViewById(R.id.lv_devices);
+			List<AuthorizedDevice> lDevices = authorizedDevices.getDevices();
+			
+			AuthorizedDevice[] devices = new AuthorizedDevice[0];
+			if (lDevices != null && lDevices.size() != 0)
+				devices = lDevices.toArray(new AuthorizedDevice[0]);
+			
 			if (devicesAdapter == null) {
+				ListView lvDevices = findViewById(R.id.lv_devices);
 				devicesAdapter = new DevicesAdapter(MainActivity.this, host, devices);
 				lvDevices.setAdapter(devicesAdapter);
 			} else {
-				devicesAdapter.updateDevices(devices);
+				devicesAdapter.setDevices(devices);
+				devicesAdapter.notifyDataSetChanged();
 			}
 			
 			ProgressBar pbRetrievingDevices = (ProgressBar)findViewById(R.id.pb_retrieving_devices);
@@ -232,7 +240,40 @@ public class MainActivity extends AppCompatActivity implements IOperator.Listene
 		builder.setTitle("Choose prepare time").setItems(new String[] {"5 Seconds", "10 Seconds", "15 Seconds"},
 				new DialogInterface.OnClickListener() {
 					public void onClick(DialogInterface dialog, int which) {
-						logger.info("Your chose item {}.", which);
+						IChatClient chatClient = ChatClientSingleton.get(MainActivity.this);
+						IRemoting remoting = chatClient.createApi(IRemoting.class);
+						
+						TakePhoto takePhoto = new TakePhoto();
+						if (which == 0) {
+							takePhoto.setPrepareTime(5);
+						} else if (which == 1) {
+							takePhoto.setPrepareTime(10);
+						} else {
+							takePhoto.setPrepareTime(15);
+						}
+						
+						remoting.execute(target, takePhoto, 30 * 1000, new IRemoting.Callback() {
+							@Override
+							public void executed(Object xep) {
+								runOnUiThread(() -> Toast.makeText(MainActivity.this,
+										"Take photo executed.",
+										Toast.LENGTH_LONG).show());
+							}
+							
+							@Override
+							public void occurred(StanzaError error) {
+								runOnUiThread(() -> Toast.makeText(MainActivity.this,
+										"Take photo execution error: " + error.toString(),
+										Toast.LENGTH_LONG).show());
+							}
+							
+							@Override
+							public void timeout() {
+								runOnUiThread(() -> Toast.makeText(MainActivity.this,
+										"Take photo execution timeout.",
+										Toast.LENGTH_LONG).show());
+							}
+						});
 					}
 				});
 		AlertDialog dialog = builder.create();

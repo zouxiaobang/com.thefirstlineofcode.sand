@@ -30,7 +30,7 @@ public class Concentrator implements IConcentrator {
 
 	private static final Logger logger = LoggerFactory.getLogger(Concentrator.class);
 	
-	private static final int DEFAULT_ADDRESS_CONFIGURATION_NODE_CREATION_TIMEOUT = 1000 * 60 * 5;
+	private static final int DEFAULT_ADDRESS_CONFIGURATION_NODE_CREATION_TIMEOUT = 1000 * 30;
 	
 	private List<IConcentrator.Listener> listeners;
 	

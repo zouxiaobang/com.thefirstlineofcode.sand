@@ -26,7 +26,7 @@ public class AuthorizedDevicesProcessor implements IXepProcessor<Iq, AuthorizedD
 	public void process(IProcessingContext context, Iq iq, AuthorizedDevices xep) {
 		AccessControlList acl = aclService.getUserAcl(context.getJid().getNode());
 		if (acl.getEntries() == null || acl.getEntries().size() == 0) {
-			context.write(Iq.createResult(iq, acl));
+			context.write(Iq.createResult(iq, new AuthorizedDevices()));
 		} else {
 			List<String> deviceIds = getAclDeviceIds(acl);
 			List<DeviceLocation> deviceLocations = locationService.locateDevices(deviceIds);

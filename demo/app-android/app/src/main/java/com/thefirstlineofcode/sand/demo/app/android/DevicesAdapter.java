@@ -255,10 +255,12 @@ public class DevicesAdapter extends BaseAdapter {
 		if (devices == null || devices.length == 0) {
 			devices = new AuthorizedDevice[]{device};
 		} else {
-			devices = new AuthorizedDevice[devices.length + 1];
+			AuthorizedDevice[] newDevices = new AuthorizedDevice[devices.length + 1];
 			
-			devices = Arrays.copyOf(devices, devices.length + 1);
-			devices[devices.length - 1] = device;
+			newDevices = Arrays.copyOf(devices, devices.length + 1);
+			newDevices[newDevices.length - 1] = device;
+			
+			devices = newDevices;
 		}
 	}
 	

@@ -52,8 +52,12 @@ public abstract class AbstractEdgeThing extends AbstractDevice implements IEdgeT
 		powered = true;
 		batteryPower = 100;
 		
-		if (this.streamConfig == null)
+		if (this.streamConfig == null) {
 			this.streamConfig = getStreamConfig(attributes);
+		} else {
+			attributes.put(ATTRIBUTE_NAME_STREAM_CONFIG, getStreamConfigString());
+			attributesChanged = true;
+		}
 		
 		identity = getDeviceIdentity(attributes);
 		
@@ -65,8 +69,15 @@ public abstract class AbstractEdgeThing extends AbstractDevice implements IEdgeT
 		
 		started = false;
 		stopToReconnect = true;
+		
+		if (attributesChanged)
+			saveAttributes(attributes);
 	}
 	
+	private String getStreamConfigString() {
+		return String.format("%s,%s,%s", streamConfig.getHost(), streamConfig.getPort(), streamConfig.isTlsPreferred() ? "true" : "false");
+	}
+
 	protected StandardStreamConfig getStreamConfig(Map<String, String> attributes) {
 		String sStreamConfig = attributes.get(ATTRIBUTE_NAME_STREAM_CONFIG);
 		if (sStreamConfig == null) {
@@ -391,7 +402,7 @@ public abstract class AbstractEdgeThing extends AbstractDevice implements IEdgeT
 				}
 				
 				try {
-					Thread.sleep(1000 * 20);
+					Thread.sleep(1000 * 10);
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}

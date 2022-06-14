@@ -46,7 +46,7 @@
 						<manifest>
 							<addClasspath>true</addClasspath>
 							<classpathPrefix>libs/</classpathPrefix>
-							<mainClass>com.thefirstlineofcode.sand.demo.things.client.swc.rbp3b.Main</mainClass>
+							<mainClass>com.thefirstlineofcode.sand.demo.things.client.sc.rbp3b.Main</mainClass>
 						</manifest>
 					</archive>
 				</configuration>

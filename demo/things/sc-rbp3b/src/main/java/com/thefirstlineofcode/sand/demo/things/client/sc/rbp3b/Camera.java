@@ -17,6 +17,7 @@ import org.slf4j.LoggerFactory;
 
 import com.thefirstlineofcode.basalt.protocol.core.ProtocolException;
 import com.thefirstlineofcode.basalt.protocol.core.stanza.Iq;
+import com.thefirstlineofcode.chalk.core.stream.StandardStreamConfig;
 import com.thefirstlineofcode.sand.client.actuator.ActuatorPlugin;
 import com.thefirstlineofcode.sand.client.core.ThingsUtils;
 import com.thefirstlineofcode.sand.client.core.actuator.IActuator;
@@ -41,7 +42,11 @@ public class Camera extends AbstractEdgeThing implements ICamera {
 	private IActuator actuator;
 	
 	public Camera() {
-		super(THING_TYPE, THING_MODEL);
+		this(null);
+	}
+	
+	public Camera(StandardStreamConfig streamConfig) {
+		super(THING_TYPE, THING_MODEL, streamConfig);
 	}
 	
 	@Override
@@ -113,9 +118,8 @@ public class Camera extends AbstractEdgeThing implements ICamera {
 	protected Map<String, String> loadDeviceAttributes() {
 		Path attributesFilePath = getAttributesFilePath();
 		
-		if (!Files.exists(attributesFilePath.getParent(), LinkOption.NOFOLLOW_LINKS)) {
-			if (logger.isDebugEnabled())
-				logger.debug("Attributes file not existed. Ignore to load attributes.");
+		if (!Files.exists(attributesFilePath, LinkOption.NOFOLLOW_LINKS)) {
+			logger.info("Attributes file not existed. Ignore to load attributes.");
 			
 			return null;
 		}
@@ -178,7 +182,9 @@ public class Camera extends AbstractEdgeThing implements ICamera {
 		Writer writer = null;
 		try {
 			writer = Files.newBufferedWriter(attributesFilePath, StandardOpenOption.CREATE, StandardOpenOption.WRITE);
-			properties.store(writer, null);			
+			properties.store(writer, null);
+			
+			logger.info(String.format("Attributes are saved to %s.", attributesFilePath.toAbsolutePath()));
 		} catch (Exception e) {
 			logger.error(String.format("Can't save attributes to file '%s'.",
 					attributesFilePath.toAbsolutePath()), e);

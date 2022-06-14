@@ -25,7 +25,7 @@ public class HourTimeBasedId implements ITraceId {
 				return type;
 		}
 		
-		throw new RuntimeException("Illegal type for traceable id. Type ordinal value is " + iType + ".");
+		throw new RuntimeException("Illegal type for traceable ID. Type ordinal value is " + iType + ".");
 	}
 	
 	public int getMinutes() {

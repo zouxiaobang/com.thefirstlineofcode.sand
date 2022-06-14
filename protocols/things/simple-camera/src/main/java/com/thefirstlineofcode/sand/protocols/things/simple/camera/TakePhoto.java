@@ -7,14 +7,27 @@ import com.thefirstlineofcode.basalt.protocol.core.Protocol;
 public class TakePhoto {
 	public static Protocol PROTOCOL = new Protocol("urn:leps:iot:actuator:simple-camera", "take-photo");
 	
+	private int prepareTime;
 	private String photoUrl;
 	
 	public TakePhoto() {}
+	
+	public TakePhoto(int prepareTime) {
+		this.prepareTime = prepareTime;
+	}
 	
 	public TakePhoto(String photoUrl) {
 		this.photoUrl = photoUrl;
 	}
 	
+	public int getPrepareTime() {
+		return prepareTime;
+	}
+
+	public void setPrepareTime(int prepareTime) {
+		this.prepareTime = prepareTime;
+	}
+
 	public String getPhotoUrl() {
 		return photoUrl;
 	}
