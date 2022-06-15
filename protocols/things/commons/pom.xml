@@ -7,14 +7,14 @@
 
 	<parent>
 		<groupId>com.thefirstlineofcode.sand.protocols</groupId>
-		<artifactId>sand-protocols-devices</artifactId>
+		<artifactId>sand-protocols-things</artifactId>
 		<version>1.0.0-ALPHA1</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 
-	<groupId>com.thefirstlineofcode.sand.protocols.devices</groupId>
-	<artifactId>sand-protocols-devices-simple-light</artifactId>
-	<name>Sand protocols for simple light</name>
+	<groupId>com.thefirstlineofcode.sand.protocols.things</groupId>
+	<artifactId>sand-protocols-things-commons</artifactId>
+	<name>Sand protocols for things commons</name>
 	
 	<dependencies>
 		<dependency>

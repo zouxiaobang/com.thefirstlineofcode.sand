@@ -67,7 +67,8 @@ public class DeviceLocator implements IDeviceLocator {
 
 	@Override
 	public void addListener(Listener listener) {
-		listeners.add(listener);
+		if (!listeners.contains(listener))
+			listeners.add(listener);
 	}
 
 	@Override

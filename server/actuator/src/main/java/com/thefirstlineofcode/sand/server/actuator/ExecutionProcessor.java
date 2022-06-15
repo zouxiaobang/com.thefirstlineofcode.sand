@@ -7,6 +7,7 @@ import com.thefirstlineofcode.basalt.protocol.core.JabberId;
 import com.thefirstlineofcode.basalt.protocol.core.ProtocolException;
 import com.thefirstlineofcode.basalt.protocol.core.stanza.Iq;
 import com.thefirstlineofcode.basalt.protocol.core.stanza.error.ItemNotFound;
+import com.thefirstlineofcode.basalt.protocol.core.stanza.error.RecipientUnavailable;
 import com.thefirstlineofcode.granite.framework.core.annotations.BeanDependency;
 import com.thefirstlineofcode.granite.framework.core.pipeline.stages.processing.IProcessingContext;
 import com.thefirstlineofcode.granite.framework.core.pipeline.stages.processing.IXepProcessor;
@@ -58,7 +59,7 @@ public class ExecutionProcessor implements IXepProcessor<Iq, Execution> {
 				throw new RuntimeException(String.format("Node which's LAN ID is '%s' not exists under concentrator which's device name is '%s'.", lanId, deviceName));				
 			}
 			
-			model = node.getModel();
+			model = deviceManager.getModel(node.getDeviceId());
 		} else {
 			model = deviceManager.getModel(deviceId);
 		}
@@ -81,7 +82,7 @@ public class ExecutionProcessor implements IXepProcessor<Iq, Execution> {
 		IResource resource = resourcesService.getResource(edgeTarget);
 		if (resource == null) {
 			logger.error("Can't deliver execution. Edge device which's device name is '{}' wasn't online.", deviceName);
-			throw new RuntimeException(String.format("Can't deliver execution. Edge device which's device name is '%s' wasn't online.", deviceName));
+			throw new ProtocolException(new RecipientUnavailable(String.format("Can't deliver execution. Edge device which's device name is '%s' isn't being online.", deviceName)));
 		}
 		
 		context.write(edgeTarget, iq);

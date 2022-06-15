@@ -57,7 +57,7 @@ import com.thefirstlineofcode.sand.protocols.core.ITraceIdFactory;
 public class Actuator implements IActuator, IIqListener {
 	private static final Logger logger = LoggerFactory.getLogger(Actuator.class);
 	
-	private static final long DEFAULT_VALUE_OF_DEFAULT_LAN_EXECUTION_TIMEOUT = 1000 * 5;
+	private static final long DEFAULT_VALUE_OF_DEFAULT_LAN_EXECUTION_TIMEOUT = 1000 * 10;
 	private static final int DEFAULT_LAN_EXECUTION_TIMEOUT_CHECK_INTERVAL = 500;
 	
 	private IChatServices chatServices;

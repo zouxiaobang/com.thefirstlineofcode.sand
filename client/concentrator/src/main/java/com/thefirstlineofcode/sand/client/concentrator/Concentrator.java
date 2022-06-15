@@ -296,7 +296,8 @@ public class Concentrator implements IConcentrator {
 
 	@Override
 	public void addListener(IConcentrator.Listener listener) {
-		listeners.add(listener);
+		if (!listeners.contains(listener))
+			listeners.add(listener);
 	}
 
 	@Override

@@ -8,6 +8,7 @@ import com.thefirstlineofcode.chalk.core.IChatServices;
 import com.thefirstlineofcode.chalk.core.ITask;
 import com.thefirstlineofcode.chalk.core.IUnidirectionalStream;
 import com.thefirstlineofcode.sand.protocols.actuator.Execution;
+import com.thefirstlineofcode.sand.protocols.core.DeviceIdentity;
 
 public class Remoting implements IRemoting {
 	private static final int DEFAULT_TIMEOUT = 10 * 1000;
@@ -31,7 +32,14 @@ public class Remoting implements IRemoting {
 	
 	@Override
 	public void execute(JabberId target, Object action, int timeout, Callback callback) {
-		execute(target, new Execution(action), timeout, callback);
+		Execution execution = new Execution(action);
+		
+		if (target.getResource() != null &&
+				!DeviceIdentity.DEFAULT_RESOURCE_NAME.equals(target.getResource())) {
+			execution.setLanTraceable(true);
+		}
+		
+		execute(target, execution, timeout, callback);
 	}
 
 	@Override

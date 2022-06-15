@@ -17,6 +17,10 @@
 	
 	<dependencies>
 		<dependency>
+			<groupId>com.thefirstlineofcode.sand.protocols</groupId>
+			<artifactId>sand-protocols-core</artifactId>
+		</dependency>
+		<dependency>
 			<groupId>com.thefirstlineofcode.sand.protocols.things</groupId>
 			<artifactId>sand-protocols-things-simple-gateway</artifactId>
 		</dependency>

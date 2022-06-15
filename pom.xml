@@ -311,6 +311,12 @@
 			
 			<dependency>
 				<groupId>com.thefirstlineofcode.sand.protocols.things</groupId>
+				<artifactId>sand-protocols-things-commons</artifactId>
+				<version>${sand.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>com.thefirstlineofcode.sand.protocols.things</groupId>
 				<artifactId>sand-protocols-things-simple-gateway</artifactId>
 				<version>${sand.version}</version>
 			</dependency>

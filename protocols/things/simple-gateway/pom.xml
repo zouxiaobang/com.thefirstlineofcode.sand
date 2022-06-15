@@ -18,13 +18,10 @@
 	
 	<dependencies>
 		<dependency>
-			<groupId>com.thefirstlineofcode.sand.protocols</groupId>
-			<artifactId>sand-protocols-core</artifactId>
-		</dependency>
-		<dependency>
 			<groupId>com.thefirstlineofcode.basalt</groupId>
 			<artifactId>basalt-oxm</artifactId>
 		</dependency>
 	</dependencies>
+	
 </project>
 

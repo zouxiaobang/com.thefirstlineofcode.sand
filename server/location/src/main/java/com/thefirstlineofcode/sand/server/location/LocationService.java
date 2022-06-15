@@ -44,7 +44,9 @@ public class LocationService implements ILocationService {
 				if (concentratorDeviceName == null)
 					throw new ProtocolException(new ItemNotFound(String.format("Can't locate device which's device ID is '%s'.", deviceId)));
 				
-				deviceLocation.setLocation(String.format("%s/%s", concentratorDeviceName, deviceId));
+				String concentratorDeviceId = deviceManager.getDeviceIdByDeviceName(concentratorDeviceName);
+				deviceLocation.setLocation(String.format("%s/%s", concentratorDeviceId,
+						concentratorFactory.getConcentrator(concentratorDeviceId).getNodeByDeviceId(deviceId).getLanId()));
 			}
 			
 			deviceLocations.add(deviceLocation);

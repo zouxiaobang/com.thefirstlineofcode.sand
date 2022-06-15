@@ -62,7 +62,8 @@ public class AuthorizedDevicesService implements IAuthorizedDevicesService {
 	
 	@Override
 	public void addListener(Listener listener) {
-		this.listeners.add(listener);
+		if (!listeners.contains(listener))
+			this.listeners.add(listener);
 	}
 
 	@Override

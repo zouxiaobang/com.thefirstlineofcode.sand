@@ -50,6 +50,9 @@ public abstract class AbstractCommunicator<OA, PA extends Address, D> implements
 	
 	@Override
 	public void addCommunicationListener(ICommunicationListener<OA, PA, D> listener) {
+		if (listeners.contains(listener))
+			return;
+		
 		listeners.add(listener);
 		Collections.sort(listeners, new OrderComparator<>());
 	}
