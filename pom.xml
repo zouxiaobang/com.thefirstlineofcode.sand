@@ -275,6 +275,12 @@
 
 			<dependency>
 				<groupId>com.thefirstlineofcode.sand.protocols</groupId>
+				<artifactId>sand-protocols-thing</artifactId>
+				<version>${sand.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>com.thefirstlineofcode.sand.protocols</groupId>
 				<artifactId>sand-protocols-lora</artifactId>
 				<version>${sand.version}</version>
 			</dependency>
@@ -336,6 +342,12 @@
 			<dependency>
 				<groupId>com.thefirstlineofcode.sand.client</groupId>
 				<artifactId>sand-client-core</artifactId>
+				<version>${sand.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>com.thefirstlineofcode.sand.client</groupId>
+				<artifactId>sand-client-thing</artifactId>
 				<version>${sand.version}</version>
 			</dependency>
 

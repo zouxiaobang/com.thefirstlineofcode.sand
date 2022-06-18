@@ -7,6 +7,7 @@ import com.thefirstlineofcode.basalt.oxm.convention.NamingConventionTranslatorFa
 import com.thefirstlineofcode.basalt.protocol.core.IqProtocolChain;
 import com.thefirstlineofcode.chalk.core.IChatSystem;
 import com.thefirstlineofcode.chalk.core.IPlugin;
+import com.thefirstlineofcode.sand.client.thing.ThingPlugin;
 import com.thefirstlineofcode.sand.protocols.actuator.Execution;
 import com.thefirstlineofcode.sand.protocols.things.simple.camera.OpenLiveStreaming;
 import com.thefirstlineofcode.sand.protocols.things.simple.camera.TakePhoto;
@@ -16,6 +17,8 @@ public class CameraPlugin implements IPlugin {
 
 	@Override
 	public void init(IChatSystem chatSystem, Properties properties) {
+		chatSystem.register(ThingPlugin.class);
+		
 		chatSystem.registerParser(new IqProtocolChain(Execution.PROTOCOL).next(TakePhoto.PROTOCOL),
 				new NamingConventionParserFactory<TakePhoto>(TakePhoto.class));
 		chatSystem.registerTranslator(TakePhoto.class,
@@ -42,6 +45,8 @@ public class CameraPlugin implements IPlugin {
 				
 		chatSystem.unregisterTranslator(TakePhoto.class);
 		chatSystem.unregisterParser(new IqProtocolChain(Execution.PROTOCOL).next(TakePhoto.PROTOCOL));
+		
+		chatSystem.unregister(ThingPlugin.class);
 	}
 
 }

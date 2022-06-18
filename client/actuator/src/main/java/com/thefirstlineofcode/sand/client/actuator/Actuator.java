@@ -7,6 +7,7 @@ import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -53,6 +54,7 @@ import com.thefirstlineofcode.sand.protocols.core.BadAddressException;
 import com.thefirstlineofcode.sand.protocols.core.CommunicationNet;
 import com.thefirstlineofcode.sand.protocols.core.ITraceId;
 import com.thefirstlineofcode.sand.protocols.core.ITraceIdFactory;
+import com.thefirstlineofcode.sand.protocols.core.ModelDescriptor;
 
 public class Actuator implements IActuator, IIqListener {
 	private static final Logger logger = LoggerFactory.getLogger(Actuator.class);
@@ -378,15 +380,6 @@ public class Actuator implements IActuator, IIqListener {
 			throw new IllegalArgumentException(String.format("Reduplicate executor factory for action type: %s.", actionType));
 		}
 		
-		ProtocolObject protocolObject = actionType.getAnnotation(ProtocolObject.class);
-		if (protocolObject == null) {
-			throw new IllegalArgumentException(String.format("Action type %s isn't a protocol object type.", actionType.getName()));
-		}
-		
-		Protocol actionProtocol = new Protocol(protocolObject.namespace(), protocolObject.localName());
-		oxmFactory.register(new IqProtocolChain(Execution.PROTOCOL).next(actionProtocol),
-				new NamingConventionParserFactory<>(actionType));
-		
 		executorFactories.put(actionType, executorFactory);
 	}
 	
@@ -698,19 +691,23 @@ public class Actuator implements IActuator, IIqListener {
 	public boolean isLanEnabled() {
 		return lanEnabled;
 	}
-
+	
 	@Override
-	public void registerLanAction(Class<?> lanActionType) {
-		ProtocolObject protocolObject = lanActionType.getAnnotation(ProtocolObject.class);
-		if (protocolObject == null) {
-			throw new IllegalArgumentException(String.format("LAN action type %s isn't a protocol object type.", lanActionType.getName()));
+	public void registerLanDeviceModel(ModelDescriptor modelDescriptor) {
+		if (!modelDescriptor.isActuator())
+			throw new IllegalArgumentException("Must be an actuator model descriptor.");
+		
+		for (Entry<Protocol, Class<?>> entry : modelDescriptor.getSupportedActions().entrySet()) {
+			registerLanAction(entry.getKey(), entry.getValue());
 		}
+	}
+	
+	private void registerLanAction(Protocol protocol, Class<?> actionType) {
+		oxmFactory.register(new IqProtocolChain(Execution.PROTOCOL).next(protocol),
+				new NamingConventionParserFactory<>(actionType));
 		
-		Protocol lanActionProtocol = new Protocol(protocolObject.namespace(), protocolObject.localName());
-		oxmFactory.register(new IqProtocolChain(Execution.PROTOCOL).next(lanActionProtocol),
-				new NamingConventionParserFactory<>(lanActionType));
-		
-		obxFactory.registerLanAction(lanActionType);
+		obxFactory.registerLanAction(actionType);
+
 	}
 	
 	@Override

@@ -1,9 +1,5 @@
 package com.thefirstlineofcode.sand.demo.things.client.sc.rbp3b;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-
 import com.thefirstlineofcode.chalk.core.stream.StandardStreamConfig;
 import com.thefirstlineofcode.chalk.logger.LogConfigurator;
 import com.thefirstlineofcode.chalk.logger.LogConfigurator.LogLevel;
@@ -11,7 +7,6 @@ import com.thefirstlineofcode.sand.protocols.core.DeviceIdentity;
 
 public class Main {
 	private Camera camera;
-	private ConsoleThread consoleThread;
 	
 	public static void main(String[] args) {
 		new Main().run(args);
@@ -86,79 +81,6 @@ public class Main {
 		}
 		
 		camera.start();
-		
-		System.out.println("Starting console...");
-		startConsoleThread();
-	}
-	
-	private void startConsoleThread() {
-		consoleThread = new ConsoleThread();
-		new Thread(consoleThread, "Thing Console Thread").start();
-	}
-	
-	private class ConsoleThread implements Runnable {
-		private volatile boolean stop = false;
-		
-		@Override
-		public void run() {
-			printConsoleHelp();
-			
-			BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
-			while (true) {
-				try {
-					String command = readCommand(in);
-					
-					if (stop)
-						break;
-					
-					if ("help".equals(command)) {
-						printConsoleHelp();
-					} else if ("exit".equals(command)) {
-						exitSystem();
-					} else {
-						System.out.println(String.format("Unknown command: '%s'", command));
-						printConsoleHelp();
-					}
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-			}
-		}
-
-		private String readCommand(BufferedReader in) throws IOException {
-			while (!in.ready()) {
-				try {
-					Thread.sleep(50);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
-				
-				if (stop) {
-					return null;
-				}
-			}
-			
-			return in.readLine();
-		}
-	}
-
-	private void exitSystem() {
-		try {
-			 camera.stop();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		
-		if (consoleThread != null) {
-			consoleThread.stop = true;
-		}
-	}
-
-	private void printConsoleHelp() {
-		System.out.println("Commands:");
-		System.out.println("help        Display help information.");
-		System.out.println("exit        Exit system.");
-		System.out.print("$");
 	}
 	
 	private LogLevel getLogLevel(String sLogLevel) {

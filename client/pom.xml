@@ -19,6 +19,7 @@
 	<modules>
 		<module>core</module>
 		<module>ibdr</module>
+		<module>thing</module>
 		<module>lora</module>
 		<module>edge</module>
 		<module>concentrator</module>

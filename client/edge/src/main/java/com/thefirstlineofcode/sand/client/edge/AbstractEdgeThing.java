@@ -1,5 +1,9 @@
 package com.thefirstlineofcode.sand.client.edge;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.lang.ProcessBuilder.Redirect;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -8,11 +12,12 @@ import java.util.StringTokenizer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.thefirstlineofcode.basalt.protocol.core.ProtocolException;
+import com.thefirstlineofcode.basalt.protocol.core.stanza.error.NotAllowed;
 import com.thefirstlineofcode.chalk.core.AuthFailureException;
 import com.thefirstlineofcode.chalk.core.IChatClient;
 import com.thefirstlineofcode.chalk.core.StandardChatClient;
 import com.thefirstlineofcode.chalk.core.stream.StandardStreamConfig;
-import com.thefirstlineofcode.chalk.core.stream.StreamConfig;
 import com.thefirstlineofcode.chalk.core.stream.UsernamePasswordToken;
 import com.thefirstlineofcode.chalk.network.ConnectionException;
 import com.thefirstlineofcode.chalk.network.IConnectionListener;
@@ -20,6 +25,7 @@ import com.thefirstlineofcode.sand.client.core.AbstractDevice;
 import com.thefirstlineofcode.sand.client.ibdr.IRegistration;
 import com.thefirstlineofcode.sand.client.ibdr.IbdrPlugin;
 import com.thefirstlineofcode.sand.client.ibdr.RegistrationException;
+import com.thefirstlineofcode.sand.protocols.actuator.ExecutionException;
 import com.thefirstlineofcode.sand.protocols.core.DeviceIdentity;
 
 public abstract class AbstractEdgeThing extends AbstractDevice implements IEdgeThing, IConnectionListener {
@@ -39,6 +45,8 @@ public abstract class AbstractEdgeThing extends AbstractDevice implements IEdgeT
 	
 	protected boolean started;
 	protected boolean stopToReconnect;
+	
+	protected ConsoleThread consoleThread;
 	
 	public AbstractEdgeThing(String type, String model) {
 		this(type, model, null);
@@ -106,7 +114,7 @@ public abstract class AbstractEdgeThing extends AbstractDevice implements IEdgeT
 	}
 	
 	@Override
-	public StreamConfig getStreamConfig() {
+	public StandardStreamConfig getStreamConfig() {
 		return streamConfig;
 	}
 
@@ -132,13 +140,75 @@ public abstract class AbstractEdgeThing extends AbstractDevice implements IEdgeT
 				return;
 		}
 		
+		logger.info("The thing has started.");
+		started = true;
+		
 		synchronized (this) {
 			connect();
 		}
 		
-		if (isConnected()) {
-			logger.info("The thing has started.");
-			started = true;
+		System.out.println("Starting console...");
+		startConsoleThread();
+	}
+	
+	private void startConsoleThread() {
+		consoleThread = new ConsoleThread();
+		new Thread(consoleThread, "Thing Console Thread").start();
+	}
+	
+	private class ConsoleThread implements Runnable {
+		private volatile boolean stop = false;
+		
+		@Override
+		public void run() {
+			printConsoleHelp();
+			
+			BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
+			while (true) {
+				try {
+					String command = readCommand(in);
+					
+					if (stop)
+						break;
+					
+					if ("help".equals(command)) {
+						printConsoleHelp();
+					} else if ("exit".equals(command)) {
+						stop();
+					} else if ("restart".equals(command)) {
+						restart();
+					} else {
+						System.out.println(String.format("Unknown command: '%s'", command));
+						printConsoleHelp();
+					}
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+
+		private void printConsoleHelp() {
+			System.out.println("Commands:");
+			System.out.println("help        Display help information.");
+			System.out.println("restart     Restart application.");
+			System.out.println("exit        Exit applicatinon.");
+			System.out.print("$");
+		}
+		
+		private String readCommand(BufferedReader in) throws IOException {
+			while (!in.ready()) {
+				try {
+					Thread.sleep(50);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+				
+				if (stop) {
+					return null;
+				}
+			}
+			
+			return in.readLine();
 		}
 	}
 
@@ -173,6 +243,7 @@ public abstract class AbstractEdgeThing extends AbstractDevice implements IEdgeT
 			for (IEdgeThingListener edgeThingListener : edgeThingListeners) {
 				edgeThingListener.FailedToConnect(e);
 			}
+			
 			FailedToConnect(e);
 		} catch (AuthFailureException e) {
 			removeConnectionListenersFromChatClient(chatClient);
@@ -182,6 +253,7 @@ public abstract class AbstractEdgeThing extends AbstractDevice implements IEdgeT
 			for (IEdgeThingListener edgeThingListener : edgeThingListeners) {
 				edgeThingListener.failedToAuth(e);
 			}
+			
 			failedToAuth(e);
 		}
 	}
@@ -242,6 +314,14 @@ public abstract class AbstractEdgeThing extends AbstractDevice implements IEdgeT
 		
 		logger.info("The thing has stopped.");
 		started = false;
+		
+		stopConsoleThread();
+	}
+
+	private void stopConsoleThread() {
+		if (consoleThread != null) {
+			consoleThread.stop = true;
+		}
 	}
 	
 	protected void disconnect() {
@@ -450,6 +530,60 @@ public abstract class AbstractEdgeThing extends AbstractDevice implements IEdgeT
 		identity.setCredentials(sDeviceIdentity.substring(commaIndex + 1, sDeviceIdentity.length()).trim());
 		
 		return identity;
+	}
+	
+	@Override
+	public void shutdownSystem(boolean restart) throws ExecutionException {
+		if (!isLinux()) {
+			throw new ProtocolException(new NotAllowed("Shutdown system action only supported on linux platform."));
+		}
+		
+		runInNewProcess(getShutdownCmdArray(restart));
+	}
+
+	private String[] getShutdownCmdArray(boolean restart) {
+		List<String> cmdList = new ArrayList<>();
+		cmdList.add("sudo");
+		cmdList.add("shutdown");
+		if (restart) {
+			cmdList.add("-r");
+		} else {
+			cmdList.add("-h");
+		}
+		cmdList.add("now");
+		
+		String[] cmdArray = cmdList.toArray(new String[0]);
+		return cmdArray;
+	}
+
+	private void runInNewProcess(String[] cmdArray) {
+		try {
+			logger.info("Shutdown the system...");
+			ProcessBuilder pb = new ProcessBuilder(cmdArray).
+					redirectInput(Redirect.INHERIT).
+					redirectError(Redirect.INHERIT).
+					redirectOutput(Redirect.INHERIT);
+			Map<String, String> env = pb.environment();
+			for (String key : System.getenv().keySet()) {
+				env.put(key, System.getenv(key));
+			}
+			
+			Process process = pb.start();
+			process.waitFor();
+		} catch (IOException e) {
+			throw new RuntimeException("Can't run runtime process.", e);
+		} catch (InterruptedException e) {
+			throw new RuntimeException("Runtime process execution error.", e);
+		}
+	}
+	
+	protected boolean isLinux() {
+		return "Linux".equals(System.getProperty("os.name"));
+	}
+
+	@Override
+	public IChatClient getChatClient() {
+		return chatClient;
 	}
 	
 	protected abstract void registerChalkPlugins();

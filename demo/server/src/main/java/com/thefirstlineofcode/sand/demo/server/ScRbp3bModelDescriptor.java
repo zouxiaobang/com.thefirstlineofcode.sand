@@ -4,6 +4,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.thefirstlineofcode.basalt.protocol.core.Protocol;
+import com.thefirstlineofcode.sand.protocols.actuator.actions.Restart;
+import com.thefirstlineofcode.sand.protocols.actuator.actions.ShutdownSystem;
+import com.thefirstlineofcode.sand.protocols.actuator.actions.Stop;
 import com.thefirstlineofcode.sand.protocols.core.ModelDescriptor;
 import com.thefirstlineofcode.sand.protocols.things.simple.camera.OpenLiveStreaming;
 import com.thefirstlineofcode.sand.protocols.things.simple.camera.TakePhoto;
@@ -19,6 +22,9 @@ public class ScRbp3bModelDescriptor extends ModelDescriptor {
 
 	private static Map<Protocol, Class<?>> createSupportedActions() {
 		Map<Protocol, Class<?>> supportedActions = new HashMap<>();
+		supportedActions.put(Stop.PROTOCOL, Stop.class);
+		supportedActions.put(Restart.PROTOCOL, Restart.class);
+		supportedActions.put(ShutdownSystem.PROTOCOL, ShutdownSystem.class);
 		supportedActions.put(TakePhoto.PROTOCOL, TakePhoto.class);
 		supportedActions.put(TakeVideo.PROTOCOL, TakeVideo.class);
 		supportedActions.put(OpenLiveStreaming.PROTOCOL, OpenLiveStreaming.class);

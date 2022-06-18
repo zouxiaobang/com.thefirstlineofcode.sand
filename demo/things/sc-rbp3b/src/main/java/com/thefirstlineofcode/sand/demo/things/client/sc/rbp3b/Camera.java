@@ -23,10 +23,17 @@ import com.thefirstlineofcode.sand.client.core.ThingsUtils;
 import com.thefirstlineofcode.sand.client.core.actuator.IActuator;
 import com.thefirstlineofcode.sand.client.core.actuator.IExecutor;
 import com.thefirstlineofcode.sand.client.core.actuator.IExecutorFactory;
+import com.thefirstlineofcode.sand.client.core.actuator.RestartExecutor;
+import com.thefirstlineofcode.sand.client.core.actuator.ShutdownSystemExecutor;
+import com.thefirstlineofcode.sand.client.core.actuator.StopExecutor;
 import com.thefirstlineofcode.sand.client.edge.AbstractEdgeThing;
+import com.thefirstlineofcode.sand.client.edge.ResponseInAdvanceExecutor;
 import com.thefirstlineofcode.sand.client.things.simple.camera.CameraPlugin;
 import com.thefirstlineofcode.sand.client.things.simple.camera.ICamera;
 import com.thefirstlineofcode.sand.protocols.actuator.ExecutionException;
+import com.thefirstlineofcode.sand.protocols.actuator.actions.Restart;
+import com.thefirstlineofcode.sand.protocols.actuator.actions.ShutdownSystem;
+import com.thefirstlineofcode.sand.protocols.actuator.actions.Stop;
 import com.thefirstlineofcode.sand.protocols.things.simple.camera.TakePhoto;
 
 public class Camera extends AbstractEdgeThing implements ICamera {
@@ -103,9 +110,30 @@ public class Camera extends AbstractEdgeThing implements ICamera {
 			
 		});
 		
+		actuator.registerExecutorFactory(Stop.class, new IExecutorFactory<Stop>() {
+			@Override
+			public IExecutor<Stop> create() {
+				return new ResponseInAdvanceExecutor<Stop>(new StopExecutor(Camera.this), Camera.this);
+			}
+		});
+		
+		actuator.registerExecutorFactory(Restart.class, new IExecutorFactory<Restart>() {
+			@Override
+			public IExecutor<Restart> create() {
+				return new ResponseInAdvanceExecutor<Restart>(new RestartExecutor(Camera.this), Camera.this);
+			}		
+		});
+		
+		actuator.registerExecutorFactory(ShutdownSystem.class, new IExecutorFactory<ShutdownSystem>() {
+			@Override
+			public IExecutor<ShutdownSystem> create() {
+				return new ResponseInAdvanceExecutor<ShutdownSystem>(new ShutdownSystemExecutor(Camera.this), Camera.this);
+			}		
+		});
+		
 		return actuator;
 	}
-
+	
 	@Override
 	protected void stopIotComponents() {
 		if (actuator != null) {
@@ -227,5 +255,4 @@ public class Camera extends AbstractEdgeThing implements ICamera {
 		// TODO Auto-generated method stub
 		
 	}
-
 }

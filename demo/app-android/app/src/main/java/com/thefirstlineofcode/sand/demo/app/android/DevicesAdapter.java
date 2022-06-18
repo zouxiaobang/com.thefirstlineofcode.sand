@@ -97,7 +97,7 @@ public class DevicesAdapter extends BaseAdapter {
 		} else if (deviceId.startsWith("SG-")) {
 			return new String[] {"Change Mode"};
 		} else if (deviceId.startsWith("SC-")) {
-			return new String[] {"Take a Photo", "Take a Video", "Open Live Streaming"};
+			return new String[] {"Take a Photo", "Take a Video", "Open Live Streaming", "Stop", "Restart", "Shutdown System"};
 		} else {
 			throw new RuntimeException("Unknown model of device which's ID is: " + deviceId);
 		}
@@ -186,6 +186,15 @@ public class DevicesAdapter extends BaseAdapter {
 					break;
 				case "Open Live Streaming":
 					mainActivity.openLiveSteaming(getJidTargetByDeviceId(deviceId));
+					break;
+				case "Stop":
+					mainActivity.stop(getJidTargetByDeviceId(deviceId));
+					break;
+				case "Restart":
+					mainActivity.restart(getJidTargetByDeviceId(deviceId));
+					break;
+				case "Shutdown System":
+					mainActivity.shutdownSystem(getJidTargetByDeviceId(deviceId));
 					break;
 				case "Flash":
 					mainActivity.flash(getJidTargetByDeviceId(deviceId));

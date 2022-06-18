@@ -1,5 +1,6 @@
 package com.thefirstlineofcode.sand.demo.app.android;
 
+import android.R.string;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -30,6 +31,9 @@ import com.thefirstlineofcode.sand.client.remoting.IRemoting;
 import com.thefirstlineofcode.sand.demo.client.IAuthorizedDevicesService;
 import com.thefirstlineofcode.sand.demo.protocols.AuthorizedDevice;
 import com.thefirstlineofcode.sand.demo.protocols.AuthorizedDevices;
+import com.thefirstlineofcode.sand.protocols.actuator.actions.Restart;
+import com.thefirstlineofcode.sand.protocols.actuator.actions.ShutdownSystem;
+import com.thefirstlineofcode.sand.protocols.actuator.actions.Stop;
 import com.thefirstlineofcode.sand.protocols.things.simple.camera.TakePhoto;
 import com.thefirstlineofcode.sand.protocols.things.simple.light.Flash;
 
@@ -286,6 +290,118 @@ public class MainActivity extends AppCompatActivity implements IOperator.Listene
 	
 	public void openLiveSteaming(JabberId target) {
 		logger.info("Open live streaming of camera {}.", target);
+	}
+	
+	public void stop(JabberId target) {
+		IChatClient chatClient = ChatClientSingleton.get(MainActivity.this);
+		IRemoting remoting = chatClient.createApi(IRemoting.class);
+		
+		Stop stop = new Stop();
+		remoting.execute(target, stop, new IRemoting.Callback() {
+			@Override
+			public void executed(Object xep) {
+				runOnUiThread(() -> Toast.makeText(MainActivity.this,
+						"Stop executed.",
+						Toast.LENGTH_LONG).show());
+			}
+			
+			@Override
+			public void occurred(StanzaError error) {
+				runOnUiThread(() -> Toast.makeText(MainActivity.this,
+						"Stop execution error: " + error.toString(),
+						Toast.LENGTH_LONG).show());
+			}
+			
+			@Override
+			public void timeout() {
+				runOnUiThread(() -> Toast.makeText(MainActivity.this,
+						"Stop execution timeout.",
+						Toast.LENGTH_LONG).show());
+			}
+		});
+	}
+	
+	public void restart(JabberId target) {
+		IChatClient chatClient = ChatClientSingleton.get(MainActivity.this);
+		IRemoting remoting = chatClient.createApi(IRemoting.class);
+		
+		Restart restart = new Restart();
+		remoting.execute(target, restart, new IRemoting.Callback() {
+			@Override
+			public void executed(Object xep) {
+				runOnUiThread(() -> Toast.makeText(MainActivity.this,
+						"Restart executed.",
+						Toast.LENGTH_LONG).show());
+			}
+			
+			@Override
+			public void occurred(StanzaError error) {
+				runOnUiThread(() -> Toast.makeText(MainActivity.this,
+						"Restart execution error: " + error.toString(),
+						Toast.LENGTH_LONG).show());
+			}
+			
+			@Override
+			public void timeout() {
+				runOnUiThread(() -> Toast.makeText(MainActivity.this,
+						"Restart execution timeout.",
+						Toast.LENGTH_LONG).show());
+			}
+		});
+	}
+	
+	public void shutdownSystem(JabberId target) {
+		ShutdownSystem shutdownSystem = new ShutdownSystem();
+		
+		AlertDialog.Builder builder = new AlertDialog.Builder(this);
+		builder.setTitle("Restart").setMultiChoiceItems(new String[] {"Restart after shutdowning"}, new boolean[] {false},
+				new DialogInterface.OnMultiChoiceClickListener() {
+					@Override
+					public void onClick(DialogInterface dialog, int which, boolean isChecked) {
+						if (isChecked) {
+							shutdownSystem.setRestart(true);
+						} else {
+							shutdownSystem.setRestart(false);
+						}
+					}
+				}
+			).setPositiveButton(string.ok, new DialogInterface.OnClickListener() {
+					@Override
+					public void onClick(DialogInterface dialog, int id) {
+						IChatClient chatClient = ChatClientSingleton.get(MainActivity.this);
+						IRemoting remoting = chatClient.createApi(IRemoting.class);
+						
+						remoting.execute(target, shutdownSystem, new IRemoting.Callback() {
+							@Override
+							public void executed(Object xep) {
+								runOnUiThread(() -> Toast.makeText(MainActivity.this,
+										"Shutdown system executed.",
+										Toast.LENGTH_LONG).show());
+							}
+							
+							@Override
+							public void occurred(StanzaError error) {
+								runOnUiThread(() -> Toast.makeText(MainActivity.this,
+										"Shutdown system execution error: " + error.toString(),
+										Toast.LENGTH_LONG).show());
+							}
+							
+							@Override
+							public void timeout() {
+								runOnUiThread(() -> Toast.makeText(MainActivity.this,
+										"Shutdown system execution timeout.",
+										Toast.LENGTH_LONG).show());
+							}
+						});
+					}
+				}
+			).setNegativeButton(string.cancel, new DialogInterface.OnClickListener() {
+				@Override
+				public void onClick(DialogInterface dialog, int id) {}
+			}
+		);
+		AlertDialog dialog = builder.create();
+		dialog.show();
 	}
 	
 	public void flash(JabberId target) {

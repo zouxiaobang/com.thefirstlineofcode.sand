@@ -1,7 +1,7 @@
 ibdr-bxmpp-extension.properties
 concentrator-bxmpp-extension.properties
 actuator-bxmpp-extension.properties
+actuator-thing-bxmpp-extension.properties
 lora-dac-bxmpp-extension.properties
-things-commons-bxmpp-extension.properties
 things-simple-gateway-bxmpp-extension.properties
 things-simple-light-bxmpp-extension.properties

@@ -118,7 +118,6 @@ import com.thefirstlineofcode.sand.protocols.core.ITraceId;
 import com.thefirstlineofcode.sand.protocols.core.ITraceIdFactory;
 import com.thefirstlineofcode.sand.protocols.lora.LoraAddress;
 import com.thefirstlineofcode.sand.protocols.things.simple.gateway.ChangeMode;
-import com.thefirstlineofcode.sand.protocols.things.simple.light.Flash;
 
 public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionListener, InternalFrameListener,
 		ComponentListener, WindowListener, IGateway, IConnectionListener, ConcentratorDynamicalAddressConfigurator.Listener,
@@ -645,7 +644,7 @@ public class Gateway<C, P extends ParamsMap> extends JFrame implements ActionLis
 			});
 			
 			actuator.setToConcentrator(concentrator, traceIdFactory, obxFactory);
-			actuator.registerLanAction(Flash.class);
+			actuator.registerLanDeviceModel(new SlLe01ModelDescriptor());
 			actuator.registerLanExecutionErrorProcessor(getSlLe01ModelLanExecutionErrorProcessor());
 		}
 		

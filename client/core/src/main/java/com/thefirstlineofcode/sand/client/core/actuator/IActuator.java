@@ -3,6 +3,7 @@ package com.thefirstlineofcode.sand.client.core.actuator;
 import com.thefirstlineofcode.sand.client.core.concentrator.IConcentrator;
 import com.thefirstlineofcode.sand.client.core.obx.IObxFactory;
 import com.thefirstlineofcode.sand.protocols.core.ITraceIdFactory;
+import com.thefirstlineofcode.sand.protocols.core.ModelDescriptor;
 
 public interface IActuator {
 	void setToConcentrator(IConcentrator concentrator, ITraceIdFactory traceIdFactory, IObxFactory obxFactory);
@@ -11,7 +12,7 @@ public interface IActuator {
 	boolean unregisterExecutor(Class<?> actionType);
 	void setTraceIdFactory(ITraceIdFactory traceIdFactory);
 	ITraceIdFactory getTraceIdFactory();
-	void registerLanAction(Class<?> lanActionType);
+	void registerLanDeviceModel(ModelDescriptor modelDescriptor);
 	void registerLanExecutionErrorProcessor(ILanExecutionErrorProcessor lanActionErrorProcessor);
 	boolean unregisterLanAction(Class<?> actionType);
 	void setDefaultLanExecutionTimeout(long timeout);

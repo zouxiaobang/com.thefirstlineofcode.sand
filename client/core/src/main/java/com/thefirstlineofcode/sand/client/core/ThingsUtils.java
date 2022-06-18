@@ -23,6 +23,9 @@ public class ThingsUtils {
 	}
 	
 	public static String getGlobalErrorCode(String model, String errorCode) {
+		if (model == null)
+			model = "T";
+		
 		return String.format("%s-E%s", model, errorCode);
 	}
 	
