@@ -9,7 +9,7 @@ android {
 
     defaultConfig {
         applicationId "com.thefirstlineofcode.sand.demo.app.android"
-        minSdkVersion 25
+        minSdkVersion 27
         targetSdkVersion 30
         versionCode 1
         versionName "1.0"
@@ -47,6 +47,7 @@ dependencies {
     implementation 'com.thefirstlineofcode.sand.client.things:sand-client-things-simple-light:1.0.0-ALPHA1'
     implementation 'com.thefirstlineofcode.sand.client.things:sand-client-things-simple-gateway:1.0.0-ALPHA1'
     implementation 'com.thefirstlineofcode.sand.client.things:sand-client-things-simple-camera:1.0.0-ALPHA1'
+    implementation 'com.squareup.okhttp3:okhttp:4.9.3'
     implementation ('com.journeyapps:zxing-android-embedded:4.1.0') {
         transitive = false
     }

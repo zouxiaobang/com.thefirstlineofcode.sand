@@ -152,10 +152,11 @@ public class Actuator implements IActuator, IIqListener {
 			}
 			
 			IExecutor<T> executor = createExecutor(action);
-			executor.execute(iq, action);
+			Object resultObj = executor.execute(iq, action);
 			
-			Iq result = new Iq(Iq.Type.RESULT, iq.getId());
-			setFromToAddresses(iq.getFrom(), iq.getTo(), result);
+			Iq result = new Iq(Iq.Type.RESULT, resultObj, iq.getId());
+			setFromToAddresses(iq.getFrom(), iq.getTo(), result);			
+			
 			chatServices.getIqService().send(result);
 		} else if (toLanNode(iq.getTo())) {
 			if (concentrator == null)
@@ -566,7 +567,7 @@ public class Actuator implements IActuator, IIqListener {
 				chatServices.getStream().send(e);
 			}
 		} else {
-			StanzaError e = new UndefinedCondition(StanzaError.Type.MODIFY);
+			StanzaError e = new UndefinedCondition(StanzaError.Type.CANCEL);
 			e.setId(traceInfo.sanzaId);
 			setFromToAddresses(traceInfo.from, traceInfo.to, e);
 			e.setText(new LangText(ThingsUtils.getExecutionErrorDescription(traceInfo.node.getModel(), errorCode)));

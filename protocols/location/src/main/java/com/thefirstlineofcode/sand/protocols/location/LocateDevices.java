@@ -16,11 +16,11 @@ import com.thefirstlineofcode.basalt.protocol.core.stanza.error.BadRequest;
 public class LocateDevices {
 	public static final Protocol PROTOCOL = new Protocol("urn:leps:iot:location", "locate-devices");
 	
-	@Array(value=String.class, elementName = "device-id")
+	@Array(value = String.class, elementName = "device-id")
 	@TextOnly
 	private List<String> deviceIds;
 	
-	@Array(value=DeviceLocation.class, elementName = "device-location")
+	@Array(value = DeviceLocation.class, elementName = "device-location")
 	private List<DeviceLocation> deviceLocations;
 	
 	public LocateDevices() {}

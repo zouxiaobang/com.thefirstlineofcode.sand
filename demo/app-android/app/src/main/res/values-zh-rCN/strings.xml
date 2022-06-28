@@ -39,4 +39,5 @@
     <string name="refresh_devices">刷新设备列表</string>
     <string name="devices_has_updated">设备列表被更新</string>
     <string name="control_the_device">控制这个设备</string>
+    <string name="failed_to_download_photo">下载照片失败</string>
 </resources>

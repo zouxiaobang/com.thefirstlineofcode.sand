@@ -556,9 +556,8 @@ public abstract class AbstractEdgeThing extends AbstractDevice implements IEdgeT
 		return cmdArray;
 	}
 
-	private void runInNewProcess(String[] cmdArray) {
+	protected void runInNewProcess(String[] cmdArray) {
 		try {
-			logger.info("Shutdown the system...");
 			ProcessBuilder pb = new ProcessBuilder(cmdArray).
 					redirectInput(Redirect.INHERIT).
 					redirectError(Redirect.INHERIT).

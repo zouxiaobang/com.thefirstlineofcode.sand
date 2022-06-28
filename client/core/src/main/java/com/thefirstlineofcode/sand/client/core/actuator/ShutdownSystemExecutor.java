@@ -17,11 +17,12 @@ public class ShutdownSystemExecutor implements IExecutor<ShutdownSystem> {
 	}
 
 	@Override
-	public void execute(Iq iq, ShutdownSystem shutdownSystem) throws ProtocolException {
+	public Object execute(Iq iq, ShutdownSystem shutdownSystem) throws ProtocolException {
 		try {
 			thing.shutdownSystem(shutdownSystem.isRestart());
+			return null;
 		} catch (ExecutionException e) {
-			throw new ProtocolException(new UndefinedCondition(StanzaError.Type.MODIFY,
+			throw new ProtocolException(new UndefinedCondition(StanzaError.Type.CANCEL,
 					ThingsUtils.getExecutionErrorDescription(null, e.getErrorCode())));
 		}
 	}

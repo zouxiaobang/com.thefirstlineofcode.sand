@@ -20,7 +20,7 @@ public class ResponseInAdvanceExecutor<T> implements IExecutor<T> {
 	
 	@SuppressWarnings("unchecked")
 	@Override
-	public void execute(Iq iq, Object action) throws ProtocolException {
+	public Object execute(Iq iq, Object action) throws ProtocolException {
 		if (thing instanceof IEdgeThing) {
 			IEdgeThing edge = (IEdgeThing)thing;
 			IChatClient chatClient = edge.getChatClient();
@@ -30,7 +30,7 @@ public class ResponseInAdvanceExecutor<T> implements IExecutor<T> {
 			chatClient.getChatServices().getIqService().send(result);
 		}
 		
-		original.execute(iq, (T)action);
+		return original.execute(iq, (T)action);
 	}
 	
 	private void setFromToAddresses(JabberId from, JabberId to, Stanza stanza) {

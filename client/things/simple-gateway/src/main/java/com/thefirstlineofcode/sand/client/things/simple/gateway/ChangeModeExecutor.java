@@ -13,10 +13,12 @@ public class ChangeModeExecutor implements IExecutor<ChangeMode> {
 	}
 
 	@Override
-	public void execute(Iq iq, ChangeMode changeMode) throws ProtocolException {
+	public Object execute(Iq iq, ChangeMode changeMode) throws ProtocolException {
 		if (changeMode.getMode() == ChangeMode.Mode.ADDRESS_CONFIGURATION)
 			gateway.setToAddressConfigurationMode();
 		else
 			gateway.setToWorkingMode();
+		
+		return null;
 	}
 }

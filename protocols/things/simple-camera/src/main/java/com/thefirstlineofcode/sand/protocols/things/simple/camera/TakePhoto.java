@@ -7,7 +7,8 @@ import com.thefirstlineofcode.basalt.protocol.core.Protocol;
 public class TakePhoto {
 	public static Protocol PROTOCOL = new Protocol("urn:leps:iot:actuator:simple-camera", "take-photo");
 	
-	private int prepareTime;
+	private Integer prepareTime;
+	private String photoFileName;
 	private String photoUrl;
 	
 	public TakePhoto() {}
@@ -16,16 +17,25 @@ public class TakePhoto {
 		this.prepareTime = prepareTime;
 	}
 	
-	public TakePhoto(String photoUrl) {
+	public TakePhoto(String photoFileName, String photoUrl) {
+		this.photoFileName = photoFileName;
 		this.photoUrl = photoUrl;
 	}
 	
-	public int getPrepareTime() {
+	public Integer getPrepareTime() {
 		return prepareTime;
 	}
 
-	public void setPrepareTime(int prepareTime) {
+	public void setPrepareTime(Integer prepareTime) {
 		this.prepareTime = prepareTime;
+	}
+
+	public String getPhotoFileName() {
+		return photoFileName;
+	}
+
+	public void setPhotoFileName(String photoFileName) {
+		this.photoFileName = photoFileName;
 	}
 
 	public String getPhotoUrl() {

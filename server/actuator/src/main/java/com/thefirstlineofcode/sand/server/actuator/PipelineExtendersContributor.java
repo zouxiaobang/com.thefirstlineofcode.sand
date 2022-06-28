@@ -52,6 +52,7 @@ public class PipelineExtendersContributor extends PipelineExtendersConfigurator 
 				for (Entry<Protocol, Class<?>> entry : modelDescriptor.getSupportedActions().entrySet()) {
 					configurator.registerNamingConventionParser(
 							new IqProtocolChain(Execution.PROTOCOL).next(entry.getKey()), entry.getValue());
+					configurator.registerNamingConventionParser(new IqProtocolChain(entry.getKey()), entry.getValue());
 					configurator.registerNamingConventionTranslator(entry.getValue());
 				}
 			}

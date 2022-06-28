@@ -1,14 +1,23 @@
 package com.thefirstlineofcode.sand.demo.app.android;
 
+import static android.text.Html.FROM_HTML_MODE_COMPACT;
+
 import android.R.string;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.text.Html;
+import android.text.Spanned;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.Toast;
@@ -40,7 +49,19 @@ import com.thefirstlineofcode.sand.protocols.things.simple.light.Flash;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
+
+import okhttp3.Call;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 
 public class MainActivity extends AppCompatActivity implements IOperator.Listener,
 		IAuthorizedDevicesService.Listener, IErrorListener {
@@ -48,6 +69,7 @@ public class MainActivity extends AppCompatActivity implements IOperator.Listene
 	
 	private String host;
 	private DevicesAdapter devicesAdapter;
+	private File downloadDir;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -57,6 +79,15 @@ public class MainActivity extends AppCompatActivity implements IOperator.Listene
 		Toolbar tbToolbar = findViewById(R.id.tb_tool_bar);
 		tbToolbar.setTitle(R.string.app_name);
 		setSupportActionBar(tbToolbar);
+		
+		downloadDir = new File(getCacheDir(), "download-dir");
+		if (!downloadDir.exists()) {
+			try {
+				Files.createDirectory(downloadDir.toPath());
+			} catch (IOException e) {
+				throw new RuntimeException("Can't create download directory.", e);
+			}
+		}
 		
 		retrieveAuthorizedDevices();
 	}
@@ -211,7 +242,7 @@ public class MainActivity extends AppCompatActivity implements IOperator.Listene
 				devicesAdapter.notifyDataSetChanged();
 			}
 			
-			ProgressBar pbRetrievingDevices = (ProgressBar)findViewById(R.id.pb_retrieving_devices);
+			ProgressBar pbRetrievingDevices = findViewById(R.id.pb_retrieving_devices);
 			pbRetrievingDevices.setVisibility(View.INVISIBLE);
 		});
 	}
@@ -230,7 +261,7 @@ public class MainActivity extends AppCompatActivity implements IOperator.Listene
 	
 	@Override
 	public void timeout() {
-		ProgressBar pbRetrievingDevices = (ProgressBar)findViewById(R.id.pb_retrieving_devices);
+		ProgressBar pbRetrievingDevices = findViewById(R.id.pb_retrieving_devices);
 		pbRetrievingDevices.setVisibility(View.INVISIBLE);
 		
 		runOnUiThread(() -> Toast.makeText(MainActivity.this,
@@ -240,48 +271,168 @@ public class MainActivity extends AppCompatActivity implements IOperator.Listene
 	
 	public void takeAPhoto(JabberId target) {
 		logger.info("Take a photo from camera {}.", target);
-		AlertDialog.Builder builder = new AlertDialog.Builder(this);
-		builder.setTitle("Choose prepare time").setItems(new String[] {"5 Seconds", "10 Seconds", "15 Seconds"},
-				new DialogInterface.OnClickListener() {
-					public void onClick(DialogInterface dialog, int which) {
-						IChatClient chatClient = ChatClientSingleton.get(MainActivity.this);
-						IRemoting remoting = chatClient.createApi(IRemoting.class);
-						
-						TakePhoto takePhoto = new TakePhoto();
-						if (which == 0) {
-							takePhoto.setPrepareTime(5);
-						} else if (which == 1) {
-							takePhoto.setPrepareTime(10);
-						} else {
-							takePhoto.setPrepareTime(15);
+		
+		IChatClient chatClient = ChatClientSingleton.get(MainActivity.this);
+		IRemoting remoting = chatClient.createApi(IRemoting.class);
+		
+		remoting.execute(target, new TakePhoto(), 30 * 1000, new IRemoting.Callback() {
+			@Override
+			public void executed(Object xep) {
+				String photoUrl = ((TakePhoto)xep).getPhotoUrl();
+				Spanned spanned = Html.fromHtml("Your photo was taken. Download address is <a href=\"" +
+						photoUrl + "\">" + photoUrl + "</a>", FROM_HTML_MODE_COMPACT);
+				
+				AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+				builder.setTitle("Your photo").setMessage(spanned).
+					setPositiveButton(string.ok, new DialogInterface.OnClickListener() {
+						@Override
+						public void onClick(DialogInterface dialog, int which) {
+							dialog.dismiss();
+							
+							AlertDialog.Builder photoDialogBuilder = new AlertDialog.Builder(MainActivity.this);
+							View photoView = LayoutInflater.from(MainActivity.this).inflate(R.layout.photo_view, null, false);
+							ImageView ivPhoto = photoView.findViewById(R.id.iv_photo);
+							ProgressBar pbDownloadingPhoto = photoView.findViewById(R.id.pb_downloading_photo);
+							photoDialogBuilder.setView(photoView);
+							photoDialogBuilder.setNeutralButton("Close", new DialogInterface.OnClickListener() {
+								@Override
+								public void onClick(DialogInterface dialog, int which) {
+									dialog.dismiss();
+								}
+							});
+							
+							runOnUiThread(() -> {
+								AlertDialog photoDialog = photoDialogBuilder.create();
+								photoDialog.show();
+							});
+							
+							DownloadingPhotoTask downloadingPhotoTask = new DownloadingPhotoTask(
+									MainActivity.this, pbDownloadingPhoto, ivPhoto, downloadDir);
+							downloadingPhotoTask.execute((TakePhoto)xep);
 						}
-						
-						remoting.execute(target, takePhoto, 30 * 1000, new IRemoting.Callback() {
-							@Override
-							public void executed(Object xep) {
-								runOnUiThread(() -> Toast.makeText(MainActivity.this,
-										"Take photo executed.",
-										Toast.LENGTH_LONG).show());
-							}
-							
-							@Override
-							public void occurred(StanzaError error) {
-								runOnUiThread(() -> Toast.makeText(MainActivity.this,
-										"Take photo execution error: " + error.toString(),
-										Toast.LENGTH_LONG).show());
-							}
-							
-							@Override
-							public void timeout() {
-								runOnUiThread(() -> Toast.makeText(MainActivity.this,
-										"Take photo execution timeout.",
-										Toast.LENGTH_LONG).show());
-							}
-						});
+					}).
+					setNegativeButton(string.cancel, new DialogInterface.OnClickListener() {
+						@Override
+						public void onClick(DialogInterface dialog, int which) {
+							dialog.dismiss();
+						}
 					}
+				);
+				
+				runOnUiThread(() -> {
+					AlertDialog dialog = builder.create();
+					dialog.show();
 				});
-		AlertDialog dialog = builder.create();
-		dialog.show();
+			}
+			
+			@Override
+			public void occurred(StanzaError error) {
+				runOnUiThread(() -> Toast.makeText(MainActivity.this,
+						"Take photo execution error: " + error.toString(),
+						Toast.LENGTH_LONG).show());
+			}
+			
+			@Override
+			public void timeout() {
+				runOnUiThread(() -> Toast.makeText(MainActivity.this,
+						"Take photo execution timeout.",
+						Toast.LENGTH_LONG).show());
+			}
+		});
+	}
+	
+	private static class DownloadingPhotoTask extends AsyncTask<TakePhoto, Void, File> {
+		private final Context context;
+		private ProgressBar pbDownloadingPhoto;
+		private ImageView ivPhoto;
+		private File downloadDir;
+		
+		public DownloadingPhotoTask(Context context, ProgressBar pbDownloadingPhoto,
+					ImageView ivPhoto, File downloadDir) {
+			this.context = context;
+			this.pbDownloadingPhoto = pbDownloadingPhoto;
+			this.ivPhoto = ivPhoto;
+			this.downloadDir = downloadDir;
+		}
+		
+		@Override
+		protected void onPreExecute() {
+			pbDownloadingPhoto.setVisibility(View.VISIBLE);
+			ivPhoto.setVisibility(View.INVISIBLE);
+		}
+		
+		@Override
+		protected File doInBackground(TakePhoto... takePhotos) {
+			TakePhoto takePhoto = takePhotos[0];
+			OkHttpClient client = new OkHttpClient.Builder().readTimeout(5, TimeUnit.MINUTES).build();
+			Call call = client.newCall(getPhotoDownloadingRequest(takePhoto.getPhotoUrl()));
+			Response response;
+			try {
+				response = call.execute();
+			} catch (IOException e) {
+				return null;
+			}
+			
+			if (response.code() != 200) {
+				return null;
+			}
+			
+			return downloadPhoto(response, takePhoto.getPhotoFileName());
+		}
+		
+		@Override
+		protected void onPostExecute(File downloadPhoto) {
+			if (downloadPhoto == null) {
+				Toast.makeText(context,
+						context.getString(R.string.failed_to_download_photo),
+						Toast.LENGTH_LONG).show();
+			} else {
+				pbDownloadingPhoto.setVisibility(View.GONE);
+				ivPhoto.setImageURI(Uri.fromFile(downloadPhoto));
+				ivPhoto.setVisibility(View.VISIBLE);
+			}
+		}
+		
+		private Request getPhotoDownloadingRequest(String photoUrl) {
+			return new Request.Builder().url(photoUrl).build();
+		}
+		
+		private File downloadPhoto(Response response, String photoFileName) {
+			File downloadedPhoto = new File(downloadDir, photoFileName);
+			InputStream input = null;
+			BufferedOutputStream output = null;
+			byte[] buf = new byte[2048];
+			int len;
+			try {
+				input = response.body().byteStream();
+				output = new BufferedOutputStream(new FileOutputStream(downloadedPhoto));
+				while ((len = input.read(buf, 0, 2048)) != -1) {
+					output.write(buf, 0, len);
+				}
+				
+				return downloadedPhoto;
+			} catch (Exception e) {
+				// TODO: handle exception
+				e.printStackTrace();
+				return null;
+			} finally {
+				if (input != null) {
+					try {
+						input.close();
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+				}
+				
+				if (output != null) {
+					try {
+						output.close();
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+				}
+			}
+		}
 	}
 	
 	public void takeAVideo(JabberId target) {
@@ -354,20 +505,18 @@ public class MainActivity extends AppCompatActivity implements IOperator.Listene
 		ShutdownSystem shutdownSystem = new ShutdownSystem();
 		
 		AlertDialog.Builder builder = new AlertDialog.Builder(this);
-		builder.setTitle("Restart").setMultiChoiceItems(new String[] {"Restart after shutdowning"}, new boolean[] {false},
+		builder.setTitle("Restart").setMultiChoiceItems(new String[] {"Restart after shutdown"}, new boolean[] {false},
 				new DialogInterface.OnMultiChoiceClickListener() {
 					@Override
 					public void onClick(DialogInterface dialog, int which, boolean isChecked) {
-						if (isChecked) {
-							shutdownSystem.setRestart(true);
-						} else {
-							shutdownSystem.setRestart(false);
-						}
+						shutdownSystem.setRestart(isChecked);
 					}
 				}
 			).setPositiveButton(string.ok, new DialogInterface.OnClickListener() {
 					@Override
 					public void onClick(DialogInterface dialog, int id) {
+						dialog.dismiss();
+						
 						IChatClient chatClient = ChatClientSingleton.get(MainActivity.this);
 						IRemoting remoting = chatClient.createApi(IRemoting.class);
 						
@@ -397,11 +546,16 @@ public class MainActivity extends AppCompatActivity implements IOperator.Listene
 				}
 			).setNegativeButton(string.cancel, new DialogInterface.OnClickListener() {
 				@Override
-				public void onClick(DialogInterface dialog, int id) {}
+				public void onClick(DialogInterface dialog, int id) {
+					dialog.dismiss();
+				}
 			}
 		);
-		AlertDialog dialog = builder.create();
-		dialog.show();
+		
+		runOnUiThread(() -> {
+			AlertDialog dialog = builder.create();
+			dialog.show();
+		});
 	}
 	
 	public void flash(JabberId target) {
@@ -410,6 +564,8 @@ public class MainActivity extends AppCompatActivity implements IOperator.Listene
 		builder.setTitle("Choose repeat times").setItems(new String[] {"1", "2", "5"},
 				new DialogInterface.OnClickListener() {
 					public void onClick(DialogInterface dialog, int which) {
+						dialog.dismiss();
+						
 						IChatClient chatClient = ChatClientSingleton.get(MainActivity.this);
 						IRemoting remoting = chatClient.createApi(IRemoting.class);
 						
@@ -446,8 +602,11 @@ public class MainActivity extends AppCompatActivity implements IOperator.Listene
 						});
 					}
 				});
-		AlertDialog dialog = builder.create();
-		dialog.show();
+		
+		runOnUiThread(() -> {
+			AlertDialog dialog = builder.create();
+			dialog.show();
+		});
 	}
 	
 	public void turnOn(JabberId target) {

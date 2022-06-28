@@ -17,11 +17,12 @@ public class StopExecutor implements IExecutor<Stop> {
 	}
 
 	@Override
-	public void execute(Iq iq, Stop stop) throws ProtocolException {
+	public Object execute(Iq iq, Stop stop) throws ProtocolException {
 		try {
 			thing.stop();
+			return null;
 		} catch (ExecutionException e) {
-			throw new ProtocolException(new UndefinedCondition(StanzaError.Type.MODIFY,
+			throw new ProtocolException(new UndefinedCondition(StanzaError.Type.CANCEL,
 					ThingsUtils.getExecutionErrorDescription(null, e.getErrorCode())));
 		}
 	}

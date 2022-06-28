@@ -17,11 +17,12 @@ private IThing thing;
 	}
 
 	@Override
-	public void execute(Iq iq, Restart restart) throws ProtocolException {
+	public Object execute(Iq iq, Restart restart) throws ProtocolException {
 		try {
 			thing.restart();
+			return null;
 		} catch (ExecutionException e) {
-			throw new ProtocolException(new UndefinedCondition(StanzaError.Type.MODIFY,
+			throw new ProtocolException(new UndefinedCondition(StanzaError.Type.CANCEL,
 					ThingsUtils.getExecutionErrorDescription(null, e.getErrorCode())));
 		}
 	}

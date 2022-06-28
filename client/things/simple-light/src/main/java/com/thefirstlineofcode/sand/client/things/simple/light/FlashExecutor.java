@@ -18,7 +18,7 @@ public class FlashExecutor implements IExecutor<Flash> {
 	}
 
 	@Override
-	public void execute(Iq iq, Flash action) {
+	public Object execute(Iq iq, Flash action) {
 		if (light.getSwitchState() != ILight.SwitchState.CONTROL)
 			throw new ProtocolException(new UnexpectedRequest(ThingsUtils.getExecutionErrorDescription(
 					light.getDeviceModel(), ILight.ERROR_CODE_NOT_REMOTE_CONTROL_STATE)));
@@ -30,8 +30,10 @@ public class FlashExecutor implements IExecutor<Flash> {
 		try {			
 			light.flash(((Flash)action).getRepeat());
 		} catch (ExecutionException e) {
-			throw new ProtocolException(new UndefinedCondition(StanzaError.Type.MODIFY,
+			throw new ProtocolException(new UndefinedCondition(StanzaError.Type.CANCEL,
 					ThingsUtils.getExecutionErrorDescription(light.getDeviceModel(), e.getErrorCode())));
 		}
+		
+		return null;
 	}
 }

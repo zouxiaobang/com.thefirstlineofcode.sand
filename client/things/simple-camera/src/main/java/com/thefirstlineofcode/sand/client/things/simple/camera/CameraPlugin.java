@@ -21,6 +21,8 @@ public class CameraPlugin implements IPlugin {
 		
 		chatSystem.registerParser(new IqProtocolChain(Execution.PROTOCOL).next(TakePhoto.PROTOCOL),
 				new NamingConventionParserFactory<TakePhoto>(TakePhoto.class));
+		chatSystem.registerParser(new IqProtocolChain(TakePhoto.PROTOCOL),
+				new NamingConventionParserFactory<TakePhoto>(TakePhoto.class));
 		chatSystem.registerTranslator(TakePhoto.class,
 				new NamingConventionTranslatorFactory<TakePhoto>(TakePhoto.class));
 		
@@ -44,6 +46,7 @@ public class CameraPlugin implements IPlugin {
 		chatSystem.unregisterParser(new IqProtocolChain(Execution.PROTOCOL).next(TakeVideo.PROTOCOL));
 				
 		chatSystem.unregisterTranslator(TakePhoto.class);
+		chatSystem.unregisterParser(new IqProtocolChain(TakePhoto.PROTOCOL));
 		chatSystem.unregisterParser(new IqProtocolChain(Execution.PROTOCOL).next(TakePhoto.PROTOCOL));
 		
 		chatSystem.unregister(ThingPlugin.class);

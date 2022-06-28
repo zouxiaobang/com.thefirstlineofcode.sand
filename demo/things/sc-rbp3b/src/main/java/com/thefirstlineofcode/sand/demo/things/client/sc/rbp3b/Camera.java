@@ -1,22 +1,31 @@
 package com.thefirstlineofcode.sand.demo.things.client.sc.rbp3b;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.Writer;
+import java.net.URL;
+import java.net.URLConnection;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
+import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.thefirstlineofcode.basalt.protocol.core.ProtocolException;
 import com.thefirstlineofcode.basalt.protocol.core.stanza.Iq;
+import com.thefirstlineofcode.basalt.protocol.core.stanza.error.StanzaError;
+import com.thefirstlineofcode.basalt.protocol.core.stanza.error.UndefinedCondition;
 import com.thefirstlineofcode.chalk.core.stream.StandardStreamConfig;
 import com.thefirstlineofcode.sand.client.actuator.ActuatorPlugin;
 import com.thefirstlineofcode.sand.client.core.ThingsUtils;
@@ -36,6 +45,13 @@ import com.thefirstlineofcode.sand.protocols.actuator.actions.ShutdownSystem;
 import com.thefirstlineofcode.sand.protocols.actuator.actions.Stop;
 import com.thefirstlineofcode.sand.protocols.things.simple.camera.TakePhoto;
 
+import okhttp3.MediaType;
+import okhttp3.MultipartBody;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
+
 public class Camera extends AbstractEdgeThing implements ICamera {
 	public static final String THING_TYPE = "Simple Camera";
 	public static final String THING_MODEL = "SC-RBP3B";
@@ -47,6 +63,8 @@ public class Camera extends AbstractEdgeThing implements ICamera {
 	private static final Logger logger = LoggerFactory.getLogger(Camera.class);
 	
 	private IActuator actuator;
+	private String uploadUrl;
+	private String downloadUrl;
 	
 	public Camera() {
 		this(null);
@@ -54,10 +72,31 @@ public class Camera extends AbstractEdgeThing implements ICamera {
 	
 	public Camera(StandardStreamConfig streamConfig) {
 		super(THING_TYPE, THING_MODEL, streamConfig);
+		uploadUrl = String.format("http://%s:8080", this.streamConfig.getHost());
+		downloadUrl = String.format("http://%s:8080/files/", this.streamConfig.getHost());
 	}
 	
 	@Override
 	public void start() {
+		int i = 0;
+		while (!checkInternetConnectivity()) {
+			i++;
+			
+			logger.info("No internet connection. Waiting for a while then trying again....");
+			
+			try {
+				Thread.sleep(2000);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+			if (i == 10) {
+				logger.error("No internet connection. The thing can't be started.");
+				throw new IllegalStateException("No internet connection. The program will exit.");
+			}
+		}
+		
 		try {
 			super.start();
 		} catch (Exception e) {
@@ -67,6 +106,18 @@ public class Camera extends AbstractEdgeThing implements ICamera {
 		}
 	}
 	
+	private boolean checkInternetConnectivity() {
+		try {
+			URL url = new URL("http://47.115.36.99");
+			URLConnection connection = url.openConnection();
+            connection.connect();
+            
+            return true;
+		} catch (Exception e) {
+			return false;
+		}
+	}
+
 	@Override
 	public String getSoftwareVersion() {
 		return SOFTWARE_VERSION;
@@ -94,14 +145,7 @@ public class Camera extends AbstractEdgeThing implements ICamera {
 	protected IActuator createActuator() {
 		IActuator actuator = chatClient.createApi(IActuator.class);
 		actuator.registerExecutorFactory(TakePhoto.class, new IExecutorFactory<TakePhoto>() {
-			private IExecutor<TakePhoto> executor = new IExecutor<TakePhoto>() {
-				
-				@Override
-				public void execute(Iq iq, TakePhoto action) throws ProtocolException {
-					// TODO Auto-generated method stub
-					System.out.println("You should take a photo.");
-				}
-			};
+			private IExecutor<TakePhoto> executor = new TakePhotoExecutor();
 			
 			@Override
 			public IExecutor<TakePhoto> create() {
@@ -132,6 +176,49 @@ public class Camera extends AbstractEdgeThing implements ICamera {
 		});
 		
 		return actuator;
+	}
+	
+	private class TakePhotoExecutor implements IExecutor<TakePhoto> {
+
+		@Override
+		public Object execute(Iq iq, TakePhoto takePhoto) throws ProtocolException {
+			Response response = null;
+			try {
+				File photo = Camera.this.takePhoto(takePhoto);
+				
+				OkHttpClient client = new OkHttpClient.Builder().readTimeout(5, TimeUnit.MINUTES).build();
+				response = client.newCall(getPhotoUploadRequest(photo)).execute();
+				if (response.code() != 200) {
+					logger.error("Failed to upload photo. HTTP response status code: {}.", response.code());
+					throw new ProtocolException(new UndefinedCondition(StanzaError.Type.CANCEL,
+							ThingsUtils.getExecutionErrorDescription(getDeviceModel(), FAILED_TO_UPLOAD_PHOTO)));
+				}
+				
+				return new TakePhoto(photo.getName(), downloadUrl + photo.getName());
+			} catch (ExecutionException e) {
+				logger.error(String.format("Exception is thrown when executing take photo action. Global action error code: %s.",
+						ThingsUtils.getGlobalErrorCode(THING_MODEL, e.getErrorCode())), e);
+				throw new ProtocolException(new UndefinedCondition(StanzaError.Type.CANCEL,
+						ThingsUtils.getExecutionErrorDescription(getDeviceModel(), e.getErrorCode())));
+			} catch (IOException e) {
+				logger.error("Failed to upload photo.", e);
+				throw new ProtocolException(new UndefinedCondition(StanzaError.Type.CANCEL,
+						ThingsUtils.getExecutionErrorDescription(getDeviceModel(), FAILED_TO_UPLOAD_PHOTO)));
+			} finally {
+				if (response != null)
+					response.close();
+			}
+		}
+		
+		private Request getPhotoUploadRequest(File photo) {
+			RequestBody requestBody = new MultipartBody.Builder().
+					setType(MultipartBody.FORM).
+					addFormDataPart("file", photo.getName(), RequestBody.create(
+							photo, MediaType.parse("application/octet-stream"))).
+					build();
+			
+			return new Request.Builder().url(uploadUrl).post(requestBody).build();
+		}
 	}
 	
 	@Override
@@ -251,8 +338,50 @@ public class Camera extends AbstractEdgeThing implements ICamera {
 	}
 
 	@Override
-	public void takePhoto() throws ExecutionException {
-		// TODO Auto-generated method stub
+	public File takePhoto(TakePhoto takePhoto) throws ExecutionException {
+		String photoPath = getOutputPath();
+		int prepareTime = takePhoto.getPrepareTime() == null ? 5000 : takePhoto.getPrepareTime();
+		runInNewProcess(getTakePhotoCmdArray(photoPath, prepareTime));
 		
+		File photo = new File(photoPath);
+		if (!photo.exists()) {
+			logger.error("Photo file wasn't taken. Photo path: " + photoPath + ".");
+			throw new ExecutionException(ERROR_CODE_PHOTO_WAS_NOT_TAKEN);
+		}
+		
+		logger.info("Photo was taken. Photo path: " + photoPath + ".");
+		return photo;
 	}
+	
+	private String[] getTakePhotoCmdArray(String photoPath, int prepareTime) {
+		List<String> cmdList = new ArrayList<>();
+		cmdList.add("raspistill");
+		cmdList.add("-t");
+		cmdList.add(Integer.toString(prepareTime));
+		cmdList.add("-w");
+		cmdList.add("800");
+		cmdList.add("-h");
+		cmdList.add("600");
+		cmdList.add("-q");
+		cmdList.add("90");
+		cmdList.add("-o");
+		cmdList.add(photoPath);
+		
+		String[] cmdArray = cmdList.toArray(new String[0]);
+		return cmdArray;
+	}
+
+	private String getOutputPath() {
+		Calendar calendar = Calendar.getInstance();
+		String fileName = String.format("/home/pi/tmp/%s-%s-%s-%s-%s-%s.jpg",
+				calendar.get(Calendar.YEAR),
+				calendar.get(Calendar.MONTH),
+				calendar.get(Calendar.DATE),
+				calendar.get(Calendar.HOUR_OF_DAY),
+				calendar.get(Calendar.MINUTE),
+				calendar.get(Calendar.MILLISECOND));
+		
+		return fileName;
+	}
+	
 }

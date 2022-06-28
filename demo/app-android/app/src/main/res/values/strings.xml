@@ -47,4 +47,5 @@
     <string name="refresh_devices">Refresh Devices</string>
     <string name="devices_has_updated">Devices has updated.</string>
     <string name="control_the_device">Control the Device</string>
+    <string name="failed_to_download_photo">Failed to download photo</string>
 </resources>

@@ -82,7 +82,7 @@ public class Main {
 		
 		camera.start();
 	}
-	
+
 	private LogLevel getLogLevel(String sLogLevel) {
 		if ("info".equals(sLogLevel))
 			return LogLevel.INFO;
