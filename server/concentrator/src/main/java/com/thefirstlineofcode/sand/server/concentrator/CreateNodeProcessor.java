@@ -4,11 +4,11 @@ import java.util.Calendar;
 import java.util.Date;
 
 import com.thefirstlinelinecode.sand.protocols.concentrator.CreateNode;
-import com.thefirstlineofcode.basalt.protocol.core.ProtocolException;
-import com.thefirstlineofcode.basalt.protocol.core.stanza.Iq;
-import com.thefirstlineofcode.basalt.protocol.core.stanza.error.Conflict;
-import com.thefirstlineofcode.basalt.protocol.core.stanza.error.ItemNotFound;
-import com.thefirstlineofcode.basalt.protocol.core.stanza.error.NotAcceptable;
+import com.thefirstlineofcode.basalt.xmpp.core.ProtocolException;
+import com.thefirstlineofcode.basalt.xmpp.core.stanza.Iq;
+import com.thefirstlineofcode.basalt.xmpp.core.stanza.error.Conflict;
+import com.thefirstlineofcode.basalt.xmpp.core.stanza.error.ItemNotFound;
+import com.thefirstlineofcode.basalt.xmpp.core.stanza.error.NotAcceptable;
 import com.thefirstlineofcode.granite.framework.core.adf.data.IDataObjectFactory;
 import com.thefirstlineofcode.granite.framework.core.adf.data.IDataObjectFactoryAware;
 import com.thefirstlineofcode.granite.framework.core.annotations.BeanDependency;

@@ -6,7 +6,7 @@ import java.io.ObjectOutput;
 import java.util.Map;
 
 import com.thefirstlineofcode.basalt.oxm.binary.BinaryUtils;
-import com.thefirstlineofcode.basalt.protocol.core.Protocol;
+import com.thefirstlineofcode.basalt.xmpp.core.Protocol;
 import com.thefirstlineofcode.sand.client.core.commuication.CommunicationException;
 import com.thefirstlineofcode.sand.client.core.commuication.ICommunicationListener;
 import com.thefirstlineofcode.sand.client.core.commuication.ICommunicator;

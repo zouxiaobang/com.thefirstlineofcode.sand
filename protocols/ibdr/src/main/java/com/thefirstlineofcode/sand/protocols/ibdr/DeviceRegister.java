@@ -1,7 +1,7 @@
 package com.thefirstlineofcode.sand.protocols.ibdr;
 
 import com.thefirstlineofcode.basalt.oxm.convention.annotations.ProtocolObject;
-import com.thefirstlineofcode.basalt.protocol.core.Protocol;
+import com.thefirstlineofcode.basalt.xmpp.core.Protocol;
 import com.thefirstlineofcode.sand.protocols.core.DeviceIdentity;
 
 @ProtocolObject(namespace="urn:leps:iot:ibdr", localName="query")

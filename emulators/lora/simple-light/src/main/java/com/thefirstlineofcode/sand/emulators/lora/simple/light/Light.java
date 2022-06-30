@@ -7,7 +7,7 @@ import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import com.thefirstlineofcode.basalt.protocol.core.Protocol;
+import com.thefirstlineofcode.basalt.xmpp.core.Protocol;
 import com.thefirstlineofcode.sand.client.things.simple.light.ILight;
 import com.thefirstlineofcode.sand.emulators.commons.Constants;
 import com.thefirstlineofcode.sand.emulators.commons.ILightEmulator;

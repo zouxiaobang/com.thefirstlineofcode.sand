@@ -1,7 +1,7 @@
 package com.thefirstlineofcode.sand.protocols.lora.dac;
 
 import com.thefirstlineofcode.basalt.oxm.convention.annotations.ProtocolObject;
-import com.thefirstlineofcode.basalt.protocol.core.Protocol;
+import com.thefirstlineofcode.basalt.xmpp.core.Protocol;
 
 @ProtocolObject(namespace="urn:leps:iot:lora-dac", localName="allocation")
 public class Allocation {

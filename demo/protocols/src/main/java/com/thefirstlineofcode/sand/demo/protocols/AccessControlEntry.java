@@ -2,7 +2,7 @@ package com.thefirstlineofcode.sand.demo.protocols;
 
 import com.thefirstlineofcode.basalt.oxm.convention.conversion.annotations.String2Enum;
 import com.thefirstlineofcode.basalt.oxm.convention.validation.annotations.NotNull;
-import com.thefirstlineofcode.basalt.protocol.HandyUtils;
+import com.thefirstlineofcode.basalt.xmpp.HandyUtils;
 import com.thefirstlineofcode.sand.demo.protocols.AccessControlList.Role;
 
 public class AccessControlEntry {

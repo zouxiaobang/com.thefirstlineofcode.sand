@@ -2,8 +2,8 @@ package com.thefirstlineofcode.sand.server.devices;
 
 import java.util.Date;
 
-import com.thefirstlineofcode.basalt.protocol.core.JabberId;
-import com.thefirstlineofcode.basalt.protocol.core.Protocol;
+import com.thefirstlineofcode.basalt.xmpp.core.JabberId;
+import com.thefirstlineofcode.basalt.xmpp.core.Protocol;
 import com.thefirstlineofcode.sand.protocols.core.ModelDescriptor;
 
 public interface IDeviceManager {

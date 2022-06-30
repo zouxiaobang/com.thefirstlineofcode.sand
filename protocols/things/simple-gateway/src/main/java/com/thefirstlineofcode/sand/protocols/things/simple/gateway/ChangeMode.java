@@ -2,7 +2,7 @@ package com.thefirstlineofcode.sand.protocols.things.simple.gateway;
 
 import com.thefirstlineofcode.basalt.oxm.convention.annotations.ProtocolObject;
 import com.thefirstlineofcode.basalt.oxm.convention.conversion.annotations.String2Enum;
-import com.thefirstlineofcode.basalt.protocol.core.Protocol;
+import com.thefirstlineofcode.basalt.xmpp.core.Protocol;
 
 @ProtocolObject(namespace="urn:leps:iot:actuator:simple-geteway", localName="change-mode")
 public class ChangeMode {

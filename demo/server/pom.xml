@@ -30,6 +30,10 @@
 			<artifactId>sand-server-location</artifactId>
 		</dependency>
 		<dependency>
+			<groupId>com.thefirstlineofcode.basalt.xeps</groupId>
+			<artifactId>basalt-xeps-ping</artifactId>
+		</dependency>
+		<dependency>
 			<groupId>com.thefirstlineofcode.sand.demo</groupId>
 			<artifactId>sand-demo-protocols</artifactId>
 		</dependency>

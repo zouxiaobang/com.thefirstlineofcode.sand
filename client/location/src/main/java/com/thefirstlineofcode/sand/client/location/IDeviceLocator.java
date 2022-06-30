@@ -2,7 +2,7 @@ package com.thefirstlineofcode.sand.client.location;
 
 import java.util.List;
 
-import com.thefirstlineofcode.basalt.protocol.core.stanza.error.StanzaError;
+import com.thefirstlineofcode.basalt.xmpp.core.stanza.error.StanzaError;
 import com.thefirstlineofcode.sand.protocols.location.DeviceLocation;
 
 public interface IDeviceLocator {

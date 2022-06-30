@@ -6,8 +6,8 @@ import java.util.List;
 import javax.security.cert.X509Certificate;
 
 import com.thefirstlineofcode.basalt.oxm.convention.NamingConventionParserFactory;
-import com.thefirstlineofcode.basalt.protocol.core.ProtocolChain;
-import com.thefirstlineofcode.basalt.protocol.core.stream.Features;
+import com.thefirstlineofcode.basalt.xmpp.core.ProtocolChain;
+import com.thefirstlineofcode.basalt.xmpp.core.stream.Features;
 import com.thefirstlineofcode.chalk.core.AbstractChatClient;
 import com.thefirstlineofcode.chalk.core.stream.AbstractStreamer;
 import com.thefirstlineofcode.chalk.core.stream.IStreamNegotiant;

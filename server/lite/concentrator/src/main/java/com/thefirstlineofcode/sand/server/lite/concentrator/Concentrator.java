@@ -10,9 +10,9 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.thefirstlineofcode.basalt.protocol.core.ProtocolException;
-import com.thefirstlineofcode.basalt.protocol.core.stanza.error.Conflict;
-import com.thefirstlineofcode.basalt.protocol.core.stanza.error.NotAcceptable;
+import com.thefirstlineofcode.basalt.xmpp.core.ProtocolException;
+import com.thefirstlineofcode.basalt.xmpp.core.stanza.error.Conflict;
+import com.thefirstlineofcode.basalt.xmpp.core.stanza.error.NotAcceptable;
 import com.thefirstlineofcode.granite.framework.core.adf.data.IDataObjectFactory;
 import com.thefirstlineofcode.granite.framework.core.adf.data.IDataObjectFactoryAware;
 import com.thefirstlineofcode.sand.server.concentrator.Concentration;

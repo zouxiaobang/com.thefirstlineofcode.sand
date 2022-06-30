@@ -2,8 +2,8 @@ package com.thefirstlineofcode.sand.server.ibdr;
 
 import java.util.List;
 
-import com.thefirstlineofcode.basalt.protocol.core.stream.Feature;
-import com.thefirstlineofcode.basalt.protocol.core.stream.Features;
+import com.thefirstlineofcode.basalt.xmpp.core.stream.Feature;
+import com.thefirstlineofcode.basalt.xmpp.core.stream.Features;
 import com.thefirstlineofcode.granite.framework.core.adf.IApplicationComponentService;
 import com.thefirstlineofcode.granite.framework.core.annotations.Component;
 import com.thefirstlineofcode.granite.framework.core.connection.IClientConnectionContext;

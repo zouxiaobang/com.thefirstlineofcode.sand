@@ -1,7 +1,7 @@
 package com.thefirstlineofcode.sand.client.things.simple.gateway;
 
-import com.thefirstlineofcode.basalt.protocol.core.ProtocolException;
-import com.thefirstlineofcode.basalt.protocol.core.stanza.Iq;
+import com.thefirstlineofcode.basalt.xmpp.core.ProtocolException;
+import com.thefirstlineofcode.basalt.xmpp.core.stanza.Iq;
 import com.thefirstlineofcode.sand.client.core.actuator.IExecutor;
 import com.thefirstlineofcode.sand.protocols.things.simple.gateway.ChangeMode;
 

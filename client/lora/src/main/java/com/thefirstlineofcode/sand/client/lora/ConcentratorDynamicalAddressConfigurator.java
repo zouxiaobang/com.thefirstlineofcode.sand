@@ -6,9 +6,9 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.thefirstlineofcode.basalt.protocol.core.Protocol;
-import com.thefirstlineofcode.basalt.protocol.core.ProtocolException;
-import com.thefirstlineofcode.basalt.protocol.core.stanza.error.Conflict;
+import com.thefirstlineofcode.basalt.xmpp.core.Protocol;
+import com.thefirstlineofcode.basalt.xmpp.core.ProtocolException;
+import com.thefirstlineofcode.basalt.xmpp.core.stanza.error.Conflict;
 import com.thefirstlineofcode.sand.client.core.commuication.CommunicationException;
 import com.thefirstlineofcode.sand.client.core.commuication.IAddressConfigurator;
 import com.thefirstlineofcode.sand.client.core.commuication.ICommunicationListener;

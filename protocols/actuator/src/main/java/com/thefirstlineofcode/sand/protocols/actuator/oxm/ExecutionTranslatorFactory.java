@@ -6,9 +6,9 @@ import com.thefirstlineofcode.basalt.oxm.translating.IProtocolWriter;
 import com.thefirstlineofcode.basalt.oxm.translating.ITranslatingFactory;
 import com.thefirstlineofcode.basalt.oxm.translating.ITranslator;
 import com.thefirstlineofcode.basalt.oxm.translating.ITranslatorFactory;
-import com.thefirstlineofcode.basalt.protocol.core.Protocol;
-import com.thefirstlineofcode.basalt.protocol.core.ProtocolException;
-import com.thefirstlineofcode.basalt.protocol.core.stanza.error.BadRequest;
+import com.thefirstlineofcode.basalt.xmpp.core.Protocol;
+import com.thefirstlineofcode.basalt.xmpp.core.ProtocolException;
+import com.thefirstlineofcode.basalt.xmpp.core.stanza.error.BadRequest;
 import com.thefirstlineofcode.sand.protocols.actuator.Execution;
 
 public class ExecutionTranslatorFactory implements ITranslatorFactory<Execution> {

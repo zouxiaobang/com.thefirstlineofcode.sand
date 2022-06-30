@@ -1,9 +1,9 @@
 package com.thefirstlineofcode.sand.demo.server;
 
-import com.thefirstlineofcode.basalt.protocol.core.ProtocolException;
-import com.thefirstlineofcode.basalt.protocol.core.stanza.Iq;
-import com.thefirstlineofcode.basalt.protocol.core.stanza.error.BadRequest;
-import com.thefirstlineofcode.basalt.protocol.core.stanza.error.Forbidden;
+import com.thefirstlineofcode.basalt.xmpp.core.ProtocolException;
+import com.thefirstlineofcode.basalt.xmpp.core.stanza.Iq;
+import com.thefirstlineofcode.basalt.xmpp.core.stanza.error.BadRequest;
+import com.thefirstlineofcode.basalt.xmpp.core.stanza.error.Forbidden;
 import com.thefirstlineofcode.granite.framework.core.annotations.BeanDependency;
 import com.thefirstlineofcode.granite.framework.core.pipeline.stages.processing.IProcessingContext;
 import com.thefirstlineofcode.granite.framework.core.pipeline.stages.processing.IXepProcessor;

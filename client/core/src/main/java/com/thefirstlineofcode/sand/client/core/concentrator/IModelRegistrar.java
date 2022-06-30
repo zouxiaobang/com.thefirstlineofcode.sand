@@ -1,6 +1,6 @@
 package com.thefirstlineofcode.sand.client.core.concentrator;
 
-import com.thefirstlineofcode.basalt.protocol.core.Protocol;
+import com.thefirstlineofcode.basalt.xmpp.core.Protocol;
 import com.thefirstlineofcode.sand.protocols.core.ModelDescriptor;
 
 public interface IModelRegistrar {

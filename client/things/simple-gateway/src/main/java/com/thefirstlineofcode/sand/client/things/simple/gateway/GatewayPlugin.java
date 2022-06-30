@@ -4,7 +4,7 @@ import java.util.Properties;
 
 import com.thefirstlineofcode.basalt.oxm.convention.NamingConventionParserFactory;
 import com.thefirstlineofcode.basalt.oxm.convention.NamingConventionTranslatorFactory;
-import com.thefirstlineofcode.basalt.protocol.core.IqProtocolChain;
+import com.thefirstlineofcode.basalt.xmpp.core.IqProtocolChain;
 import com.thefirstlineofcode.chalk.core.IChatSystem;
 import com.thefirstlineofcode.chalk.core.IPlugin;
 import com.thefirstlineofcode.sand.protocols.actuator.Execution;

@@ -22,10 +22,10 @@ import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.thefirstlineofcode.basalt.protocol.core.ProtocolException;
-import com.thefirstlineofcode.basalt.protocol.core.stanza.Iq;
-import com.thefirstlineofcode.basalt.protocol.core.stanza.error.StanzaError;
-import com.thefirstlineofcode.basalt.protocol.core.stanza.error.UndefinedCondition;
+import com.thefirstlineofcode.basalt.xmpp.core.ProtocolException;
+import com.thefirstlineofcode.basalt.xmpp.core.stanza.Iq;
+import com.thefirstlineofcode.basalt.xmpp.core.stanza.error.StanzaError;
+import com.thefirstlineofcode.basalt.xmpp.core.stanza.error.UndefinedCondition;
 import com.thefirstlineofcode.chalk.core.stream.StandardStreamConfig;
 import com.thefirstlineofcode.sand.client.actuator.ActuatorPlugin;
 import com.thefirstlineofcode.sand.client.core.ThingsUtils;

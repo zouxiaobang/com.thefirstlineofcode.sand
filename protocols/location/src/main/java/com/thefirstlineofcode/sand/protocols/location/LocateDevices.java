@@ -7,9 +7,9 @@ import com.thefirstlineofcode.basalt.oxm.convention.annotations.ProtocolObject;
 import com.thefirstlineofcode.basalt.oxm.convention.annotations.TextOnly;
 import com.thefirstlineofcode.basalt.oxm.convention.validation.annotations.Validate;
 import com.thefirstlineofcode.basalt.oxm.convention.validation.annotations.ValidationClass;
-import com.thefirstlineofcode.basalt.protocol.core.Protocol;
-import com.thefirstlineofcode.basalt.protocol.core.ProtocolException;
-import com.thefirstlineofcode.basalt.protocol.core.stanza.error.BadRequest;
+import com.thefirstlineofcode.basalt.xmpp.core.Protocol;
+import com.thefirstlineofcode.basalt.xmpp.core.ProtocolException;
+import com.thefirstlineofcode.basalt.xmpp.core.stanza.error.BadRequest;
 
 @ValidationClass
 @ProtocolObject(namespace = "urn:leps:iot:location", localName = "locate-devices")

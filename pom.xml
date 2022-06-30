@@ -179,6 +179,11 @@
 				<artifactId>basalt-oxm</artifactId>
 				<version>${basalt.version}</version>
 			</dependency>
+			<dependency>
+				<groupId>com.thefirstlineofcode.basalt.xeps</groupId>
+				<artifactId>basalt-xeps-ping</artifactId>
+				<version>${basalt.version}</version>
+			</dependency>
 			
 			<!-- chalk libraries -->
 			<dependency>

@@ -9,9 +9,9 @@ import java.util.StringTokenizer;
 import org.pf4j.Extension;
 
 import com.thefirstlineofcode.basalt.oxm.convention.PropertyDescriptor;
-import com.thefirstlineofcode.basalt.protocol.core.Protocol;
-import com.thefirstlineofcode.basalt.protocol.core.stanza.Iq;
-import com.thefirstlineofcode.basalt.protocol.core.stanza.error.StanzaError;
+import com.thefirstlineofcode.basalt.xmpp.core.Protocol;
+import com.thefirstlineofcode.basalt.xmpp.core.stanza.Iq;
+import com.thefirstlineofcode.basalt.xmpp.core.stanza.error.StanzaError;
 import com.thefirstlineofcode.granite.framework.core.annotations.BeanDependency;
 import com.thefirstlineofcode.granite.framework.core.annotations.Dependency;
 import com.thefirstlineofcode.granite.framework.core.auth.IAccountManager;

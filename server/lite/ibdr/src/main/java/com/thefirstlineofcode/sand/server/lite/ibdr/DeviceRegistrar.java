@@ -3,8 +3,8 @@ package com.thefirstlineofcode.sand.server.lite.ibdr;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.thefirstlineofcode.basalt.protocol.core.ProtocolException;
-import com.thefirstlineofcode.basalt.protocol.core.stanza.error.NotAcceptable;
+import com.thefirstlineofcode.basalt.xmpp.core.ProtocolException;
+import com.thefirstlineofcode.basalt.xmpp.core.stanza.error.NotAcceptable;
 import com.thefirstlineofcode.granite.framework.core.annotations.AppComponent;
 import com.thefirstlineofcode.granite.framework.core.annotations.BeanDependency;
 import com.thefirstlineofcode.sand.server.devices.DeviceRegistered;

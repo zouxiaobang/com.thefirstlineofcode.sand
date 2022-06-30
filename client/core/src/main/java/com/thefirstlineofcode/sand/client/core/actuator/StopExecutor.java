@@ -1,9 +1,9 @@
 package com.thefirstlineofcode.sand.client.core.actuator;
 
-import com.thefirstlineofcode.basalt.protocol.core.ProtocolException;
-import com.thefirstlineofcode.basalt.protocol.core.stanza.Iq;
-import com.thefirstlineofcode.basalt.protocol.core.stanza.error.StanzaError;
-import com.thefirstlineofcode.basalt.protocol.core.stanza.error.UndefinedCondition;
+import com.thefirstlineofcode.basalt.xmpp.core.ProtocolException;
+import com.thefirstlineofcode.basalt.xmpp.core.stanza.Iq;
+import com.thefirstlineofcode.basalt.xmpp.core.stanza.error.StanzaError;
+import com.thefirstlineofcode.basalt.xmpp.core.stanza.error.UndefinedCondition;
 import com.thefirstlineofcode.sand.client.core.IThing;
 import com.thefirstlineofcode.sand.client.core.ThingsUtils;
 import com.thefirstlineofcode.sand.protocols.actuator.ExecutionException;

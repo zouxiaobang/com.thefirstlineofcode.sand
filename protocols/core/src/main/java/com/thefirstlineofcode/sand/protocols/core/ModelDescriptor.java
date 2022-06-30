@@ -5,7 +5,7 @@ import java.util.Map;
 
 import javax.naming.OperationNotSupportedException;
 
-import com.thefirstlineofcode.basalt.protocol.core.Protocol;
+import com.thefirstlineofcode.basalt.xmpp.core.Protocol;
 
 public class ModelDescriptor {
 	private String name;

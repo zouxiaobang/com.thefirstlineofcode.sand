@@ -1,11 +1,12 @@
 package com.thefirstlineofcode.sand.demo.server;
 
-import com.thefirstlineofcode.basalt.protocol.core.JabberId;
-import com.thefirstlineofcode.basalt.protocol.core.ProtocolException;
-import com.thefirstlineofcode.basalt.protocol.core.stanza.Iq;
-import com.thefirstlineofcode.basalt.protocol.core.stanza.error.BadRequest;
-import com.thefirstlineofcode.basalt.protocol.core.stanza.error.NotAllowed;
-import com.thefirstlineofcode.basalt.protocol.core.stanza.error.NotAuthorized;
+import com.thefirstlineofcode.basalt.xeps.ping.Ping;
+import com.thefirstlineofcode.basalt.xmpp.core.JabberId;
+import com.thefirstlineofcode.basalt.xmpp.core.ProtocolException;
+import com.thefirstlineofcode.basalt.xmpp.core.stanza.Iq;
+import com.thefirstlineofcode.basalt.xmpp.core.stanza.error.BadRequest;
+import com.thefirstlineofcode.basalt.xmpp.core.stanza.error.NotAllowed;
+import com.thefirstlineofcode.basalt.xmpp.core.stanza.error.NotAuthorized;
 import com.thefirstlineofcode.granite.framework.core.annotations.BeanDependency;
 import com.thefirstlineofcode.granite.framework.core.auth.IAccountManager;
 import com.thefirstlineofcode.granite.framework.core.pipeline.stages.parsing.IPipelinePreprocessor;
@@ -46,11 +47,20 @@ public class AclPipelinePreprocessor implements IPipelinePreprocessor {
 			return afterParsingExecution(from, iq);
 		} else if (iq.getObject() instanceof LocateDevices) {
 			return afterParsingLocateDevices(from, iq, (LocateDevices)iq.getObject());
+		} else if (iq.getObject() instanceof Ping) {
+			return afterParsingPing(from, iq);
 		} else {
 			return object;
 		}
 		
 
+	}
+	
+	private Object afterParsingPing(JabberId from, Iq iq) {
+		if (iq.getType() == Iq.Type.RESULT)
+			return iq;
+		
+		return isOwnerOrController(from, iq.getTo()) ? iq : null;
 	}
 	
 	private Object afterParsingExecution(JabberId from, Iq iq) {

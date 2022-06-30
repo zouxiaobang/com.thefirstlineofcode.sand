@@ -3,7 +3,7 @@ package com.thefirstlineofcode.sand.demo.server;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.thefirstlineofcode.basalt.protocol.core.stanza.Iq;
+import com.thefirstlineofcode.basalt.xmpp.core.stanza.Iq;
 import com.thefirstlineofcode.granite.framework.core.annotations.BeanDependency;
 import com.thefirstlineofcode.granite.framework.core.pipeline.stages.processing.IProcessingContext;
 import com.thefirstlineofcode.granite.framework.core.pipeline.stages.processing.IXepProcessor;

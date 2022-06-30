@@ -1,9 +1,9 @@
 package com.thefirstlineofcode.sand.client.edge;
 
-import com.thefirstlineofcode.basalt.protocol.core.JabberId;
-import com.thefirstlineofcode.basalt.protocol.core.ProtocolException;
-import com.thefirstlineofcode.basalt.protocol.core.stanza.Iq;
-import com.thefirstlineofcode.basalt.protocol.core.stanza.Stanza;
+import com.thefirstlineofcode.basalt.xmpp.core.JabberId;
+import com.thefirstlineofcode.basalt.xmpp.core.ProtocolException;
+import com.thefirstlineofcode.basalt.xmpp.core.stanza.Iq;
+import com.thefirstlineofcode.basalt.xmpp.core.stanza.Stanza;
 import com.thefirstlineofcode.chalk.core.IChatClient;
 import com.thefirstlineofcode.sand.client.core.IThing;
 import com.thefirstlineofcode.sand.client.core.actuator.IExecutor;

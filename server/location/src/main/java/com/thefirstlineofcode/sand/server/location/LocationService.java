@@ -6,9 +6,9 @@ import java.util.List;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.thefirstlineofcode.basalt.protocol.core.ProtocolException;
-import com.thefirstlineofcode.basalt.protocol.core.stanza.error.BadRequest;
-import com.thefirstlineofcode.basalt.protocol.core.stanza.error.ItemNotFound;
+import com.thefirstlineofcode.basalt.xmpp.core.ProtocolException;
+import com.thefirstlineofcode.basalt.xmpp.core.stanza.error.BadRequest;
+import com.thefirstlineofcode.basalt.xmpp.core.stanza.error.ItemNotFound;
 import com.thefirstlineofcode.granite.framework.core.annotations.BeanDependency;
 import com.thefirstlineofcode.sand.protocols.location.DeviceLocation;
 import com.thefirstlineofcode.sand.server.concentrator.IConcentratorFactory;

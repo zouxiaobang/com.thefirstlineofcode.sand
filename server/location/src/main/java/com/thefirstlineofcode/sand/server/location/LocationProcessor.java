@@ -2,11 +2,11 @@ package com.thefirstlineofcode.sand.server.location;
 
 import java.util.List;
 
-import com.thefirstlineofcode.basalt.protocol.core.ProtocolException;
-import com.thefirstlineofcode.basalt.protocol.core.stanza.Iq;
-import com.thefirstlineofcode.basalt.protocol.core.stanza.error.BadRequest;
-import com.thefirstlineofcode.basalt.protocol.core.stanza.error.ServiceUnavailable;
-import com.thefirstlineofcode.basalt.protocol.core.stanza.error.StanzaError;
+import com.thefirstlineofcode.basalt.xmpp.core.ProtocolException;
+import com.thefirstlineofcode.basalt.xmpp.core.stanza.Iq;
+import com.thefirstlineofcode.basalt.xmpp.core.stanza.error.BadRequest;
+import com.thefirstlineofcode.basalt.xmpp.core.stanza.error.ServiceUnavailable;
+import com.thefirstlineofcode.basalt.xmpp.core.stanza.error.StanzaError;
 import com.thefirstlineofcode.granite.framework.core.annotations.BeanDependency;
 import com.thefirstlineofcode.granite.framework.core.config.IConfiguration;
 import com.thefirstlineofcode.granite.framework.core.config.IConfigurationAware;

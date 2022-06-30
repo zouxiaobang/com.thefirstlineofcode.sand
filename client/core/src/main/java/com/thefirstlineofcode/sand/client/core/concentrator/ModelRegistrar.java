@@ -3,7 +3,7 @@ package com.thefirstlineofcode.sand.client.core.concentrator;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.thefirstlineofcode.basalt.protocol.core.Protocol;
+import com.thefirstlineofcode.basalt.xmpp.core.Protocol;
 import com.thefirstlineofcode.sand.protocols.core.ModelDescriptor;
 
 public class ModelRegistrar implements IModelRegistrar {

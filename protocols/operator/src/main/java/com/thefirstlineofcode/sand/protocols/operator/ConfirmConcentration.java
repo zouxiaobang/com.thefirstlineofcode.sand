@@ -1,7 +1,7 @@
 package com.thefirstlineofcode.sand.protocols.operator;
 
 import com.thefirstlineofcode.basalt.oxm.convention.annotations.ProtocolObject;
-import com.thefirstlineofcode.basalt.protocol.core.Protocol;
+import com.thefirstlineofcode.basalt.xmpp.core.Protocol;
 
 @ProtocolObject(namespace = "urn:leps:iot:operator", localName = "confirm-concentration")
 public class ConfirmConcentration {

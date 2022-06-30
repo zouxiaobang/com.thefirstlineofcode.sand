@@ -3,10 +3,10 @@ package com.thefirstlineofcode.sand.server.concentrator;
 import java.util.Calendar;
 import java.util.Date;
 
-import com.thefirstlineofcode.basalt.protocol.core.ProtocolException;
-import com.thefirstlineofcode.basalt.protocol.core.stanza.error.BadRequest;
-import com.thefirstlineofcode.basalt.protocol.core.stanza.error.ItemNotFound;
-import com.thefirstlineofcode.basalt.protocol.core.stanza.error.NotAcceptable;
+import com.thefirstlineofcode.basalt.xmpp.core.ProtocolException;
+import com.thefirstlineofcode.basalt.xmpp.core.stanza.error.BadRequest;
+import com.thefirstlineofcode.basalt.xmpp.core.stanza.error.ItemNotFound;
+import com.thefirstlineofcode.basalt.xmpp.core.stanza.error.NotAcceptable;
 import com.thefirstlineofcode.granite.framework.core.annotations.AppComponent;
 import com.thefirstlineofcode.granite.framework.core.annotations.BeanDependency;
 import com.thefirstlineofcode.granite.framework.core.auth.IAccountManager;

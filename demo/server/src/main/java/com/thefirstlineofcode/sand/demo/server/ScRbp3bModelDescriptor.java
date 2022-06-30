@@ -3,7 +3,7 @@ package com.thefirstlineofcode.sand.demo.server;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.thefirstlineofcode.basalt.protocol.core.Protocol;
+import com.thefirstlineofcode.basalt.xmpp.core.Protocol;
 import com.thefirstlineofcode.sand.protocols.actuator.actions.Restart;
 import com.thefirstlineofcode.sand.protocols.actuator.actions.ShutdownSystem;
 import com.thefirstlineofcode.sand.protocols.actuator.actions.Stop;

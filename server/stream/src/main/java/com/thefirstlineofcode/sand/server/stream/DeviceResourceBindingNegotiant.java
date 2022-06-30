@@ -1,13 +1,13 @@
 package com.thefirstlineofcode.sand.server.stream;
 
-import com.thefirstlineofcode.basalt.protocol.core.JabberId;
-import com.thefirstlineofcode.basalt.protocol.core.ProtocolException;
-import com.thefirstlineofcode.basalt.protocol.core.stanza.Iq;
-import com.thefirstlineofcode.basalt.protocol.core.stanza.error.NotAuthorized;
-import com.thefirstlineofcode.basalt.protocol.core.stream.Bind;
-import com.thefirstlineofcode.basalt.protocol.core.stream.Stream;
-import com.thefirstlineofcode.basalt.protocol.core.stream.error.Conflict;
-import com.thefirstlineofcode.basalt.protocol.core.stream.error.InternalServerError;
+import com.thefirstlineofcode.basalt.xmpp.core.JabberId;
+import com.thefirstlineofcode.basalt.xmpp.core.ProtocolException;
+import com.thefirstlineofcode.basalt.xmpp.core.stanza.Iq;
+import com.thefirstlineofcode.basalt.xmpp.core.stanza.error.NotAuthorized;
+import com.thefirstlineofcode.basalt.xmpp.core.stream.Bind;
+import com.thefirstlineofcode.basalt.xmpp.core.stream.Stream;
+import com.thefirstlineofcode.basalt.xmpp.core.stream.error.Conflict;
+import com.thefirstlineofcode.basalt.xmpp.core.stream.error.InternalServerError;
 import com.thefirstlineofcode.granite.framework.core.connection.IClientConnectionContext;
 import com.thefirstlineofcode.granite.framework.core.pipeline.IMessage;
 import com.thefirstlineofcode.granite.framework.core.session.ISessionManager;

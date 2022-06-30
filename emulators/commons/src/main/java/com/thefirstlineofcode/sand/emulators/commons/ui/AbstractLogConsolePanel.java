@@ -18,7 +18,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 
 import com.thefirstlineofcode.basalt.oxm.binary.BinaryUtils;
-import com.thefirstlineofcode.basalt.protocol.core.Protocol;
+import com.thefirstlineofcode.basalt.xmpp.core.Protocol;
 import com.thefirstlineofcode.sand.client.core.obx.IObxFactory;
 import com.thefirstlineofcode.sand.emulators.commons.ILogger;
 import com.thefirstlineofcode.sand.protocols.lora.dac.Allocated;

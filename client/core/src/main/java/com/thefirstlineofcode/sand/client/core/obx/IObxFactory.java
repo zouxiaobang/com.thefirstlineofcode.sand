@@ -1,7 +1,7 @@
 package com.thefirstlineofcode.sand.client.core.obx;
 
 import com.thefirstlineofcode.basalt.oxm.binary.IBinaryXmppProtocolConverter;
-import com.thefirstlineofcode.basalt.protocol.core.Protocol;
+import com.thefirstlineofcode.basalt.xmpp.core.Protocol;
 
 public interface IObxFactory {
 	IBinaryXmppProtocolConverter getBinaryXmppProtocolConverter();

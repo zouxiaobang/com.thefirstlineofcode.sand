@@ -2,7 +2,7 @@ package com.thefirstlineofcode.sand.demo.server;
 
 import org.pf4j.Extension;
 
-import com.thefirstlineofcode.basalt.protocol.core.IqProtocolChain;
+import com.thefirstlineofcode.basalt.xmpp.core.IqProtocolChain;
 import com.thefirstlineofcode.granite.framework.core.pipeline.stages.IPipelineExtendersConfigurator;
 import com.thefirstlineofcode.granite.framework.core.pipeline.stages.PipelineExtendersConfigurator;
 import com.thefirstlineofcode.sand.demo.protocols.AccessControlList;

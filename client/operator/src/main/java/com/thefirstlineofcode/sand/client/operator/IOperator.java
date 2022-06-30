@@ -2,7 +2,7 @@ package com.thefirstlineofcode.sand.client.operator;
 
 import java.util.List;
 
-import com.thefirstlineofcode.basalt.protocol.core.stanza.error.StanzaError;
+import com.thefirstlineofcode.basalt.xmpp.core.stanza.error.StanzaError;
 
 public interface IOperator {
 	public enum AuthorizationErrorReason {

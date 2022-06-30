@@ -12,11 +12,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.thefirstlineofcode.basalt.protocol.core.JabberId;
-import com.thefirstlineofcode.basalt.protocol.core.Protocol;
-import com.thefirstlineofcode.basalt.protocol.core.ProtocolException;
-import com.thefirstlineofcode.basalt.protocol.core.stanza.error.Conflict;
-import com.thefirstlineofcode.basalt.protocol.core.stanza.error.NotAuthorized;
+import com.thefirstlineofcode.basalt.xmpp.core.JabberId;
+import com.thefirstlineofcode.basalt.xmpp.core.Protocol;
+import com.thefirstlineofcode.basalt.xmpp.core.ProtocolException;
+import com.thefirstlineofcode.basalt.xmpp.core.stanza.error.Conflict;
+import com.thefirstlineofcode.basalt.xmpp.core.stanza.error.NotAuthorized;
 import com.thefirstlineofcode.granite.framework.core.adf.IApplicationComponentService;
 import com.thefirstlineofcode.granite.framework.core.adf.IApplicationComponentServiceAware;
 import com.thefirstlineofcode.granite.framework.core.repository.IInitializable;

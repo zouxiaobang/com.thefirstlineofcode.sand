@@ -8,7 +8,7 @@ import com.thefirstlineofcode.basalt.oxm.translating.IProtocolWriter;
 import com.thefirstlineofcode.basalt.oxm.translating.ITranslatingFactory;
 import com.thefirstlineofcode.basalt.oxm.translating.ITranslator;
 import com.thefirstlineofcode.basalt.oxm.translating.ITranslatorFactory;
-import com.thefirstlineofcode.basalt.protocol.core.Protocol;
+import com.thefirstlineofcode.basalt.xmpp.core.Protocol;
 import com.thefirstlineofcode.sand.protocols.actuator.LanExecution;
 import com.thefirstlineofcode.sand.protocols.core.ITraceId;
 

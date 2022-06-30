@@ -2,8 +2,8 @@ package com.thefirstlineofcode.sand.client.core.actuator;
 
 import java.util.Map;
 
-import com.thefirstlineofcode.basalt.protocol.core.IError;
-import com.thefirstlineofcode.basalt.protocol.core.LangText;
+import com.thefirstlineofcode.basalt.xmpp.core.IError;
+import com.thefirstlineofcode.basalt.xmpp.core.LangText;
 import com.thefirstlineofcode.sand.client.core.ThingsUtils;
 
 public class ErrorCodeToXmppErrorsConverter implements ILanExecutionErrorProcessor {

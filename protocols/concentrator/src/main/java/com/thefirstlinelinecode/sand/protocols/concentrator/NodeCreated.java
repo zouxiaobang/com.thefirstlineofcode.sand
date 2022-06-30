@@ -2,7 +2,7 @@ package com.thefirstlinelinecode.sand.protocols.concentrator;
 
 import com.thefirstlineofcode.basalt.oxm.convention.annotations.ProtocolObject;
 import com.thefirstlineofcode.basalt.oxm.convention.validation.annotations.NotNull;
-import com.thefirstlineofcode.basalt.protocol.core.Protocol;
+import com.thefirstlineofcode.basalt.xmpp.core.Protocol;
 
 @ProtocolObject(namespace="urn:leps:iot:concentrator", localName="node-created")
 public class NodeCreated {

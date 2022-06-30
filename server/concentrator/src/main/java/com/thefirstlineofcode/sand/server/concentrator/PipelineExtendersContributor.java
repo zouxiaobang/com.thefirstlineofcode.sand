@@ -4,7 +4,7 @@ import org.pf4j.Extension;
 
 import com.thefirstlinelinecode.sand.protocols.concentrator.CreateNode;
 import com.thefirstlinelinecode.sand.protocols.concentrator.NodeCreated;
-import com.thefirstlineofcode.basalt.protocol.core.IqProtocolChain;
+import com.thefirstlineofcode.basalt.xmpp.core.IqProtocolChain;
 import com.thefirstlineofcode.granite.framework.core.pipeline.stages.IPipelineExtendersConfigurator;
 import com.thefirstlineofcode.granite.framework.core.pipeline.stages.PipelineExtendersConfigurator;
 

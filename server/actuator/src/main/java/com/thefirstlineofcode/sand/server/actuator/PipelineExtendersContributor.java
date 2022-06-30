@@ -4,8 +4,8 @@ import java.util.Map.Entry;
 
 import org.pf4j.Extension;
 
-import com.thefirstlineofcode.basalt.protocol.core.IqProtocolChain;
-import com.thefirstlineofcode.basalt.protocol.core.Protocol;
+import com.thefirstlineofcode.basalt.xmpp.core.IqProtocolChain;
+import com.thefirstlineofcode.basalt.xmpp.core.Protocol;
 import com.thefirstlineofcode.granite.framework.core.annotations.BeanDependency;
 import com.thefirstlineofcode.granite.framework.core.pipeline.stages.IPipelineExtendersConfigurator;
 import com.thefirstlineofcode.granite.framework.core.pipeline.stages.PipelineExtendersConfigurator;
