@@ -190,8 +190,8 @@ public abstract class AbstractEdgeThing extends AbstractDevice implements IEdgeT
 		private void printConsoleHelp() {
 			System.out.println("Commands:");
 			System.out.println("help        Display help information.");
-			System.out.println("restart     Restart application.");
-			System.out.println("exit        Exit applicatinon.");
+			System.out.println("restart     Restart program.");
+			System.out.println("exit        Exit program.");
 			System.out.print("$");
 		}
 		
@@ -504,6 +504,8 @@ public abstract class AbstractEdgeThing extends AbstractDevice implements IEdgeT
 	
 	protected void failedToAuth(AuthFailureException e) {
 		logger.error("The thing failed to auth to server.", e);
+		
+		throw new RuntimeException("Failed to auth to server.", e);
 	}
 	
 	protected void disconnected() {

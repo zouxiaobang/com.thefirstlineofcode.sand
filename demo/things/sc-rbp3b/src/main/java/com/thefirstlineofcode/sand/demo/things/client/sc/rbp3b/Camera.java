@@ -52,7 +52,8 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 
-public class Camera extends AbstractEdgeThing implements ICamera {
+public class Camera extends AbstractEdgeThing implements ICamera, CameraRtcSourcePeerClient.Listener,
+			ICameraRtcSourcePeer.Listener {
 	public static final String THING_TYPE = "Simple Camera";
 	public static final String THING_MODEL = "SC-RBP3B";
 	public static final String SOFTWARE_VERSION = "1.0.0-ALPHA1";
@@ -65,6 +66,8 @@ public class Camera extends AbstractEdgeThing implements ICamera {
 	private IActuator actuator;
 	private String uploadUrl;
 	private String downloadUrl;
+	
+	private ICameraRtcSourcePeer cameraRtcSourcePeer;
 	
 	public Camera() {
 		this(null);
@@ -99,10 +102,13 @@ public class Camera extends AbstractEdgeThing implements ICamera {
 		
 		try {
 			super.start();
+			
+			CameraRtcSourcePeerClient cameraRtcSourcePeerClient = new CameraRtcSourcePeerClient(this);
+			cameraRtcSourcePeer = cameraRtcSourcePeerClient.connect(this);
 		} catch (Exception e) {
 			logger.error("Some thing is wrong. The program can't run correctly.", e);
 			
-			throw e;
+			throw new RuntimeException("Some thing is wrong. The program can't run correctly.", e);
 		}
 	}
 	
@@ -355,12 +361,12 @@ public class Camera extends AbstractEdgeThing implements ICamera {
 	
 	private String[] getTakePhotoCmdArray(String photoPath, int prepareTime) {
 		List<String> cmdList = new ArrayList<>();
-		cmdList.add("raspistill");
+		cmdList.add("libcamera-jpeg");
 		cmdList.add("-t");
 		cmdList.add(Integer.toString(prepareTime));
-		cmdList.add("-w");
+		cmdList.add("--width");
 		cmdList.add("800");
-		cmdList.add("-h");
+		cmdList.add("--height");
 		cmdList.add("600");
 		cmdList.add("-q");
 		cmdList.add("90");
@@ -382,6 +388,29 @@ public class Camera extends AbstractEdgeThing implements ICamera {
 				calendar.get(Calendar.MILLISECOND));
 		
 		return fileName;
+	}
+	
+	@Override
+	public void stop() {
+		if (cameraRtcSourcePeer != null && cameraRtcSourcePeer.isConnected())
+			cameraRtcSourcePeer.close();
+		
+		super.stop();
+	}
+
+	@Override
+	public void processException(CameraRtcSourcePeerException e) {
+		logger.error("Camera RTC source peer excption occurred.", e);
+		
+		cameraRtcSourcePeer.close();
+		
+		try {
+			logger.info("Try to reconnect to camera RTC source peer.");
+			cameraRtcSourcePeer = new CameraRtcSourcePeerClient(this).connect(this);
+		} catch (IOException ioe) {
+			logger.error("Can't reconnect to camera RTC source peer. The device will stop.", ioe);
+			stop();
+		}
 	}
 	
 }

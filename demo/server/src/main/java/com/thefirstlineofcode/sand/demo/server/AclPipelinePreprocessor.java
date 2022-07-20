@@ -32,6 +32,7 @@ public class AclPipelinePreprocessor implements IPipelinePreprocessor {
 	
 	@BeanDependency
 	private IAclService aclService;
+	
 	@Override
 	public String beforeParsing(JabberId from, String message) {
 		return message;
