@@ -12,7 +12,7 @@ import com.thefirstlineofcode.granite.framework.core.console.IConsoleSystem;
 
 @Extension
 public class SandDemoCommandsProcessor extends AbstractCommandsProcessor implements IDataObjectFactoryAware {
-	private static final String USER_NAME_KANG = "kang";
+	private static final String USER_NAME_KYLE = "kyle";
 	private static final String USER_NAME_DONGGER = "dongger";
 	private static final String COMMAND_GROUP_SAND_DEMO = "sand-demo";
 	private static final String COMMANDS_GROUP_INTRODUCTION = "Some utils for sand demo.";
@@ -30,13 +30,13 @@ public class SandDemoCommandsProcessor extends AbstractCommandsProcessor impleme
 	
 	void processInitUsers(IConsoleSystem consoleSystem) {
 		if (accountManager.exists(USER_NAME_DONGGER) &&
-				accountManager.exists(USER_NAME_KANG)) {
+				accountManager.exists(USER_NAME_KYLE)) {
 			consoleSystem.printMessageLine("The predefined users for sand demo has already existed in system. Ignore to execute the command.");
 			return;
 		}
 		
 		accountManager.add(createAccount(USER_NAME_DONGGER));
-		accountManager.add(createAccount(USER_NAME_KANG));
+		accountManager.add(createAccount(USER_NAME_KYLE));
 		
 		consoleSystem.printMessageLine("The predefined users for sand demo has installed.");
 	}
