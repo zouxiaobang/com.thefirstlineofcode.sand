@@ -11,7 +11,7 @@ using namespace std;
 
 class ICameraRtcSourcePeer {
 public:
-	virtual char *getVideoCaptureDeviceName() = 0;
+	virtual const char *getVideoCaptureDeviceName() = 0;
 	virtual void open() = 0;
 	virtual void close() = 0;
 	virtual rtc::scoped_refptr<webrtc::PeerConnectionFactoryInterface> getPeerConnectionFactory() = 0;
@@ -24,7 +24,7 @@ public:
  	void open();
 	void close();
 	rtc::scoped_refptr<webrtc::PeerConnectionFactoryInterface> getPeerConnectionFactory();
-	char *getVideoCaptureDeviceName();
+	const char *getVideoCaptureDeviceName();
 
 	~CameraRtcSourcePeer();
 

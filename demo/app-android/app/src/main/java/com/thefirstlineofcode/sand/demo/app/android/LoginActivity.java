@@ -14,7 +14,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 
-import com.thefirstlineofcode.basalt.protocol.core.IError;
+import com.thefirstlineofcode.basalt.xmpp.core.IError;
 import com.thefirstlineofcode.chalk.core.AuthFailureException;
 import com.thefirstlineofcode.chalk.core.IChatClient;
 import com.thefirstlineofcode.chalk.core.stream.NegotiationException;
@@ -32,13 +32,14 @@ public class LoginActivity extends AppCompatActivity {
 		setContentView(R.layout.activity_login);
 
 		UsernamePasswordToken token = Toolkits.getUsernamePasswordToken(this);
-		if (token == null)
-			return;
-
+		
 		EditText etUserName = findViewById(R.id.et_user_name);
-		etUserName.setText(token.getUsername());
+		if (token != null)
+			etUserName.setText(token.getUsername());
+		
 		EditText etPassword = findViewById(R.id.et_password);
-		etPassword.setText(new String(token.getPassword()));
+		if (token != null)
+			etPassword.setText(new String(token.getPassword()));
 		
 		Button btLogin = findViewById(R.id.bt_login);
 		onClickListener = new View.OnClickListener() {
@@ -78,6 +79,9 @@ public class LoginActivity extends AppCompatActivity {
 			}
 		};
 		btLogin.setOnClickListener(onClickListener);
+		
+		if (token == null)
+			return;
 		
 		Intent intent = getIntent();
 		if (intent != null && intent.getBooleanExtra(getString(R.string.auto_login), true))

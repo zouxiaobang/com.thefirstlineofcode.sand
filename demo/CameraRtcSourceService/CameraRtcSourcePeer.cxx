@@ -59,18 +59,21 @@ void CameraRtcSourcePeer::createPeerConnectionFactory() {
 	);
 }
 
-char *CameraRtcSourcePeer::getVideoCaptureDeviceName() {
+const char * CameraRtcSourcePeer::getVideoCaptureDeviceName() {
 	if (videoCaptureDeviceName)
 		return videoCaptureDeviceName;
 
-	webrtc::VideoCaptureModule::DeviceInfo* deviceInfo = webrtc::VideoCaptureFactory::CreateDeviceInfo();
+	webrtc::VideoCaptureModule::DeviceInfo *deviceInfo = webrtc::VideoCaptureFactory::CreateDeviceInfo();
 	if (deviceInfo && deviceInfo->NumberOfDevices() > 0) {
-		videoCaptureDeviceName = (char*)malloc(sizeof(char) * 256);
+		videoCaptureDeviceName = (char *)malloc(sizeof(char) * 256);
 		deviceInfo->GetDeviceName(0, videoCaptureDeviceName, 256, 0, 0);
 	}
 
 	if (deviceInfo)
 		delete deviceInfo;
+
+
+	return videoCaptureDeviceName;
 }
 
 CameraRtcSourcePeer::~CameraRtcSourcePeer() {

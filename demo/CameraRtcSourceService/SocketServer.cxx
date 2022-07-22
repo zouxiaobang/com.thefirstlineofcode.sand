@@ -44,7 +44,32 @@ void SocketServer::start() {
 }
 
 void SocketServer::processClientSocket(sockpp::tcp_socket socket) {
+	ssize_t n;
+	char buf[1024];
 
+	bool stop = false;
+	while ((n = socket.read(buf, sizeof(buf))) > 0) {
+		string message(buf, n);
+		processClientMessage(socket, message, &stop);
+		if (stop)
+			break;
+	}
+
+	cout << "Connection closed from " << socket.peer_address() << endl;
+}
+
+void SocketServer::processClientMessage(sockpp::tcp_socket &socket, string &message, bool *stop) {
+	cout << "Received client message: " << message << endl;
+
+	if (message.compare("exit") == 0) {
+		cout << "Exit command received. The program will exit." << endl;
+		socket.close();
+		*stop = true;
+	}
+
+	if (socket.write_n(message.c_str(), message.size()) == -1) {
+		cout << "Failed to write message to client. Message is: " << message << endl;
+	}
 }
 
 void SocketServer::stop() {

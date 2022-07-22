@@ -22,7 +22,7 @@
 		<module>server</module>
 		<module>server-lite</module>
 		<module>server-console</module>
-		<module>server-fileupload</module>
+		<module>server-web</module>
 		<module>things</module>
 	</modules>
 

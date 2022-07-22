@@ -8,4 +8,9 @@ public interface ICameraRtcSourcePeer {
 	void close();
 	boolean isConnected();
 	boolean isClosed();
+	
+	void setListener(Listener lister);
+	void removeListener();
+	
+	void test();
 }

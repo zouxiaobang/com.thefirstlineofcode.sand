@@ -14,7 +14,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 
 import com.thefirstlineofcode.sand.demo.app.android.R;
-import com.thefirstlineofcode.basalt.protocol.core.IError;
+import com.thefirstlineofcode.basalt.xmpp.core.IError;
 import com.thefirstlineofcode.basalt.xeps.ibr.IqRegister;
 import com.thefirstlineofcode.basalt.xeps.ibr.RegistrationField;
 import com.thefirstlineofcode.basalt.xeps.ibr.RegistrationForm;

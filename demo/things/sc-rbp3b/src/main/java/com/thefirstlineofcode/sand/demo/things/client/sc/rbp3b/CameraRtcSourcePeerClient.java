@@ -6,17 +6,22 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.net.SocketTimeoutException;
+import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
 
 public class CameraRtcSourcePeerClient {
+	private static final int DEFAULT_BLOCKING_TIMEOUT = 128;
+	
 	private CameraRtcSourcePeerClient.Listener listener;
 	
-	private Thread receivingThread;
 	private Thread sendingThread;
+	private Thread receivingThread;
+	private Thread processingThread;
 	
-	private BlockingQueue<byte[]> sendingQueue;
-	private BlockingQueue<byte[]> receivingQueue;
+	private BlockingQueue<String> sendingQueue;
+	private BlockingQueue<String> receivingQueue;
 	
 	private volatile boolean stopThreadsFlag;
 	
@@ -24,11 +29,14 @@ public class CameraRtcSourcePeerClient {
 	
 	private ICameraRtcSourcePeer cameraRtcSourcePeer;
 	
-	public CameraRtcSourcePeerClient(CameraRtcSourcePeerClient.Listener listener) {
+	public CameraRtcSourcePeerClient(Listener listener) {
 		this.listener = listener;
+		
+		sendingQueue = new ArrayBlockingQueue<>(16);
+		receivingQueue = new ArrayBlockingQueue<>(16);
 	}
 	
-	public ICameraRtcSourcePeer connect(ICameraRtcSourcePeer.Listener listener) throws IOException {
+	public ICameraRtcSourcePeer connect() throws IOException {
 		InetSocketAddress address = new InetSocketAddress("localhost", 9000);
 		if (address.isUnresolved()) {
 			throw new RuntimeException("Inet socket address is unresolved.");
@@ -41,7 +49,7 @@ public class CameraRtcSourcePeerClient {
 		socket.connect(address, 4000);
 		startThreads();
 		
-		return new CameraRtcSourcePeer(this, listener);
+		return new CameraRtcSourcePeer(this);
 	}
 	
 	protected Socket createSocket() throws IOException {
@@ -60,25 +68,60 @@ public class CameraRtcSourcePeerClient {
 		
 		receivingThread = new ReceivingThread();
 		receivingThread.start();
+		
+		processingThread = new ProcessingThread();
+		processingThread.start();
 	}
 	
 	public void close() {
-		if (socket == null)
-			return;
+		stopThreads();
 		
-		write("exit");
-		
-		if (socket.isConnected())
+		if (socket != null && socket.isConnected()) {
+			send("exit");
+			
 			try {
-				socket.close();
-			} catch (IOException e) {}
+				Thread.sleep(500);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+			if (socket != null && socket.isConnected()) {
+				try {
+					socket.close();
+				} catch (IOException e) {}
+			}
+		}
 	}
 	
-	public void write(String message) {
-		try {
-			sendingQueue.put(message.getBytes("UTF8"));
-		} catch (Exception e) {
-			listener.processException(new CameraRtcSourcePeerException("Failed to send message.", e));
+	private void stopThreads() {
+		stopThreadsFlag = true;
+		
+		if (processingThread != null) {
+			try {
+				processingThread.join(DEFAULT_BLOCKING_TIMEOUT * 4, 0);
+			} catch (InterruptedException e) {
+				// ignore
+			}
+			processingThread = null;
+		}
+		
+		if (sendingThread != null) {
+			try {
+				sendingThread.join(DEFAULT_BLOCKING_TIMEOUT * 4, 0);
+			} catch (InterruptedException e) {
+				// ignore
+			}
+			sendingThread = null;
+		}
+		
+		if (receivingThread != null) {
+			try {
+				receivingThread.join(DEFAULT_BLOCKING_TIMEOUT * 4, 0);
+			} catch (InterruptedException e) {
+				// ignore
+			}
+			receivingThread = null;
 		}
 	}
 	
@@ -118,18 +161,59 @@ public class CameraRtcSourcePeerClient {
 							throw new RuntimeException("Unexpected exception.", e);
 						}
 					} else {
-						processSourcePeerMessage(new String(buf, 0, num));
+						receivingQueue.put((new String(buf, 0, num)));
 					}
+				} catch (SocketTimeoutException e) {
+					if (stopThreadsFlag)
+						break;
 				} catch (IOException e) {
 					listener.processException(new CameraRtcSourcePeerException("Failed to read socket.", e));
 					break;
+				} catch (InterruptedException e) {
+					listener.processException(new CameraRtcSourcePeerException("Failed to put message to receiving queue.", e));
 				}
 			}
 		}
 	}
 	
-	private void processSourcePeerMessage(String message) {
+	private void received(String message) {
 		// TODO
+		System.out.println("Received message: " + message);
+	}
+	
+	public void send(String message) {
+		try {
+			sendingQueue.put(message);
+		} catch (InterruptedException e) {
+			listener.processException(new CameraRtcSourcePeerException("Failed to put message to sending queue.", e));
+		}
+	}
+	
+	private class ProcessingThread extends Thread {
+		public ProcessingThread() {
+			super("Camera RTC Source Peer Processing Thread");
+		}
+		
+		public void run() {
+			while (true) {
+				try {
+					String message = null;
+					message = receivingQueue.poll(DEFAULT_BLOCKING_TIMEOUT, TimeUnit.MILLISECONDS);
+					
+					if (stopThreadsFlag) {
+						break;
+					}
+					
+					if (message == null)
+						continue;
+					
+					received(message);
+				} catch (InterruptedException e) {
+					break;
+				}
+				
+			}
+		}
 	}
 	
 	private class SendingThread extends Thread {
@@ -148,19 +232,18 @@ public class CameraRtcSourcePeerClient {
 				return;
 			}
 			
-			byte[] bytes = null;
 			while (true) {
 				try {
-					bytes = sendingQueue.poll(128, TimeUnit.MILLISECONDS);
+					String message = sendingQueue.poll(DEFAULT_BLOCKING_TIMEOUT, TimeUnit.MILLISECONDS);
 					
 					if (stopThreadsFlag) {
 						break;
 					}
 					
-					if (bytes == null)
+					if (message == null)
 						continue;
 					
-					output.write(bytes);
+					output.write(message.getBytes("UTF-8"));
 					output.flush();
 				} catch (InterruptedException e) {
 					break;

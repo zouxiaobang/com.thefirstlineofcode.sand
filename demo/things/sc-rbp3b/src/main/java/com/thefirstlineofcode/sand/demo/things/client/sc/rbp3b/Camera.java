@@ -75,7 +75,7 @@ public class Camera extends AbstractEdgeThing implements ICamera, CameraRtcSourc
 	
 	public Camera(StandardStreamConfig streamConfig) {
 		super(THING_TYPE, THING_MODEL, streamConfig);
-		uploadUrl = String.format("http://%s:8080", this.streamConfig.getHost());
+		uploadUrl = String.format("http://%s:8080/file-upload", this.streamConfig.getHost());
 		downloadUrl = String.format("http://%s:8080/files/", this.streamConfig.getHost());
 	}
 	
@@ -104,7 +104,12 @@ public class Camera extends AbstractEdgeThing implements ICamera, CameraRtcSourc
 			super.start();
 			
 			CameraRtcSourcePeerClient cameraRtcSourcePeerClient = new CameraRtcSourcePeerClient(this);
-			cameraRtcSourcePeer = cameraRtcSourcePeerClient.connect(this);
+			cameraRtcSourcePeer = cameraRtcSourcePeerClient.connect();
+			cameraRtcSourcePeer.setListener(this);
+			
+			cameraRtcSourcePeer.test();
+			
+			stop();
 		} catch (Exception e) {
 			logger.error("Some thing is wrong. The program can't run correctly.", e);
 			
@@ -402,15 +407,18 @@ public class Camera extends AbstractEdgeThing implements ICamera, CameraRtcSourc
 	public void processException(CameraRtcSourcePeerException e) {
 		logger.error("Camera RTC source peer excption occurred.", e);
 		
-		cameraRtcSourcePeer.close();
+		stop();
+		
+		/*cameraRtcSourcePeer.close();
 		
 		try {
 			logger.info("Try to reconnect to camera RTC source peer.");
-			cameraRtcSourcePeer = new CameraRtcSourcePeerClient(this).connect(this);
+			cameraRtcSourcePeer = new CameraRtcSourcePeerClient(this).connect();
+			cameraRtcSourcePeer.setListener(this);
 		} catch (IOException ioe) {
 			logger.error("Can't reconnect to camera RTC source peer. The device will stop.", ioe);
 			stop();
-		}
+		} */
 	}
 	
 }

@@ -3,9 +3,12 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS"/>
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-    <uses-sdk tools:overrideLibrary="com.google.zxing.client.android" />
+    <uses-sdk android:minSdkVersion="28" android:targetSdkVersion="30" tools:overrideLibrary="com.google.zxing.client.android" />
 
     <application
         android:name=".MainApplication"
@@ -28,6 +31,7 @@
         </activity>
         <activity android:name=".RegisterActivity" />
         <activity android:name=".ConfigureStreamActivity" />
+        <activity android:name=".LiveStreamingActivity" />
         <activity android:name="com.journeyapps.barcodescanner.CaptureActivity"
             android:screenOrientation="fullSensor" tools:replace="screenOrientation" />
         <service android:name=".AppExitMonitor"

@@ -17,6 +17,9 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.webkit.JavascriptInterface;
+import android.webkit.WebSettings;
+import android.webkit.WebView;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
@@ -29,10 +32,10 @@ import androidx.appcompat.widget.Toolbar;
 
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
-import com.thefirstlineofcode.basalt.protocol.core.IError;
-import com.thefirstlineofcode.basalt.protocol.core.JabberId;
-import com.thefirstlineofcode.basalt.protocol.core.stanza.error.StanzaError;
-import com.thefirstlineofcode.basalt.protocol.core.stream.error.StreamError;
+import com.thefirstlineofcode.basalt.xmpp.core.IError;
+import com.thefirstlineofcode.basalt.xmpp.core.JabberId;
+import com.thefirstlineofcode.basalt.xmpp.core.stanza.error.StanzaError;
+import com.thefirstlineofcode.basalt.xmpp.core.stream.error.StreamError;
 import com.thefirstlineofcode.chalk.core.IChatClient;
 import com.thefirstlineofcode.chalk.core.IErrorListener;
 import com.thefirstlineofcode.sand.client.operator.IOperator;
@@ -43,6 +46,7 @@ import com.thefirstlineofcode.sand.demo.protocols.AuthorizedDevices;
 import com.thefirstlineofcode.sand.protocols.actuator.actions.Restart;
 import com.thefirstlineofcode.sand.protocols.actuator.actions.ShutdownSystem;
 import com.thefirstlineofcode.sand.protocols.actuator.actions.Stop;
+import com.thefirstlineofcode.sand.protocols.things.simple.camera.OpenLiveStreaming;
 import com.thefirstlineofcode.sand.protocols.things.simple.camera.TakePhoto;
 import com.thefirstlineofcode.sand.protocols.things.simple.light.Flash;
 
@@ -441,6 +445,9 @@ public class MainActivity extends AppCompatActivity implements IOperator.Listene
 	
 	public void openLiveSteaming(JabberId target) {
 		logger.info("Open live streaming of camera {}.", target);
+		
+		Intent intent = new Intent(this, LiveStreamingActivity.class);
+		startActivity(intent);
 	}
 	
 	public void stop(JabberId target) {

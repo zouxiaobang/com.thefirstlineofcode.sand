@@ -17,6 +17,7 @@ public:
 
 private:
 	void processClientSocket(sockpp::tcp_socket socket);
+	void processClientMessage(sockpp::tcp_socket &socket, string &message, bool *stop);
 
 private:
 	unique_ptr<CameraRtcSourcePeer> crsPeer;
