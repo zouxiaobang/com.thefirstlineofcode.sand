@@ -46,6 +46,7 @@ import com.thefirstlineofcode.sand.demo.protocols.AuthorizedDevices;
 import com.thefirstlineofcode.sand.protocols.actuator.actions.Restart;
 import com.thefirstlineofcode.sand.protocols.actuator.actions.ShutdownSystem;
 import com.thefirstlineofcode.sand.protocols.actuator.actions.Stop;
+import com.thefirstlineofcode.sand.protocols.core.DeviceIdentity;
 import com.thefirstlineofcode.sand.protocols.things.simple.camera.OpenLiveStreaming;
 import com.thefirstlineofcode.sand.protocols.things.simple.camera.TakePhoto;
 import com.thefirstlineofcode.sand.protocols.things.simple.light.Flash;
@@ -447,6 +448,7 @@ public class MainActivity extends AppCompatActivity implements IOperator.Listene
 		logger.info("Open live streaming of camera {}.", target);
 		
 		Intent intent = new Intent(this, LiveStreamingActivity.class);
+		intent.putExtra("camera-jid", target.toString());
 		startActivity(intent);
 	}
 	

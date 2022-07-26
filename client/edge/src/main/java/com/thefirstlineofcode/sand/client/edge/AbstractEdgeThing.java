@@ -3,10 +3,21 @@ package com.thefirstlineofcode.sand.client.edge;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.Reader;
+import java.io.Writer;
 import java.lang.ProcessBuilder.Redirect;
+import java.net.URL;
+import java.net.URLConnection;
+import java.nio.file.Files;
+import java.nio.file.LinkOption;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.StringTokenizer;
 
 import org.slf4j.Logger;
@@ -29,8 +40,9 @@ import com.thefirstlineofcode.sand.protocols.actuator.ExecutionException;
 import com.thefirstlineofcode.sand.protocols.core.DeviceIdentity;
 
 public abstract class AbstractEdgeThing extends AbstractDevice implements IEdgeThing, IConnectionListener {
-	protected static final String ATTRIBUTE_NAME_STREAM_CONFIG = "stream_config";
-	protected static final String ATTRIBUTE_NAME_DEVICE_IDENTITY = "device_identity";
+	private static final String ATTRIBUTE_NAME_STREAM_CONFIG = "stream_config";
+	private static final String ATTRIBUTE_NAME_DEVICE_IDENTITY = "device_identity";
+	private static final String INTERNET_CONNECTIVITY_TEST_ADDRESS = "http://47.115.36.99";
 	
 	private static final Logger logger = LoggerFactory.getLogger(AbstractEdgeThing.class);
 	
@@ -120,11 +132,25 @@ public abstract class AbstractEdgeThing extends AbstractDevice implements IEdgeT
 
 	@Override
 	public void start() {
+		try {
+			doStart();
+		} catch (Exception e) {
+			logger.error("Some thing is wrong. The program can't run correctly.", e);
+			
+			throw new RuntimeException("Some thing is wrong. The program can't run correctly.", e);
+		}
+	}
+	
+	protected void doStart() {
 		if (!isPowered())
 			return;
 		
 		if (started)
 			stop();
+		
+		if (!isHostLocalLanAddress()) {
+			checkInternetConnectivity(10);	
+		}
 		
 		if (!isRegistered()) {
 			register();
@@ -140,15 +166,54 @@ public abstract class AbstractEdgeThing extends AbstractDevice implements IEdgeT
 				return;
 		}
 		
-		logger.info("The thing has started.");
-		started = true;
-		
 		synchronized (this) {
 			connect();
 		}
 		
+		logger.info("The thing has started.");
+		started = true;
+		
 		System.out.println("Starting console...");
 		startConsoleThread();
+	}
+
+	private void checkInternetConnectivity(int retryTimes) {
+		int i = 0;
+		while (!checkInternetConnectivity()) {
+			i++;
+			
+			logger.info("No internet connection. Waiting for a while then trying again....");
+			
+			try {
+				Thread.sleep(2000);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+			if (i == retryTimes) {
+				logger.error("No internet connection. The thing can't be started.");
+				throw new IllegalStateException("No internet connection. The program will exit.");
+			}
+		}
+	}
+	
+	private boolean isHostLocalLanAddress() {
+		return streamConfig.getHost().equals("localhost") ||
+				streamConfig.getHost().equals("127.0.0.1") ||
+				streamConfig.getHost().startsWith("192.168.");
+	}
+
+	protected boolean checkInternetConnectivity() {
+		try {
+			URL url = new URL(INTERNET_CONNECTIVITY_TEST_ADDRESS);
+			URLConnection connection = url.openConnection();
+            connection.connect();
+            
+            return true;
+		} catch (Exception e) {
+			return false;
+		}
 	}
 	
 	private void startConsoleThread() {
@@ -216,7 +281,7 @@ public abstract class AbstractEdgeThing extends AbstractDevice implements IEdgeT
 	public void connect() {
 		if (chatClient == null) {
 			chatClient = createChatClient();
-			registerChalkPlugins();
+			registerIotPlugins();
 		}
 		
 		for (IConnectionListener connectionListener : connectionListeners) {
@@ -470,7 +535,7 @@ public abstract class AbstractEdgeThing extends AbstractDevice implements IEdgeT
 		public void run() {
 			while (true) {
 				if (stopToReconnect)
-					break;
+					return;
 				
 				synchronized (AbstractEdgeThing.this) {
 					if (!isConnected()) {
@@ -481,10 +546,15 @@ public abstract class AbstractEdgeThing extends AbstractDevice implements IEdgeT
 					}
 				}
 				
-				try {
-					Thread.sleep(1000 * 10);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
+				for (int i = 0; i < 10; i++) {
+					if (stopToReconnect)
+						return;
+					
+					try {
+						Thread.sleep(1000);
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
 				}
 			}
 		}
@@ -587,7 +657,104 @@ public abstract class AbstractEdgeThing extends AbstractDevice implements IEdgeT
 		return chatClient;
 	}
 	
-	protected abstract void registerChalkPlugins();
+	@Override
+	protected Map<String, String> loadDeviceAttributes() {
+		Path attributesFilePath = getAttributesFilePath();
+		
+		if (!Files.exists(attributesFilePath, LinkOption.NOFOLLOW_LINKS)) {
+			logger.info("Attributes file not existed. Ignore to load attributes.");
+			
+			return null;
+		}
+		
+		Properties properties = new Properties();
+		Reader reader = null;
+		try {
+			reader = Files.newBufferedReader(attributesFilePath);
+			properties.load(reader);			
+		} catch (Exception e) {
+			logger.error(String.format("Can't load attributes from file '%s'.",
+					attributesFilePath.toAbsolutePath()), e);
+			throw new RuntimeException(String.format("Can't load attributes from file '%s'.",
+					attributesFilePath.toAbsolutePath()), e);
+		} finally {
+			if (reader != null)
+				try {
+					reader.close();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+		}
+		
+		Map<String, String> attributes = new HashMap<>();
+		for (String propertyName : properties.stringPropertyNames()) {
+			attributes.put(propertyName, properties.getProperty(propertyName));
+		}
+		
+		return attributes;
+	}
+	
+	@Override
+	protected void saveAttributes(Map<String, String> attributes) {
+		Properties properties = new Properties();
+		for (String attributeName : attributes.keySet()) {
+			properties.put(attributeName, attributes.get(attributeName));
+		}
+		
+		Path attributesFilePath = getAttributesFilePath();
+		Path attributesBakFilePath = Paths.get(attributesFilePath.getParent().toAbsolutePath().toString(), attributesFilePath.toFile().getName() + ".bak");
+		if (Files.exists(attributesFilePath, LinkOption.NOFOLLOW_LINKS)) {			
+			try {
+				Files.move(attributesFilePath, attributesBakFilePath);
+			} catch (IOException e) {
+				logger.error("Can't backup attributes file.", e);
+				throw new RuntimeException("Can't backup attributes file.", e);
+			}
+		}
+		
+		if (!Files.exists(attributesFilePath.getParent(), LinkOption.NOFOLLOW_LINKS)) {
+			try {
+				Files.createDirectories(attributesFilePath.getParent());
+			} catch (IOException e) {
+				logger.error(String.format("Can't create directory %s.", attributesFilePath.getParent().toAbsolutePath()), e);
+				throw new RuntimeException(String.format("Can't create directory %s.", attributesFilePath.getParent().toAbsolutePath()), e);
+			}
+		}
+		
+		Writer writer = null;
+		try {
+			writer = Files.newBufferedWriter(attributesFilePath, StandardOpenOption.CREATE, StandardOpenOption.WRITE);
+			properties.store(writer, null);
+			
+			logger.info(String.format("Attributes are saved to %s.", attributesFilePath.toAbsolutePath()));
+		} catch (Exception e) {
+			logger.error(String.format("Can't save attributes to file '%s'.",
+					attributesFilePath.toAbsolutePath()), e);
+			throw new RuntimeException(String.format("Can't save attributes to file '%s'.",
+					attributesFilePath.toAbsolutePath()), e);
+		} finally {
+			if (writer != null)
+				try {
+					writer.close();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+		}
+		
+		if (Files.exists(attributesBakFilePath, LinkOption.NOFOLLOW_LINKS)) {			
+			try {
+				Files.delete(attributesBakFilePath);
+			} catch (IOException e) {
+				logger.error("Can't delete attributes backup file.", e);
+				throw new RuntimeException("Can't delete attributes backup file.", e);
+			}
+		}
+	}
+	
+	protected abstract void registerIotPlugins();
 	protected abstract void startIotComponents();
 	protected abstract void stopIotComponents();
+	protected abstract Path getAttributesFilePath();
 }

@@ -1,5 +1,6 @@
 package com.thefirstlineofcode.sand.emulators.wifi.simple.light;
 
+import java.nio.file.Path;
 import java.util.Map;
 
 import com.thefirstlineofcode.chalk.core.AuthFailureException;
@@ -184,7 +185,7 @@ public class Light extends AbstractEdgeThing implements ILight {
 	protected void saveAttributes(Map<String, String> attributes) {}
 
 	@Override
-	protected void registerChalkPlugins() {
+	protected void registerIotPlugins() {
 		chatClient.register(ActuatorPlugin.class);
 		chatClient.register(LightPlugin.class);
 	}
@@ -255,6 +256,11 @@ public class Light extends AbstractEdgeThing implements ILight {
 
 	@Override
 	protected DeviceIdentity getDeviceIdentity(Map<String, String> attributes) {
+		return null;
+	}
+	
+	@Override
+	protected Path getAttributesFilePath() {
 		return null;
 	}
 }

@@ -324,6 +324,12 @@
 				<artifactId>sand-protocols-operator</artifactId>
 				<version>${sand.version}</version>
 			</dependency>
+
+			<dependency>
+				<groupId>com.thefirstlineofcode.sand.protocols</groupId>
+				<artifactId>sand-protocols-webrtc-signaling</artifactId>
+				<version>${sand.version}</version>
+			</dependency>
 			
 			<dependency>
 				<groupId>com.thefirstlineofcode.sand.protocols.things</groupId>
@@ -418,6 +424,12 @@
 			<dependency>
 				<groupId>com.thefirstlineofcode.sand.client.things</groupId>
 				<artifactId>sand-client-things-simple-camera</artifactId>
+				<version>${sand.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>com.thefirstlineofcode.sand.client</groupId>
+				<artifactId>sand-client-webcam</artifactId>
 				<version>${sand.version}</version>
 			</dependency>
 

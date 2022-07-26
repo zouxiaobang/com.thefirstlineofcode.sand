@@ -39,6 +39,7 @@
 		<module>location</module>
 		<module>actuator</module>
 		<module>operator</module>
+		<module>webcam</module>
 		<module>lite</module>
 	</modules>
 

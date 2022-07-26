@@ -1,6 +1,8 @@
 package com.thefirstlineofcode.sand.demo.app.android;
 
 import android.Manifest;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
@@ -134,7 +136,16 @@ public class LoginActivity extends AppCompatActivity {
 		if (requestCode == INTERNET_PERMISSION_REQUEST_CODE) {
 			onClickListener.onClick(findViewById(R.id.bt_login));
 		} else {
-			super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+			new AlertDialog.Builder(this).
+					setTitle("Error").
+					setMessage("User denied permissions request. App will exit.").
+					setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+						@Override
+						public void onClick(DialogInterface dialog, int which) {
+							finish();
+						}
+					}
+			).create().show();
 		}
 	}
 }

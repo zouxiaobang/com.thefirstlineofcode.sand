@@ -1,30 +1,27 @@
 package com.thefirstlineofcode.sand.demo.app.android;
 
 import android.Manifest;
+import android.app.AlertDialog;
 import android.content.pm.PackageManager;
-import android.net.http.SslError;
 import android.os.Bundle;
-import android.webkit.JavascriptInterface;
-import android.webkit.JsResult;
-import android.webkit.PermissionRequest;
-import android.webkit.SslErrorHandler;
-import android.webkit.WebChromeClient;
-import android.webkit.WebSettings;
 import android.webkit.WebView;
-import android.webkit.WebViewClient;
-import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
+
+import com.thefirstlineofcode.basalt.xmpp.core.JabberId;
+import com.thefirstlineofcode.sand.client.webcam.IWatcher;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class LiveStreamingActivity extends AppCompatActivity {
 	private static final Logger logger = LoggerFactory.getLogger(LiveStreamingActivity.class);
+	
 	public static final int MEDIAS_PERMISSIONS_REQUEST_CODE = 2;
 	
-	private WebView webView;
+	private IWatcher watcher;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -39,20 +36,21 @@ public class LiveStreamingActivity extends AppCompatActivity {
 							Manifest.permission.RECORD_AUDIO,
 							Manifest.permission.MODIFY_AUDIO_SETTINGS
 					}, MEDIAS_PERMISSIONS_REQUEST_CODE);
+		} else {
+			onCreate();
 		}
+	}
+	
+	private void onCreate() {
+		String sCameraJid = getIntent().getStringExtra("camera-jid");
+		JabberId cameraJid = JabberId.parse(sCameraJid);
 		
 		setContentView(R.layout.activity_live_streaming);
 		
-		webView = findViewById(R.id.webview);
-		WebSettings webSettings = webView.getSettings();
-		webSettings.setJavaScriptEnabled(true);
-		
-		webView.setWebViewClient(new LiveStreamingWebViewClient());
-		webView.setWebChromeClient(new LiveStreamingWebChromeClient());
-		webView.addJavascriptInterface(this, "androidApp");
-		
-		String host = ChatClientSingleton.get(this).getStreamConfig().getHost();
-		webView.loadUrl(String.format("https://%s/index.html", host));
+		WebView webView = findViewById(R.id.webview);
+		watcher = ChatClientSingleton.get(this).createApiImpl(WebViewWatcher.class,
+				new Class<?>[] {JabberId.class, WebView.class}, new Object[] {cameraJid, webView});
+		watcher.watch();
 	}
 	
 	private boolean checkPermission(String permission) {
@@ -60,28 +58,16 @@ public class LiveStreamingActivity extends AppCompatActivity {
 				permission) == PackageManager.PERMISSION_GRANTED;
 	}
 	
-	class LiveStreamingWebViewClient extends WebViewClient {
-		@Override
-		public void onReceivedSslError(WebView view, SslErrorHandler handler, SslError error) {
-			handler.proceed();
+	@Override
+	public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+		if (requestCode == MEDIAS_PERMISSIONS_REQUEST_CODE) {
+			onCreate();
+		} else {
+			new AlertDialog.Builder(this).
+					setTitle("Error").
+					setMessage("User denied permissions request. App will exit.").
+					setPositiveButton("Ok", (dialog, which) -> {finish();}).
+					create().show();
 		}
-	}
-	
-	class LiveStreamingWebChromeClient extends WebChromeClient {
-		@Override
-		public boolean onJsAlert(WebView view, String url, String message, JsResult result) {
-			return super.onJsAlert(view, url, message, result);
-		}
-		
-		@Override
-		public void onPermissionRequest(PermissionRequest request) {
-			request.grant(request.getResources());
-		}
-	}
-	@JavascriptInterface
-	public void offerSdp(String message) {
-		runOnUiThread(() -> Toast.makeText(LiveStreamingActivity.this,
-				String.format("Received offer SDP message: %s.", message),
-				Toast.LENGTH_LONG).show());
 	}
 }

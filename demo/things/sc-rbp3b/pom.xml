@@ -27,6 +27,10 @@
 		</dependency>
 		<dependency>
 			<groupId>com.thefirstlineofcode.sand.client</groupId>
+			<artifactId>sand-client-webcam</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.thefirstlineofcode.sand.client</groupId>
 			<artifactId>sand-client-edge</artifactId>
 		</dependency>
 		<dependency>

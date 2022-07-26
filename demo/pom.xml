@@ -22,7 +22,8 @@
 		<module>server</module>
 		<module>server-lite</module>
 		<module>server-console</module>
-		<module>server-web</module>
+		<module>server-web-fileupload</module>
+		<module>server-web-webcam</module>
 		<module>things</module>
 	</modules>
 

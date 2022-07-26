@@ -25,6 +25,7 @@
 		<module>location</module>
 		<module>actuator</module>
 		<module>operator</module>
+		<module>webrtc-signaling</module>
 	</modules>
 
 </project>

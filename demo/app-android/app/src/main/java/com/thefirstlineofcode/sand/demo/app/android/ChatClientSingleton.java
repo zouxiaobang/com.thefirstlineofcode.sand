@@ -9,12 +9,13 @@ import com.thefirstlineofcode.sand.client.remoting.RemotingPlugin;
 import com.thefirstlineofcode.sand.client.things.simple.camera.CameraPlugin;
 import com.thefirstlineofcode.sand.client.things.simple.gateway.GatewayPlugin;
 import com.thefirstlineofcode.sand.client.things.simple.light.LightPlugin;
+import com.thefirstlineofcode.sand.client.webcam.WebcamPlugin;
 import com.thefirstlineofcode.sand.demo.client.DemoPlugin;
 
 class ChatClientSingleton {
-	private static IChatClient chatClient;
+	private static StandardChatClient chatClient;
 
-	static IChatClient get(Context context) {
+	static StandardChatClient get(Context context) {
 		if (chatClient == null) {
 			chatClient = new StandardChatClient(Toolkits.getStreamConfig(context));
 			chatClient.register(OperatorPlugin.class);
@@ -22,6 +23,7 @@ class ChatClientSingleton {
 			chatClient.register(LightPlugin.class);
 			chatClient.register(GatewayPlugin.class);
 			chatClient.register(CameraPlugin.class);
+			chatClient.register(WebcamPlugin.class);
 			chatClient.register(DemoPlugin.class);
 		}
 
