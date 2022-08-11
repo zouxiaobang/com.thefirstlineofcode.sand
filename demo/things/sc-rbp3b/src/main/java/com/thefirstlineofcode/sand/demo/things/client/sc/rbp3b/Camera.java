@@ -29,7 +29,7 @@ import com.thefirstlineofcode.sand.client.edge.AbstractEdgeThing;
 import com.thefirstlineofcode.sand.client.edge.ResponseInAdvanceExecutor;
 import com.thefirstlineofcode.sand.client.things.simple.camera.CameraPlugin;
 import com.thefirstlineofcode.sand.client.things.simple.camera.ICamera;
-import com.thefirstlineofcode.sand.client.webcam.IWebcam;
+import com.thefirstlineofcode.sand.client.webcam.Webcam;
 import com.thefirstlineofcode.sand.client.webcam.WebcamPlugin;
 import com.thefirstlineofcode.sand.protocols.actuator.ExecutionException;
 import com.thefirstlineofcode.sand.protocols.actuator.actions.Restart;
@@ -55,17 +55,21 @@ public class Camera extends AbstractEdgeThing implements ICamera {
 	private static final Logger logger = LoggerFactory.getLogger(Camera.class);
 	
 	private IActuator actuator;
-	private IWebcam webcam;
+	private Webcam webcam;
+	private WebcamConfig webcamConfig;
 	
 	private String uploadUrl;
 	private String downloadUrl;
 	
-	public Camera() {
-		this(null);
+	public Camera(WebcamConfig webcamConfig) {
+		this(webcamConfig, null);
 	}
 	
-	public Camera(StandardStreamConfig streamConfig) {
+	public Camera(WebcamConfig webcamConfig, StandardStreamConfig streamConfig) {
 		super(THING_TYPE, THING_MODEL, streamConfig);
+		
+		this.webcamConfig = webcamConfig;
+		
 		uploadUrl = String.format("http://%s:8080/file-upload", this.streamConfig.getHost());
 		downloadUrl = String.format("http://%s:8080/files/", this.streamConfig.getHost());
 	}
@@ -90,9 +94,16 @@ public class Camera extends AbstractEdgeThing implements ICamera {
 	
 	protected void startWebcam() {
 		if (webcam == null)
-			webcam = chatClient.createApi(IWebcam.class);
+			webcam = chatClient.createApiImpl(Webcam.class);
+		
+		webcam.setNotStartNativeService(webcamConfig.notStartNativeService);
+		webcam.setNativeServicePath(webcamConfig.nativeServicePath);
 		
 		webcam.start();
+	}
+	
+	public Webcam getWebcam() {
+		return webcam;
 	}
 
 	protected void startActuator() {

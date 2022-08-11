@@ -35,6 +35,12 @@ public abstract class AbstractWebrtcPeer implements IWebrtcPeer, IIqListener {
 		chatServices.getIqService().addListener(Signal.PROTOCOL, this);		
 	}
 	
+	@Override
+	public void stop() {
+		chatServices.getIqService().removeListener(Signal.PROTOCOL);
+		peer = null;
+	}
+	
 	public void setPeer(JabberId peer) {
 		this.peer = peer;
 	}

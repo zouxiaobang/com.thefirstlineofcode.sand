@@ -49,7 +49,7 @@ public abstract class AbstractEdgeThing extends AbstractDevice implements IEdgeT
 	protected StandardStreamConfig streamConfig;
 	protected DeviceIdentity identity;
 	
-	protected IChatClient chatClient;
+	protected StandardChatClient chatClient;
 	protected Thread autoReconnectThread;
 	
 	protected List<IEdgeThingListener> edgeThingListeners;
@@ -330,7 +330,7 @@ public abstract class AbstractEdgeThing extends AbstractDevice implements IEdgeT
 		chatClient.getConnection().removeListener(this);
 	}
 
-	protected IChatClient createChatClient() {
+	protected StandardChatClient createChatClient() {
 		return new StandardChatClient(createStreamConfigWithResource());
 	}
 

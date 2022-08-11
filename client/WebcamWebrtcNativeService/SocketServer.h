@@ -1,27 +1,29 @@
 #ifndef SOCKET_SERVER_H
 #define SOCKET_SERVER_H
 
-#include "sockpp/tcp_acceptor.h"
+#include "cppnet.h"
 
 #include "WebcamWebrtcPeer.h"
 
-using namespace std;
-
-
 class SocketServer {
 public:
-	SocketServer() {}
-	SocketServer(unique_ptr<WebcamWebrtcPeer> wwPeer);
+	SocketServer(rtc::scoped_refptr<WebcamWebrtcPeer> wwPeer);
+
 	void start();
 	void stop();
 
-private:
-	void processClientSocket(sockpp::tcp_socket socket);
-	void processClientMessage(sockpp::tcp_socket &socket, string &message, bool *stop);
+	void messageRead(cppnet::Handle handle, std::shared_ptr<cppnet::Buffer> data, uint32_t len);
+	void connected(cppnet::Handle handle, uint32_t err);
+	void disconnected(cppnet::Handle handle, uint32_t err);
 
+	~SocketServer();
 private:
-	unique_ptr<WebcamWebrtcPeer> wwPeer;
+	void processMessage(cppnet::Handle handle, const std::string &message);
+private:
+	cppnet::CppNet *net;
+	rtc::scoped_refptr<WebcamWebrtcPeer> wwPeer;
 	bool started;
+	bool alreadyConnected;
 };
 
 #endif
