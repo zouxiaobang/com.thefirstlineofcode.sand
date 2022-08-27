@@ -3,6 +3,7 @@ package com.thefirstlineofcode.sand.demo.app.android;
 import static android.text.Html.FROM_HTML_MODE_COMPACT;
 
 import android.R.string;
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -17,9 +18,6 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.webkit.JavascriptInterface;
-import android.webkit.WebSettings;
-import android.webkit.WebView;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
@@ -46,10 +44,10 @@ import com.thefirstlineofcode.sand.demo.protocols.AuthorizedDevices;
 import com.thefirstlineofcode.sand.protocols.actuator.actions.Restart;
 import com.thefirstlineofcode.sand.protocols.actuator.actions.ShutdownSystem;
 import com.thefirstlineofcode.sand.protocols.actuator.actions.Stop;
-import com.thefirstlineofcode.sand.protocols.core.DeviceIdentity;
-import com.thefirstlineofcode.sand.protocols.things.simple.camera.OpenLiveStreaming;
 import com.thefirstlineofcode.sand.protocols.things.simple.camera.TakePhoto;
 import com.thefirstlineofcode.sand.protocols.things.simple.light.Flash;
+import com.thefirstlineofcode.sand.protocols.things.simple.light.TurnOff;
+import com.thefirstlineofcode.sand.protocols.things.simple.light.TurnOn;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -237,7 +235,7 @@ public class MainActivity extends AppCompatActivity implements IOperator.Listene
 			AuthorizedDevice[] devices = new AuthorizedDevice[0];
 			if (lDevices != null && lDevices.size() != 0)
 				devices = lDevices.toArray(new AuthorizedDevice[0]);
-			
+
 			if (devicesAdapter == null) {
 				ListView lvDevices = findViewById(R.id.lv_devices);
 				devicesAdapter = new DevicesAdapter(MainActivity.this, host, devices);
@@ -575,9 +573,6 @@ public class MainActivity extends AppCompatActivity implements IOperator.Listene
 					public void onClick(DialogInterface dialog, int which) {
 						dialog.dismiss();
 						
-						IChatClient chatClient = ChatClientSingleton.get(MainActivity.this);
-						IRemoting remoting = chatClient.createApi(IRemoting.class);
-						
 						Flash flash = new Flash();
 						if (which == 0) {
 							flash.setRepeat(1);
@@ -586,29 +581,8 @@ public class MainActivity extends AppCompatActivity implements IOperator.Listene
 						} else {
 							flash.setRepeat(5);
 						}
-						
-						remoting.execute(target, flash, new IRemoting.Callback() {
-							@Override
-							public void executed(Object xep) {
-								runOnUiThread(() -> Toast.makeText(MainActivity.this,
-										"Flash executed.",
-										Toast.LENGTH_LONG).show());
-							}
-							
-							@Override
-							public void occurred(StanzaError error) {
-								runOnUiThread(() -> Toast.makeText(MainActivity.this,
-										"Flash execution error: " + error.toString(),
-										Toast.LENGTH_LONG).show());
-							}
-							
-							@Override
-							public void timeout() {
-								runOnUiThread(() -> Toast.makeText(MainActivity.this,
-										"Flash execution timeout.",
-										Toast.LENGTH_LONG).show());
-							}
-						});
+
+						executeAction(target, flash, "Flash");
 					}
 				});
 		
@@ -620,10 +594,49 @@ public class MainActivity extends AppCompatActivity implements IOperator.Listene
 	
 	public void turnOn(JabberId target) {
 		logger.info("Turn on light {}.", target);
+		executeAction(target, new TurnOn(), "Turn On");
 	}
 	
 	public void turnOff(JabberId target) {
 		logger.info("Turn off light {}.", target);
+		executeAction(target, new TurnOff(), "Turn Off");
+	}
+
+	private void executeAction(JabberId target, Object action, String actionDescription) {
+		IChatClient chatClient = ChatClientSingleton.get(this);
+		IRemoting remoting = chatClient.createApi(IRemoting.class);
+		remoting.execute(target, action, new RemotingCallback(this, actionDescription));
+	}
+
+	private static class RemotingCallback implements IRemoting.Callback {
+		private final Activity activity;
+		private final String actionDescription;
+
+		public RemotingCallback(Activity activity, String actionDescription) {
+			this.activity = activity;
+			this.actionDescription = actionDescription;
+		}
+
+		@Override
+		public void executed(Object xep) {
+			activity.runOnUiThread(() -> Toast.makeText(activity,
+					actionDescription + " executed.",
+					Toast.LENGTH_LONG).show());
+		}
+
+		@Override
+		public void occurred(StanzaError error) {
+			activity.runOnUiThread(() -> Toast.makeText(activity,
+					actionDescription + " execution error: " + error.toString(),
+					Toast.LENGTH_LONG).show());
+		}
+
+		@Override
+		public void timeout() {
+			activity.runOnUiThread(() -> Toast.makeText(activity,
+					actionDescription + " execution timeout.",
+					Toast.LENGTH_LONG).show());
+		}
 	}
 	
 	public void changeMode(JabberId target) {
