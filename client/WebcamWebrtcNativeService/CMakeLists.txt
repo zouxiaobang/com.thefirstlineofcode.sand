@@ -12,6 +12,7 @@ set(CMAKE_VISIBILITY_INLINES_HIDDEN 1)
 
 if (CMAKE_HOST_WIN32)
 	set(SOURCE_REPOS_DIR "C:\\Users\\49190\\source\\repos")
+	set(VCPKG_DIR "${SOURCE_REPOS_DIR}\\vcpkg")
 	
 	set(CPPNET_SRC_DIR "${SOURCE_REPOS_DIR}\\CppNet_src")
 	set(CPPNET_INCLUDE_DIR "${CPPNET_SRC_DIR}\\CppNet\\include")
@@ -21,6 +22,8 @@ if (CMAKE_HOST_WIN32)
 	set(WEBRTC_INCLUDE_DIR "${WEBRTC_SRC_DIR};${WEBRTC_SRC_DIR}\\third_party\\abseil-cpp;${WEBRTC_SRC_DIR}\\third_party\\libyuv\\include")
 	set(WEBRTC_LIBRARY_PATH "${WEBRTC_SRC_DIR}\\out\\Default\\obj")
 	set(WEBRTC_VIDEO_CAPTURE_LIBRARY_PATH "${WEBRTC_LIBRARY_PATH}\\modules\\video_capture")
+	set(JSONCPP_INCLUDE_DIR "${VCPKG_DIR}\\installed\\x64-windows-static\\include")
+	set(JSONCPP_LIBRARY_DIR "${VCPKG_DIR}\\installed\\x64-windows-static\\debug\\lib")
 	
 	add_compile_definitions(USE_AURA=1)
 	add_compile_definitions(_HAS_EXCEPTIONS=0)
@@ -96,17 +99,20 @@ add_executable(WebcamWebrtcNativeService
 target_include_directories(WebcamWebrtcNativeService
 	PRIVATE ${CPPNET_INCLUDE_DIR}
 	PRIVATE ${WEBRTC_INCLUDE_DIR}
+	PRIVATE ${JSONCPP_INCLUDE_DIR}
 	PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
 find_library(CPPNET_LIB NAMES cppnet.lib PATHS ${CPPNET_LIBRARY_PATH})
 find_library(WEBRTC_LIB NAMES webrtc.lib PATHS ${WEBRTC_LIBRARY_PATH})
 find_library(WEBRTC_VIDEO_CAPTURE_LIB NAMES video_capture_module.lib PATHS ${WEBRTC_VIDEO_CAPTURE_LIBRARY_PATH})
+find_library(JSONCPP_LIB NAMES jsoncpp.lib PATHS ${JSONCPP_LIBRARY_DIR})
 
 target_link_libraries(WebcamWebrtcNativeService
 	${CPPNET_LIB}
 	${WEBRTC_LIB}
 	${WEBRTC_VIDEO_CAPTURE_LIB}
+	${JSONCPP_LIB}
 	libucrtd.lib
 	winmm.lib
 	strmiids.lib

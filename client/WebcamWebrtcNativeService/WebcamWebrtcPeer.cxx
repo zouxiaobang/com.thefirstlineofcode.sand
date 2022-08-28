@@ -7,10 +7,15 @@
 #include "api/video_codecs/builtin_video_decoder_factory.h"
 #include "api/create_peerconnection_factory.h"
 #include "absl/memory/memory.h"
+#include "json/json.h"
 
 #include "WebcamWebrtcPeer.h"
 
 using namespace std;
+
+const char nameCandidateSdpMid[] = "sdpMid";
+const char nameCandidateSdpMLineIndex[] = "sdpMLineIndex";
+const char nameCandidateSdp[] = "candidate";
 
 class DummySetSessionDescriptionObserver : public webrtc::SetSessionDescriptionObserver {
 public:
@@ -28,22 +33,65 @@ public:
 	}
 };
 
-class AnswerObserver : public webrtc::CreateSessionDescriptionObserver {
+class CreateAnswerObserver: public webrtc::CreateSessionDescriptionObserver {
 public:
-	AnswerObserver(cppnet::Handle handle, rtc::scoped_refptr<webrtc::PeerConnectionInterface> peerConnection) {
+	CreateAnswerObserver(cppnet::Handle handle, rtc::scoped_refptr<webrtc::PeerConnectionInterface> peerConnection) {
 		this->handle = handle;
 		this->peerConnection = peerConnection;
 	}
 
-	void OnSuccess(webrtc::SessionDescriptionInterface* sessionDescription) {
-		peerConnection->SetLocalDescription(DummySetSessionDescriptionObserver::Create(), sessionDescription);
-
+	void OnSuccess(webrtc::SessionDescriptionInterface *sessionDescription) {
 		std::string sdp;
-		sessionDescription->ToString(&sdp);
+		if(!sessionDescription->ToString(&sdp)) {
+			cout << "Creating answer failed. Can't get answer SDP." << endl;
+			// TODO Send error to native service client
+			return;
+		}
+
+		cout << "Creating answer succeeded. Current signaling state of peer connection: " << peerConnection->signaling_state() << "." << endl;
+
+		cout << "Answer SDP created. Answer SDP: " << sdp << ".";
+		std::string answer = "ANSWER " + sdp;
+		handle->Write(answer.c_str(), answer.size());
+
+		// Waiting for the answer SDP reached to the peer.
+		rtc::Thread::Current()->SleepMs(1000 * 5);
+
+		peerConnection->SetLocalDescription(DummySetSessionDescriptionObserver::Create(),
+			sessionDescription);
+
+		std::vector<rtc::scoped_refptr<webrtc::RtpTransceiverInterface>> transceivers = peerConnection->GetTransceivers();
+
+		for (int i = 0; i < transceivers.size(); i++) {
+			rtc::scoped_refptr<webrtc::RtpTransceiverInterface> transceiver = transceivers[i];
+			webrtc::RtpTransceiverDirection direction = transceiver->direction();
+
+			std::string out = "Found a transceiver. It's media type: " +
+				cricket::MediaTypeToString(transceiver->media_type());
+
+			if(direction == webrtc::RtpTransceiverDirection::kSendRecv) {
+				out += ". It's direction: kSendRecv.";
+				cout << out << endl;
+			} else if (direction == webrtc::RtpTransceiverDirection::kSendOnly) {
+				out += ". It's direction: kSendOnly.";
+				cout << out << endl;
+			} else if(direction == webrtc::RtpTransceiverDirection::kRecvOnly) {
+				out += ". It's direction: kRecvOnly.";
+				cout << out << endl;
+			} else if(direction == webrtc::RtpTransceiverDirection::kInactive) {
+				out += ". It's direction: kInactive.";
+				cout << out << endl;
+			} else {
+				out += ". It's direction: kStopped.";
+				cout << out << endl;
+			}
+
+		}
 	}
 
 	void OnFailure(webrtc::RTCError error) {
 		cout << "Failed to create answer. Error message: " << error.message() << "." << endl;
+		// TODO Send error to native service client
 	}
 
 private:
@@ -51,12 +99,42 @@ private:
 	rtc::scoped_refptr<webrtc::PeerConnectionInterface> peerConnection;
 };
 
-WebcamWebrtcPeer::WebcamWebrtcPeer() {
+class SetRemoteSessionDescriptionObserver: public webrtc::SetSessionDescriptionObserver {
+public:
+	SetRemoteSessionDescriptionObserver(cppnet::Handle handle,
+			rtc::scoped_refptr<webrtc::PeerConnectionInterface> peerConnection) {
+		this->handle = handle;
+		this->peerConnection = peerConnection;
+	}
+
+	virtual void OnSuccess() {
+		cout << "Creating remote session description succeeded. Current signaling state of peer connection: " << peerConnection->signaling_state() << "." << endl;
+
+		rtc::scoped_refptr<CreateAnswerObserver> creatAnswerObserver =
+			new rtc::RefCountedObject<CreateAnswerObserver>(handle, peerConnection);
+		peerConnection->CreateAnswer(creatAnswerObserver, webrtc::PeerConnectionInterface::RTCOfferAnswerOptions());
+	}
+
+	virtual void OnFailure(webrtc::RTCError error) {
+		cout << "Set remote session descriptin failed. Error type: "<< ToString(error.type()) <<
+			"Error message:" << error.message() << "." << endl;
+	}
+
+private:
+	cppnet::Handle handle;
+	rtc::scoped_refptr<webrtc::PeerConnectionInterface> peerConnection;
+};
+
+WebcamWebrtcPeer::WebcamWebrtcPeer(webrtc::PeerConnectionInterface::IceServers _iceServers) {
 	videoCaptureDeviceName = nullptr;
 	opened = false;
+	iceServers = _iceServers;
+
+	signalingThread = rtc::Thread::Create();
 }
 
-void WebcamWebrtcPeer::open() {
+void WebcamWebrtcPeer::open(cppnet::Handle handle) {
+	this->handle = handle;
 	if (!peerConnection.get()) {
 		createPeerConnection();
 		addVideoTrack();
@@ -75,8 +153,11 @@ void WebcamWebrtcPeer::close() {
 
 	if (peerConnectionFactory.get()) {
 		peerConnectionFactory.release();
+		signalingThread->Stop();
 	}
 
+	handle.reset();
+	handle = nullptr;
 	opened = false;
 }
 
@@ -95,13 +176,16 @@ void WebcamWebrtcPeer::createPeerConnection() {
 	if (!peerConnectionFactory.get())
 		createPeerConnectionFactory();
 
-	webrtc::PeerConnectionInterface::RTCConfiguration configutration;
-	configutration.sdp_semantics = webrtc::SdpSemantics::kUnifiedPlan;
-	configutration.enable_dtls_srtp = true;
+	webrtc::PeerConnectionInterface::RTCConfiguration configuration;
+	configuration.sdp_semantics = webrtc::SdpSemantics::kUnifiedPlan;
+	configuration.enable_dtls_srtp = true;
+	configuration.disable_ipv6 = true;
+	configuration.disable_ipv6_on_wifi = true;
+	configuration.servers = iceServers;
 
 	webrtc::PeerConnectionDependencies dependencies(this);
 
-	peerConnection = peerConnectionFactory->CreatePeerConnection(configutration, std::move(dependencies));
+	peerConnection = peerConnectionFactory->CreatePeerConnection(configuration, std::move(dependencies));
 }
 
 void WebcamWebrtcPeer::addVideoTrack() {
@@ -128,15 +212,83 @@ void WebcamWebrtcPeer::addVideoTrack() {
 		}
 	}
 
-	// startVideoRenderer(videoTrack);
-
-	auto resultOrError =
-		peerConnection->AddTrack(videoTrack, {labelVideoStream});
+	webrtc::RtpTransceiverInit init;
+	init.direction = webrtc::RtpTransceiverDirection::kSendOnly;
+	auto resultOrError = peerConnection->AddTransceiver(videoTrack, init);
 
 	if (!resultOrError.ok()) {
 		// TODO Send error to native service client
 		return;
 	}
+}
+
+void WebcamWebrtcPeer::offered(std::string offerSdp) {
+	if(!opened) {
+		static const char notOpenedError[] = "ERROR Not opened.";
+		handle->Write(notOpenedError,sizeof(notOpenedError));
+
+		return;
+	}
+
+	cout << "Enter to offered method. Current signaling state of peer connection: " << peerConnection->signaling_state() << "." << endl;
+
+	webrtc::SdpType offerType = webrtc::SdpType::kOffer;
+	webrtc::SdpParseError error;
+	std::unique_ptr<webrtc::SessionDescriptionInterface> remoteSessionDescription =
+		webrtc::CreateSessionDescription(offerType, offerSdp, &error);
+	if(!remoteSessionDescription) {
+		static const char offerNotParsed[] = "ERROR Can't parse offer SDP.";
+		cout << "Can't parse offer SDP. Error: " << error.description << endl;
+		handle->Write(offerNotParsed, sizeof(offerNotParsed));
+
+		return;
+	}
+
+	rtc::scoped_refptr<SetRemoteSessionDescriptionObserver> setRemoteSessionDescriptionObserver =
+		new rtc::RefCountedObject<SetRemoteSessionDescriptionObserver>(handle, peerConnection);
+	peerConnection->SetRemoteDescription(setRemoteSessionDescriptionObserver,
+		remoteSessionDescription.release());
+}
+
+void WebcamWebrtcPeer::iceCandidateFound(std::string jsonCandidate) {
+	cout << "ICE candidate found. Candidate is: " + jsonCandidate << endl;
+
+	Json::Reader reader;
+	Json::Value vCandidate;
+	if(!reader.parse(jsonCandidate, vCandidate)) {
+		cout << "Error. Can't parse ICE candidate message." << endl;
+		return;
+	}
+
+	Json::Value vSdpMid = vCandidate[nameCandidateSdpMid];
+	Json::Value vSdpMLineIndex = vCandidate[nameCandidateSdpMLineIndex];
+	Json::Value vSdp = vCandidate[nameCandidateSdp];
+
+	if(vSdpMid.isNull() || vSdpMLineIndex.isNull() || vSdp.isNull()) {
+		cout << "Error. Can't parse ICE candidate message. Some key fields of ICE candate message are missed." << endl;
+		return;
+	}
+
+	std::string sdpMid = vSdpMid.asString();
+	int sdpMLineIndex = vSdpMLineIndex.asInt();
+	std::string sdp = vSdp.asString();
+
+	webrtc::SdpParseError error;
+	std::unique_ptr<webrtc::IceCandidateInterface> candidate(webrtc::CreateIceCandidate(
+		sdpMid, sdpMLineIndex, sdp, &error));
+
+	if(!candidate.get()) {
+		cout << "Can't parse received candidate message. " << "SdpParseError was: "
+			<< error.description << endl;
+		return;
+	}
+
+	if(!peerConnection->AddIceCandidate(candidate.get())) {
+		cout << "Failed to apply the received candidate.";
+		return;
+	}
+
+	cout << " Received candidate :" << jsonCandidate;
 }
 
 void WebcamWebrtcPeer::startVideoRenderer(webrtc::VideoTrackInterface *videoTrack) {
@@ -151,10 +303,11 @@ void WebcamWebrtcPeer::createPeerConnectionFactory() {
 	if (peerConnectionFactory.get())
 		return;
 
+	signalingThread->Start();
 	peerConnectionFactory = webrtc::CreatePeerConnectionFactory(
 		nullptr /* network_thread */,
 		nullptr /* worker_thread */,
-		nullptr,
+		signalingThread.get(),
 		nullptr /* default_adm */,
 		webrtc::CreateBuiltinAudioEncoderFactory(),
 		webrtc::CreateBuiltinAudioDecoderFactory(),
@@ -182,37 +335,8 @@ const char * WebcamWebrtcPeer::getVideoCaptureDeviceName() {
 	return videoCaptureDeviceName;
 }
 
-void WebcamWebrtcPeer::offered(cppnet::Handle handle, std::string offerSdp) {
-	if (!opened) {
-		static const char notOpenedError[] = "ERROR Not opened.";
-		handle->Write(notOpenedError, sizeof(notOpenedError));
-
-		return;
-	}
-
-	webrtc::SdpType offerType = webrtc::SdpType::kOffer;
-	webrtc::SdpParseError error;
-	std::unique_ptr<webrtc::SessionDescriptionInterface> sessionDescription =
-		webrtc::CreateSessionDescription(offerType, offerSdp, &error);
-	if (!sessionDescription) {
-		static const char offerNotParsed[] = "ERROR Can't parse offer SDP.";
-		cout << "Can't parse offer SDP. Error: " << error.description << endl;
-		handle->Write(offerNotParsed, sizeof(offerNotParsed));
-
-		return;
-	}
-
-	peerConnection->SetRemoteDescription(
-		DummySetSessionDescriptionObserver::Create().get(),
-		sessionDescription.release());
-
-	rtc::scoped_refptr<AnswerObserver> answerObserver =
-		new rtc::RefCountedObject<AnswerObserver>(handle, peerConnection);
-	peerConnection->CreateAnswer(answerObserver, webrtc::PeerConnectionInterface::RTCOfferAnswerOptions());
-}
-
 WebcamWebrtcPeer::~WebcamWebrtcPeer() {
-	if (videoCaptureDeviceName) {
+	if(videoCaptureDeviceName) {
 		delete videoCaptureDeviceName;
 		videoCaptureDeviceName = nullptr;
 	}
@@ -250,30 +374,48 @@ void WebcamWebrtcPeer::OnIceGatheringChange(
 	cout << "ICE gathering changed. New state: " << new_state << endl;
 }
 
-void WebcamWebrtcPeer::OnIceCandidate(
-		const webrtc::IceCandidateInterface* candidate) {
-	cout << "New candidate found. SDP mid of new candidate: " << candidate->sdp_mid() << endl;
+void WebcamWebrtcPeer::OnIceCandidate(const webrtc::IceCandidateInterface *candidate) {
+	std::string iceCandidateFound = "ICE_CANDIDATE_FOUND " +
+		createJsonCandidate(candidate);
+	handle->Write(iceCandidateFound.c_str(), iceCandidateFound.size());
 }
-void WebcamWebrtcPeer::OnIceCandidateError(const std::string& host_candidate,
-		const std::string& url, int error_code, const std::string& error_text) {
+
+std::string WebcamWebrtcPeer::createJsonCandidate(const webrtc::IceCandidateInterface *candidate) {
+	Json::Value vCandidate;
+
+	vCandidate[nameCandidateSdpMid] = candidate->sdp_mid();
+	vCandidate[nameCandidateSdpMLineIndex] = candidate->sdp_mline_index();
+
+	std::string sCandidate;
+	if(!candidate->ToString(&sCandidate)) {
+		cout << "Error. Failed to serialize candidate." << endl;
+	}
+	vCandidate[nameCandidateSdp] = sCandidate;
+
+	Json::StyledWriter writer;
+	return writer.write(vCandidate);
+}
+
+void WebcamWebrtcPeer::OnIceCandidateError(const std::string &host_candidate,
+		const std::string &url, int error_code, const std::string &error_text) {
 	cout << "ICE candidate error occurred. Error text: " << error_text << endl;
 }
 
-void WebcamWebrtcPeer::OnIceCandidateError(const std::string& address, int port,
-		const std::string& url, int error_code, const std::string& error_text) {
+void WebcamWebrtcPeer::OnIceCandidateError(const std::string &address, int port,
+		const std::string &url, int error_code, const std::string &error_text) {
 	cout << "ICE candidate error occurred. Error text: " << error_text << endl;
 }
 
 void WebcamWebrtcPeer::OnIceCandidatesRemoved(const std::vector<cricket::Candidate>& candidates) {}
 void WebcamWebrtcPeer::OnIceConnectionReceivingChange(bool receiving) {}
-void WebcamWebrtcPeer::OnIceSelectedCandidatePairChanged(cricket::CandidatePairChangeEvent& event) {
+void WebcamWebrtcPeer::OnIceSelectedCandidatePairChanged(cricket::CandidatePairChangeEvent &event) {
 	cout << "ICE selected candidate pair changed. Local address of new candidate pair: " <<
 		event.selected_candidate_pair.local_candidate().address().ToString() <<
 		". Local address of new candidate pair: " <<
 		event.selected_candidate_pair.remote_candidate().address().ToString() << "." << endl;
 }
 void WebcamWebrtcPeer::OnAddTrack(rtc::scoped_refptr<webrtc::RtpReceiverInterface> receiver,
-		const std::vector<rtc::scoped_refptr<webrtc::MediaStreamInterface>>& streams) {
+		const std::vector<rtc::scoped_refptr<webrtc::MediaStreamInterface>> &streams) {
 	cout << "Peer track added. Size of streams: " << streams.size() << "." << endl;
 }
 void WebcamWebrtcPeer::OnTrack(rtc::scoped_refptr<webrtc::RtpTransceiverInterface> transceiver) {

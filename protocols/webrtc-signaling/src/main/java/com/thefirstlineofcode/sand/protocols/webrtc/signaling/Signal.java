@@ -1,6 +1,7 @@
 package com.thefirstlineofcode.sand.protocols.webrtc.signaling;
 
 import com.thefirstlineofcode.basalt.oxm.convention.annotations.ProtocolObject;
+import com.thefirstlineofcode.basalt.oxm.convention.annotations.Text;
 import com.thefirstlineofcode.basalt.oxm.convention.conversion.annotations.String2Enum;
 import com.thefirstlineofcode.basalt.xmpp.core.Protocol;
 
@@ -10,11 +11,13 @@ public class Signal {
 	
 	public enum ID {
 		OFFER,
-		ANSWER
+		ANSWER,
+		ICE_CANDIDATE_FOUND
 	}
 	
 	@String2Enum(ID.class)
 	private ID id;
+	@Text(CDATA=true)
 	private String data;
 	
 	public Signal() {}
@@ -40,4 +43,8 @@ public class Signal {
 		this.data = data;
 	}
 	
+	@Override
+	public String toString() {
+		return String.format("Singal[ID: %s, data: %s]", id, data);
+	}
 }

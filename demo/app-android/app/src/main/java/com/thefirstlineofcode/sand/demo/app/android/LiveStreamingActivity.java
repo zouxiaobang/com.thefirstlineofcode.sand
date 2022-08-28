@@ -1,6 +1,7 @@
 package com.thefirstlineofcode.sand.demo.app.android;
 
 import android.Manifest;
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
@@ -49,7 +50,8 @@ public class LiveStreamingActivity extends AppCompatActivity {
 		
 		WebView webView = findViewById(R.id.webview);
 		watcher = ChatClientSingleton.get(this).createApiImpl(WebViewWatcher.class,
-				new Class<?>[] {JabberId.class, WebView.class}, new Object[] {cameraJid, webView});
+				new Class<?>[] {Activity.class, JabberId.class, WebView.class},
+				new Object[] {this, cameraJid, webView});
 		watcher.watch();
 	}
 	

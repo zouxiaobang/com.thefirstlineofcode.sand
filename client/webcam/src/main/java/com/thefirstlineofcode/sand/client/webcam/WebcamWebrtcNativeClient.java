@@ -188,14 +188,14 @@ public class WebcamWebrtcNativeClient implements IWebcamWebrtcNativeClient {
 		if (0 == lastChar)
 			message = message.substring(0, message.length() - 1);
 		
-		int spaceBlankIndex = message.indexOf(' ');
-		if (spaceBlankIndex != -1) {
-			if (spaceBlankIndex == (message.length() - 1)) {
+		int spaceCharIndex = message.indexOf(' ');
+		if (spaceCharIndex != -1) {
+			if (spaceCharIndex == (message.length() - 1)) {
 				throw new RuntimeException("Illegal message format. Last char is blank space.");
 			}
 			
-			String id = message.substring(0, spaceBlankIndex);
-			String data = message.substring(spaceBlankIndex + 1, message.length());
+			String id = message.substring(0, spaceCharIndex);
+			String data = message.substring(spaceCharIndex + 1, message.length());
 			listener.processNativeMessage(id, data);
 		} else {
 			listener.processNativeMessage(message, null);

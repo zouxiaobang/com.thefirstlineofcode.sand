@@ -1,5 +1,6 @@
 package com.thefirstlineofcode.sand.demo.app.android;
 
+import android.app.Activity;
 import android.net.http.SslError;
 import android.webkit.JavascriptInterface;
 import android.webkit.JsResult;
@@ -13,13 +14,18 @@ import android.webkit.WebViewClient;
 import com.thefirstlineofcode.basalt.xmpp.core.JabberId;
 import com.thefirstlineofcode.chalk.core.IChatServices;
 import com.thefirstlineofcode.sand.client.webcam.AbstractWatcher;
+import com.thefirstlineofcode.sand.client.webcam.IWebrtcPeer;
+import com.thefirstlineofcode.sand.protocols.webrtc.signaling.Signal;
 
-public class WebViewWatcher extends AbstractWatcher {
+public class WebViewWatcher extends AbstractWatcher implements IWebrtcPeer.Listener {
+	private Activity activity;
 	private WebView webView;
 	
-	public WebViewWatcher(IChatServices chatServices, JabberId peer, WebView webView) {
+	public WebViewWatcher(IChatServices chatServices, Activity activity,
+				JabberId peer, WebView webView) {
 		super(chatServices, peer);
 		
+		this.activity = activity;
 		this.webView = webView;
 		
 		WebSettings webSettings = webView.getSettings();
@@ -32,6 +38,10 @@ public class WebViewWatcher extends AbstractWatcher {
 	
 	@Override
 	public void start() {
+		super.start();
+		
+		addListener(this);
+		
 		String host = chatServices.getStream().getStreamConfig().getHost();
 		webView.loadUrl(String.format("https://%s/index.html", host));
 	}
@@ -44,6 +54,42 @@ public class WebViewWatcher extends AbstractWatcher {
 	@Override
 	public void close() {
 		stop();
+	}
+	
+	@Override
+	public void offered(String offerSdp) {
+		throw new IllegalStateException("Watcher received a offer SDP from the peer. Why???");
+	}
+	
+	@Override
+	public void answered(String answerSdp) {
+		String lineSeparatorReplaceString = "$$";
+		StringBuilder lineSeparatorsHiddenAnswerSdp = new StringBuilder();
+		for (int i = 0; i < answerSdp.length(); i++) {
+			char currentChar = answerSdp.charAt(i);
+			if (currentChar != '\n')
+				lineSeparatorsHiddenAnswerSdp.append(currentChar);
+			else
+				lineSeparatorsHiddenAnswerSdp.append(lineSeparatorReplaceString);
+		}
+		activity.runOnUiThread(() -> webView.loadUrl("javascript:answered(\"" + lineSeparatorsHiddenAnswerSdp.toString() + "\")"));
+	}
+	
+	@Override
+	public void iceCandidateFound(String candidate) {
+		String quoteReplaceString = "$$";
+		StringBuilder quotesHiddenCandidate = new StringBuilder();
+		for (int i = 0; i < candidate.length(); i++) {
+			char currentChar = candidate.charAt(i);
+			if (currentChar != '"') {
+				quotesHiddenCandidate.append(currentChar);
+			} else {
+				quotesHiddenCandidate.append(quoteReplaceString);
+			}
+		}
+		activity.runOnUiThread(() ->
+			webView.loadUrl("javascript:iceCandidateFound(\"" + quotesHiddenCandidate + "\")")
+		);
 	}
 	
 	private static class LiveStreamingWebViewClient extends WebViewClient {
@@ -67,6 +113,13 @@ public class WebViewWatcher extends AbstractWatcher {
 	
 	@JavascriptInterface
 	public void processJavascriptSignal(String id, String data) {
-		processSignal(id, data);
+		Signal.ID signalId;
+		try {
+			signalId = Enum.valueOf(Signal.ID.class, id);
+		} catch (IllegalArgumentException e) {
+			throw new RuntimeException(String.format("Unknown signal ID: %s.", id));
+		}
+		
+		processSignal(signalId, data);
 	}
 }

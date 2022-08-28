@@ -17,6 +17,7 @@ import androidx.annotation.NonNull;
 import com.thefirstlineofcode.basalt.xmpp.core.JabberId;
 import com.thefirstlineofcode.sand.demo.protocols.AccessControlList;
 import com.thefirstlineofcode.sand.demo.protocols.AuthorizedDevice;
+import com.thefirstlineofcode.sand.protocols.core.DeviceIdentity;
 
 import java.util.Arrays;
 
@@ -230,7 +231,7 @@ public class DevicesAdapter extends BaseAdapter {
 	private JabberId getJidTargetByDeviceLocation(String deviceLocation) {
 		int slashIndex = deviceLocation.indexOf('/');
 		if (slashIndex == -1) {
-			return new JabberId(deviceLocation, host);
+			return new JabberId(deviceLocation, host, DeviceIdentity.DEFAULT_RESOURCE_NAME);
 		} else {
 			String node = deviceLocation.substring(0, slashIndex);
 			String resource = deviceLocation.substring(slashIndex + 1, deviceLocation.length());

@@ -1,13 +1,10 @@
 package com.thefirstlineofcode.sand.demo.things.client.sc.rbp3b;
 
-import com.thefirstlineofcode.basalt.xmpp.core.JabberId;
-import com.thefirstlineofcode.basalt.xmpp.core.stanza.Iq;
 import com.thefirstlineofcode.chalk.core.stream.StandardStreamConfig;
 import com.thefirstlineofcode.chalk.logger.LogConfigurator;
 import com.thefirstlineofcode.chalk.logger.LogConfigurator.LogLevel;
 import com.thefirstlineofcode.sand.client.webcam.Webcam;
 import com.thefirstlineofcode.sand.protocols.core.DeviceIdentity;
-import com.thefirstlineofcode.sand.protocols.webrtc.signaling.Signal;
 
 public class Main {
 	private Camera camera;
@@ -111,25 +108,6 @@ public class Main {
 			camera.stop();
 			throw new RuntimeException("Can't open webcam.");
 		}
-		
-		Iq offer = new Iq(Iq.Type.SET, new Signal(Signal.ID.OFFER,
-				"v=0\r\n" +
-				"o=- 6178048509619431240 2 IN IP4 127.0.0.1\r\n" +
-				"s=-\r\n" +
-				"t=0 0\r\n" +
-				"a=msid-semantic: WMS\r\n"
-		));
-		offer.setFrom(JabberId.parse("dongger@192.168.1.103/00"));
-		webcam.received(offer);
-		
-		try {
-			Thread.sleep(2000);
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-		camera.stop();
 	}
 
 	private LogLevel getLogLevel(String sLogLevel) {

@@ -50,6 +50,13 @@ void SocketServer::messageRead(cppnet::Handle handle, std::shared_ptr<cppnet::Bu
 }
 
 void SocketServer::processMessage(cppnet::Handle handle, const std::string &message) {
+	if (wwPeer->isClosed() && message.compare("OPEN") != 0) {
+		std::string error = "ERROR Only OPEN command can be processed in closed state.";
+		handle->Write(error.c_str(), error.size());
+
+		return;
+	}
+
 	if (message.compare("STOP") == 0) {
 		cout << "Stop command received. The service will be stopped." << endl;
 		stop();
@@ -57,7 +64,7 @@ void SocketServer::processMessage(cppnet::Handle handle, const std::string &mess
 		return;
 	} else if (message.compare("OPEN") == 0) {
 		static const char openedMsg[] = "OPENED";
-		wwPeer->open();
+		wwPeer->open(handle);
 		handle->Write(openedMsg, sizeof(openedMsg));
 	} else if (message.compare("CLOSE") == 0) {
 		static const char closedMsg[] = "CLOSED";
@@ -67,8 +74,14 @@ void SocketServer::processMessage(cppnet::Handle handle, const std::string &mess
 		std::string offerSdp = message.substr(6, message.size() - 6);
 		cout << "Offer command received. SDP is: " + offerSdp << endl;
 
-		wwPeer->offered(handle, offerSdp);
-	} else {
+		wwPeer->offered(offerSdp);
+	} else if(message.compare(0, 20, "ICE_CANDIDATE_FOUND ") == 0 && message.size() > 20) {
+		std::string jsonCandidate = message.substr(20, message.size() - 20);
+		cout << "ICE candidate found command received. Candidate is: " + jsonCandidate << endl;
+
+		wwPeer->iceCandidateFound(jsonCandidate);
+	}
+	else {
 		cout << "Unkown command received. Message is: " + message << endl;
 	}
 }

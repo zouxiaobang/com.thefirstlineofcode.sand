@@ -123,20 +123,14 @@ public class Webcam extends AbstractWebrtcPeer implements IWebcam,
 	}
 
 	@Override
-	public void answered(String answerSdp) {
-		sendToPeer(new Signal(Signal.ID.ANSWER, answerSdp));
-	}
-
-	@Override
 	public void processNativeMessage(String id, String data) {
 		logger.info("Received a message from native service." +
 				"Message ID: {}. Message data: {}.", id, data);
-		// TODO Auto-generated method stub
 		if ("CONFLICT".equals(id) && data == null) {
 			started = false;
 			stop();
 			
-			return;
+			throw new RuntimeException("Can't connect to native service. Conflicted!");
 		}
 		
 		if (!started)
@@ -146,15 +140,25 @@ public class Webcam extends AbstractWebrtcPeer implements IWebcam,
 			opened = true;
 		} else if ("CLOSED".equals(id) && data == null) {
 			opened = false;
-		} else if (id.startsWith("ANSWER ") && data != null) {
-			for (IWebrtcPeer.Listener listener : listeners) {
-				listener.answered(data);
-			}
+		} else if ("ANSWER".equals(id) && data != null) {
+			sendToPeer(new Signal(Signal.ID.ANSWER, data));
+		}  else if ("ICE_CANDIDATE_FOUND".equals(id) && data != null) {
+			sendToPeer(new Signal(Signal.ID.ICE_CANDIDATE_FOUND, data));
 		} else {
 			throw new RuntimeException(
 					"Received a message from native service." +
-					" But it's not be understand." +
+					" But the message can't be understanded." +
 					String.format(" Message ID: %s. Message data: %s.", id, data));
 		}
+	}
+
+	@Override
+	public void answered(String answerSdp) {
+		throw new IllegalStateException("Webcam received a answer SDP from the peer. Why???");
+	}
+
+	@Override
+	public void iceCandidateFound(String jsonCandidate) {
+		nativeClient.send("ICE_CANDIDATE_FOUND " + jsonCandidate);
 	}
 }

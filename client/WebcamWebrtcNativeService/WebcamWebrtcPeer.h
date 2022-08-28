@@ -64,30 +64,33 @@ protected:
 private:
 	std::unique_ptr<webrtc::test::VcmCapturer> capturer;
 	webrtc::test::VcmCapturer *pCapturer;
+	cppnet::Handle handle;
 };
 
 class IWebcamWebrtcPeer {
 public:
 	virtual const char *getVideoCaptureDeviceName() = 0;
-	virtual void open() = 0;
+	virtual void open(cppnet::Handle handle) = 0;
 	virtual void close() = 0;
 	virtual bool isOpened() = 0;
 	virtual bool isClosed() = 0;
-	virtual void offered(cppnet::Handle handle, std::string offerSdp) = 0;
+	virtual void offered(std::string offerSdp) = 0;
+	virtual void iceCandidateFound(std::string jsonCandidate) = 0;
 };
 
 class WebcamWebrtcPeer : public IWebcamWebrtcPeer,
 	public webrtc::PeerConnectionObserver,
 	public rtc::RefCountInterface {
 public:
-	WebcamWebrtcPeer();
+	WebcamWebrtcPeer(webrtc::PeerConnectionInterface::IceServers iceServers);
 
- 	void open();
+ 	void open(cppnet::Handle handle);
 	void close();
 	bool isOpened();
 	bool isClosed();
 	const char *getVideoCaptureDeviceName();
-	void offered(cppnet::Handle handle, std::string offerSdp);
+	void offered(std::string offerSdp);
+	void iceCandidateFound(std::string jsonCandidate);
 
 	~WebcamWebrtcPeer();
 
@@ -143,6 +146,7 @@ private:
 	void addVideoTrack();
 	void startVideoRenderer(webrtc::VideoTrackInterface *videoTrack);
 	void stopVideoRenderer();
+	std::string createJsonCandidate(const webrtc::IceCandidateInterface *candidate);
 private:
 	const char *labelVideoStream = "video_only_stream";
 	const char *labelVideoTrack = "video_track";
@@ -152,8 +156,13 @@ private:
 	rtc::scoped_refptr<webrtc::VideoTrackInterface> videoTrack;
 	std::unique_ptr<VideoRenderer> localRenderer;
 
+	std::unique_ptr<rtc::Thread> signalingThread;
+
 	char *videoCaptureDeviceName;
 	bool opened;
+	cppnet::Handle handle;
+
+	webrtc::PeerConnectionInterface::IceServers iceServers;
 };
 
 #endif
