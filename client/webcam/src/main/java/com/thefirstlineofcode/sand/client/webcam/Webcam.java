@@ -73,13 +73,13 @@ public class Webcam extends AbstractWebrtcPeer implements IWebcam,
 		if (isOpened())
 			close();
 		
-		removeListener(this);
-		
 		if (nativeClient != null) {
-			nativeClient.removeListener();
 			nativeClient.stopNativeService();
+			nativeClient.removeListener();
 			nativeClient = null;
 		}
+		
+		removeListener(this);
 		
 		opened = false;
 		started = false;

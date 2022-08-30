@@ -33,20 +33,17 @@ function createPeerConnection() {
 		});
 		
 		peerConnection.addEventListener("track", (event) => {
-			alert("onTrack");
 			videoOutput.srcObject = event.streams[0];
 		});
 		
 		peerConnection.addEventListener("iceconnectionstatechange", (event) => {
 			alert("ICE connection state changed. Current state: " + peerConnection.iceConnectionState);
-					
-			/*if (peerConnection.iceConnectionState ==
-						IceConnectionState.CONNECTED ||
-					peerConnection.iceConnectionState ==
-						IceConnectionState.COMPLETED) {
-				alert("Play video.");
+			
+			if (peerConnection.iceConnectionState == "connected" ||
+					peerConnection.iceConnectionState == "completed") {
+				alert("Connected!!!");
 				videoOutput.play();
-			}*/
+			}
 		});
 		
 		peerConnection.addEventListener("icegatheringstatechange", (event) => {

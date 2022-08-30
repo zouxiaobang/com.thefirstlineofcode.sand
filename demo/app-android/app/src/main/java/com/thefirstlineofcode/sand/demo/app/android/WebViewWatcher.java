@@ -2,6 +2,8 @@ package com.thefirstlineofcode.sand.demo.app.android;
 
 import android.app.Activity;
 import android.net.http.SslError;
+import android.os.Build;
+import android.webkit.CookieManager;
 import android.webkit.JavascriptInterface;
 import android.webkit.JsResult;
 import android.webkit.PermissionRequest;
@@ -30,10 +32,26 @@ public class WebViewWatcher extends AbstractWatcher implements IWebrtcPeer.Liste
 		
 		WebSettings webSettings = webView.getSettings();
 		webSettings.setJavaScriptEnabled(true);
+		webSettings.setUseWideViewPort(true);
+		webSettings.setLoadWithOverviewMode(true);
+		webSettings.setBuiltInZoomControls(true);
+		webSettings.setDomStorageEnabled(true);
+		
+		if(Build.VERSION.SDK_INT > Build.VERSION_CODES.HONEYCOMB) {
+			// Hide the zoom controls for HONEYCOMB+
+			webSettings.setDisplayZoomControls(false);
+		}
+		
+		if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+			WebView.setWebContentsDebuggingEnabled(true);
+		}
 		
 		webView.setWebViewClient(new LiveStreamingWebViewClient());
 		webView.setWebChromeClient(new LiveStreamingWebChromeClient());
 		webView.addJavascriptInterface(this, "androidApp");
+		
+		CookieManager cookieManager = CookieManager.getInstance();
+		cookieManager.setAcceptThirdPartyCookies(webView, true);
 	}
 	
 	@Override

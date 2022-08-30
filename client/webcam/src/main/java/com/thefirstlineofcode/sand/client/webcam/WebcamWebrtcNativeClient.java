@@ -103,13 +103,13 @@ public class WebcamWebrtcNativeClient implements IWebcamWebrtcNativeClient {
 	private void stopThreads() {
 		stopThreadsFlag = true;
 		
-		if (processingThread != null) {
+		if (receivingThread != null) {
 			try {
-				processingThread.join(DEFAULT_BLOCKING_TIMEOUT * 4, 0);
+				receivingThread.join(DEFAULT_BLOCKING_TIMEOUT * 4, 0);
 			} catch (InterruptedException e) {
 				// ignore
 			}
-			processingThread = null;
+			receivingThread = null;
 		}
 		
 		if (sendingThread != null) {
@@ -121,13 +121,13 @@ public class WebcamWebrtcNativeClient implements IWebcamWebrtcNativeClient {
 			sendingThread = null;
 		}
 		
-		if (receivingThread != null) {
+		if (processingThread != null) {
 			try {
-				receivingThread.join(DEFAULT_BLOCKING_TIMEOUT * 4, 0);
+				processingThread.join(DEFAULT_BLOCKING_TIMEOUT * 4, 0);
 			} catch (InterruptedException e) {
 				// ignore
 			}
-			receivingThread = null;
+			processingThread = null;
 		}
 	}
 	
@@ -318,6 +318,8 @@ public class WebcamWebrtcNativeClient implements IWebcamWebrtcNativeClient {
 				e.printStackTrace();
 			}
 			
+			stopThreads();
+			
 			if (socket != null && socket.isConnected()) {
 				try {
 					socket.close();
@@ -325,7 +327,6 @@ public class WebcamWebrtcNativeClient implements IWebcamWebrtcNativeClient {
 			}
 			
 			connected = false;
-			stopThreads();
 		}
 	}
 	

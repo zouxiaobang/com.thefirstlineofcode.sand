@@ -131,7 +131,10 @@ public abstract class AbstractWebrtcPeer implements IWebrtcPeer, IIqListener {
 			setPeer(sender);
 		
 		if (!sender.equals(peer)) {
-			throw new ProtocolException(new ResourceConstraint());
+			if (sender.getBareId().equals(peer.getBareId()))
+				setPeer(sender);
+			else
+				throw new ProtocolException(new ResourceConstraint());
 		}
 		
 		Signal signal = iq.getObject();
