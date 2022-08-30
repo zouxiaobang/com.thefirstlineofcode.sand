@@ -11,7 +11,9 @@ public interface IWebrtcPeer {
 	}
 	
 	void start();
+	boolean isStarted();
 	void stop();
+	boolean isStopped();
 	
 	JabberId getPeer();
 	void sendToPeer(Signal signal);

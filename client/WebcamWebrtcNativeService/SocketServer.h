@@ -19,6 +19,7 @@ public:
 	~SocketServer();
 private:
 	void processMessage(cppnet::Handle handle, const std::string &message);
+	void processCommand(cppnet::Handle handle,const std::string &command);
 private:
 	cppnet::CppNet *net;
 	rtc::scoped_refptr<WebcamWebrtcPeer> wwPeer;

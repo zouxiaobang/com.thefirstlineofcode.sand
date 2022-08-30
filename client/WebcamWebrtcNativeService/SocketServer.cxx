@@ -50,39 +50,62 @@ void SocketServer::messageRead(cppnet::Handle handle, std::shared_ptr<cppnet::Bu
 }
 
 void SocketServer::processMessage(cppnet::Handle handle, const std::string &message) {
-	if (wwPeer->isClosed() && message.compare("OPEN") != 0) {
-		std::string error = "ERROR Only OPEN command can be processed in closed state.";
-		handle->Write(error.c_str(), error.size());
+	std::vector<std::string> commands;
+
+	int commandStart = 0;
+	for (int i = 2; i < message.size(); i++) {
+		if (message.at(i) == '$' &&
+			message.at(i - 1) == '$') {
+			commands.push_back(message.substr(commandStart, (i - commandStart - 1)));
+			commandStart = i + 1;
+		}
+	}
+
+	for (int i = 0; i < commands.size(); i++) {
+		processCommand(handle, commands[i]);
+	}
+}
+
+void SocketServer::processCommand(cppnet::Handle handle, const std::string &command) {
+	if(wwPeer->isClosed() &&
+		command.compare("STOP") != 0 &&
+		command.compare("OPEN") != 0 &&
+		command.compare("CLOSE") != 0) {
+		std::string error = "ERROR Only STOP, OPEN, CLOSE commands can be processed in closed state.";
+		handle->Write(error.c_str(),error.size());
 
 		return;
 	}
 
-	if (message.compare("STOP") == 0) {
+	if(command.compare("STOP") == 0) {
 		cout << "Stop command received. The service will be stopped." << endl;
 		stop();
 
 		return;
-	} else if (message.compare("OPEN") == 0) {
+	} else if(command.compare("OPEN") == 0) {
+		cout << "Open command received." << endl;
+
 		static const char openedMsg[] = "OPENED";
 		wwPeer->open(handle);
 		handle->Write(openedMsg, sizeof(openedMsg));
-	} else if (message.compare("CLOSE") == 0) {
+	} else if(command.compare("CLOSE") == 0) {
+		cout << "Close command received." << endl;
+
 		static const char closedMsg[] = "CLOSED";
 		wwPeer->close();
 		handle->Write(closedMsg, sizeof(closedMsg));
-	} else if (message.compare(0, 6, "OFFER ") == 0 && message.size() > 6) {
-		std::string offerSdp = message.substr(6, message.size() - 6);
+	} else if(command.compare(0, 6, "OFFER ") == 0 && command.size() > 6) {
+		std::string offerSdp = command.substr(6, command.size() - 6);
 		cout << "Offer command received. SDP is: " + offerSdp << endl;
 
 		wwPeer->offered(offerSdp);
-	} else if(message.compare(0, 20, "ICE_CANDIDATE_FOUND ") == 0 && message.size() > 20) {
-		std::string jsonCandidate = message.substr(20, message.size() - 20);
+	} else if(command.compare(0, 20, "ICE_CANDIDATE_FOUND ") == 0 && command.size() > 20) {
+		std::string jsonCandidate = command.substr(20, command.size() - 20);
 		cout << "ICE candidate found command received. Candidate is: " + jsonCandidate << endl;
 
 		wwPeer->iceCandidateFound(jsonCandidate);
-	}
-	else {
-		cout << "Unkown command received. Message is: " + message << endl;
+	} else {
+		cout << "Unkown command received. Message is: " + command << endl;
 	}
 }
 

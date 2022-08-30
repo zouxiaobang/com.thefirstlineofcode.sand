@@ -5,14 +5,7 @@ window.onload = function() {
 	videoOutput = document.getElementById('videoOutput');
 	showSpinner();
 	
-	createPeerConnection();
-	
-	if (!peerConnection) {
-		alert("Can't create peer connection.");
-		return;
-	}
-	
-	offer();
+	 offer();
 }
 
 function createPeerConnection() {
@@ -31,11 +24,43 @@ function createPeerConnection() {
 		};
 		peerConnection = new RTCPeerConnection(configuration);
 		
-		peerConnection.addEventListener("icecandidate", onIceCandidate);
-		peerConnection.addEventListener("track", onTrack);
-		peerConnection.addEventListener("iceconnectionstatechange", onIceConnectionStateChange);
-		peerConnection.addEventListener("signalingstatechange", onSignalingStateChange);
-		peerConnection.addEventListener("connectionstatechange", onConnectionStateChange);
+		peerConnection.addEventListener("signalingstatechange", (event) => {
+			alert("Signaling state changed. Current state: " + peerConnection.signalingState);
+		});
+		
+		peerConnection.addEventListener("connectionstatechange", (event) => {
+			alert("Connection state changed. Current state: " + peerConnection.connectionState);
+		});
+		
+		peerConnection.addEventListener("track", (event) => {
+			alert("onTrack");
+			videoOutput.srcObject = event.streams[0];
+		});
+		
+		peerConnection.addEventListener("iceconnectionstatechange", (event) => {
+			alert("ICE connection state changed. Current state: " + peerConnection.iceConnectionState);
+					
+			/*if (peerConnection.iceConnectionState ==
+						IceConnectionState.CONNECTED ||
+					peerConnection.iceConnectionState ==
+						IceConnectionState.COMPLETED) {
+				alert("Play video.");
+				videoOutput.play();
+			}*/
+		});
+		
+		peerConnection.addEventListener("icegatheringstatechange", (event) => {
+			alert("ICE gathering state changed. Current state: " + peerConnection.iceGatheringState);
+		});
+		
+		peerConnection.addEventListener("icecandidateerror", (event) => {
+			alert("ICE candidate error. Error code: " + event.errorCode);
+		});
+		
+		peerConnection.addEventListener("icecandidate", (event) => {
+			if (event.candidate != null)
+				androidApp.processJavascriptSignal("ICE_CANDIDATE_FOUND", JSON.stringify(event.candidate.toJSON()));
+		});
 		
 		try {
 			var transceiver = peerConnection.addTransceiver("video",
@@ -47,18 +72,6 @@ function createPeerConnection() {
 			alert("Failed to add video track to peer connection.");
 		}
 	}
-}
-
-function onConnectionStateChange(event) {
-	alert("Connection state changed. Current state: " + peerConnection.connectionState);
-}
-
-function onSignalingStateChange(event) {
-	alert("Signaling state changed. Current state: " + peerConnection.signalingState);
-}
-
-function onIceConnectionStateChange(event) {
-	alert("ICE connection state changed. Current state: " + peerConnection.iceConnectionState);
 }
 
 function offer() {
@@ -85,10 +98,8 @@ function showSpinner() {
 	videoOutput.style.background = 'center transparent url("./img/spinner.gif") no-repeat';
 }
 
-function onIceCandidate(event) {
-	if (event.candidate != null) {
-		androidApp.processJavascriptSignal("ICE_CANDIDATE_FOUND", JSON.stringify(event.candidate.toJSON()));
-	}
+function opened() {
+	offer();
 }
 
 function answered(lineSeparatorsHiddenAnswerSdp) {
@@ -196,14 +207,7 @@ function iceCandidateFound(quotesHiddenCandidate) {
 	);
 	
 	peerConnection.addIceCandidate(candidate).
-		then(() => {
-			alert("ICE candidate has added to peer connection. Candidate info: " + sCandidate);
-		}).catch((error) => {
+		catch((error) => {
 			alert("Can't add ICE candidate to peer connection. Error object: " + error);
 		});
-}
-
-function onTrack(event) {
-alert("onTrack.");
-	videoOutput.srcObject = new MediaStream([event.track]);
 }

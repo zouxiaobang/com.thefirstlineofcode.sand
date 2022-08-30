@@ -8,6 +8,7 @@
 #include "api/create_peerconnection_factory.h"
 #include "absl/memory/memory.h"
 #include "json/json.h"
+#include "pc/peer_connection.h"
 
 #include "WebcamWebrtcPeer.h"
 
@@ -16,6 +17,44 @@ using namespace std;
 const char nameCandidateSdpMid[] = "sdpMid";
 const char nameCandidateSdpMLineIndex[] = "sdpMLineIndex";
 const char nameCandidateSdp[] = "candidate";
+
+void showTransceivers(webrtc::PeerConnectionInterface *peerConnectionInterface) {
+	cout << "Show current transceivers:" << endl;
+
+	webrtc::PeerConnection *peerConnection = (webrtc::PeerConnection *)peerConnectionInterface;
+	std::vector<rtc::scoped_refptr<webrtc::RtpTransceiverInterface>> transceivers =
+		peerConnection->GetTransceivers();
+
+	if(transceivers.size() == 0) {
+		cout << "No transceivers.";
+		return;
+	}
+
+	for(int i = 0; i < transceivers.size(); i++) {
+		//rtc::scoped_refptr<webrtc::RtpTransceiverProxyWithInternal<webrtc::RtpTransceiver>> transceiver = transceivers[i];
+		rtc::scoped_refptr<webrtc::RtpTransceiverInterface> transceiver = transceivers[i];
+		webrtc::RtpTransceiverDirection direction = transceiver->direction();
+
+		std::string out = "Found a transceiver. It's media type: " +
+			cricket::MediaTypeToString(transceiver->media_type()) +
+			", It's mid: " + (transceiver->mid().has_value() ? transceiver->mid().value() : "null") +
+			", Is it stopped: " + (transceiver->stopped() ? "true" : "false");
+
+		if(direction == webrtc::RtpTransceiverDirection::kSendRecv) {
+			out += ", It's direction: kSendRecv.";
+		} else if(direction == webrtc::RtpTransceiverDirection::kSendOnly) {
+			out += ", It's direction: kSendOnly.";
+		} else if(direction == webrtc::RtpTransceiverDirection::kRecvOnly) {
+			out += ", It's direction: kRecvOnly.";
+		} else if(direction == webrtc::RtpTransceiverDirection::kInactive) {
+			out += ", It's direction: kInactive.";
+		} else {
+			out += ", It's direction: kStopped.";
+		}
+		
+		cout << out << endl;
+	}
+};
 
 class DummySetSessionDescriptionObserver : public webrtc::SetSessionDescriptionObserver {
 public:
@@ -59,34 +98,6 @@ public:
 
 		peerConnection->SetLocalDescription(DummySetSessionDescriptionObserver::Create(),
 			sessionDescription);
-
-		std::vector<rtc::scoped_refptr<webrtc::RtpTransceiverInterface>> transceivers = peerConnection->GetTransceivers();
-
-		for (int i = 0; i < transceivers.size(); i++) {
-			rtc::scoped_refptr<webrtc::RtpTransceiverInterface> transceiver = transceivers[i];
-			webrtc::RtpTransceiverDirection direction = transceiver->direction();
-
-			std::string out = "Found a transceiver. It's media type: " +
-				cricket::MediaTypeToString(transceiver->media_type());
-
-			if(direction == webrtc::RtpTransceiverDirection::kSendRecv) {
-				out += ". It's direction: kSendRecv.";
-				cout << out << endl;
-			} else if (direction == webrtc::RtpTransceiverDirection::kSendOnly) {
-				out += ". It's direction: kSendOnly.";
-				cout << out << endl;
-			} else if(direction == webrtc::RtpTransceiverDirection::kRecvOnly) {
-				out += ". It's direction: kRecvOnly.";
-				cout << out << endl;
-			} else if(direction == webrtc::RtpTransceiverDirection::kInactive) {
-				out += ". It's direction: kInactive.";
-				cout << out << endl;
-			} else {
-				out += ". It's direction: kStopped.";
-				cout << out << endl;
-			}
-
-		}
 	}
 
 	void OnFailure(webrtc::RTCError error) {
@@ -110,9 +121,15 @@ public:
 	virtual void OnSuccess() {
 		cout << "Creating remote session description succeeded. Current signaling state of peer connection: " << peerConnection->signaling_state() << "." << endl;
 
+		cout << "Before creating answer." << endl;
+		showTransceivers(peerConnection.get());
+
 		rtc::scoped_refptr<CreateAnswerObserver> creatAnswerObserver =
 			new rtc::RefCountedObject<CreateAnswerObserver>(handle, peerConnection);
 		peerConnection->CreateAnswer(creatAnswerObserver, webrtc::PeerConnectionInterface::RTCOfferAnswerOptions());
+
+		cout << "After creating answer." << endl;
+		showTransceivers(peerConnection.get());
 	}
 
 	virtual void OnFailure(webrtc::RTCError error) {
@@ -134,6 +151,9 @@ WebcamWebrtcPeer::WebcamWebrtcPeer(webrtc::PeerConnectionInterface::IceServers _
 }
 
 void WebcamWebrtcPeer::open(cppnet::Handle handle) {
+	if (opened)
+		return;
+
 	this->handle = handle;
 	if (!peerConnection.get()) {
 		createPeerConnection();
@@ -144,6 +164,9 @@ void WebcamWebrtcPeer::open(cppnet::Handle handle) {
 }
 
 void WebcamWebrtcPeer::close() {
+	if (!opened)
+		return;
+
 	stopVideoRenderer();
 
 	if (peerConnection.get()) {
@@ -212,14 +235,11 @@ void WebcamWebrtcPeer::addVideoTrack() {
 		}
 	}
 
-	webrtc::RtpTransceiverInit init;
-	init.direction = webrtc::RtpTransceiverDirection::kSendOnly;
-	auto resultOrError = peerConnection->AddTransceiver(videoTrack, init);
+	showTransceivers(peerConnection.get());
 
-	if (!resultOrError.ok()) {
-		// TODO Send error to native service client
-		return;
-	}
+	peerConnection->AddTrack(videoTrack, {"video_stream"});
+
+	showTransceivers(peerConnection.get());
 }
 
 void WebcamWebrtcPeer::offered(std::string offerSdp) {
@@ -244,6 +264,8 @@ void WebcamWebrtcPeer::offered(std::string offerSdp) {
 		return;
 	}
 
+	cout << "Before setting remote session description." << endl;
+	showTransceivers((webrtc::PeerConnection *)peerConnection.get());
 	rtc::scoped_refptr<SetRemoteSessionDescriptionObserver> setRemoteSessionDescriptionObserver =
 		new rtc::RefCountedObject<SetRemoteSessionDescriptionObserver>(handle, peerConnection);
 	peerConnection->SetRemoteDescription(setRemoteSessionDescriptionObserver,

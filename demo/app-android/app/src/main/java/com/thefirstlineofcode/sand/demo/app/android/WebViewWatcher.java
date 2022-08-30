@@ -37,23 +37,27 @@ public class WebViewWatcher extends AbstractWatcher implements IWebrtcPeer.Liste
 	}
 	
 	@Override
-	public void start() {
-		super.start();
+	public void watch() {
+		if (!isStarted())
+			start();
 		
 		addListener(this);
 		
-		String host = chatServices.getStream().getStreamConfig().getHost();
-		webView.loadUrl(String.format("https://%s/index.html", host));
+		processSignal(Signal.ID.OPEN);
 	}
 	
 	@Override
-	public void stop() {
-	
+	public void opened() {
+		super.opened();
+		
+		String host = chatServices.getStream().getStreamConfig().getHost();
+		activity.runOnUiThread(() -> webView.loadUrl(String.format("https://%s/index.html", host)));
 	}
 	
 	@Override
 	public void close() {
-		stop();
+		processSignal(Signal.ID.CLOSE);
+		removeListener(this);
 	}
 	
 	@Override

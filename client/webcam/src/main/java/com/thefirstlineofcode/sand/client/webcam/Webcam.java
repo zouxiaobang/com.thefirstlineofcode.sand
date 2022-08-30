@@ -7,7 +7,8 @@ import com.thefirstlineofcode.chalk.core.IChatServices;
 import com.thefirstlineofcode.sand.protocols.webrtc.signaling.Signal;
 
 public class Webcam extends AbstractWebrtcPeer implements IWebcam,
-			IWebrtcPeer.Listener, IWebcamWebrtcNativeClient.Listener {
+			IWebrtcPeer.Listener, IWebcamWebrtcNativeClient.Listener,
+			IWebcam.Listener {
 	private static final Logger logger = LoggerFactory.getLogger(Webcam.class);
 	
 	private boolean started;
@@ -69,6 +70,9 @@ public class Webcam extends AbstractWebrtcPeer implements IWebcam,
 	public void stop() {
 		super.stop();
 		
+		if (isOpened())
+			close();
+		
 		removeListener(this);
 		
 		if (nativeClient != null) {
@@ -101,8 +105,13 @@ public class Webcam extends AbstractWebrtcPeer implements IWebcam,
 	
 	@Override
 	public void close() {
-		if (!isOpened())
-			throw new IllegalStateException("Try to close webcam which's not in opened state.");
+		if (!started)
+			throw new IllegalStateException("Try to open webcam which's not in started state.");
+		
+		if (!isOpened()) {
+			logger.warn("Try to close webcam which's not in opened state.");
+			return;
+		}
 		
 		nativeClient.send("CLOSE");
 	}
@@ -142,8 +151,10 @@ public class Webcam extends AbstractWebrtcPeer implements IWebcam,
 		
 		if ("OPENED".equals(id) && data == null) {
 			opened = true;
+			sendToPeer(new Signal(Signal.ID.OPENED));
 		} else if ("CLOSED".equals(id) && data == null) {
 			opened = false;
+			sendToPeer(new Signal(Signal.ID.CLOSED));
 		} else if ("ANSWER".equals(id) && data != null) {
 			sendToPeer(new Signal(Signal.ID.ANSWER, data));
 		}  else if ("ICE_CANDIDATE_FOUND".equals(id) && data != null) {
@@ -164,5 +175,28 @@ public class Webcam extends AbstractWebrtcPeer implements IWebcam,
 	@Override
 	public void iceCandidateFound(String jsonCandidate) {
 		nativeClient.send("ICE_CANDIDATE_FOUND " + jsonCandidate);
+	}
+
+	@Override
+	public void askToOpen() {
+		nativeClient.send("OPEN");
+	}
+
+	@Override
+	public void askToClose() {
+		nativeClient.send("CLOSE");
+	}
+	
+	protected void processPeerSignal(Signal.ID id, String data) {
+		if (id == Signal.ID.OPEN) {
+			logger.info("Received OPEN signal.");
+			askToOpen();
+		} else if (id == Signal.ID.CLOSE) {
+			logger.info("Received CLOSE signal.");
+			askToClose();
+		} else {
+			super.processPeerSignal(id, data);
+		}
+		
 	}
 }

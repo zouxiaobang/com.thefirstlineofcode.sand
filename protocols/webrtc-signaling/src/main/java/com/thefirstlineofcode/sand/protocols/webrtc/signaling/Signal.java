@@ -10,6 +10,10 @@ public class Signal {
 	public static final Protocol PROTOCOL = new Protocol("urn:leps:webrtc:signaling", "signal");
 	
 	public enum ID {
+		OPEN,
+		OPENED,
+		CLOSE,
+		CLOSED,
 		OFFER,
 		ANSWER,
 		ICE_CANDIDATE_FOUND
@@ -21,6 +25,10 @@ public class Signal {
 	private String data;
 	
 	public Signal() {}
+	
+	public Signal(ID id) {
+		this(id, null);
+	}
 	
 	public Signal(ID id, String data) {
 		this.id = id;

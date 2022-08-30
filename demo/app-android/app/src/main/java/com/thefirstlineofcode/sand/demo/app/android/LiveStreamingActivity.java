@@ -6,6 +6,7 @@ import android.app.AlertDialog;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.webkit.WebView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -13,6 +14,7 @@ import androidx.core.content.ContextCompat;
 
 import com.thefirstlineofcode.basalt.xmpp.core.JabberId;
 import com.thefirstlineofcode.sand.client.webcam.IWatcher;
+import com.thefirstlineofcode.sand.protocols.webrtc.signaling.Signal;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,7 +24,7 @@ public class LiveStreamingActivity extends AppCompatActivity {
 	
 	public static final int MEDIAS_PERMISSIONS_REQUEST_CODE = 2;
 	
-	private IWatcher watcher;
+	private WebViewWatcher watcher;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -53,6 +55,13 @@ public class LiveStreamingActivity extends AppCompatActivity {
 				new Class<?>[] {Activity.class, JabberId.class, WebView.class},
 				new Object[] {this, cameraJid, webView});
 		watcher.watch();
+	}
+	
+	@Override
+	protected void onStop() {
+		super.onStop();
+		
+		watcher.close();
 	}
 	
 	private boolean checkPermission(String permission) {

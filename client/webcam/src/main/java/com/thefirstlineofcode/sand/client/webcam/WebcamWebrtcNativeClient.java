@@ -265,6 +265,7 @@ public class WebcamWebrtcNativeClient implements IWebcamWebrtcNativeClient {
 					if (message == null)
 						continue;
 					
+					message += "$$";
 					output.write(message.getBytes("UTF-8"));
 					output.flush();
 				} catch (InterruptedException e) {

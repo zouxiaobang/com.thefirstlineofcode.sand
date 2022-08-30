@@ -3,7 +3,6 @@ package com.thefirstlineofcode.sand.demo.things.client.sc.rbp3b;
 import com.thefirstlineofcode.chalk.core.stream.StandardStreamConfig;
 import com.thefirstlineofcode.chalk.logger.LogConfigurator;
 import com.thefirstlineofcode.chalk.logger.LogConfigurator.LogLevel;
-import com.thefirstlineofcode.sand.client.webcam.Webcam;
 import com.thefirstlineofcode.sand.protocols.core.DeviceIdentity;
 
 public class Main {
@@ -88,26 +87,6 @@ public class Main {
 		}
 		
 		camera.start();
-		
-		Webcam webcam = camera.getWebcam();
-		webcam.open();
-		
-		for (int i = 0; i <10; i++) {
-			if (webcam.isOpened())
-				break;
-			
-			try {
-				Thread.sleep(200);
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
-		
-		if (!webcam.isOpened()) {
-			camera.stop();
-			throw new RuntimeException("Can't open webcam.");
-		}
 	}
 
 	private LogLevel getLogLevel(String sLogLevel) {

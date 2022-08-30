@@ -23,6 +23,8 @@ public abstract class AbstractWebrtcPeer implements IWebrtcPeer, IIqListener {
 	protected List<Listener> listeners;
 	protected JabberId peer;
 	
+	protected boolean started;
+	
 	public AbstractWebrtcPeer(IChatServices chatServices) {
 		this(chatServices, null);
 	}
@@ -32,13 +34,20 @@ public abstract class AbstractWebrtcPeer implements IWebrtcPeer, IIqListener {
 		this.peer = peer;
 		
 		listeners = new ArrayList<>();
-		
+		started = false;
 	}
 	
 	@Override
 	public void start() {
 		chatServices.getIqService().addListener(Signal.PROTOCOL, this);
 		logger.info(String.format("WebRTC peer[%s] has started.", getClass().getSimpleName()));
+		
+		started = true;
+	}
+	
+	@Override
+	public boolean isStarted() {
+		return started;
 	}
 	
 	@Override
@@ -46,6 +55,11 @@ public abstract class AbstractWebrtcPeer implements IWebrtcPeer, IIqListener {
 		chatServices.getIqService().removeListener(Signal.PROTOCOL);
 		peer = null;
 		logger.info(String.format("WebRTC peer[%s] has stopped.", getClass().getSimpleName()));
+	}
+	
+	@Override
+	public boolean isStopped() {
+		return !started;
 	}
 	
 	public void setPeer(JabberId peer) {
@@ -77,6 +91,10 @@ public abstract class AbstractWebrtcPeer implements IWebrtcPeer, IIqListener {
 	@Override
 	public boolean removeListener(Listener listener) {
 		return listeners.remove(listener);
+	}
+	
+	protected void processSignal(Signal.ID signalId) {
+		sendToPeer(new Signal(signalId, null));
 	}
 	
 	protected void processSignal(Signal.ID signalId, String data) {
