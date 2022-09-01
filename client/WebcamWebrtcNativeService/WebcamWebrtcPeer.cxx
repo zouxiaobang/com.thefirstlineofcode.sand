@@ -122,14 +122,12 @@ public:
 		cout << "Creating remote session description succeeded. Current signaling state of peer connection: " << peerConnection->signaling_state() << "." << endl;
 
 		cout << "Before creating answer." << endl;
-		showTransceivers(peerConnection.get());
 
 		rtc::scoped_refptr<CreateAnswerObserver> creatAnswerObserver =
 			new rtc::RefCountedObject<CreateAnswerObserver>(handle, peerConnection);
 		peerConnection->CreateAnswer(creatAnswerObserver, webrtc::PeerConnectionInterface::RTCOfferAnswerOptions());
 
 		cout << "After creating answer." << endl;
-		showTransceivers(peerConnection.get());
 	}
 
 	virtual void OnFailure(webrtc::RTCError error) {
@@ -167,7 +165,7 @@ void WebcamWebrtcPeer::close() {
 	if (!opened)
 		return;
 
-	stopVideoRenderer();
+	// stopLocalVideoRenderer();
 
 	if (peerConnection.get()) {
 		peerConnection->Close();
@@ -235,11 +233,9 @@ void WebcamWebrtcPeer::addVideoTrack() {
 		}
 	}
 
-	showTransceivers(peerConnection.get());
-
 	peerConnection->AddTrack(videoTrack, {"video_stream"});
 
-	showTransceivers(peerConnection.get());
+	// startLocalVideoRenderer(videoTrack);
 }
 
 void WebcamWebrtcPeer::offered(std::string offerSdp) {
@@ -265,7 +261,7 @@ void WebcamWebrtcPeer::offered(std::string offerSdp) {
 	}
 
 	cout << "Before setting remote session description." << endl;
-	showTransceivers((webrtc::PeerConnection *)peerConnection.get());
+
 	rtc::scoped_refptr<SetRemoteSessionDescriptionObserver> setRemoteSessionDescriptionObserver =
 		new rtc::RefCountedObject<SetRemoteSessionDescriptionObserver>(handle, peerConnection);
 	peerConnection->SetRemoteDescription(setRemoteSessionDescriptionObserver,
@@ -313,11 +309,11 @@ void WebcamWebrtcPeer::iceCandidateFound(std::string jsonCandidate) {
 	cout << " Received candidate :" << jsonCandidate;
 }
 
-void WebcamWebrtcPeer::startVideoRenderer(webrtc::VideoTrackInterface *videoTrack) {
-	localRenderer.reset(new VideoRenderer(videoTrack));
+void WebcamWebrtcPeer::startLocalVideoRenderer(webrtc::VideoTrackInterface *videoTrack) {
+	localRenderer.reset(new DummyVideoRenderer(videoTrack));
 }
 
-void WebcamWebrtcPeer::stopVideoRenderer() {
+void WebcamWebrtcPeer::stopLocalVideoRenderer() {
 	localRenderer.reset();
 }
 

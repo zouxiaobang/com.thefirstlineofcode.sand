@@ -117,13 +117,13 @@ public:
 	void OnRemoveTrack(rtc::scoped_refptr<webrtc::RtpReceiverInterface> receiver);
 	void OnInterestingUsage(int usage_pattern);
 
-	class VideoRenderer : public rtc::VideoSinkInterface<webrtc::VideoFrame> {
+	class DummyVideoRenderer : public rtc::VideoSinkInterface<webrtc::VideoFrame> {
 	public:
-		VideoRenderer(webrtc::VideoTrackInterface *_trackToRender) :
+		DummyVideoRenderer(webrtc::VideoTrackInterface *_trackToRender) :
 				trackToRender(_trackToRender) {
 			trackToRender->AddOrUpdateSink(this, rtc::VideoSinkWants());
 		}
-		virtual ~VideoRenderer() {
+		virtual ~DummyVideoRenderer() {
 			trackToRender->RemoveSink(this);
 		}
 
@@ -144,8 +144,8 @@ private:
 	void createPeerConnectionFactory();
 	void createPeerConnection();
 	void addVideoTrack();
-	void startVideoRenderer(webrtc::VideoTrackInterface *videoTrack);
-	void stopVideoRenderer();
+	void startLocalVideoRenderer(webrtc::VideoTrackInterface *videoTrack);
+	void stopLocalVideoRenderer();
 	std::string createJsonCandidate(const webrtc::IceCandidateInterface *candidate);
 private:
 	const char *labelVideoStream = "video_only_stream";
@@ -154,7 +154,7 @@ private:
 	rtc::scoped_refptr<webrtc::PeerConnectionInterface> peerConnection;
 	rtc::scoped_refptr<CapturerTrackSource> videoDevice;
 	rtc::scoped_refptr<webrtc::VideoTrackInterface> videoTrack;
-	std::unique_ptr<VideoRenderer> localRenderer;
+	std::unique_ptr<DummyVideoRenderer> localRenderer;
 
 	std::unique_ptr<rtc::Thread> signalingThread;
 

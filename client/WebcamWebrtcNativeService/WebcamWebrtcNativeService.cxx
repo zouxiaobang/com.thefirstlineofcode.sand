@@ -17,9 +17,13 @@ void printHelp() {
 webrtc::PeerConnectionInterface::IceServers createIceServers() {
 	webrtc::PeerConnectionInterface::IceServers iceServers;
 
-	webrtc::PeerConnectionInterface::IceServer stunServer;
-	stunServer.urls.push_back("stun:47.115.36.99:3478");
-	iceServers.push_back(stunServer);
+	webrtc::PeerConnectionInterface::IceServer stunServer1;
+	stunServer1.urls.push_back("stun:stun.12connect.com:3478");
+	iceServers.push_back(stunServer1);
+
+	webrtc::PeerConnectionInterface::IceServer stunServer2;
+	stunServer2.urls.push_back("stun:47.115.36.99:3478");
+	iceServers.push_back(stunServer2);
 
 	webrtc::PeerConnectionInterface::IceServer turnServer;
 	turnServer.urls.push_back("turn:47.115.36.99:3478");

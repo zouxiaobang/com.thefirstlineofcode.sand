@@ -31,6 +31,7 @@ import org.webrtc.SessionDescription;
 import org.webrtc.SurfaceViewRenderer;
 import org.webrtc.VideoDecoderFactory;
 import org.webrtc.VideoEncoderFactory;
+import org.webrtc.VideoTrack;
 
 import java.io.IOException;
 import java.io.StringWriter;
@@ -82,6 +83,8 @@ public class WebcamWatcher extends AbstractWatcher implements IWebrtcPeer.Listen
 		
 		if (eglBase == null)
 			eglBase = EglBase.create();
+		
+		videoRenderer.init(eglBase.getEglBaseContext(), null);
 		
 		if (peerConnection == null)
 			createPeerConnection();
@@ -389,13 +392,16 @@ public class WebcamWatcher extends AbstractWatcher implements IWebrtcPeer.Listen
 		public void onRenegotiationNeeded() {}
 		
 		@Override
-		public void onAddTrack(RtpReceiver rtpReceiver, MediaStream[] mediaStreams) {
-			logger.info("onAddTrack.");
-		}
+		public void onAddTrack(RtpReceiver rtpReceiver, MediaStream[] mediaStreams) {}
 		
 		@Override
 		public void onTrack(RtpTransceiver transceiver) {
-			PeerConnection.Observer.super.onTrack(transceiver);
+			MediaStreamTrack mediaStreamTrack = transceiver.getReceiver().track();
+			if (mediaStreamTrack instanceof VideoTrack) {
+				VideoTrack videoTrack = (VideoTrack)mediaStreamTrack;
+				videoTrack.setEnabled(true);
+				videoTrack.addSink(videoRenderer);
+			}
 		}
 	}
 	
