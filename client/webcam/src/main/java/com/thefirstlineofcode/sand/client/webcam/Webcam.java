@@ -128,10 +128,6 @@ public class Webcam extends AbstractWebrtcPeer implements IWebcam,
 
 	@Override
 	public void offered(String offerSdp) {
-		if (offerSdp.charAt(offerSdp.length() - 1) != '\n') {
-			offerSdp += '\n';
-		}
-		
 		nativeClient.send("OFFER " + offerSdp);
 	}
 

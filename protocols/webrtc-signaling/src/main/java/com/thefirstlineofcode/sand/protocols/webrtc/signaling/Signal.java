@@ -44,9 +44,19 @@ public class Signal {
 	}
 	
 	public String getData() {
+		if ((id == Signal.ID.OFFER || id == Signal.ID.ANSWER) && data != null)
+			return addLastLineSeparatorIfMissed(data);
+			
 		return data;
 	}
 	
+	private String addLastLineSeparatorIfMissed(String offerSdpOrAnswerSdp) {
+		if (offerSdpOrAnswerSdp.charAt(offerSdpOrAnswerSdp.length() - 1) != '\n')
+			offerSdpOrAnswerSdp += '\n';
+		
+		return offerSdpOrAnswerSdp;
+	}
+
 	public void setData(String data) {
 		this.data = data;
 	}

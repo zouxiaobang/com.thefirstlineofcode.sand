@@ -17,9 +17,6 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.webkit.JavascriptInterface;
-import android.webkit.WebSettings;
-import android.webkit.WebView;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
@@ -46,8 +43,6 @@ import com.thefirstlineofcode.sand.demo.protocols.AuthorizedDevices;
 import com.thefirstlineofcode.sand.protocols.actuator.actions.Restart;
 import com.thefirstlineofcode.sand.protocols.actuator.actions.ShutdownSystem;
 import com.thefirstlineofcode.sand.protocols.actuator.actions.Stop;
-import com.thefirstlineofcode.sand.protocols.core.DeviceIdentity;
-import com.thefirstlineofcode.sand.protocols.things.simple.camera.OpenLiveStreaming;
 import com.thefirstlineofcode.sand.protocols.things.simple.camera.TakePhoto;
 import com.thefirstlineofcode.sand.protocols.things.simple.light.Flash;
 
