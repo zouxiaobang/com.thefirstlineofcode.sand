@@ -154,7 +154,7 @@ private:
 	rtc::scoped_refptr<webrtc::PeerConnectionInterface> peerConnection;
 	rtc::scoped_refptr<CapturerTrackSource> videoDevice;
 	rtc::scoped_refptr<webrtc::VideoTrackInterface> videoTrack;
-	std::unique_ptr<DummyVideoRenderer> localRenderer;
+	std::unique_ptr<DummyVideoRenderer> localVideoRenderer;
 
 	std::unique_ptr<rtc::Thread> signalingThread;
 

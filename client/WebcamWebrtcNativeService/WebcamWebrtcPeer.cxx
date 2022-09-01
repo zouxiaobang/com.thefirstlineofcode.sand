@@ -310,11 +310,11 @@ void WebcamWebrtcPeer::iceCandidateFound(std::string jsonCandidate) {
 }
 
 void WebcamWebrtcPeer::startLocalVideoRenderer(webrtc::VideoTrackInterface *videoTrack) {
-	localRenderer.reset(new DummyVideoRenderer(videoTrack));
+	localVideoRenderer.reset(new DummyVideoRenderer(videoTrack));
 }
 
 void WebcamWebrtcPeer::stopLocalVideoRenderer() {
-	localRenderer.reset();
+	localVideoRenderer.reset();
 }
 
 void WebcamWebrtcPeer::createPeerConnectionFactory() {
