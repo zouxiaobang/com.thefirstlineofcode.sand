@@ -39,7 +39,8 @@
 		<module>location</module>
 		<module>actuator</module>
 		<module>operator</module>
-		<module>webcam</module>
+		<module>p2p-webcam</module>
+		<module>kurento-webcam</module>
 		<module>lite</module>
 	</modules>
 

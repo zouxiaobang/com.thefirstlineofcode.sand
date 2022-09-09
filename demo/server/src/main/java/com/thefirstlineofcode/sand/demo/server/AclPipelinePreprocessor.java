@@ -14,6 +14,7 @@ import com.thefirstlineofcode.sand.demo.protocols.AccessControlList.Role;
 import com.thefirstlineofcode.sand.protocols.actuator.Execution;
 import com.thefirstlineofcode.sand.protocols.core.DeviceIdentity;
 import com.thefirstlineofcode.sand.protocols.location.LocateDevices;
+import com.thefirstlineofcode.sand.protocols.webrtc.signaling.Signal;
 import com.thefirstlineofcode.sand.server.concentrator.IConcentrator;
 import com.thefirstlineofcode.sand.server.concentrator.IConcentratorFactory;
 import com.thefirstlineofcode.sand.server.concentrator.Node;
@@ -50,25 +51,49 @@ public class AclPipelinePreprocessor implements IPipelinePreprocessor {
 			return afterParsingLocateDevices(from, iq, (LocateDevices)iq.getObject());
 		} else if (iq.getObject() instanceof Ping) {
 			return afterParsingPing(from, iq);
+		} else if (iq.getObject() instanceof Signal) {
+			return afterParsingSignal(from, iq);
 		} else {
 			return object;
 		}
-		
-
 	}
 	
 	private Object afterParsingPing(JabberId from, Iq iq) {
 		if (iq.getType() == Iq.Type.RESULT)
 			return iq;
 		
-		return isOwnerOrController(from, iq.getTo()) ? iq : null;
+		if (!isOwnerOrController(from, iq.getTo()))
+			throw new ProtocolException(new NotAuthorized("Neither owner nor controller of device."));
+		
+		return iq;
 	}
 	
+	private Object afterParsingSignal(JabberId from, Iq iq) {
+		if (isDevice(from) && isUser(iq.getTo()))
+			return iq;
+		
+		if (!isOwnerOrController(from, iq.getTo()))
+			throw new ProtocolException(new NotAuthorized("Neither owner nor controller of device."));
+		
+		return iq;
+	}
+	
+	private boolean isUser(JabberId to) {
+		return accountManager.exists(to.getBareIdString());
+	}
+
+	private boolean isDevice(JabberId from) {
+		return deviceManager.deviceIdExists(from.getBareIdString());
+	}
+
 	private Object afterParsingExecution(JabberId from, Iq iq) {
 		if (iq.getType() == Iq.Type.RESULT)
 			return iq;
 		
-		return isOwnerOrController(from, iq.getTo()) ? iq : null;
+		if (!isOwnerOrController(from, iq.getTo()))
+			throw new ProtocolException(new NotAuthorized("Neither owner nor controller of device."));
+		
+		return iq;
 	}
 
 	private Object afterParsingLocateDevices(JabberId from, Iq iq, LocateDevices locateDevices) {

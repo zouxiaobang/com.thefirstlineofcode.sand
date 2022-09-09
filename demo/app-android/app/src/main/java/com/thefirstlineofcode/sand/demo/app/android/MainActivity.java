@@ -582,7 +582,7 @@ public class MainActivity extends AppCompatActivity implements IOperator.Listene
 							flash.setRepeat(5);
 						}
 
-						executeAction(target, flash, "Flash");
+						controlDevice(target, flash, "Flash");
 					}
 				});
 		
@@ -594,15 +594,15 @@ public class MainActivity extends AppCompatActivity implements IOperator.Listene
 	
 	public void turnOn(JabberId target) {
 		logger.info("Turn on light {}.", target);
-		executeAction(target, new TurnOn(), "Turn On");
+		controlDevice(target, new TurnOn(), "Turn On");
 	}
 	
 	public void turnOff(JabberId target) {
 		logger.info("Turn off light {}.", target);
-		executeAction(target, new TurnOff(), "Turn Off");
+		controlDevice(target, new TurnOff(), "Turn Off");
 	}
 
-	private void executeAction(JabberId target, Object action, String actionDescription) {
+	private void controlDevice(JabberId target, Object action, String actionDescription) {
 		IChatClient chatClient = ChatClientSingleton.get(this);
 		IRemoting remoting = chatClient.createApi(IRemoting.class);
 		remoting.execute(target, action, new RemotingCallback(this, actionDescription));
