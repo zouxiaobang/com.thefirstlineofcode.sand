@@ -1,27 +1,28 @@
 package com.thefirstlineofcode.sand.demo.app.android;
 
 import android.Manifest;
+import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
-import android.webkit.WebView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 
 import com.thefirstlineofcode.basalt.xmpp.core.JabberId;
-import com.thefirstlineofcode.sand.client.webcam.IWatcher;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.webrtc.SurfaceViewRenderer;
 
 public class LiveStreamingActivity extends AppCompatActivity {
 	private static final Logger logger = LoggerFactory.getLogger(LiveStreamingActivity.class);
 	
 	public static final int MEDIAS_PERMISSIONS_REQUEST_CODE = 2;
 	
-	private IWatcher watcher;
+	private WebcamWatcher watcher;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -47,10 +48,18 @@ public class LiveStreamingActivity extends AppCompatActivity {
 		
 		setContentView(R.layout.activity_live_streaming);
 		
-		WebView webView = findViewById(R.id.webview);
-		watcher = ChatClientSingleton.get(this).createApiImpl(WebViewWatcher.class,
-				new Class<?>[] {JabberId.class, WebView.class}, new Object[] {cameraJid, webView});
+		SurfaceViewRenderer videoRenderer = findViewById(R.id.video_renderer);
+		watcher = ChatClientSingleton.get(this).createApiImpl(WebcamWatcher.class,
+				new Class<?>[] {Context.class, JabberId.class, SurfaceViewRenderer.class},
+				new Object[] {this.getApplicationContext(), cameraJid, videoRenderer});
 		watcher.watch();
+	}
+	
+	@Override
+	protected void onStop() {
+		watcher.stop();
+		
+		super.onStop();
 	}
 	
 	private boolean checkPermission(String permission) {

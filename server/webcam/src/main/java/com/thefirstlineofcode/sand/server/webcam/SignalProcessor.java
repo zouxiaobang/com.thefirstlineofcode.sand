@@ -48,7 +48,7 @@ public class SignalProcessor implements IXepProcessor<Iq, Signal> {
 		}
 		
 		if (isDeviceSession) {
-			if (!accountManager.exists(iq.getTo().getResource())) {
+			if (!accountManager.exists(iq.getTo().getNode())) {
 				throw new ProtocolException(new ItemNotFound(String.format("User named '%s' doesn't exist.", iq.getTo().getNode())));
 			}
 		}

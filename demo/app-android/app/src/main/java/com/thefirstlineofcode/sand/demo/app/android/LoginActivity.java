@@ -24,7 +24,7 @@ import com.thefirstlineofcode.chalk.core.stream.UsernamePasswordToken;
 import com.thefirstlineofcode.chalk.network.ConnectionException;
 
 public class LoginActivity extends AppCompatActivity {
-	public static final int INTERNET_PERMISSION_REQUEST_CODE = 1;
+	public static final int PERMISSIONS_REQUEST_CODE = 1;
 	
 	private View.OnClickListener onClickListener;
 	
@@ -73,7 +73,17 @@ public class LoginActivity extends AppCompatActivity {
 					if (!chatClient.isConnected() && !connect(etUserName, userName, password, chatClient))
 						return;
 				} else {
-					requestPermissions(new String[] {Manifest.permission.INTERNET}, INTERNET_PERMISSION_REQUEST_CODE);
+					requestPermissions(
+							new String[] {
+								Manifest.permission.INTERNET,
+								Manifest.permission.ACCESS_NETWORK_STATE,
+								Manifest.permission.CHANGE_NETWORK_STATE,
+								Manifest.permission.CAMERA,
+								Manifest.permission.RECORD_AUDIO,
+								Manifest.permission.MODIFY_AUDIO_SETTINGS,
+								Manifest.permission.WRITE_EXTERNAL_STORAGE,
+								Manifest.permission.READ_EXTERNAL_STORAGE
+							}, PERMISSIONS_REQUEST_CODE);
 				}
 				
 				finish();
@@ -133,7 +143,7 @@ public class LoginActivity extends AppCompatActivity {
 
 	@Override
 	public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-		if (requestCode == INTERNET_PERMISSION_REQUEST_CODE) {
+		if (requestCode == PERMISSIONS_REQUEST_CODE && allPermissionsGranted(grantResults)) {
 			onClickListener.onClick(findViewById(R.id.bt_login));
 		} else {
 			new AlertDialog.Builder(this).
@@ -147,5 +157,14 @@ public class LoginActivity extends AppCompatActivity {
 					}
 			).create().show();
 		}
+	}
+	
+	private boolean allPermissionsGranted(int[] grantResults) {
+		for (int grantResult : grantResults) {
+			if (grantResult != PackageManager.PERMISSION_GRANTED)
+				return false;
+		}
+		
+		return true;
 	}
 }

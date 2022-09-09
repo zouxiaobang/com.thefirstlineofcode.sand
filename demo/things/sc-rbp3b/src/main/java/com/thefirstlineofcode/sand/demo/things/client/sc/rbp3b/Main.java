@@ -23,6 +23,8 @@ public class Main {
 		Integer port = null;
 		Boolean tlsPreferred = null;
 		String logLevel = null;
+		boolean notStartNativeService = false;
+		String nativeServicePath = null;
 		
 		for (int i = 0; i < args.length; i++) {
 			if (!args[i].startsWith("--")) {
@@ -52,6 +54,10 @@ public class Main {
 				port = Integer.parseInt(value);
 			} else if ("tls-preferred".equals(name)) {
 				tlsPreferred = Boolean.parseBoolean(value);
+			} else if ("not-start-native-service".equals(name)) {
+				notStartNativeService = Boolean.parseBoolean(value);
+			} else if ("native-service-path".equals(name)) {
+				nativeServicePath = value;
 			} else if ("log-level".equals(name)) {
 				logLevel = value;
 			} else {
@@ -64,20 +70,20 @@ public class Main {
 		
 		new LogConfigurator().configure(Camera.THING_MODEL, getLogLevel(logLevel));
 		
+		WebcamConfig webcamConfig = new WebcamConfig(notStartNativeService, nativeServicePath);
 		if (host != null) {
 			if (port == null) {
 				port = 6222;
 			}
 			
 			StandardStreamConfig streamConfig = new StandardStreamConfig(host, port);
-			
 			if (tlsPreferred != null)
 				streamConfig.setTlsPreferred(tlsPreferred);
-			
 			streamConfig.setResource(DeviceIdentity.DEFAULT_RESOURCE_NAME);
-			camera = new Camera(streamConfig);
+			
+			camera = new Camera(webcamConfig, streamConfig);
 		} else {
-			camera = new Camera();
+			camera = new Camera(webcamConfig);
 		}
 		
 		camera.start();
@@ -98,10 +104,12 @@ public class Main {
 	private void printUsage() {
 		System.out.println("Usage: java sand-demo-things-sc-rbp3b--${VERSION}.jar [OPTIONS]");
 		System.out.println("OPTIONS:");
-		System.out.println("--help                     Display help information.");
-		System.out.println("--host=HOST                Specify host name of server.");
-		System.out.println("--port=PORT                Specify server port.");
-		System.out.println("--tls-preferred            Specify whether TLS is preferred when connecting to server.");
-		System.out.println("--log-level=LOG_LEVEL      Specify log level. Option values are info, debug or trace.");
+		System.out.println("--help                      Display help information.");
+		System.out.println("--host=HOST                 Specify host name of server.");
+		System.out.println("--port=PORT                 Specify server port.");
+		System.out.println("--tls-preferred             Specify whether TLS is preferred when connecting to server.");
+		System.out.println("--log-level=LOG_LEVEL       Specify log level. Option values are info, debug or trace.");
+		System.out.println("--not-start-native-service  Don't start native service process.");
+		System.out.println("--native-service-path       Specify log level. Option values are info, debug or trace.");
 	}
 }

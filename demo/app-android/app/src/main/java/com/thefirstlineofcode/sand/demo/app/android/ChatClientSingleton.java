@@ -3,12 +3,9 @@ package com.thefirstlineofcode.sand.demo.app.android;
 import android.content.Context;
 
 import com.thefirstlineofcode.chalk.android.StandardChatClient;
-import com.thefirstlineofcode.chalk.core.IChatClient;
 import com.thefirstlineofcode.sand.client.operator.OperatorPlugin;
 import com.thefirstlineofcode.sand.client.remoting.RemotingPlugin;
 import com.thefirstlineofcode.sand.client.things.simple.camera.CameraPlugin;
-import com.thefirstlineofcode.sand.client.things.simple.gateway.GatewayPlugin;
-import com.thefirstlineofcode.sand.client.things.simple.light.LightPlugin;
 import com.thefirstlineofcode.sand.client.webcam.WebcamPlugin;
 import com.thefirstlineofcode.sand.demo.client.DemoPlugin;
 
@@ -20,8 +17,6 @@ class ChatClientSingleton {
 			chatClient = new StandardChatClient(Toolkits.getStreamConfig(context));
 			chatClient.register(OperatorPlugin.class);
 			chatClient.register(RemotingPlugin.class);
-			chatClient.register(LightPlugin.class);
-			chatClient.register(GatewayPlugin.class);
 			chatClient.register(CameraPlugin.class);
 			chatClient.register(WebcamPlugin.class);
 			chatClient.register(DemoPlugin.class);

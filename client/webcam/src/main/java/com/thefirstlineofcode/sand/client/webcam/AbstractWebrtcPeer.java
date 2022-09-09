@@ -3,6 +3,9 @@ package com.thefirstlineofcode.sand.client.webcam;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.thefirstlineofcode.basalt.xmpp.core.JabberId;
 import com.thefirstlineofcode.basalt.xmpp.core.ProtocolException;
 import com.thefirstlineofcode.basalt.xmpp.core.stanza.Iq;
@@ -13,10 +16,14 @@ import com.thefirstlineofcode.chalk.core.stanza.IIqListener;
 import com.thefirstlineofcode.sand.protocols.webrtc.signaling.Signal;
 
 public abstract class AbstractWebrtcPeer implements IWebrtcPeer, IIqListener {
+	private static final Logger logger = LoggerFactory.getLogger(Webcam.class);
+	
 	protected IChatServices chatServices;
 	
 	protected List<Listener> listeners;
 	protected JabberId peer;
+	
+	protected boolean started;
 	
 	public AbstractWebrtcPeer(IChatServices chatServices) {
 		this(chatServices, null);
@@ -27,12 +34,32 @@ public abstract class AbstractWebrtcPeer implements IWebrtcPeer, IIqListener {
 		this.peer = peer;
 		
 		listeners = new ArrayList<>();
-		
+		started = false;
 	}
 	
 	@Override
 	public void start() {
-		chatServices.getIqService().addListener(Signal.PROTOCOL, this);		
+		chatServices.getIqService().addListener(Signal.PROTOCOL, this);
+		logger.info(String.format("WebRTC peer[%s] has started.", getClass().getSimpleName()));
+		
+		started = true;
+	}
+	
+	@Override
+	public boolean isStarted() {
+		return started;
+	}
+	
+	@Override
+	public void stop() {
+		chatServices.getIqService().removeListener(Signal.PROTOCOL);
+		peer = null;
+		logger.info(String.format("WebRTC peer[%s] has stopped.", getClass().getSimpleName()));
+	}
+	
+	@Override
+	public boolean isStopped() {
+		return !started;
 	}
 	
 	public void setPeer(JabberId peer) {
@@ -46,6 +73,8 @@ public abstract class AbstractWebrtcPeer implements IWebrtcPeer, IIqListener {
 
 	@Override
 	public void sendToPeer(Signal signal) {
+		logger.info(String.format("Send signal(%s) to peer.", signal));
+		
 		Iq iq = new Iq(Iq.Type.SET);
 		iq.setTo(peer);
 		iq.setObject(signal);
@@ -64,24 +93,28 @@ public abstract class AbstractWebrtcPeer implements IWebrtcPeer, IIqListener {
 		return listeners.remove(listener);
 	}
 	
-	protected void processSignal(String id, String data) {
-		if (Signal.ID.OFFER.toString().equals(id)) {
-			sendToPeer(new Signal(Signal.ID.OFFER, data));
-		} else if (Signal.ID.ANSWER.toString().equals(id)) {
-			sendToPeer(new Signal(Signal.ID.ANSWER, data));
-		} else {
-			throw new RuntimeException(String.format("Unknown signal ID: %s.", id));
-		}
+	protected void processSignal(Signal.ID signalId) {
+		sendToPeer(new Signal(signalId, null));
+	}
+	
+	protected void processSignal(Signal.ID signalId, String data) {
+		sendToPeer(new Signal(signalId, data));
 	}
 	
 	protected void processPeerSignal(Signal.ID id, String data) {
-		if (Signal.ID.OFFER.equals(id)) {
+		logger.info(String.format("Received a peer signal(ID: %s, date: %s).", id, data));
+		
+		if (id == Signal.ID.OFFER) {
 			for (Listener listener : listeners) {
 				listener.offered(data);
 			}
-		} else if (Signal.ID.ANSWER.equals(id)) {
+		} else if (id == Signal.ID.ANSWER) {
 			for (Listener listener : listeners) {
 				listener.answered(data);
+			}
+		} else if (id == Signal.ID.ICE_CANDIDATE_FOUND) {
+			for (Listener listener : listeners) {
+				listener.iceCandidateFound(data);
 			}
 		} else {
 			throw new RuntimeException(String.format("Unknown signal ID: %s.", id));
@@ -98,7 +131,10 @@ public abstract class AbstractWebrtcPeer implements IWebrtcPeer, IIqListener {
 			setPeer(sender);
 		
 		if (!sender.equals(peer)) {
-			throw new ProtocolException(new ResourceConstraint());
+			if (sender.getBareId().equals(peer.getBareId()))
+				setPeer(sender);
+			else
+				throw new ProtocolException(new ResourceConstraint());
 		}
 		
 		Signal signal = iq.getObject();

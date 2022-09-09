@@ -7,10 +7,13 @@ public interface IWebrtcPeer {
 	public interface Listener {
 		void offered(String offerSdp);
 		void answered(String answerSdp);
+		void iceCandidateFound(String candidate);
 	}
 	
 	void start();
+	boolean isStarted();
 	void stop();
+	boolean isStopped();
 	
 	JabberId getPeer();
 	void sendToPeer(Signal signal);
