@@ -13,15 +13,15 @@ import com.thefirstlineofcode.sand.client.core.actuator.IExecutor;
 import com.thefirstlineofcode.sand.client.core.actuator.IExecutorFactory;
 import com.thefirstlineofcode.sand.client.edge.AbstractEdgeThing;
 import com.thefirstlineofcode.sand.client.ibdr.RegistrationException;
-import com.thefirstlineofcode.sand.client.things.simple.light.FlashExecutor;
-import com.thefirstlineofcode.sand.client.things.simple.light.ILight;
-import com.thefirstlineofcode.sand.client.things.simple.light.LightPlugin;
+import com.thefirstlineofcode.sand.client.things.simple.light.*;
 import com.thefirstlineofcode.sand.emulators.commons.Constants;
 import com.thefirstlineofcode.sand.emulators.commons.ui.LightEmulatorPanel;
 import com.thefirstlineofcode.sand.emulators.models.SlWe01ModelDescriptor;
 import com.thefirstlineofcode.sand.protocols.actuator.ExecutionException;
 import com.thefirstlineofcode.sand.protocols.core.DeviceIdentity;
 import com.thefirstlineofcode.sand.protocols.things.simple.light.Flash;
+import com.thefirstlineofcode.sand.protocols.things.simple.light.TurnOff;
+import com.thefirstlineofcode.sand.protocols.things.simple.light.TurnOn;
 
 public class Light extends AbstractEdgeThing implements ILight {
 	public static final String THING_TYPE = SlWe01ModelDescriptor.THING_TYPE;
@@ -130,7 +130,7 @@ public class Light extends AbstractEdgeThing implements ILight {
 
 		@Override
 		public void run() {
-			panel.setFlashButtionEnabled(false);
+			panel.setFlashButtonEnabled(false);
 			
 			ILight.LightState oldLightState = lightState;
 			if (lightState == ILight.LightState.ON) {
@@ -170,7 +170,7 @@ public class Light extends AbstractEdgeThing implements ILight {
 				panel.turnOn();
 			}
 			
-			panel.setFlashButtionEnabled(true);
+			panel.setFlashButtonEnabled(true);
 			
 			synchronized (Light.this) {				
 				Light.this.notify();
@@ -212,13 +212,28 @@ public class Light extends AbstractEdgeThing implements ILight {
 	protected IActuator createActuator() {
 		IActuator actuator = chatClient.createApi(IActuator.class);
 		actuator.registerExecutorFactory(Flash.class, new IExecutorFactory<Flash>() {
-			private IExecutor<Flash> executor = new FlashExecutor(Light.this);
 			
 			@Override
 			public IExecutor<Flash> create() {
-				return executor;
+				return new FlashExecutor(Light.this);
 			}
 			
+		});
+		actuator.registerExecutorFactory(TurnOn.class, new IExecutorFactory<TurnOn>() {
+
+			@Override
+			public IExecutor<TurnOn> create() {
+				return new TurnOnExecutor(Light.this);
+			}
+
+		});
+		actuator.registerExecutorFactory(TurnOff.class, new IExecutorFactory<TurnOff>() {
+
+			@Override
+			public IExecutor<TurnOff> create() {
+				return new TurnOffExecutor(Light.this);
+			}
+
 		});
 		
 		return actuator;

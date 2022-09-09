@@ -214,7 +214,7 @@ public class Light extends AbstractLoraThingEmulator implements ILightEmulator {
 
 		@Override
 		public void run() {
-			panel.setFlashButtionEnabled(false);
+			panel.setFlashButtonEnabled(false);
 			
 			ILight.LightState oldLightState = lightState;
 			if (lightState == ILight.LightState.ON) {
@@ -254,7 +254,7 @@ public class Light extends AbstractLoraThingEmulator implements ILightEmulator {
 				panel.turnOn();
 			}
 			
-			panel.setFlashButtionEnabled(true);
+			panel.setFlashButtonEnabled(true);
 			
 			synchronized (Light.this) {				
 				Light.this.notify();

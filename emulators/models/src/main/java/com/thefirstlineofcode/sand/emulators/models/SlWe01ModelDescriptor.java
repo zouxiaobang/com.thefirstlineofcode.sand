@@ -6,6 +6,8 @@ import java.util.Map;
 import com.thefirstlineofcode.basalt.xmpp.core.Protocol;
 import com.thefirstlineofcode.sand.protocols.core.ModelDescriptor;
 import com.thefirstlineofcode.sand.protocols.things.simple.light.Flash;
+import com.thefirstlineofcode.sand.protocols.things.simple.light.TurnOff;
+import com.thefirstlineofcode.sand.protocols.things.simple.light.TurnOn;
 
 public class SlWe01ModelDescriptor extends ModelDescriptor {
 	public static final String MODEL_NAME = "SL-WE01";
@@ -18,6 +20,8 @@ public class SlWe01ModelDescriptor extends ModelDescriptor {
 	private static Map<Protocol, Class<?>> createSupportedActions() {
 		Map<Protocol, Class<?>> supportedActions = new HashMap<>();
 		supportedActions.put(Flash.PROTOCOL, Flash.class);
+		supportedActions.put(TurnOn.PROTOCOL, TurnOn.class);
+		supportedActions.put(TurnOff.PROTOCOL, TurnOff.class);
 		
 		return supportedActions;
 	}

@@ -28,7 +28,7 @@ public class FlashExecutor implements IExecutor<Flash> {
 			repeat = 1;
 		
 		try {			
-			light.flash(((Flash)action).getRepeat());
+			light.flash(repeat);
 		} catch (ExecutionException e) {
 			throw new ProtocolException(new UndefinedCondition(StanzaError.Type.CANCEL,
 					ThingsUtils.getExecutionErrorDescription(light.getDeviceModel(), e.getErrorCode())));
