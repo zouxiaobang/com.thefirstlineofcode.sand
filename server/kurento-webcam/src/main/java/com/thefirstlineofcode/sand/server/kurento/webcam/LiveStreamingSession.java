@@ -1,5 +1,6 @@
 package com.thefirstlineofcode.sand.server.kurento.webcam;
 
+import org.kurento.client.FaceOverlayFilter;
 import org.kurento.client.KurentoClient;
 import org.kurento.client.MediaPipeline;
 import org.kurento.client.WebRtcEndpoint;
@@ -16,6 +17,7 @@ public class LiveStreamingSession {
 	private MediaPipeline pipeline;
 	private WebRtcEndpoint watcherEndpoint;
 	private WebRtcEndpoint webcamEndpoint;
+	private String webServerUrl;
 	
 	public LiveStreamingSession(JabberId watcher, JabberId webcam) {
 		this.watcher = watcher;
@@ -58,7 +60,11 @@ public class LiveStreamingSession {
 			watcherEndpoint = new WebRtcEndpoint.Builder(pipeline).build();
 			webcamEndpoint = new WebRtcEndpoint.Builder(pipeline).build();
 			
-			webcamEndpoint.connect(watcherEndpoint);
+			FaceOverlayFilter faceOverlayFilter = new FaceOverlayFilter.Builder(pipeline).build();
+			faceOverlayFilter.setOverlayedImage(webServerUrl + "/img/mario-wings.png", -0.35F, -1.2F, 1.6F, 1.6F);
+			
+			webcamEndpoint.connect(faceOverlayFilter);
+			faceOverlayFilter.connect(watcherEndpoint);
 			
 			return true;
 		} catch (Exception e) {
@@ -81,5 +87,12 @@ public class LiveStreamingSession {
 		webcam = null;
 		watcher = null;
 	}
+
+	public String getWebServerUrl() {
+		return webServerUrl;
+	}
 	
+	public void setWebServerUrl(String webServerUrl) {
+		this.webServerUrl = webServerUrl;
+	}
 }

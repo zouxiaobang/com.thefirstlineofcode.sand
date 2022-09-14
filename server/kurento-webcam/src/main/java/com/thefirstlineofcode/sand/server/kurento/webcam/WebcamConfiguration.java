@@ -14,7 +14,8 @@ import com.thefirstlineofcode.granite.framework.core.config.IServerConfiguration
 @Extension
 @Configuration
 public class WebcamConfiguration implements ISpringConfiguration, IServerConfigurationAware, IConfigurationAware {
-	private static final String KEY_KURENTO_WEBSOCKET_URL = "kurento.websockt.url";
+	private static final String CONFIGURATION_KEY_KURENTO_WEBSOCKET_URL = "kurento.websockt.url";
+	
 	private String domainName;
 	private String kurentoWebsocketUrl;
 	
@@ -33,6 +34,6 @@ public class WebcamConfiguration implements ISpringConfiguration, IServerConfigu
 
 	@Override
 	public void setConfiguration(IConfiguration configuration) {
-		kurentoWebsocketUrl = configuration.getString(KEY_KURENTO_WEBSOCKET_URL);
+		kurentoWebsocketUrl = configuration.getString(CONFIGURATION_KEY_KURENTO_WEBSOCKET_URL);
 	}
 }

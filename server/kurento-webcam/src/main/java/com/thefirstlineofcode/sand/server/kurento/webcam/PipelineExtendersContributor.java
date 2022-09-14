@@ -20,6 +20,7 @@ public class PipelineExtendersContributor extends PipelineExtendersConfigurator 
 		configurator.registerNamingConventionTranslator(Signal.class);
 		configurator.registerSingletonXepProcessor(IQ_PROTOCOL_CHAIN_SIGNAL, signalProcessor);
 		configurator.registerSessionListener(signalProcessor);
+		configurator.registerEventListener(KurentoIceCandidateFoundEvent.class, new KurentoIceCandidateFoundListener());
 	}
 
 }

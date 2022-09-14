@@ -17,7 +17,8 @@ public class Signal {
 		CLOSED,
 		OFFER,
 		ANSWER,
-		ICE_CANDIDATE_FOUND
+		ICE_CANDIDATE_FOUND,
+		ERROR
 	}
 	
 	@NotNull
