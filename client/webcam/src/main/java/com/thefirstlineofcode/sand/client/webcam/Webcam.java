@@ -3,12 +3,13 @@ package com.thefirstlineofcode.sand.client.webcam;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.thefirstlineofcode.basalt.xmpp.core.JabberId;
+import com.thefirstlineofcode.basalt.xmpp.core.stanza.Iq;
 import com.thefirstlineofcode.chalk.core.IChatServices;
 import com.thefirstlineofcode.sand.protocols.webrtc.signaling.Signal;
 
-public class Webcam extends AbstractWebrtcPeer implements IWebcam,
-			IWebrtcPeer.Listener, IWebcamWebrtcNativeClient.Listener,
-			IWebcam.Listener {
+public class Webcam extends AbstractWebrtcPeer implements IWebcam, IWebrtcPeer.Listener,
+			IWebcamWebrtcNativeClient.Listener {
 	private static final Logger logger = LoggerFactory.getLogger(Webcam.class);
 	
 	private boolean started;
@@ -151,6 +152,7 @@ public class Webcam extends AbstractWebrtcPeer implements IWebcam,
 		} else if ("CLOSED".equals(id) && data == null) {
 			opened = false;
 			sendToPeer(new Signal(Signal.ID.CLOSED));
+			peer = null;
 		} else if ("ANSWER".equals(id) && data != null) {
 			sendToPeer(new Signal(Signal.ID.ANSWER, data));
 		}  else if ("ICE_CANDIDATE_FOUND".equals(id) && data != null) {
@@ -173,25 +175,35 @@ public class Webcam extends AbstractWebrtcPeer implements IWebcam,
 		nativeClient.send("ICE_CANDIDATE_FOUND " + jsonCandidate);
 	}
 
-	@Override
-	public void askToOpen() {
+	protected void askToOpen(JabberId asker) {
+		if (peer != null && !peer.equals(asker)) {
+			Iq closed = new Iq(Iq.Type.SET);
+			closed.setFrom(chatServices.getStream().getJid());
+			closed.setTo(peer);
+			closed.setObject(new Signal(Signal.ID.CLOSED));
+			
+			chatServices.getIqService().send(closed);
+			
+			peer = asker;
+		}
+		
+		
 		nativeClient.send("OPEN");
 	}
 
-	@Override
-	public void askToClose() {
+	protected void askToClose() {
 		nativeClient.send("CLOSE");
 	}
 	
-	protected void processPeerSignal(Signal.ID id, String data) {
+	protected void processPeerSignal(Iq iq, Signal.ID id, String data) {
 		if (id == Signal.ID.OPEN) {
 			logger.info("Received OPEN signal.");
-			askToOpen();
+			askToOpen(iq.getFrom());
 		} else if (id == Signal.ID.CLOSE) {
 			logger.info("Received CLOSE signal.");
 			askToClose();
 		} else {
-			super.processPeerSignal(id, data);
+			super.processPeerSignal(iq, id, data);
 		}
 		
 	}

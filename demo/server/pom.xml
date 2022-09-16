@@ -54,6 +54,10 @@
 			<artifactId>sand-protocols-things-simple-camera</artifactId>
 		</dependency>
 		<dependency>
+			<groupId>com.thefirstlineofcode.sand.protocols</groupId>
+			<artifactId>sand-protocols-webrtc-signaling</artifactId>
+		</dependency>
+		<dependency>
 			<groupId>com.thefirstlineofcode.sand.emulators</groupId>
 			<artifactId>sand-emulators-models</artifactId>
 		</dependency>

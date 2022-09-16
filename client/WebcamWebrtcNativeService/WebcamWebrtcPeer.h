@@ -144,8 +144,6 @@ private:
 	void createPeerConnectionFactory();
 	void createPeerConnection();
 	void addVideoTrack();
-	void startLocalVideoRenderer(webrtc::VideoTrackInterface *videoTrack);
-	void stopLocalVideoRenderer();
 	std::string createJsonCandidate(const webrtc::IceCandidateInterface *candidate);
 private:
 	const char *labelVideoStream = "video_only_stream";
@@ -154,7 +152,6 @@ private:
 	rtc::scoped_refptr<webrtc::PeerConnectionInterface> peerConnection;
 	rtc::scoped_refptr<CapturerTrackSource> videoDevice;
 	rtc::scoped_refptr<webrtc::VideoTrackInterface> videoTrack;
-	std::unique_ptr<DummyVideoRenderer> localVideoRenderer;
 
 	std::unique_ptr<rtc::Thread> signalingThread;
 

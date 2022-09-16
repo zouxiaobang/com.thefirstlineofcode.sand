@@ -149,8 +149,9 @@ WebcamWebrtcPeer::WebcamWebrtcPeer(webrtc::PeerConnectionInterface::IceServers _
 }
 
 void WebcamWebrtcPeer::open(cppnet::Handle handle) {
-	if (opened)
-		return;
+	if(opened) {
+		close();
+	}
 
 	this->handle = handle;
 	if (!peerConnection.get()) {
@@ -307,14 +308,6 @@ void WebcamWebrtcPeer::iceCandidateFound(std::string jsonCandidate) {
 	}
 
 	cout << " Received candidate :" << jsonCandidate;
-}
-
-void WebcamWebrtcPeer::startLocalVideoRenderer(webrtc::VideoTrackInterface *videoTrack) {
-	localVideoRenderer.reset(new DummyVideoRenderer(videoTrack));
-}
-
-void WebcamWebrtcPeer::stopLocalVideoRenderer() {
-	localVideoRenderer.reset();
 }
 
 void WebcamWebrtcPeer::createPeerConnectionFactory() {

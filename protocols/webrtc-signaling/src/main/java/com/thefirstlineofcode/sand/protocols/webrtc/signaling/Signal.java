@@ -3,6 +3,7 @@ package com.thefirstlineofcode.sand.protocols.webrtc.signaling;
 import com.thefirstlineofcode.basalt.oxm.convention.annotations.ProtocolObject;
 import com.thefirstlineofcode.basalt.oxm.convention.annotations.Text;
 import com.thefirstlineofcode.basalt.oxm.convention.conversion.annotations.String2Enum;
+import com.thefirstlineofcode.basalt.oxm.convention.validation.annotations.NotNull;
 import com.thefirstlineofcode.basalt.xmpp.core.Protocol;
 
 @ProtocolObject(namespace="urn:leps:webrtc:signaling", localName="signal")
@@ -16,11 +17,14 @@ public class Signal {
 		CLOSED,
 		OFFER,
 		ANSWER,
-		ICE_CANDIDATE_FOUND
+		ICE_CANDIDATE_FOUND,
+		ERROR
 	}
 	
+	@NotNull
 	@String2Enum(ID.class)
 	private ID id;
+	
 	@Text(CDATA=true)
 	private String data;
 	
