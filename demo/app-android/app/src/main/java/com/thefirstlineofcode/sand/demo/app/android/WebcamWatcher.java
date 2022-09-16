@@ -4,6 +4,7 @@ import android.content.Context;
 import android.util.JsonWriter;
 
 import com.thefirstlineofcode.basalt.xmpp.core.JabberId;
+import com.thefirstlineofcode.basalt.xmpp.core.stanza.Iq;
 import com.thefirstlineofcode.chalk.core.IChatServices;
 import com.thefirstlineofcode.sand.client.webcam.AbstractWatcher;
 import com.thefirstlineofcode.sand.client.webcam.IWebrtcPeer;
@@ -78,8 +79,7 @@ public class WebcamWatcher extends AbstractWatcher implements IWebrtcPeer.Listen
 	
 	@Override
 	public void watch() {
-		if (!isStarted())
-			start();
+		super.watch();
 		
 		if (eglBase == null)
 			eglBase = EglBase.create();
@@ -298,8 +298,7 @@ public class WebcamWatcher extends AbstractWatcher implements IWebrtcPeer.Listen
 		}
 	}
 	
-	@Override
-	protected void processPeerSignal(Signal.ID id, String data) {
+	protected void processPeerSignal(Iq iq, Signal.ID id, String data) {
 		if (id != Signal.ID.OPENED &&
 				id != Signal.ID.CLOSED &&
 				id != Signal.ID.ANSWER &&
@@ -307,7 +306,7 @@ public class WebcamWatcher extends AbstractWatcher implements IWebrtcPeer.Listen
 			throw new RuntimeException(String.format("The signal '%s' shouldn't occurred on watcher.", id));
 		}
 		
-		super.processPeerSignal(id, data);
+		super.processPeerSignal(iq, id, data);
 	}
 	
 	private class PeerConnectionObserver implements PeerConnection.Observer {
